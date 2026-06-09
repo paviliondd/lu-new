@@ -1,0 +1,139 @@
+services:
+  caddy:
+    image: caddy:2.8.4-alpine
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      app:
+        condition: service_healthy
+      wordpress:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - public
+      - internal
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      WORDPRESS_API_BASE: http://wordpress/wp-json/wp/v2
+      NEXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN}
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    expose:
+      - "3000"
+    networks:
+      - internal
+
+  wordpress:
+    image: wordpress:6.8-php8.3-apache
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', '${WORDPRESS_SITE_URL}');
+        define('WP_SITEURL', '${WORDPRESS_SITE_URL}');
+        define('FORCE_SSL_ADMIN', true);
+        define('DISALLOW_FILE_EDIT', true);
+        define('WP_MEMORY_LIMIT', '${WORDPRESS_MEMORY_LIMIT}');
+        if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+          $$_SERVER['HTTPS'] = 'on';
+        }
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./deploy/wordpress/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+    healthcheck:
+      test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\", 80) ? 0 : 1);'"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    expose:
+      - "80"
+    networks:
+      - internal
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    env_file:
+      - .env
+    environment:
+      MARIADB_DATABASE: ${WORDPRESS_DB_NAME}
+      MARIADB_USER: ${WORDPRESS_DB_USER}
+      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u\"$${MARIADB_USER}\" -p\"$${MARIADB_PASSWORD}\" --silent"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    networks:
+      - internal
+
+  wpcli:
+    image: wordpress:6.8-php8.3-cli
+    profiles:
+      - tools
+    env_file:
+      - .env
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - wordpress_data:/var/www/html
+    user: "33:33"
+    entrypoint: ["wp"]
+    command: ["--info"]
+    networks:
+      - internal
+
+volumes:
+  caddy_data:
+  caddy_config:
+  wordpress_data:
+  db_data:
+
+networks:
+  public:
+  internal:

@@ -1,0 +1,12 @@
+
+> cloud-devops-blog@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+✓ Ready in 705ms
+
+ GET /api/health 200 in 3.6s (next.js: 3.5s, application-code: 98ms)
+ GET /team 404 in 7.2s (next.js: 741ms, application-code: 6.5s)
+ GET / 200 in 5.7s (next.js: 1343ms, application-code: 4.3s)

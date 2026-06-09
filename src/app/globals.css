@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* Enable manual dark mode via class selector */
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Brand Teal/Cyan Palette */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+  --color-brand-950: #042f2e;
+
+  /* Custom animations */
+  --animate-blob: blob 15s infinite;
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(40px, -60px) scale(1.1);
+  }
+  66% {
+    transform: translate(-30px, 30px) scale(0.95);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+/* Custom CSS classes for ambient effects */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Typography styles for article rendering */
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--color-gray-900);
+}
+.dark .prose h2 {
+  color: var(--color-gray-100);
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-gray-800);
+}
+.dark .prose h3 {
+  color: var(--color-gray-200);
+}
+
+.prose p {
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+  color: var(--color-gray-600);
+}
+.dark .prose p {
+  color: var(--color-gray-300);
+}
+
+.prose ul, .prose ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  color: var(--color-gray-600);
+}
+.dark .prose ul, .dark .prose ol {
+  color: var(--color-gray-300);
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--color-gray-100);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  color: var(--color-brand-700);
+}
+.dark .prose code {
+  background-color: var(--color-gray-800);
+  color: var(--color-brand-300);
+}
+
+.prose pre {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  overflow-x: auto;
+  background-color: var(--color-gray-900);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-gray-800);
+}
+.dark .prose pre {
+  background-color: #0b0f19;
+  border-color: var(--color-gray-800);
+}
+
+.prose pre code {
+  color: var(--color-gray-200);
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.prose .note-box {
+  padding: 1rem 1.25rem;
+  background-color: var(--color-brand-50);
+  border-left: 4px solid var(--color-brand-500);
+  border-radius: 0.375rem;
+  margin: 1.5rem 0;
+  color: var(--color-brand-900);
+}
+.dark .prose .note-box {
+  background-color: var(--color-brand-950);
+  border-left-color: var(--color-brand-400);
+  color: var(--color-brand-200);
+}
+
+.prose .warning-box {
+  padding: 1rem 1.25rem;
+  background-color: #fef2f2;
+  border-left: 4px solid #ef4444;
+  border-radius: 0.375rem;
+  margin: 1.5rem 0;
+  color: #991b1b;
+}
+.dark .prose .warning-box {
+  background-color: #450a0a;
+  border-left-color: #f87171;
+  color: #fecaca;
+}

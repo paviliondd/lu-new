@@ -35,6 +35,25 @@ load_env_file() {
   done < "$file"
 }
 
+sanitize_var() {
+  local key="$1"
+  local value="${!key:-}"
+
+  value="$(printf '%s' "$value" | tr -d '\r\n')"
+
+  case "$key" in
+    AWS_ECR_REGISTRY)
+      value="${value%/}"
+      ;;
+    AWS_ECR_REPOSITORY)
+      value="${value#/}"
+      value="${value%/}"
+      ;;
+  esac
+
+  export "$key=$value"
+}
+
 if [ -n "${APP_DIR:-}" ]; then
   log "Changing directory to APP_DIR=${APP_DIR}"
   cd "${APP_DIR}"
@@ -57,6 +76,10 @@ log "Resetting code to origin/${DEPLOY_BRANCH}"
 git reset --hard "origin/${DEPLOY_BRANCH}"
 
 load_env_file ".env"
+sanitize_var AWS_DEFAULT_REGION
+sanitize_var AWS_ECR_REGISTRY
+sanitize_var AWS_ECR_REPOSITORY
+sanitize_var APP_IMAGE
 
 if [ -z "${APP_IMAGE:-}" ] && [ -n "${AWS_ECR_REGISTRY:-}" ] && [ -n "${AWS_ECR_REPOSITORY:-}" ]; then
   export APP_IMAGE="${AWS_ECR_REGISTRY}/${AWS_ECR_REPOSITORY}:production"

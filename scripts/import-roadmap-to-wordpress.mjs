@@ -1,5 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
+import {
+  buildRestRouteApiBase,
+  buildWordPressRestUrl,
+  normalizeWordPressApiBase,
+} from "./wordpress-rest-url.mjs";
 
 const manifestPath =
   process.env.ROADMAP_WORDPRESS_MANIFEST ||
@@ -31,13 +36,14 @@ if (shouldDeleteExistingPosts && deleteConfirm !== "delete-posts-only") {
   );
 }
 
-const apiBase = (
+const apiBase = normalizeWordPressApiBase(
   process.env.WORDPRESS_API_BASE ||
-  new URL(
-    "wp-json/wp/v2/",
-    wordpressUrl.endsWith("/") ? wordpressUrl : `${wordpressUrl}/`
-  ).toString()
-).replace(/\/$/, "");
+    new URL(
+      "wp-json/wp/v2/",
+      wordpressUrl.endsWith("/") ? wordpressUrl : `${wordpressUrl}/`
+    ).toString()
+);
+const fallbackApiBase = buildRestRouteApiBase(apiBase);
 
 const authHeader = `Basic ${Buffer.from(`${username}:${appPassword}`).toString(
   "base64"
@@ -48,14 +54,15 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 async function wpRequest(endpoint, options = {}) {
   const method = options.method || "GET";
   const body = options.body ? JSON.stringify(options.body) : undefined;
+  const requestUrl = buildWordPressRestUrl(apiBase, endpoint);
 
   if (isDryRun) {
-    console.log(`[dry-run] ${method} ${endpoint}`);
+    console.log(`[dry-run] ${method} ${requestUrl}`);
     if (method === "GET") return [];
     return options.mockResponse || {};
   }
 
-  const response = await fetch(`${apiBase}${endpoint}`, {
+  let response = await fetch(requestUrl, {
     method,
     headers: {
       Authorization: authHeader,
@@ -63,11 +70,30 @@ async function wpRequest(endpoint, options = {}) {
     },
     body,
   });
+  let failedUrl = requestUrl;
+  let failedText = "";
 
   if (!response.ok) {
-    const text = await response.text();
+    failedText = await response.text();
+
+    if (response.status === 404 && fallbackApiBase) {
+      const fallbackUrl = buildWordPressRestUrl(fallbackApiBase, endpoint);
+      response = await fetch(fallbackUrl, {
+        method,
+        headers: {
+          Authorization: authHeader,
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+      failedUrl = fallbackUrl;
+      failedText = response.ok ? "" : await response.text();
+    }
+  }
+
+  if (!response.ok) {
     throw new Error(
-      `${method} ${endpoint} failed with ${response.status}: ${text.slice(
+      `${method} ${failedUrl} failed with ${response.status}: ${failedText.slice(
         0,
         700
       )}`
@@ -183,6 +209,9 @@ async function upsertPost(post, categoryId, tagIds) {
 
 async function main() {
   console.log(`Using WordPress REST API: ${apiBase}`);
+  if (fallbackApiBase) {
+    console.log(`Fallback REST route API: ${fallbackApiBase}`);
+  }
   console.log(`Using manifest: ${manifestPath}`);
   console.log(
     `Manifest posts: ${manifest.posts.length}; explicit roadmap articles: ${manifest.explicitArticleCount}`

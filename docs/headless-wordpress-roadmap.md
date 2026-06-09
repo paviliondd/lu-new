@@ -74,16 +74,16 @@ npm run wp:list-drafts
 Set one of these environment variables for the frontend fetch helper:
 
 ```powershell
-$env:WORDPRESS_API_BASE = "https://linuxunity.com/wp-json/wp/v2"
+$env:WORDPRESS_API_BASE = "https://linuxunity.com?rest_route=/wp/v2"
 ```
 
 or:
 
 ```powershell
-$env:NEXT_PUBLIC_WORDPRESS_API_URL = "https://linuxunity.com/wp-json/wp/v2"
+$env:NEXT_PUBLIC_WORDPRESS_API_URL = "https://linuxunity.com?rest_route=/wp/v2"
 ```
 
-The helper in `src/lib/cms/wordpress.ts` maps published WordPress posts back into the local `Post` shape. If WordPress is not configured or fetch fails, it falls back to local published posts.
+The helper in `src/lib/cms/wordpress.ts` maps published WordPress posts back into the local `Post` shape. It supports both `/wp-json/wp/v2` and `?rest_route=/wp/v2`; if WordPress is not configured or fetch fails, it falls back to local published posts.
 
 ## Editorial Flow
 

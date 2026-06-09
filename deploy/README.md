@@ -5,7 +5,7 @@ This deployment runs:
 - Caddy reverse proxy with automatic HTTPS.
 - Next.js frontend at `https://linuxunity.com/`.
 - WordPress backend/admin at `https://linuxunity.com/wp-admin`.
-- WordPress REST API at `https://linuxunity.com/wp-json`.
+- WordPress REST API at `https://linuxunity.com/?rest_route=/wp/v2`.
 - MariaDB for WordPress data.
 
 The database has no public port. Only ports `80` and `443` are published by Docker.
@@ -84,6 +84,15 @@ docker compose run --rm --no-deps app node scripts/list-wordpress-drafts.mjs
 ```
 
 The public frontend fetches only `publish` posts. Drafts are visible in `/wp-admin`, not on the public blog.
+
+If `/wp-json/wp/v2` returns an Apache 404, the app and scripts still use the
+WordPress query route form:
+
+```text
+http://wordpress?rest_route=/wp/v2
+```
+
+This avoids relying on Apache rewrite rules inside the WordPress container.
 
 ## Daily Operations
 

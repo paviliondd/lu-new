@@ -37,6 +37,62 @@ const wordpressApiBase = (
   ""
 ).replace(/\/$/, "");
 
+function buildWordPressRestUrl(apiBase: string, endpoint: string) {
+  const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const [routePath, queryString = ""] = normalizedEndpoint.split("?");
+  const url = new URL(apiBase);
+  const restRoute = url.searchParams.get("rest_route");
+
+  if (!restRoute) {
+    return `${apiBase}${normalizedEndpoint}`;
+  }
+
+  const baseRoute = restRoute.replace(/\/$/, "");
+  url.searchParams.set("rest_route", `${baseRoute}${routePath}`);
+
+  const endpointParams = new URLSearchParams(queryString);
+  endpointParams.forEach((value, key) => {
+    url.searchParams.append(key, value);
+  });
+
+  return url.toString();
+}
+
+function buildRestRouteApiBase(apiBase: string) {
+  const url = new URL(apiBase);
+  const wpJsonIndex = url.pathname.indexOf("/wp-json");
+
+  if (wpJsonIndex === -1) return null;
+
+  const wordpressPath = url.pathname.slice(0, wpJsonIndex) || "/";
+  const routeBase = url.pathname.slice(wpJsonIndex + "/wp-json".length) || "/wp/v2";
+
+  url.pathname = wordpressPath.endsWith("/") ? wordpressPath : `${wordpressPath}/`;
+  url.search = "";
+  url.searchParams.set("rest_route", routeBase.replace(/\/$/, ""));
+
+  return url.toString();
+}
+
+async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
+  const primaryUrl = buildWordPressRestUrl(wordpressApiBase, endpoint);
+  let response = await fetch(primaryUrl);
+
+  if (!response.ok && response.status === 404) {
+    const fallbackApiBase = buildRestRouteApiBase(wordpressApiBase);
+
+    if (fallbackApiBase) {
+      response = await fetch(buildWordPressRestUrl(fallbackApiBase, endpoint));
+    }
+  }
+
+  if (!response.ok) {
+    throw new Error(`WordPress fetch failed: ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
 function plainText(html = "") {
   return html
     .replace(/<[^>]+>/g, " ")
@@ -107,15 +163,9 @@ function mapWordPressPost(post: WordPressPost): Post {
 }
 
 async function fetchWordPressPosts(status = "publish") {
-  const response = await fetch(
-    `${wordpressApiBase}/posts?status=${status}&_embed=wp:term&per_page=100`
+  const posts = await fetchWordPressJson<WordPressPost[]>(
+    `/posts?status=${status}&_embed=wp:term&per_page=100`
   );
-
-  if (!response.ok) {
-    throw new Error(`WordPress posts fetch failed: ${response.status}`);
-  }
-
-  const posts = (await response.json()) as WordPressPost[];
   return posts.map(mapWordPressPost);
 }
 
@@ -135,17 +185,11 @@ export async function getCmsPostBySlug(slug: string): Promise<Post | null> {
   }
 
   try {
-    const response = await fetch(
-      `${wordpressApiBase}/posts?slug=${encodeURIComponent(
+    const posts = await fetchWordPressJson<WordPressPost[]>(
+      `/posts?slug=${encodeURIComponent(
         slug
       )}&status=publish&_embed=wp:term&per_page=1`
     );
-
-    if (!response.ok) {
-      throw new Error(`WordPress post fetch failed: ${response.status}`);
-    }
-
-    const posts = (await response.json()) as WordPressPost[];
     return posts[0] ? mapWordPressPost(posts[0]) : null;
   } catch {
     return localPublishedPosts.find((post) => post.slug === slug) || null;

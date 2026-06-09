@@ -1,3 +1,9 @@
+import {
+  buildRestRouteApiBase,
+  buildWordPressRestUrl,
+  normalizeWordPressApiBase,
+} from "./wordpress-rest-url.mjs";
+
 const wordpressUrl = process.env.WORDPRESS_URL;
 const username = process.env.WORDPRESS_USERNAME;
 const appPassword = process.env.WORDPRESS_APP_PASSWORD;
@@ -9,13 +15,14 @@ if (!wordpressUrl || !username || !appPassword) {
   );
 }
 
-const apiBase = (
+const apiBase = normalizeWordPressApiBase(
   process.env.WORDPRESS_API_BASE ||
-  new URL(
-    "wp-json/wp/v2/",
-    wordpressUrl.endsWith("/") ? wordpressUrl : `${wordpressUrl}/`
-  ).toString()
-).replace(/\/$/, "");
+    new URL(
+      "wp-json/wp/v2/",
+      wordpressUrl.endsWith("/") ? wordpressUrl : `${wordpressUrl}/`
+    ).toString()
+);
+const fallbackApiBase = buildRestRouteApiBase(apiBase);
 
 const authHeader = `Basic ${Buffer.from(`${username}:${appPassword}`).toString(
   "base64"
@@ -23,19 +30,35 @@ const authHeader = `Basic ${Buffer.from(`${username}:${appPassword}`).toString(
 
 async function main() {
   const fields = "id,date,modified,slug,status,type,title,author";
-  const response = await fetch(
-    `${apiBase}/posts?status=draft&context=edit&orderby=modified&order=desc&per_page=${limit}&_fields=${fields}`,
-    {
-      headers: {
-        Authorization: authHeader,
-      },
-    }
-  );
+  const endpoint = `/posts?status=draft&context=edit&orderby=modified&order=desc&per_page=${limit}&_fields=${fields}`;
+  let requestUrl = buildWordPressRestUrl(apiBase, endpoint);
+  let response = await fetch(requestUrl, {
+    headers: {
+      Authorization: authHeader,
+    },
+  });
+  let failedText = "";
 
   if (!response.ok) {
-    const text = await response.text();
+    failedText = await response.text();
+
+    if (response.status === 404 && fallbackApiBase) {
+      requestUrl = buildWordPressRestUrl(fallbackApiBase, endpoint);
+      response = await fetch(requestUrl, {
+        headers: {
+          Authorization: authHeader,
+        },
+      });
+      failedText = response.ok ? "" : await response.text();
+    }
+  }
+
+  if (!response.ok) {
     throw new Error(
-      `Draft lookup failed with ${response.status}: ${text.slice(0, 700)}`
+      `Draft lookup failed at ${requestUrl} with ${response.status}: ${failedText.slice(
+        0,
+        700
+      )}`
     );
   }
 

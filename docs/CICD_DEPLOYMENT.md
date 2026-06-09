@@ -222,6 +222,6 @@ Khong mo port MariaDB/MySQL cong khai.
 - `https://linuxunity.com` hien thi frontend.
 - `https://linuxunity.com/api/health` tra ve OK.
 - `https://linuxunity.com/wp-admin` vao duoc man hinh login/admin.
-- `https://linuxunity.com/wp-json/wp/v2/posts` truy cap duoc REST API.
+- `https://linuxunity.com/?rest_route=/wp/v2/posts` truy cap duoc REST API.
 - `docker compose ps` khong co service restart loop.
 - Draft posts chi hien trong WordPress admin; frontend public chi lay bai `publish`.

@@ -82,7 +82,7 @@ GitHub Repository
    ↓ GitHub Actions
 VPS
    ↓ git fetch / git reset origin/main
-   ↓ docker compose up -d --build
+   ↓ docker compose pull / docker compose up -d
 Production Website
 ```
 

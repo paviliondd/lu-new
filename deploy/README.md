@@ -7,6 +7,8 @@ This deployment runs:
 - WordPress backend/admin at `https://tesst.linuxunity.com/wp-admin`.
 - WordPress REST API at `https://tesst.linuxunity.com/?rest_route=/wp/v2`.
 - MariaDB for WordPress data.
+- Uptime Kuma at `https://kuma.linuxunity.com`.
+- Prometheus, Grafana, node-exporter, and cAdvisor on the private Docker monitoring network.
 
 The database has no public port. Only ports `80` and `443` are published by Docker.
 
@@ -16,6 +18,27 @@ Create these records before starting Caddy:
 
 - `A tesst.linuxunity.com -> <VPS_PUBLIC_IP>`
 - Optional: `A www.tesst.linuxunity.com -> <VPS_PUBLIC_IP>` or `CNAME www.tesst -> tesst.linuxunity.com`
+- `A kuma.linuxunity.com -> <VPS_PUBLIC_IP>`
+
+## AWS ECR
+
+The production frontend image is pulled from AWS ECR. Set these values in the
+VPS `.env`:
+
+```bash
+AWS_DEFAULT_REGION=ap-southeast-1
+AWS_ECR_REGISTRY=123456789012.dkr.ecr.ap-southeast-1.amazonaws.com
+AWS_ECR_REPOSITORY=cloud-devops-blog
+APP_IMAGE=123456789012.dkr.ecr.ap-southeast-1.amazonaws.com/cloud-devops-blog:production
+```
+
+Install and configure AWS CLI on the VPS, or attach an IAM instance profile if
+the VPS runs on EC2:
+
+```bash
+aws ecr get-login-password --region "$AWS_DEFAULT_REGION" \
+  | docker login --username AWS --password-stdin "$AWS_ECR_REGISTRY"
+```
 
 ## First Setup
 
@@ -29,7 +52,8 @@ Change every placeholder password in `.env`.
 Start the stack:
 
 ```bash
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose ps
 docker compose logs -f caddy app wordpress db
 ```
@@ -38,6 +62,7 @@ Open:
 
 ```text
 https://tesst.linuxunity.com/wp-admin
+https://kuma.linuxunity.com
 ```
 
 If WordPress shows the installer, create the admin account in the browser.
@@ -103,6 +128,39 @@ http://wordpress?rest_route=/wp/v2
 
 This avoids relying on Apache rewrite rules inside the WordPress container.
 
+## Monitoring
+
+Uptime Kuma is public behind Caddy:
+
+```text
+https://kuma.linuxunity.com
+```
+
+Configure Telegram and Email alerts inside the Uptime Kuma UI. The settings are
+stored in the persistent Docker volume `uptime_kuma_data`.
+
+Prometheus scrapes:
+
+- `node-exporter:9100`
+- `cadvisor:8080`
+- `prometheus:9090`
+
+Grafana and Prometheus are not exposed publicly by default. Use an SSH tunnel or
+add an explicitly protected Caddy route later if you need browser access.
+Grafana is provisioned with Prometheus as the default datasource.
+
+## WordPress Redirect Fix
+
+If `https://tesst.linuxunity.com/wp-admin` redirects to
+`https://linuxunity.com/wp-admin`, update both the VPS `.env` and WordPress DB
+options:
+
+```bash
+docker compose --profile tools run --rm wpcli option update siteurl "https://tesst.linuxunity.com"
+docker compose --profile tools run --rm wpcli option update home "https://tesst.linuxunity.com"
+docker compose up -d --force-recreate wordpress caddy
+```
+
 ## Daily Operations
 
 Start:
@@ -124,10 +182,11 @@ docker compose logs -f
 docker compose logs -f app wordpress caddy db
 ```
 
-Rebuild frontend after code changes:
+Deploy frontend after a new ECR image is available:
 
 ```bash
-docker compose up -d --build app
+docker compose pull app
+docker compose up -d app
 docker compose up -d caddy
 ```
 

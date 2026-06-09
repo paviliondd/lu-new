@@ -12,6 +12,29 @@ fail() {
   exit 1
 }
 
+load_env_file() {
+  local file="$1"
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"
+
+    case "$line" in
+      ""|\#*) continue ;;
+    esac
+
+    if [[ "$line" != *=* ]]; then
+      continue
+    fi
+
+    local key="${line%%=*}"
+    local value="${line#*=}"
+
+    if [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] && [ -z "${!key:-}" ]; then
+      export "$key=$value"
+    fi
+  done < "$file"
+}
+
 if [ -n "${APP_DIR:-}" ]; then
   log "Changing directory to APP_DIR=${APP_DIR}"
   cd "${APP_DIR}"
@@ -33,16 +56,34 @@ git fetch origin "${DEPLOY_BRANCH}"
 log "Resetting code to origin/${DEPLOY_BRANCH}"
 git reset --hard "origin/${DEPLOY_BRANCH}"
 
+load_env_file ".env"
+
+if [ -z "${APP_IMAGE:-}" ] && [ -n "${AWS_ECR_REGISTRY:-}" ] && [ -n "${AWS_ECR_REPOSITORY:-}" ]; then
+  export APP_IMAGE="${AWS_ECR_REGISTRY}/${AWS_ECR_REPOSITORY}:production"
+fi
+
+if [ -n "${AWS_ECR_REGISTRY:-}" ]; then
+  command -v aws >/dev/null 2>&1 || fail "aws CLI is required to pull from AWS ECR."
+  [ -n "${AWS_DEFAULT_REGION:-}" ] || fail "AWS_DEFAULT_REGION is required for AWS ECR login."
+
+  log "Logging Docker into AWS ECR registry ${AWS_ECR_REGISTRY}"
+  aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" |
+    docker login --username AWS --password-stdin "${AWS_ECR_REGISTRY}"
+fi
+
 log "Validating Docker Compose configuration"
 docker compose config >/dev/null
 
-log "Building and starting production containers"
-docker compose up -d --build --remove-orphans
+log "Pulling production images"
+docker compose pull
+
+log "Starting production containers"
+docker compose up -d --remove-orphans
 
 log "Current service status"
 docker compose ps
 
 log "Recent logs"
-docker compose logs --tail=80 caddy app wordpress db || true
+docker compose logs --tail=80 caddy app wordpress db uptime-kuma prometheus grafana || true
 
 log "Deployment completed"

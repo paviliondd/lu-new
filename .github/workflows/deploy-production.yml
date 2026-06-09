@@ -10,6 +10,11 @@ concurrency:
   group: production-deploy
   cancel-in-progress: true
 
+env:
+  AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
+
 jobs:
   verify:
     name: Verify
@@ -33,10 +38,52 @@ jobs:
       - name: Build
         run: npm run build
 
+  build-and-push:
+    name: Build and Push ECR Image
+    runs-on: ubuntu-latest
+    needs: verify
+    permissions:
+      contents: read
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set image tags
+        id: image
+        run: |
+          IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}"
+          echo "image=${IMAGE}:production" >> "$GITHUB_OUTPUT"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:production
+            ${{ env.IMAGE }}:${{ github.sha }}
+
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
-    needs: verify
+    needs: build-and-push
     environment: production
     steps:
       - name: Deploy over SSH
@@ -49,4 +96,8 @@ jobs:
           script: |
             set -e
             cd "${{ secrets.APP_DIR }}"
+            export AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}"
+            export AWS_ECR_REGISTRY="${{ secrets.AWS_ECR_REGISTRY }}"
+            export AWS_ECR_REPOSITORY="${{ secrets.AWS_ECR_REPOSITORY }}"
+            export APP_IMAGE="${{ needs.build-and-push.outputs.image }}"
             bash scripts/deploy.sh

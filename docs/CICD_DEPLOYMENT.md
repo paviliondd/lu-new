@@ -9,7 +9,7 @@ Nguyen tac chinh:
 - Chi deploy production khi code vao branch `main`.
 - Khong commit `.env`, backup, upload, database dump hoac secret len GitHub.
 - VPS giu file `.env` rieng va Docker volumes rieng.
-- Deploy script chi cap nhat code va restart/rebuild container, khong xoa database volume hoac WordPress uploads.
+- Deploy script chi cap nhat code, dang nhap ECR, pull image va restart container, khong xoa database volume hoac WordPress uploads.
 
 ## Kien truc hien tai
 
@@ -20,7 +20,8 @@ GitHub main
    -> scripts/deploy.sh
    -> git fetch/reset origin/main
    -> docker compose config
-   -> docker compose up -d --build
+   -> docker compose pull
+   -> docker compose up -d
 ```
 
 Production stack:
@@ -64,6 +65,11 @@ VPS_PORT=22
 VPS_USER=<ssh-user>
 VPS_SSH_KEY=<private-ssh-key-for-deploy>
 APP_DIR=/opt/linuxunity
+AWS_ACCESS_KEY_ID=<aws-access-key-id>
+AWS_SECRET_ACCESS_KEY=<aws-secret-access-key>
+AWS_DEFAULT_REGION=ap-southeast-1
+AWS_ECR_REGISTRY=123456789012.dkr.ecr.ap-southeast-1.amazonaws.com
+AWS_ECR_REPOSITORY=cloud-devops-blog
 ```
 
 Khong dua noi dung `.env` vao GitHub Actions logs. File `.env` production nen duoc tao truc tiep tren VPS.
@@ -101,7 +107,8 @@ Start lan dau:
 
 ```bash
 docker compose config
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose ps
 docker compose logs -f caddy app wordpress db
 ```
@@ -127,8 +134,11 @@ Workflow thuc hien:
 3. Chay `npm ci`.
 4. Chay `npm run lint`.
 5. Chay `npm run build`.
-6. Neu tat ca pass va branch la `main`, SSH vao VPS.
-7. Chay `bash scripts/deploy.sh`.
+6. Dang nhap AWS ECR.
+7. Build Docker image Next.js.
+8. Push image len ECR voi tags `production` va commit SHA.
+9. Neu tat ca pass va branch la `main`, SSH vao VPS.
+10. VPS dang nhap ECR, pull image va chay `bash scripts/deploy.sh`.
 
 ## Deploy thu cong tren VPS
 
@@ -205,7 +215,8 @@ Rollback code khong tu dong rollback database.
 cd /opt/linuxunity
 git log --oneline -n 10
 git reset --hard <commit-id>
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose ps
 ```
 

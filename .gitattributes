@@ -9,5 +9,7 @@
 *.tsx text eol=lf
 *.conf text eol=lf
 .gitignore text eol=lf
+.gitattributes text eol=lf
 .env.example text eol=lf
 Dockerfile text eol=lf
+deploy/caddy/Caddyfile text eol=lf

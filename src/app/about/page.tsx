@@ -69,19 +69,19 @@ export default function AboutPage() {
               {language === "vi" ? (
                 <>
                   <p>
-                    Tại Cloud DevOps, chúng tôi không chỉ viết lý thuyết. Đội ngũ kỹ sư của chúng tôi tự thiết lập các bài lab thực chiến: xây dựng hệ thống serverless hoàn chỉnh, giả lập và bắn hàng chục ngàn request để kiểm thử tải (Load testing), hoặc thiết kế các đường ống CI/CD có khả năng tự động rollback khi phát hiện lỗi.
+                    Tại Cloud DevOps, chúng tôi không chỉ viết lý thuyết. Mỗi bài lab được thiết lập theo hướng thực chiến: xây dựng hệ thống serverless hoàn chỉnh, giả lập và bắn hàng chục ngàn request để kiểm thử tải (Load testing), hoặc thiết kế các đường ống CI/CD có khả năng tự động rollback khi phát hiện lỗi.
                   </p>
                   <p>
-                    Tất cả mã nguồn triển khai (IaC code, script, test code) trong mỗi bài viết đều được chia sẻ công khai trên GitHub của đội ngũ để bạn có thể tự mình chạy thử (Demo) và dọn dẹp sạch sẽ sau khi hoàn thành.
+                    Tất cả mã nguồn triển khai (IaC code, script, test code) trong mỗi bài viết đều được chia sẻ công khai trên GitHub để bạn có thể tự mình chạy thử (Demo) và dọn dẹp sạch sẽ sau khi hoàn thành.
                   </p>
                 </>
               ) : (
                 <>
                   <p>
-                    At Cloud DevOps, we don&apos;t just write theory. Our engineers set up practical labs: building complete serverless systems, simulating and sending tens of thousands of requests to run load tests, or designing CI/CD pipelines that can automatically rollback when errors are detected.
+                    At Cloud DevOps, the articles do not stop at theory. Each guide is built around practical labs: complete serverless systems, load tests with tens of thousands of simulated requests, or CI/CD pipelines that can automatically rollback when errors are detected.
                   </p>
                   <p>
-                    All deployment source code (IaC code, scripts, test code) in each article is shared publicly on our GitHub so you can run the demo yourself and clean it up after completion.
+                    Deployment source code (IaC code, scripts, test code) is shared publicly on GitHub so you can run the demo yourself and clean it up after completion.
                   </p>
                 </>
               )}

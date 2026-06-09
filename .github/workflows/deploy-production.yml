@@ -64,21 +64,42 @@ jobs:
       - name: Set image tags
         shell: bash
         run: |
+          REGION="$(printf '%s' "${AWS_REGION}" | tr -d '\r\n')"
           REGISTRY="$(printf '%s' "${ECR_REGISTRY}" | tr -d '\r\n' | sed 's#/*$##')"
           REPOSITORY="$(printf '%s' "${ECR_REPOSITORY}" | tr -d '\r\n' | sed 's#^/*##; s#/*$##')"
 
-          if [ -z "${REGISTRY}" ] || [ -z "${REPOSITORY}" ]; then
-            echo "AWS_ECR_REGISTRY and AWS_ECR_REPOSITORY secrets are required." >&2
+          if [ -z "${REGION}" ] || [ -z "${REGISTRY}" ] || [ -z "${REPOSITORY}" ]; then
+            echo "AWS_DEFAULT_REGION, AWS_ECR_REGISTRY, and AWS_ECR_REPOSITORY secrets are required." >&2
+            exit 1
+          fi
+
+          if printf '%s' "${REPOSITORY}" | grep -Eq '(^https?://|\.amazonaws\.com)'; then
+            echo "AWS_ECR_REPOSITORY must be only the repository name, for example: cloud-devops-blog" >&2
+            echo "Do not include the registry URL in AWS_ECR_REPOSITORY." >&2
             exit 1
           fi
 
           IMAGE="${REGISTRY}/${REPOSITORY}"
 
           {
+            echo "AWS_REGION=${REGION}"
             echo "ECR_REGISTRY=${REGISTRY}"
             echo "ECR_REPOSITORY=${REPOSITORY}"
             echo "IMAGE=${IMAGE}"
           } >> "$GITHUB_ENV"
+
+      - name: Ensure ECR repository exists
+        shell: bash
+        run: |
+          if aws ecr describe-repositories --repository-names "${ECR_REPOSITORY}" >/dev/null 2>&1; then
+            echo "ECR repository exists: ${ECR_REPOSITORY}"
+          else
+            echo "Creating ECR repository: ${ECR_REPOSITORY}"
+            aws ecr create-repository \
+              --repository-name "${ECR_REPOSITORY}" \
+              --image-scanning-configuration scanOnPush=true \
+              --encryption-configuration encryptionType=AES256 >/dev/null
+          fi
 
       - name: Build and push Docker image
         shell: bash

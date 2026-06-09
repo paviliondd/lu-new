@@ -85,6 +85,10 @@ if [ -z "${APP_IMAGE:-}" ] && [ -n "${AWS_ECR_REGISTRY:-}" ] && [ -n "${AWS_ECR_
   export APP_IMAGE="${AWS_ECR_REGISTRY}/${AWS_ECR_REPOSITORY}:production"
 fi
 
+if printf '%s' "${AWS_ECR_REPOSITORY:-}" | grep -Eq '(^https?://|\.amazonaws\.com)'; then
+  fail "AWS_ECR_REPOSITORY must be only the repository name, for example: cloud-devops-blog."
+fi
+
 if [ -n "${AWS_ECR_REGISTRY:-}" ]; then
   command -v aws >/dev/null 2>&1 || fail "aws CLI is required to pull from AWS ECR."
   [ -n "${AWS_DEFAULT_REGION:-}" ] || fail "AWS_DEFAULT_REGION is required for AWS ECR login."

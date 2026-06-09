@@ -73,9 +73,9 @@ export interface Post {
 
 export const team: Record<string, Author> = {
   nhatnghia: {
-    name: "Huỳnh Lê Nhật Nghĩa (Kai)",
+    name: "Huỳnh Lê Nhật Nghĩa (admin)",
     role: "Founder - Cloud DevOps Lead",
-    avatar: "K",
+    avatar: "A",
     description: "Một kỹ sư Cloud & DevOps đầy tò mò, đam mê khám phá, thử nghiệm và xây dựng hạ tầng tự động hóa quy mô lớn.",
     linkedin: "https://linkedin.com",
     github: "https://github"

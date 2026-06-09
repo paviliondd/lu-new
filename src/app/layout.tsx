@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://linuxunity.com"),
+  metadataBase: new URL("https://tesst.linuxunity.com"),
   title: "Cloud DevOps — Explore, Build, Share",
   description: "Kênh chia sẻ kiến thức, hướng dẫn thực hành chuyên sâu về AWS, Kubernetes, Terraform và CI/CD.",
   icons: {

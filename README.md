@@ -11,7 +11,7 @@ Stack hiện tại:
 - Frontend: Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4.
 - CMS: Headless WordPress qua REST API.
 - Production runtime: Docker Compose với Caddy, Next.js, WordPress và MariaDB.
-- Domain production dự kiến: `linuxunity.com`.
+- Domain production dự kiến: `tesst.linuxunity.com`.
 
 ## Mục tiêu dự án
 

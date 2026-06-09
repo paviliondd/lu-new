@@ -2,7 +2,7 @@
 
 ## Muc tieu
 
-Tai lieu nay mo ta cach deploy production cho `linuxunity.com` bang GitHub Actions va VPS.
+Tai lieu nay mo ta cach deploy production cho `tesst.linuxunity.com` bang GitHub Actions va VPS.
 
 Nguyen tac chinh:
 
@@ -93,8 +93,8 @@ Doi toan bo password placeholder trong `.env`.
 Kiem tra DNS:
 
 ```text
-A linuxunity.com -> <VPS_PUBLIC_IP>
-A/CNAME www.linuxunity.com -> <VPS_PUBLIC_IP>
+A tesst.linuxunity.com -> <VPS_PUBLIC_IP>
+A/CNAME www.tesst.linuxunity.com -> <VPS_PUBLIC_IP>
 ```
 
 Start lan dau:
@@ -109,7 +109,7 @@ docker compose logs -f caddy app wordpress db
 Mo WordPress admin:
 
 ```text
-https://linuxunity.com/wp-admin
+https://tesst.linuxunity.com/wp-admin
 ```
 
 ## Workflow GitHub Actions
@@ -173,8 +173,8 @@ docker compose ps
 Health check:
 
 ```bash
-curl -fsS https://linuxunity.com/api/health
-curl -I https://linuxunity.com/wp-admin
+curl -fsS https://tesst.linuxunity.com/api/health
+curl -I https://tesst.linuxunity.com/wp-admin
 ```
 
 Backup:
@@ -225,9 +225,9 @@ Khong mo port MariaDB/MySQL cong khai.
 
 ## Checklist sau deploy
 
-- `https://linuxunity.com` hien thi frontend.
-- `https://linuxunity.com/api/health` tra ve OK.
-- `https://linuxunity.com/wp-admin` vao duoc man hinh login/admin.
-- `https://linuxunity.com/?rest_route=/wp/v2/posts` truy cap duoc REST API.
+- `https://tesst.linuxunity.com` hien thi frontend.
+- `https://tesst.linuxunity.com/api/health` tra ve OK.
+- `https://tesst.linuxunity.com/wp-admin` vao duoc man hinh login/admin.
+- `https://tesst.linuxunity.com/?rest_route=/wp/v2/posts` truy cap duoc REST API.
 - `docker compose ps` khong co service restart loop.
 - Draft posts chi hien trong WordPress admin; frontend public chi lay bai `publish`.

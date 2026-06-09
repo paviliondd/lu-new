@@ -1,11 +1,11 @@
-# VPS Deployment Guide for linuxunity.com
+# VPS Deployment Guide for tesst.linuxunity.com
 
 This deployment runs:
 
 - Caddy reverse proxy with automatic HTTPS.
-- Next.js frontend at `https://linuxunity.com/`.
-- WordPress backend/admin at `https://linuxunity.com/wp-admin`.
-- WordPress REST API at `https://linuxunity.com/?rest_route=/wp/v2`.
+- Next.js frontend at `https://tesst.linuxunity.com/`.
+- WordPress backend/admin at `https://tesst.linuxunity.com/wp-admin`.
+- WordPress REST API at `https://tesst.linuxunity.com/?rest_route=/wp/v2`.
 - MariaDB for WordPress data.
 
 The database has no public port. Only ports `80` and `443` are published by Docker.
@@ -14,8 +14,8 @@ The database has no public port. Only ports `80` and `443` are published by Dock
 
 Create these records before starting Caddy:
 
-- `A linuxunity.com -> <VPS_PUBLIC_IP>`
-- Optional: `A www.linuxunity.com -> <VPS_PUBLIC_IP>` or `CNAME www -> linuxunity.com`
+- `A tesst.linuxunity.com -> <VPS_PUBLIC_IP>`
+- Optional: `A www.tesst.linuxunity.com -> <VPS_PUBLIC_IP>` or `CNAME www.tesst -> tesst.linuxunity.com`
 
 ## First Setup
 
@@ -37,7 +37,7 @@ docker compose logs -f caddy app wordpress db
 Open:
 
 ```text
-https://linuxunity.com/wp-admin
+https://tesst.linuxunity.com/wp-admin
 ```
 
 If WordPress shows the installer, create the admin account in the browser.

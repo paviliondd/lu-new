@@ -45,7 +45,7 @@ Use WordPress as a Headless CMS:
 Create a WordPress application password for the editor/admin user, then run:
 
 ```powershell
-$env:WORDPRESS_URL = "https://linuxunity.com"
+$env:WORDPRESS_URL = "https://tesst.linuxunity.com"
 $env:WORDPRESS_USERNAME = "editor"
 $env:WORDPRESS_APP_PASSWORD = "xxxx-xxxx-xxxx-xxxx-xxxx-xxxx"
 node scripts/check-wordpress-auth.mjs
@@ -64,7 +64,7 @@ node scripts/import-roadmap-to-wordpress.mjs
 List recent WordPress drafts:
 
 ```powershell
-$env:WORDPRESS_URL = "https://linuxunity.com"
+$env:WORDPRESS_URL = "https://tesst.linuxunity.com"
 $env:WORDPRESS_USERNAME = "editor"
 $env:WORDPRESS_APP_PASSWORD = "xxxx-xxxx-xxxx-xxxx-xxxx-xxxx"
 npm run wp:check-auth
@@ -76,13 +76,13 @@ npm run wp:list-drafts
 Set one of these environment variables for the frontend fetch helper:
 
 ```powershell
-$env:WORDPRESS_API_BASE = "https://linuxunity.com?rest_route=/wp/v2"
+$env:WORDPRESS_API_BASE = "https://tesst.linuxunity.com?rest_route=/wp/v2"
 ```
 
 or:
 
 ```powershell
-$env:NEXT_PUBLIC_WORDPRESS_API_URL = "https://linuxunity.com?rest_route=/wp/v2"
+$env:NEXT_PUBLIC_WORDPRESS_API_URL = "https://tesst.linuxunity.com?rest_route=/wp/v2"
 ```
 
 The helper in `src/lib/cms/wordpress.ts` maps published WordPress posts back into the local `Post` shape. It supports both `/wp-json/wp/v2` and `?rest_route=/wp/v2`; if WordPress is not configured or fetch fails, it falls back to local published posts.

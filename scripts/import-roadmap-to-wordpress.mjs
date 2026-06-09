@@ -1,10 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
-  buildRestRouteApiBase,
-  buildWordPressRestUrl,
-  normalizeWordPressApiBase,
-} from "./wordpress-rest-url.mjs";
+  assertWordPressCapabilities,
+  assertWordPressAuth,
+  buildWordPressRequestUrl,
+  fetchWordPressRest,
+  getWordPressScriptConfig,
+} from "./wordpress-auth.mjs";
 
 const manifestPath =
   process.env.ROADMAP_WORDPRESS_MANIFEST ||
@@ -14,21 +16,7 @@ const shouldDeleteExistingPosts =
   process.env.WORDPRESS_DELETE_EXISTING_POSTS === "true";
 const deleteConfirm = process.env.WORDPRESS_DELETE_CONFIRM || "";
 const shouldWriteMeta = process.env.WORDPRESS_WRITE_META === "true";
-const isDryRun = process.env.DRY_RUN === "true";
-const wordpressUrl = process.env.WORDPRESS_URL || "https://example.invalid";
-const username = process.env.WORDPRESS_USERNAME || "dry-run";
-const appPassword = process.env.WORDPRESS_APP_PASSWORD || "dry-run";
-
-if (
-  !isDryRun &&
-  (!process.env.WORDPRESS_URL ||
-    !process.env.WORDPRESS_USERNAME ||
-    !process.env.WORDPRESS_APP_PASSWORD)
-) {
-  throw new Error(
-    "Missing WORDPRESS_URL, WORDPRESS_USERNAME, or WORDPRESS_APP_PASSWORD."
-  );
-}
+const config = getWordPressScriptConfig({ allowDryRun: true });
 
 if (shouldDeleteExistingPosts && deleteConfirm !== "delete-posts-only") {
   throw new Error(
@@ -36,64 +24,25 @@ if (shouldDeleteExistingPosts && deleteConfirm !== "delete-posts-only") {
   );
 }
 
-const apiBase = normalizeWordPressApiBase(
-  process.env.WORDPRESS_API_BASE ||
-    new URL(
-      "wp-json/wp/v2/",
-      wordpressUrl.endsWith("/") ? wordpressUrl : `${wordpressUrl}/`
-    ).toString()
-);
-const fallbackApiBase = buildRestRouteApiBase(apiBase);
-
-const authHeader = `Basic ${Buffer.from(`${username}:${appPassword}`).toString(
-  "base64"
-)}`;
-
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 
 async function wpRequest(endpoint, options = {}) {
   const method = options.method || "GET";
-  const body = options.body ? JSON.stringify(options.body) : undefined;
-  const requestUrl = buildWordPressRestUrl(apiBase, endpoint);
 
-  if (isDryRun) {
-    console.log(`[dry-run] ${method} ${requestUrl}`);
+  if (config.isDryRun) {
+    console.log(`[dry-run] ${method} ${buildWordPressRequestUrl(config, endpoint)}`);
     if (method === "GET") return [];
     return options.mockResponse || {};
   }
 
-  let response = await fetch(requestUrl, {
+  const response = await fetchWordPressRest(config, endpoint, {
     method,
-    headers: {
-      Authorization: authHeader,
-      "Content-Type": "application/json",
-    },
-    body,
+    body: options.body,
   });
-  let failedUrl = requestUrl;
-  let failedText = "";
-
-  if (!response.ok) {
-    failedText = await response.text();
-
-    if (response.status === 404 && fallbackApiBase) {
-      const fallbackUrl = buildWordPressRestUrl(fallbackApiBase, endpoint);
-      response = await fetch(fallbackUrl, {
-        method,
-        headers: {
-          Authorization: authHeader,
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-      failedUrl = fallbackUrl;
-      failedText = response.ok ? "" : await response.text();
-    }
-  }
 
   if (!response.ok) {
     throw new Error(
-      `${method} ${failedUrl} failed with ${response.status}: ${failedText.slice(
+      `${method} ${response.url} failed with ${response.status}: ${response.text.slice(
         0,
         700
       )}`
@@ -208,9 +157,9 @@ async function upsertPost(post, categoryId, tagIds) {
 }
 
 async function main() {
-  console.log(`Using WordPress REST API: ${apiBase}`);
-  if (fallbackApiBase) {
-    console.log(`Fallback REST route API: ${fallbackApiBase}`);
+  console.log(`Using WordPress REST API: ${config.apiBase}`);
+  if (config.fallbackApiBase) {
+    console.log(`Fallback REST route API: ${config.fallbackApiBase}`);
   }
   console.log(`Using manifest: ${manifestPath}`);
   console.log(
@@ -223,6 +172,14 @@ async function main() {
         ", "
       )}`
     );
+  }
+
+  if (!config.isDryRun) {
+    const user = await assertWordPressAuth(config);
+    console.log(
+      `Authenticated as WordPress user #${user.id}: ${user.name || user.slug}`
+    );
+    assertWordPressCapabilities(user, ["edit_posts", "manage_categories"]);
   }
 
   if (shouldDeleteExistingPosts) {

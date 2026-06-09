@@ -65,11 +65,20 @@ docker compose --profile tools run --rm wpcli user update "$WP_ADMIN_USER" \
 Create a WordPress Application Password:
 
 ```bash
+docker compose --profile tools run --rm wpcli user list --fields=ID,user_login,roles
 docker compose --profile tools run --rm wpcli user application-password create \
   "$WP_ADMIN_USER" "roadmap-import" --porcelain
 ```
 
-Put the returned application password in `.env` as `WORDPRESS_APP_PASSWORD`.
+Use an administrator account, or an account with permission to edit posts and
+manage categories/tags. Put the returned application password in `.env` as
+`WORDPRESS_APP_PASSWORD`, and set `WORDPRESS_USERNAME` to that WordPress user.
+
+Check authentication and permissions before importing:
+
+```bash
+docker compose run --rm --no-deps app node scripts/check-wordpress-auth.mjs
+```
 
 Import draft post metadata without deleting existing posts:
 

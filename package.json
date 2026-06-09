@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "wp:import-roadmap": "node scripts/import-roadmap-to-wordpress.mjs",
+    "wp:check-auth": "node scripts/check-wordpress-auth.mjs",
     "wp:list-drafts": "node scripts/list-wordpress-drafts.mjs"
   },
   "dependencies": {

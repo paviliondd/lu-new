@@ -183,6 +183,12 @@ Backup:
 scripts/backup-wordpress.sh
 ```
 
+Check WordPress REST API authentication for draft import:
+
+```bash
+docker compose run --rm --no-deps app node scripts/check-wordpress-auth.mjs
+```
+
 Restore:
 
 ```bash

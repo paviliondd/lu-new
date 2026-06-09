@@ -47,7 +47,8 @@ Create a WordPress application password for the editor/admin user, then run:
 ```powershell
 $env:WORDPRESS_URL = "https://linuxunity.com"
 $env:WORDPRESS_USERNAME = "editor"
-$env:WORDPRESS_APP_PASSWORD = "xxxx xxxx xxxx xxxx xxxx xxxx"
+$env:WORDPRESS_APP_PASSWORD = "xxxx-xxxx-xxxx-xxxx-xxxx-xxxx"
+node scripts/check-wordpress-auth.mjs
 node scripts/import-roadmap-to-wordpress.mjs
 ```
 
@@ -65,7 +66,8 @@ List recent WordPress drafts:
 ```powershell
 $env:WORDPRESS_URL = "https://linuxunity.com"
 $env:WORDPRESS_USERNAME = "editor"
-$env:WORDPRESS_APP_PASSWORD = "xxxx xxxx xxxx xxxx xxxx xxxx"
+$env:WORDPRESS_APP_PASSWORD = "xxxx-xxxx-xxxx-xxxx-xxxx-xxxx"
+npm run wp:check-auth
 npm run wp:list-drafts
 ```
 

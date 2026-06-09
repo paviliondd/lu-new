@@ -29,7 +29,7 @@ services:
       - .env
     environment:
       NODE_ENV: production
-      WORDPRESS_API_BASE: "http://wordpress?rest_route=/wp/v2"
+      WORDPRESS_API_BASE: http://wordpress/wp-json/wp/v2
       NEXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN}
     depends_on:
       wordpress:
@@ -66,16 +66,12 @@ services:
         if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
           $$_SERVER['HTTPS'] = 'on';
         }
-        if (!isset($$_SERVER['HTTP_AUTHORIZATION']) && isset($$_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-          $$_SERVER['HTTP_AUTHORIZATION'] = $$_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
-        }
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - wordpress_data:/var/www/html
       - ./deploy/wordpress/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
-      - ./deploy/wordpress/authorization.conf:/etc/apache2/conf-enabled/authorization.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\", 80) ? 0 : 1);'"]
       interval: 30s

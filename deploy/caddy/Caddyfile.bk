@@ -1,0 +1,40 @@
+{
+	email {$CADDY_EMAIL}
+}
+
+{$SITE_WWW_DOMAIN} {
+	redir http://{$SITE_DOMAIN}{uri} permanent
+}
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+
+	request_body {
+		max_size {$CADDY_MAX_UPLOAD_SIZE}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	@wpAdminNoSlash path /wp-admin
+	redir @wpAdminNoSlash /wp-admin/ 308
+
+	@wordpress path /wp-admin* /wp-login.php /wp-json* /wp-content* /wp-includes* /wp-cron.php /wp-comments-post.php /wp-*.php /xmlrpc.php
+	handle @wordpress {
+		reverse_proxy wordpress:80 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	handle {
+		reverse_proxy app:3000
+	}
+}

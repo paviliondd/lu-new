@@ -36,7 +36,18 @@
 	@wpAdminNoSlash path /wp-admin
 	redir @wpAdminNoSlash /wp-admin/ 308
 
-	@wordpress path /wp-admin* /wp-login.php /wp-json* /wp-content* /wp-includes* /wp-cron.php /wp-comments-post.php /wp-*.php /xmlrpc.php
+	@wordpressRestQuery query rest_route=*
+	handle @wordpressRestQuery {
+		reverse_proxy wordpress:80 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	@wordpress path /wp-admin* /wp-login.php /wp-json* /wp-content* /wp-includes* /wp-cron.php /wp-comments-post.php /wp-*.php /index.php /xmlrpc.php
 	handle @wordpress {
 		reverse_proxy wordpress:80 {
 			header_up Host {host}

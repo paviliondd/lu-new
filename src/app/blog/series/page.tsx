@@ -89,7 +89,7 @@ export default function SeriesListPage() {
                       {seriesPosts.map((post, index) => {
                         const authorInfo = team[post.author];
                         return (
-                          <a
+                          <Link
                             key={post.slug}
                             href={`/blog/${post.slug}`}
                             className="flex items-start gap-3 rounded-xl border border-gray-100 dark:border-gray-800/60 bg-gray-50/20 dark:bg-gray-900/50 p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-200 dark:hover:border-gray-700 transition cursor-pointer"
@@ -106,7 +106,7 @@ export default function SeriesListPage() {
                                 {t("writtenBy")} {authorInfo?.name.split(" (")[0]} · {post.readTime}
                               </span>
                             </div>
-                          </a>
+                          </Link>
                         );
                       })}
                     </div>

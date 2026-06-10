@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { Search, X, FileText, ArrowRight } from "lucide-react";
 import { posts as initialPosts } from "../data";
@@ -106,7 +107,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 {language === "vi" ? `Bài viết (${results.length})` : `Articles (${results.length})`}
               </div>
               {results.map((post) => (
-                <a
+                <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
                   onClick={onClose}
@@ -127,7 +128,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     </p>
                   </div>
                   <ArrowRight className="h-4 w-4 text-gray-400 opacity-0 -translate-x-2 transition group-hover:opacity-100 group-hover:translate-x-0 shrink-0 self-center" />
-                </a>
+                </Link>
               ))}
             </div>
           )}

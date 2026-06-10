@@ -2,49 +2,71 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Eye, Clock, Tag, Link2, ChevronRight } from "lucide-react";
-import { Post, Author } from "../data";
+import { ArrowLeft, Calendar, Eye, Clock, Tag, Link2, ChevronRight, List } from "lucide-react";
+import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
+import PostListRow from "./PostListRow";
 
 interface ArticleClientProps {
   post: Post;
   author: Author;
+  headings: HeadingItem[];
+  relatedPosts: Post[];
 }
 
 interface HeadingItem {
   id: string;
   text: string;
+  level: 2 | 3;
 }
 
-export default function ArticleClient({ post, author }: ArticleClientProps) {
+function slugifyHeading(text: string, index: number) {
+  return (
+    text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-") || `heading-${index}`
+  );
+}
+
+export default function ArticleClient({
+  post,
+  author,
+  headings,
+  relatedPosts,
+}: ArticleClientProps) {
   const { t, language } = useLanguage();
-  const [headings, setHeadings] = useState<HeadingItem[]>([]);
+  const [tocHeadings, setTocHeadings] = useState<HeadingItem[]>(headings);
   const [activeId, setActiveId] = useState("");
   const [copied, setCopied] = useState(false);
 
-  // Generate Table of Contents from h2 tags in the prose content
   useEffect(() => {
     const proseElement = document.querySelector(".prose");
     if (!proseElement) return;
 
-    const h2Elements = proseElement.querySelectorAll("h2");
+    const headingElements = proseElement.querySelectorAll("h2, h3");
     const headingList: HeadingItem[] = [];
 
-    h2Elements.forEach((el, index) => {
-      // Create a slugified id
+    headingElements.forEach((el, index) => {
       const text = el.textContent || "";
-      const id = text
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, "")
-        .replace(/\s+/g, "-") || `heading-${index}`;
+      const id = headings[index]?.id || slugifyHeading(text, index);
       
       el.id = id;
-      headingList.push({ id, text });
+      headingList.push({
+        id,
+        text,
+        level: el.tagName.toLowerCase() === "h3" ? 3 : 2,
+      });
     });
 
-    const headingTimer = window.setTimeout(() => setHeadings(headingList), 0);
+    const headingTimer = window.setTimeout(
+      () => setTocHeadings(headingList.length ? headingList : headings),
+      0
+    );
 
-    // Setup Intersection Observer to highlight active heading on scroll
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -56,13 +78,13 @@ export default function ArticleClient({ post, author }: ArticleClientProps) {
       { rootMargin: "0px 0px -60% 0px", threshold: 0.1 }
     );
 
-    h2Elements.forEach((el) => observer.observe(el));
+    headingElements.forEach((el) => observer.observe(el));
 
     return () => {
       window.clearTimeout(headingTimer);
-      h2Elements.forEach((el) => observer.unobserve(el));
+      headingElements.forEach((el) => observer.unobserve(el));
     };
-  }, [post.content]);
+  }, [post.content, headings]);
 
   const copyLink = () => {
     if (typeof window !== "undefined") {
@@ -87,10 +109,10 @@ export default function ArticleClient({ post, author }: ArticleClientProps) {
         </div>
 
         {/* 3-Column Layout */}
-        <div className="grid gap-10 lg:grid-cols-12">
+        <div className="grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)_16rem]">
           
-          {/* Left Column: Back button, author details & share (3 cols on desktop) */}
-          <div className="lg:col-span-3 space-y-8 order-2 lg:order-1">
+          {/* Left Column: Back button, author details & share */}
+          <div className="space-y-8 order-2 lg:order-1">
             {/* Back to Blog */}
             <button
               type="button"
@@ -175,8 +197,8 @@ export default function ArticleClient({ post, author }: ArticleClientProps) {
             </div>
           </div>
 
-          {/* Center Column: Main Content (6 cols on desktop) */}
-          <div className="lg:col-span-6 order-1 lg:order-2 space-y-6">
+          {/* Center Column: Main Content */}
+          <div className="order-1 lg:order-2 space-y-6">
             {/* Header info */}
             <div className="space-y-4">
               <span className="inline-flex rounded-full bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
@@ -233,20 +255,49 @@ export default function ArticleClient({ post, author }: ArticleClientProps) {
                 </span>
               ))}
             </div>
+
+            {relatedPosts.length > 0 && (
+              <section className="pt-10">
+                <div className="mb-4 flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-800">
+                  <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
+                    Bài viết liên quan
+                  </h2>
+                  <Link
+                    href="/blog"
+                    className="text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400"
+                  >
+                    Xem tất cả
+                  </Link>
+                </div>
+                <div>
+                  {relatedPosts.map((relatedPost, index) => (
+                    <PostListRow
+                      key={relatedPost.slug}
+                      post={relatedPost}
+                      author={team[relatedPost.author]}
+                      index={index}
+                      language={language}
+                      isLast={index === relatedPosts.length - 1}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
-          {/* Right Column: Table of Contents (3 cols on desktop) */}
-          <div className="lg:col-span-3 order-3 hidden lg:block">
+          {/* Right Column: Table of Contents */}
+          <div className="order-3 hidden w-64 lg:block">
             <div className="sticky top-24 space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-150">
-                {t("toc")}
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-150">
+                <List className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                Mục lục
               </h3>
               
-              {headings.length === 0 ? (
+              {tocHeadings.length === 0 ? (
                 <p className="text-xs text-gray-400">{t("noToc")}</p>
               ) : (
                 <ul className="space-y-2.5 border-l border-gray-250 dark:border-gray-800 pl-4 py-1 text-xs">
-                  {headings.map((heading) => (
+                  {tocHeadings.map((heading) => (
                     <li key={heading.id}>
                       <a
                         href={`#${heading.id}`}
@@ -259,9 +310,11 @@ export default function ArticleClient({ post, author }: ArticleClientProps) {
                             window.scrollTo({ top: y, behavior: "smooth" });
                           }
                         }}
-                        className={`block transition-colors duration-200 hover:text-brand-600 dark:hover:text-brand-400 ${
+                        className={`block transition-colors duration-200 hover:text-blue-600 dark:hover:text-blue-400 ${
+                          heading.level === 3 ? "pl-3" : ""
+                        } ${
                           activeId === heading.id
-                            ? "text-brand-600 dark:text-brand-400 font-semibold"
+                            ? "text-blue-600 dark:text-blue-400 font-semibold"
                             : "text-gray-500 dark:text-gray-400"
                         }`}
                       >

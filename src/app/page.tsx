@@ -5,6 +5,7 @@ import { ArrowRight, Eye, Calendar, Layers, Zap, GitPullRequest } from "lucide-r
 import { posts as initialPosts, series, team } from "./data";
 import { useLanguage } from "./components/LanguageProvider";
 import { usePublishedPosts } from "./components/usePublishedPosts";
+import PostListRow from "./components/PostListRow";
 
 export default function Home() {
   const { t, language } = useLanguage();
@@ -76,91 +77,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Recent Writing Section */}
-      <section className="border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 py-16 sm:py-20 transition-colors duration-200">
+      {/* Latest Writing Section */}
+      <section className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-16 sm:py-20 transition-colors duration-200">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-10 flex items-end justify-between">
-            <div>
-              <div className="mb-3 flex items-center gap-3">
-                <div className="h-px w-8 bg-brand-500"></div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-                  From the Blog
-                </span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {t("recentWriting")}
-              </h2>
-            </div>
+          <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-800">
+            <h2 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
+              <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              Bài viết mới nhất
+            </h2>
             <Link
               href="/blog"
-              className="hidden text-sm font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition sm:flex items-center gap-1 cursor-pointer"
+              className="text-sm font-semibold text-blue-600 transition hover:text-blue-700 dark:text-blue-400"
             >
-              {t("viewAll")}
-              <ArrowRight className="h-4 w-4" />
+              → Xem tất cả
             </Link>
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {recentPosts.map((post) => {
-              const authorInfo = team[post.author];
-              return (
-                <article
-                  key={post.slug}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
-                >
-                  <a href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
-                    {/* Cover Gradient Graphic */}
-                    <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
-                      <span className="max-w-[85%] text-center text-lg font-extrabold leading-snug text-white drop-shadow-md line-clamp-2">
-                        {post.title}
-                      </span>
-                    </div>
-                    {/* Tags overlay */}
-                    <div className="absolute left-3 top-3 flex flex-wrap gap-1">
-                      {post.tags.slice(0, 2).map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-white/90 dark:bg-gray-900/85 px-2.5 py-0.5 text-[10px] font-semibold text-gray-750 dark:text-gray-300 backdrop-blur-sm"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </a>
-
-                  <div className="flex flex-1 flex-col p-5">
-                    <span className="text-[11px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-2">
-                      {post.category}
-                    </span>
-                    <h3 className="mb-2 line-clamp-2 font-bold text-base leading-snug text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                      <a href={`/blog/${post.slug}`}>{post.title}</a>
-                    </h3>
-                    <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                      {post.description}
-                    </p>
-
-                    {/* Author Footer */}
-                    <div className="mt-auto flex items-center gap-2.5 pt-3.5 border-t border-gray-100 dark:border-gray-800/80">
-                      <div className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-[10px] font-bold text-brand-700 dark:text-brand-400">
-                        {authorInfo?.avatar || "A"}
-                      </div>
-                      <span className="text-xs font-semibold text-gray-750 dark:text-gray-300">
-                        {authorInfo?.name.split(" (")[0]}
-                      </span>
-                      <span className="ml-auto text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {new Date(post.date).toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+          <div>
+            {recentPosts.map((post, index) => (
+              <PostListRow
+                key={post.slug}
+                post={post}
+                author={team[post.author]}
+                index={index}
+                language={language}
+                isLast={index === recentPosts.length - 1}
+              />
+            ))}
           </div>
 
           <div className="mt-8 text-center sm:hidden">
@@ -197,17 +140,17 @@ export default function Home() {
                   key={post.slug + "-popular"}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
                 >
-                  <a href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
+                  <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
                     <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
                       <span className="max-w-[85%] text-center text-lg font-extrabold leading-snug text-white drop-shadow-md line-clamp-2">
                         {post.title}
                       </span>
                     </div>
-                  </a>
+                  </Link>
 
                   <div className="flex flex-1 flex-col p-5">
                     <h3 className="mb-2 line-clamp-2 font-bold text-base leading-snug text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                      <a href={`/blog/${post.slug}`}>{post.title}</a>
+                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                     </h3>
                     <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                       {post.description}

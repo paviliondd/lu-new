@@ -14,13 +14,12 @@ const manifestPath =
 
 const shouldDeleteExistingPosts =
   process.env.WORDPRESS_DELETE_EXISTING_POSTS === "true";
-const deleteConfirm = process.env.WORDPRESS_DELETE_CONFIRM || "";
 const shouldWriteMeta = process.env.WORDPRESS_WRITE_META === "true";
 const config = getWordPressScriptConfig({ allowDryRun: true });
 
-if (shouldDeleteExistingPosts && deleteConfirm !== "delete-posts-only") {
+if (shouldDeleteExistingPosts) {
   throw new Error(
-    "WORDPRESS_DELETE_EXISTING_POSTS=true also requires WORDPRESS_DELETE_CONFIRM=delete-posts-only."
+    "Destructive roadmap imports are disabled. This script is create-only and will not delete or overwrite existing WordPress posts."
   );
 }
 
@@ -50,51 +49,6 @@ async function wpRequest(endpoint, options = {}) {
   }
 
   return response.status === 204 ? null : response.json();
-}
-
-async function getAllPosts() {
-  const posts = [];
-  let page = 1;
-
-  while (true) {
-    let batch;
-
-    try {
-      batch = await wpRequest(
-        `/posts?status=any&context=edit&per_page=100&page=${page}&_fields=id,slug,title,status`
-      );
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.includes("rest_post_invalid_page_number")
-      ) {
-        break;
-      }
-
-      throw error;
-    }
-
-    if (batch?.code === "rest_post_invalid_page_number") break;
-
-    posts.push(...batch);
-
-    if (batch.length < 100) break;
-    page += 1;
-  }
-
-  return posts;
-}
-
-async function deleteExistingPostsOnly() {
-  const posts = await getAllPosts();
-  console.log(`Deleting ${posts.length} existing WordPress posts only...`);
-
-  for (const post of posts) {
-    await wpRequest(`/posts/${post.id}?force=true`, {
-      method: "DELETE",
-      mockResponse: { deleted: true },
-    });
-  }
 }
 
 async function ensureTerm(endpoint, name, slug, description = "") {
@@ -150,17 +104,14 @@ async function upsertPost(post, categoryId, tagIds) {
     payload.meta = buildMeta(post);
   }
 
-  const existing = shouldDeleteExistingPosts
-    ? null
-    : await findPostBySlug(post.slug);
+  const existing = await findPostBySlug(post.slug);
 
   if (existing) {
-    await wpRequest(`/posts/${existing.id}`, {
-      method: "POST",
-      body: payload,
-      mockResponse: { id: existing.id },
-    });
-    return { action: "updated", slug: post.slug };
+    return {
+      action: "skipped",
+      slug: post.slug,
+      reason: `existing WordPress post #${existing.id} (${existing.status})`,
+    };
   }
 
   await wpRequest("/posts", {
@@ -198,10 +149,6 @@ async function main() {
     assertWordPressCapabilities(user, ["edit_posts", "manage_categories"]);
   }
 
-  if (shouldDeleteExistingPosts) {
-    await deleteExistingPostsOnly();
-  }
-
   const categoryIds = new Map();
   for (const category of manifest.categories) {
     const id = await ensureTerm(
@@ -233,11 +180,15 @@ async function main() {
   }
 
   const created = results.filter((result) => result.action === "created").length;
-  const updated = results.filter((result) => result.action === "updated").length;
+  const skipped = results.filter((result) => result.action === "skipped").length;
 
   console.log(
-    `Done. Created ${created} draft posts, updated ${updated} draft posts.`
+    `Done. Created ${created} draft posts, skipped ${skipped} existing posts.`
   );
+
+  for (const result of results.filter((item) => item.action === "skipped")) {
+    console.log(`Skipped ${result.slug}: ${result.reason}`);
+  }
 }
 
 main().catch((error) => {

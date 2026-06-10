@@ -52,7 +52,9 @@ node scripts/check-wordpress-auth.mjs
 node scripts/import-roadmap-to-wordpress.mjs
 ```
 
-Normal import mode does not delete existing WordPress posts. If you intentionally want to delete WordPress posts only, the script requires both `WORDPRESS_DELETE_EXISTING_POSTS=true` and `WORDPRESS_DELETE_CONFIRM=delete-posts-only`. It never deletes users, settings, categories, tags, pages, media, or other system data.
+Normal import mode is create-only. If a WordPress post with the same slug already
+exists, the script skips it and does not change its status, content, excerpt,
+categories, tags, author, or metadata. Destructive imports are disabled.
 
 Dry run:
 
@@ -69,6 +71,12 @@ $env:WORDPRESS_USERNAME = "editor"
 $env:WORDPRESS_APP_PASSWORD = "xxxx-xxxx-xxxx-xxxx-xxxx-xxxx"
 npm run wp:check-auth
 npm run wp:list-drafts
+```
+
+Run a read-only audit before and after imports:
+
+```powershell
+npm run wp:audit
 ```
 
 ## Frontend Sync

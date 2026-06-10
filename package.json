@@ -9,7 +9,8 @@
     "lint": "eslint",
     "wp:import-roadmap": "node scripts/import-roadmap-to-wordpress.mjs",
     "wp:check-auth": "node scripts/check-wordpress-auth.mjs",
-    "wp:list-drafts": "node scripts/list-wordpress-drafts.mjs"
+    "wp:list-drafts": "node scripts/list-wordpress-drafts.mjs",
+    "wp:audit": "node scripts/audit-wordpress-state.mjs"
   },
   "dependencies": {
     "@next/swc-linux-x64-gnu": "^16.2.7",

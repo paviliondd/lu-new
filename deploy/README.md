@@ -78,7 +78,8 @@ docker compose --profile tools run --rm wpcli core install \
   --admin_email="$WP_ADMIN_EMAIL"
 ```
 
-Reset an admin password with WP-CLI:
+Emergency only: reset an admin password with WP-CLI after you have confirmed the
+target user. This intentionally changes WordPress user data:
 
 ```bash
 docker compose --profile tools run --rm wpcli user update "$WP_ADMIN_USER" \
@@ -105,7 +106,13 @@ Check authentication and permissions before importing:
 docker compose run --rm --no-deps app node scripts/check-wordpress-auth.mjs
 ```
 
-Import draft post metadata without deleting existing posts:
+Run a read-only audit before importing:
+
+```bash
+docker compose run --rm --no-deps app node scripts/audit-wordpress-state.mjs
+```
+
+Import draft post metadata without deleting or overwriting existing posts:
 
 ```bash
 docker compose run --rm --no-deps app node scripts/import-roadmap-to-wordpress.mjs
@@ -117,7 +124,10 @@ List recent WordPress drafts:
 docker compose run --rm --no-deps app node scripts/list-wordpress-drafts.mjs
 ```
 
-The public frontend fetches only `publish` posts. Drafts are visible in `/wp-admin`, not on the public blog.
+The import script is create-only. If a slug already exists in WordPress, it
+skips that post and does not change existing content, status, category, tags, or
+metadata. The public frontend fetches only `publish` posts. Drafts are visible
+in `/wp-admin`, not on the public blog.
 
 If `/wp-json/wp/v2` returns an Apache 404, the app and scripts still use the
 WordPress query route form:
@@ -247,7 +257,7 @@ Do not open MariaDB/MySQL ports publicly.
 
 - `.env` is ignored by git. Do not commit real secrets.
 - Docker volumes hold WordPress files/uploads, MariaDB data, and Caddy certificates.
-- `WORDPRESS_DELETE_EXISTING_POSTS=false` is the normal import mode.
-- If you intentionally delete WordPress posts during import, the script requires both:
-  - `WORDPRESS_DELETE_EXISTING_POSTS=true`
-  - `WORDPRESS_DELETE_CONFIRM=delete-posts-only`
+- The roadmap import is create-only. It skips existing slugs and refuses
+  `WORDPRESS_DELETE_EXISTING_POSTS=true`.
+- If drafts, content, or admin login look wrong, follow
+  `docs/WORDPRESS_DATA_RECOVERY.md` before running any restore or reset command.

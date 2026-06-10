@@ -80,6 +80,14 @@ export const team: Record<string, Author> = {
     linkedin: "https://linkedin.com",
     github: "https://github"
   },
+  nhatnghia: {
+    name: "Trần Phi Long",
+    role: "Admin",
+    avatar: "P",
+    description: "Kỹ sư Cloud & DevOps với đam mê xây dựng hạ tầng tự động hóa.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com"
+  },
   vanthao: {
     name: "Trần Văn Thảo",
     role: "Cloud DevOps Engineer",
@@ -1796,7 +1804,7 @@ export const tags: string[] = [
 ];
 
 export const roadmapImportSummary = {
-  sourceFile: "D:/Blog_AWS/Road-map.html",
+  sourceFile: "content/Road-map.html",
   generatedAt: "2026-06-09T00:00:00+07:00",
   claimedArticleCount: 44,
   explicitArticleCount: allPosts.length,

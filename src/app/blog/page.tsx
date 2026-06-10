@@ -1,5 +1,6 @@
 "use client";
 
+// TODO: Refactor search/filter state so this page can move back to a Server Component later.
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Search, Calendar, Tag, ChevronRight } from "lucide-react";
@@ -111,13 +112,13 @@ export default function BlogList() {
                   key={post.slug}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
                 >
-                  <a href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
+                  <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
                     <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
                       <span className="max-w-[85%] text-center text-lg font-extrabold leading-snug text-white drop-shadow-md line-clamp-2">
                         {post.title}
                       </span>
                     </div>
-                  </a>
+                  </Link>
 
                   <div className="flex flex-1 flex-col p-5">
                     <div className="flex items-center justify-between mb-2">
@@ -129,7 +130,7 @@ export default function BlogList() {
                       </span>
                     </div>
                     <h3 className="mb-2 line-clamp-2 font-bold text-base leading-snug text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                      <a href={`/blog/${post.slug}`}>{post.title}</a>
+                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                     </h3>
                     <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                       {post.description}

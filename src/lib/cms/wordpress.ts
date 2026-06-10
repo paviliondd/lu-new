@@ -38,6 +38,13 @@ const wordpressApiBase = (
   ""
 ).replace(/\/$/, "");
 
+const wordpressPublicBase = (
+  process.env.WORDPRESS_SITE_URL ||
+  process.env.WORDPRESS_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  ""
+).replace(/\/$/, "");
+
 function buildWordPressRestUrl(apiBase: string, endpoint: string) {
   const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const [routePath, queryString = ""] = normalizedEndpoint.split("?");
@@ -105,6 +112,52 @@ function plainText(html = "") {
     .trim();
 }
 
+function normalizeWordPressAssetUrl(value: string) {
+  if (!value || value.startsWith("data:") || value.startsWith("blob:")) return value;
+
+  if (
+    wordpressPublicBase &&
+    (value.startsWith("/wp-content/") || value.startsWith("/wp-includes/"))
+  ) {
+    return `${wordpressPublicBase}${value}`;
+  }
+
+  try {
+    const url = new URL(value);
+    if (wordpressPublicBase && (url.hostname === "wordpress" || url.hostname === "localhost")) {
+      return `${wordpressPublicBase}${url.pathname}${url.search}${url.hash}`;
+    }
+  } catch {
+    return value;
+  }
+
+  return value;
+}
+
+function normalizeWordPressSrcSet(value: string) {
+  return value
+    .split(",")
+    .map((candidate) => {
+      const [url, ...descriptor] = candidate.trim().split(/\s+/);
+      if (!url) return candidate;
+      return [normalizeWordPressAssetUrl(url), ...descriptor].join(" ");
+    })
+    .join(", ");
+}
+
+function normalizeWordPressContent(html = "") {
+  if (!html || !wordpressPublicBase) return html;
+
+  return html
+    .replace(/\s(src|href)=["']([^"']+)["']/gi, (match, attr, value) => {
+      const normalized = normalizeWordPressAssetUrl(value);
+      return normalized === value ? match : ` ${attr}="${normalized}"`;
+    })
+    .replace(/\ssrcset=["']([^"']+)["']/gi, (_match, value) => {
+      return ` srcset="${normalizeWordPressSrcSet(value)}"`;
+    });
+}
+
 function extractTerms(post: WordPressPost, taxonomy: string) {
   return (post._embedded?.["wp:term"] || [])
     .flat()
@@ -127,6 +180,7 @@ function estimateReadTime(html = ""): string {
 function mapWordPressPost(post: WordPressPost): Post {
   const title = plainText(post.title?.rendered);
   const description = plainText(post.excerpt?.rendered);
+  const content = normalizeWordPressContent(post.content?.rendered || "");
   const category = extractTerms(post, "category")[0] || "Uncategorized";
   const tags = extractTerms(post, "post_tag");
   const isPublished = post.status === "publish";
@@ -143,8 +197,8 @@ function mapWordPressPost(post: WordPressPost): Post {
     title_en: title,
     description,
     description_en: description,
-    content: post.content?.rendered || "",
-    content_en: post.content?.rendered || "",
+    content,
+    content_en: content,
     category,
     tags,
     author: authorKey,
@@ -152,8 +206,8 @@ function mapWordPressPost(post: WordPressPost): Post {
     publishDate,
     publish_date: publishDate,
     date: post.date || "",
-    readTime: estimateReadTime(post.content?.rendered),
-    readTime_en: estimateReadTime(post.content?.rendered),
+    readTime: estimateReadTime(content),
+    readTime_en: estimateReadTime(content),
     views: 0,
     seriesSlug: null,
     topicSlug: "",

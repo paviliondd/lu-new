@@ -78,6 +78,11 @@ export default async function BlogPostPage({ params }: Props) {
   const relatedPosts = localPublishedPosts
     .filter((item) => item.slug !== post.slug && item.category === post.category)
     .slice(0, 3);
+  const assetBase =
+    process.env.WORDPRESS_SITE_URL ||
+    process.env.WORDPRESS_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "";
 
   return (
     <ArticleClient
@@ -85,6 +90,7 @@ export default async function BlogPostPage({ params }: Props) {
       author={author}
       headings={headings}
       relatedPosts={relatedPosts}
+      assetBase={assetBase}
     />
   );
 }

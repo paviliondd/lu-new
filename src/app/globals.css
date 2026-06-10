@@ -94,21 +94,42 @@
   padding: 1.25rem;
   overflow-x: auto;
   background-color: var(--color-gray-900);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   border: 1px solid var(--color-gray-800);
 }
 
 .prose pre.code-block {
-  padding-top: 3rem;
+  padding-top: 3.35rem;
+  box-shadow: 0 24px 70px rgb(15 23 42 / 0.18);
+}
+
+.prose pre.code-block::before {
+  content: attr(data-filename);
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  height: 2.55rem;
+  align-items: center;
+  border-bottom: 1px solid rgb(75 85 99 / 0.7);
+  background: linear-gradient(180deg, rgb(31 41 55 / 0.96), rgb(17 24 39 / 0.96));
+  padding-left: 1rem;
+  padding-right: 5.25rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-gray-200);
 }
 
 .prose pre .code-copy-button {
   position: absolute;
-  right: 0.75rem;
-  top: 0.75rem;
+  right: 0.7rem;
+  top: 0.55rem;
+  z-index: 1;
   border-radius: 999px;
   border: 1px solid rgb(75 85 99 / 0.8);
-  background: rgb(17 24 39 / 0.9);
+  background: rgb(15 23 42 / 0.88);
   padding: 0.25rem 0.7rem;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -189,6 +210,44 @@
 .prose .token.regex,
 .prose .token.important {
   color: #fdba74;
+}
+
+.article-content figure {
+  margin: 1.75rem 0;
+}
+
+.article-content img,
+.article-content .article-image {
+  height: auto;
+  max-width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+  box-shadow: 0 20px 60px rgb(15 23 42 / 0.08);
+}
+
+.dark .article-content img,
+.dark .article-content .article-image {
+  border-color: var(--color-gray-800);
+  background: var(--color-gray-900);
+}
+
+.article-image-fallback {
+  margin: 1.5rem 0;
+  border-radius: 1rem;
+  border: 1px dashed var(--color-gray-300);
+  background: var(--color-gray-50);
+  padding: 1.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-500);
+}
+
+.dark .article-image-fallback {
+  border-color: var(--color-gray-700);
+  background: var(--color-gray-900);
+  color: var(--color-gray-400);
 }
 
 .prose .note-box {

@@ -59,36 +59,43 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-gray-950/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-gray-950/55 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl transition-all dark:border-gray-800 dark:bg-gray-900">
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-gray-950/20 backdrop-blur-xl transition-all dark:border-gray-800/80 dark:bg-gray-950/95"
+      >
         {/* Input area */}
-        <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-4 dark:border-gray-800">
-          <Search className="h-5 w-5 text-gray-400 shrink-0" />
+        <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300">
+            <Search className="h-4 w-4" />
+          </div>
           <input
             ref={inputRef}
             type="text"
             placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full text-base text-gray-900 bg-transparent placeholder-gray-450 outline-none dark:text-gray-100"
+            className="h-11 w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100"
           />
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            aria-label="Close search"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Results area */}
-        <div className="max-h-[60vh] overflow-y-auto p-4">
+        <div className="max-h-[62vh] overflow-y-auto p-4">
           {query.trim() === "" ? (
             <div className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               {language === "vi"
@@ -111,15 +118,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   key={post.slug}
                   href={`/blog/${post.slug}`}
                   onClick={onClose}
-                  className="group flex items-start gap-3 rounded-xl p-3 transition hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                >
-                  <FileText className="h-5 w-5 text-gray-400 mt-0.5 group-hover:text-brand-500 shrink-0" />
+                className="group flex items-start gap-3 rounded-2xl p-3 transition hover:bg-cyan-50/70 dark:hover:bg-cyan-950/20"
+              >
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-400 transition group-hover:bg-cyan-100 group-hover:text-cyan-700 dark:bg-gray-900 dark:group-hover:bg-cyan-950/50 dark:group-hover:text-cyan-300">
+                    <FileText className="h-4 w-4" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 truncate">
+                      <span className="truncate text-sm font-semibold text-gray-900 group-hover:text-cyan-700 dark:text-gray-100 dark:group-hover:text-cyan-300">
                         {language === "vi" ? post.title : post.title_en}
                       </span>
-                      <span className="text-[10px] bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 px-2 py-0.5 rounded-full font-medium shrink-0">
+                      <span className="shrink-0 rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-medium text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300">
                         {post.category}
                       </span>
                     </div>
@@ -127,7 +136,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       {language === "vi" ? post.description : post.description_en}
                     </p>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-gray-400 opacity-0 -translate-x-2 transition group-hover:opacity-100 group-hover:translate-x-0 shrink-0 self-center" />
+                  <ArrowRight className="h-4 w-4 shrink-0 -translate-x-2 self-center text-gray-400 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
                 </Link>
               ))}
             </div>
@@ -135,7 +144,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-2.5 text-[10px] text-gray-400 dark:border-gray-800 dark:bg-gray-950/50">
+        <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50/80 px-5 py-3 text-[10px] text-gray-400 dark:border-gray-800 dark:bg-gray-900/60">
           <div>
             {language === "vi" ? (
               <>Nhấn <kbd className="font-sans font-bold">ESC</kbd> để đóng</>

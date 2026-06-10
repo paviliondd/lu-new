@@ -38,33 +38,39 @@ export default function Home() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative flex min-h-[58vh] items-center overflow-hidden border-b border-gray-200 bg-white transition-colors duration-200 dark:border-gray-800 dark:bg-gray-950">
-        <div className="relative mx-auto max-w-3xl px-4 py-20 text-center sm:py-24">
+      <section className="relative flex min-h-[62vh] items-center overflow-hidden border-b border-gray-200 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_34%),linear-gradient(180deg,#ffffff,rgba(239,246,255,0.55))] transition-colors duration-200 dark:border-gray-800 dark:bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.18),transparent_34%),linear-gradient(180deg,#020617,#030712)]">
+        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:py-28">
           {/* Pill Badge */}
-          <span className="mb-6 inline-flex rounded-full bg-brand-100/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-700 backdrop-blur-sm dark:bg-brand-900/40 dark:text-brand-400">
+          <span className="mb-6 inline-flex rounded-full border border-cyan-200 bg-white/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-cyan-700 shadow-sm backdrop-blur-sm dark:border-cyan-900/60 dark:bg-cyan-950/20 dark:text-cyan-300">
             {t("exploreBuildShare")}
           </span>
           {/* Title */}
-          <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-[1.12] tracking-tight sm:text-5xl md:text-6xl">
-            <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent dark:from-gray-100 dark:via-gray-200 dark:to-gray-100">
-              {t("heroTitlePart1")}
+          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
+            <span className="block text-gray-950 dark:text-white">
+              {t("heroTitlePart1").trim()}
             </span>
-            <span className="bg-gradient-to-r from-brand-600 via-brand-500 to-blue-500 bg-clip-text text-transparent dark:from-brand-400 dark:via-brand-300 dark:to-blue-400">
+            <span className="block bg-gradient-to-r from-cyan-400 via-sky-500 to-blue-600 bg-clip-text text-transparent dark:from-cyan-300 dark:via-sky-400 dark:to-blue-500">
               {t("heroTitlePart2")}
             </span>
           </h1>
           {/* Subtext */}
-          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-400 sm:text-lg">
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-400 sm:text-lg">
             {t("heroDesc")}
           </p>
           {/* CTA Buttons */}
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/blog"
-              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-xl bg-brand-600 px-7 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 hover:shadow-xl hover:shadow-brand-500/30 hover:bg-brand-700 transition cursor-pointer"
+              className="inline-flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-7 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/25 sm:w-auto"
             >
               {t("readBlog")}
               <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link
+              href="/blog/series"
+              className="inline-flex h-12 w-full items-center justify-center rounded-full border border-gray-300 bg-white/60 px-7 text-sm font-semibold text-gray-800 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-cyan-400 hover:text-cyan-700 dark:border-gray-700 dark:bg-gray-950/40 dark:text-gray-200 dark:hover:border-cyan-500 dark:hover:text-cyan-300 sm:w-auto"
+            >
+              {t("series")}
             </Link>
           </div>
         </div>
@@ -193,14 +199,14 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3 lg:gap-8">
             {series.map((item) => (
               <Link
                 key={item.slug}
                 href={`/blog/series/${item.slug}`}
-                className="group flex flex-col rounded-xl border border-gray-200 bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-500/40 hover:shadow-lg hover:shadow-brand-500/10 dark:border-gray-800 dark:bg-gray-900 cursor-pointer"
+                className="group flex min-h-[220px] flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300 hover:shadow-2xl hover:shadow-cyan-500/10 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-cyan-800 dark:hover:shadow-cyan-950/30 cursor-pointer"
               >
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400 group-hover:scale-105 transition duration-200">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 transition duration-200 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-cyan-500 group-hover:to-blue-600 group-hover:text-white dark:bg-cyan-950/40 dark:text-cyan-300">
                   {renderSeriesIcon(item.icon)}
                 </div>
                 <h3 className="line-clamp-2 text-base font-bold leading-snug text-gray-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
@@ -209,7 +215,7 @@ export default function Home() {
                 <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                   {item.description}
                 </p>
-                <p className="mt-4 text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center gap-1">
+                <p className="mt-auto flex items-center gap-1 pt-5 text-xs font-bold text-cyan-700 dark:text-cyan-300">
                   {item.partsCount} {t("parts")}
                   <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition duration-200" />
                 </p>

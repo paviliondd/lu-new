@@ -20,6 +20,33 @@ function getLanguage(codeElement: HTMLElement) {
   return match?.[1] || "bash";
 }
 
+function getFilename(preElement: HTMLElement, codeElement: HTMLElement, language: string) {
+  const explicitFilename =
+    preElement.dataset.filename ||
+    preElement.dataset.file ||
+    preElement.dataset.title ||
+    codeElement.dataset.filename ||
+    codeElement.dataset.file;
+
+  if (explicitFilename) return explicitFilename;
+
+  const defaults: Record<string, string> = {
+    bash: "terminal.sh",
+    shell: "terminal.sh",
+    sh: "terminal.sh",
+    css: "styles.css",
+    json: "config.json",
+    markup: "index.html",
+    html: "index.html",
+    typescript: "example.ts",
+    ts: "example.ts",
+    yaml: "config.yaml",
+    yml: "config.yml",
+  };
+
+  return defaults[language] || `snippet.${language}`;
+}
+
 export default function CodeBlockEnhancer({
   containerSelector = ".article-content",
   contentKey,
@@ -43,6 +70,8 @@ export default function CodeBlockEnhancer({
 
       const language = getLanguage(codeElement);
       codeElement.classList.add(`language-${language}`);
+      preElement.dataset.filename = getFilename(preElement, codeElement, language);
+      preElement.dataset.language = language.toUpperCase();
 
       const grammar = Prism.languages[language] || Prism.languages.markup;
       const rawCode = codeElement.textContent || "";

@@ -91,17 +91,17 @@ export default function TableOfContents({
   }, [contentSelector, headings]);
 
   return (
-    <aside className="order-3 hidden w-64 lg:block">
-      <div className="sticky top-24 space-y-4">
+    <aside className="order-3 hidden w-72 lg:block">
+      <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/70">
         <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-150">
           <List className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           Mục lục
         </h3>
 
         {tocHeadings.length === 0 ? (
-          <p className="text-xs text-gray-400">{emptyLabel}</p>
+          <p className="mt-4 text-xs text-gray-400">{emptyLabel}</p>
         ) : (
-          <ul className="space-y-2.5 border-l border-gray-250 py-1 pl-4 text-xs dark:border-gray-800">
+          <ul className="mt-4 space-y-2.5 border-l border-gray-250 py-1 pl-4 text-xs dark:border-gray-800">
             {tocHeadings.map((heading) => (
               <li key={heading.id}>
                 <a

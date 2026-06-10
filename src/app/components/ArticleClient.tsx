@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Eye, Clock, Tag, Link2, ChevronRight } from "lucide-react";
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
+import ArticleImageEnhancer from "./ArticleImageEnhancer";
 import CodeBlockEnhancer from "./CodeBlockEnhancer";
 import PostListRow from "./PostListRow";
 import TableOfContents, { TocHeading } from "./TableOfContents";
@@ -14,6 +15,7 @@ interface ArticleClientProps {
   author: Author;
   headings: TocHeading[];
   relatedPosts: Post[];
+  assetBase?: string;
 }
 
 export default function ArticleClient({
@@ -21,6 +23,7 @@ export default function ArticleClient({
   author,
   headings,
   relatedPosts,
+  assetBase,
 }: ArticleClientProps) {
   const { t, language } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -34,8 +37,8 @@ export default function ArticleClient({
   };
 
   return (
-    <div className="w-full bg-white dark:bg-gray-950 transition-colors duration-200 py-10">
-      <div className="mx-auto max-w-6xl px-4">
+    <div className="w-full bg-white py-10 transition-colors duration-200 dark:bg-gray-950">
+      <div className="mx-auto max-w-7xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-8">
           <Link href="/" className="hover:text-brand-650 transition">{t("home")}</Link>
@@ -48,10 +51,10 @@ export default function ArticleClient({
         </div>
 
         {/* 3-Column Layout */}
-        <div className="grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)_16rem]">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,780px)_18rem] lg:justify-center">
           
           {/* Left Column: Back button, author details & share */}
-          <div className="space-y-8 order-2 lg:order-1">
+          <div className="order-2 space-y-8 lg:hidden">
             {/* Back to Blog */}
             <button
               type="button"
@@ -137,7 +140,7 @@ export default function ArticleClient({
           </div>
 
           {/* Center Column: Main Content */}
-          <div className="order-1 lg:order-2 space-y-6">
+          <div className="order-1 space-y-6">
             {/* Header info */}
             <div className="space-y-4">
               <span className="inline-flex rounded-full bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
@@ -179,6 +182,7 @@ export default function ArticleClient({
             {/* Prose Content Rendering */}
             <div className="article-content prose max-w-none dark:prose-invert">
               <CodeBlockEnhancer contentKey={post.slug} />
+              <ArticleImageEnhancer assetBase={assetBase} contentKey={post.slug} />
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
 

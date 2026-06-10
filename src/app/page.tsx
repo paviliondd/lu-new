@@ -38,21 +38,14 @@ export default function Home() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative flex min-h-[70vh] sm:min-h-[85vh] items-center overflow-hidden bg-gradient-to-br from-white via-brand-50/40 to-blue-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-brand-950/10 transition-colors duration-200">
-        {/* Animated Glow Blobs */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="animate-blob absolute -left-40 top-0 h-96 w-96 rounded-full bg-brand-200/30 blur-3xl dark:bg-brand-900/20"></div>
-          <div className="animate-blob animation-delay-2000 absolute -right-40 top-40 h-96 w-96 rounded-full bg-blue-200/30 blur-3xl dark:bg-blue-900/20"></div>
-          <div className="animate-blob animation-delay-4000 absolute -bottom-20 left-1/3 h-80 w-80 rounded-full bg-indigo-200/30 blur-3xl dark:bg-indigo-900/10"></div>
-        </div>
-
-        <div className="relative mx-auto max-w-6xl px-4 py-24 text-center sm:py-32">
+      <section className="relative flex min-h-[58vh] items-center overflow-hidden border-b border-gray-200 bg-white transition-colors duration-200 dark:border-gray-800 dark:bg-gray-950">
+        <div className="relative mx-auto max-w-3xl px-4 py-20 text-center sm:py-24">
           {/* Pill Badge */}
-          <span className="mb-6 inline-flex rounded-full bg-brand-100/80 dark:bg-brand-900/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400 backdrop-blur-sm">
+          <span className="mb-6 inline-flex rounded-full bg-brand-100/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-700 backdrop-blur-sm dark:bg-brand-900/40 dark:text-brand-400">
             {t("exploreBuildShare")}
           </span>
           {/* Title */}
-          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.15]">
+          <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-[1.12] tracking-tight sm:text-5xl md:text-6xl">
             <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent dark:from-gray-100 dark:via-gray-200 dark:to-gray-100">
               {t("heroTitlePart1")}
             </span>
@@ -61,11 +54,11 @@ export default function Home() {
             </span>
           </h1>
           {/* Subtext */}
-          <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-gray-600 dark:text-gray-400">
+          <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-400 sm:text-lg">
             {t("heroDesc")}
           </p>
           {/* CTA Buttons */}
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/blog"
               className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-xl bg-brand-600 px-7 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 hover:shadow-xl hover:shadow-brand-500/30 hover:bg-brand-700 transition cursor-pointer"
@@ -200,20 +193,20 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {series.map((item) => (
               <Link
                 key={item.slug}
                 href={`/blog/series/${item.slug}`}
-                className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 dark:border-gray-800 dark:bg-gray-900 cursor-pointer"
+                className="group flex flex-col rounded-xl border border-gray-200 bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-500/40 hover:shadow-lg hover:shadow-brand-500/10 dark:border-gray-800 dark:bg-gray-900 cursor-pointer"
               >
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400 group-hover:scale-110 transition duration-200">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400 group-hover:scale-105 transition duration-200">
                   {renderSeriesIcon(item.icon)}
                 </div>
-                <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition text-base leading-snug">
+                <h3 className="line-clamp-2 text-base font-bold leading-snug text-gray-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400 line-clamp-3">
+                <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                   {item.description}
                 </p>
                 <p className="mt-4 text-xs font-bold text-brand-600 dark:text-brand-400 flex items-center gap-1">

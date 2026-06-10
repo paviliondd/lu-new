@@ -3,7 +3,7 @@
 // TODO: Refactor search/filter state so this page can move back to a Server Component later.
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, Calendar, Tag, ChevronRight } from "lucide-react";
+import { Search, Tag, ChevronRight } from "lucide-react";
 import { posts as initialPosts, series, team } from "../data";
 import { useLanguage } from "../components/LanguageProvider";
 import { usePublishedPosts } from "../components/usePublishedPosts";
@@ -57,7 +57,7 @@ export default function BlogList() {
             Associate và DevOps Professional để học, ôn tập và triển khai thực tế.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-6 text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-8 grid max-w-md grid-cols-2 gap-6 text-sm text-gray-600 dark:text-gray-400">
             <div>
               <span className="block text-2xl font-semibold text-gray-950 dark:text-white">
                 {posts.length}
@@ -69,12 +69,6 @@ export default function BlogList() {
                 {series.length}
               </span>
               Chuỗi chủ đề
-            </div>
-            <div>
-              <span className="flex items-center gap-1 text-2xl font-semibold text-gray-950 dark:text-white">
-                <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />2
-              </span>
-              Chứng chỉ AWS
             </div>
           </div>
         </div>

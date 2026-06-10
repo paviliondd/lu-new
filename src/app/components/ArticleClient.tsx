@@ -1,35 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Eye, Clock, Tag, Link2, ChevronRight, List } from "lucide-react";
+import { ArrowLeft, Calendar, Eye, Clock, Tag, Link2, ChevronRight } from "lucide-react";
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
+import CodeBlockEnhancer from "./CodeBlockEnhancer";
 import PostListRow from "./PostListRow";
+import TableOfContents, { TocHeading } from "./TableOfContents";
 
 interface ArticleClientProps {
   post: Post;
   author: Author;
-  headings: HeadingItem[];
+  headings: TocHeading[];
   relatedPosts: Post[];
-}
-
-interface HeadingItem {
-  id: string;
-  text: string;
-  level: 2 | 3;
-}
-
-function slugifyHeading(text: string, index: number) {
-  return (
-    text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-") || `heading-${index}`
-  );
 }
 
 export default function ArticleClient({
@@ -39,52 +23,7 @@ export default function ArticleClient({
   relatedPosts,
 }: ArticleClientProps) {
   const { t, language } = useLanguage();
-  const [tocHeadings, setTocHeadings] = useState<HeadingItem[]>(headings);
-  const [activeId, setActiveId] = useState("");
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const proseElement = document.querySelector(".prose");
-    if (!proseElement) return;
-
-    const headingElements = proseElement.querySelectorAll("h2, h3");
-    const headingList: HeadingItem[] = [];
-
-    headingElements.forEach((el, index) => {
-      const text = el.textContent || "";
-      const id = headings[index]?.id || slugifyHeading(text, index);
-      
-      el.id = id;
-      headingList.push({
-        id,
-        text,
-        level: el.tagName.toLowerCase() === "h3" ? 3 : 2,
-      });
-    });
-
-    const headingTimer = window.setTimeout(
-      () => setTocHeadings(headingList.length ? headingList : headings),
-      0
-    );
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "0px 0px -60% 0px", threshold: 0.1 }
-    );
-
-    headingElements.forEach((el) => observer.observe(el));
-
-    return () => {
-      window.clearTimeout(headingTimer);
-      headingElements.forEach((el) => observer.unobserve(el));
-    };
-  }, [post.content, headings]);
 
   const copyLink = () => {
     if (typeof window !== "undefined") {
@@ -238,10 +177,10 @@ export default function ArticleClient({
             </div>
 
             {/* Prose Content Rendering */}
-            <div
-              className="prose max-w-none dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+            <div className="article-content prose max-w-none dark:prose-invert">
+              <CodeBlockEnhancer contentKey={post.slug} />
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            </div>
 
             {/* Post Tags Footer */}
             <div className="flex flex-wrap gap-1.5 pt-6 border-t border-gray-100 dark:border-gray-800/80">
@@ -285,47 +224,7 @@ export default function ArticleClient({
             )}
           </div>
 
-          {/* Right Column: Table of Contents */}
-          <div className="order-3 hidden w-64 lg:block">
-            <div className="sticky top-24 space-y-4">
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-150">
-                <List className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                Mục lục
-              </h3>
-              
-              {tocHeadings.length === 0 ? (
-                <p className="text-xs text-gray-400">{t("noToc")}</p>
-              ) : (
-                <ul className="space-y-2.5 border-l border-gray-250 dark:border-gray-800 pl-4 py-1 text-xs">
-                  {tocHeadings.map((heading) => (
-                    <li key={heading.id}>
-                      <a
-                        href={`#${heading.id}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          const el = document.getElementById(heading.id);
-                          if (el) {
-                            const yOffset = -80; // offset for sticky header
-                            const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                            window.scrollTo({ top: y, behavior: "smooth" });
-                          }
-                        }}
-                        className={`block transition-colors duration-200 hover:text-blue-600 dark:hover:text-blue-400 ${
-                          heading.level === 3 ? "pl-3" : ""
-                        } ${
-                          activeId === heading.id
-                            ? "text-blue-600 dark:text-blue-400 font-semibold"
-                            : "text-gray-500 dark:text-gray-400"
-                        }`}
-                      >
-                        {heading.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
+          <TableOfContents headings={headings} emptyLabel={t("noToc")} />
 
         </div>
       </div>

@@ -43,7 +43,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/85 backdrop-blur-lg dark:border-gray-800 dark:bg-gray-950/85 transition-colors duration-200">
+      <header className="sticky top-0 z-40 border-b border-gray-200/50 bg-white/75 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-950/75 transition-colors duration-200">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">

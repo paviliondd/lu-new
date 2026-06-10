@@ -190,7 +190,7 @@ curl -I https://tesst.linuxunity.com/wp-admin
 Backup:
 
 ```bash
-scripts/backup-wordpress.sh
+scripts/backup.sh
 ```
 
 Check WordPress REST API authentication for draft import:
@@ -202,10 +202,10 @@ docker compose run --rm --no-deps app node scripts/check-wordpress-auth.mjs
 Restore:
 
 ```bash
-CONFIRM_RESTORE=yes scripts/restore-wordpress.sh ./backups/YYYYMMDD-HHMMSS
+CONFIRM_RESTORE=yes scripts/restore.sh ./backups/YYYYMMDD-HHMMSS
 ```
 
-Restore se ghi de WordPress database va WordPress files volume. Chi chay khi thuc su can rollback du lieu.
+Restore se ghi de WordPress database va overlay uploads tu backup. Chi chay khi thuc su can rollback du lieu.
 
 ## Rollback code
 

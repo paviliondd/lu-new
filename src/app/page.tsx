@@ -107,7 +107,7 @@ export default function Home() {
               return (
                 <article
                   key={post.slug}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:shadow-xl hover:border-gray-300/80 dark:hover:border-gray-700 transition duration-300"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
                 >
                   <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
                     {/* Cover Gradient Graphic */}
@@ -195,7 +195,7 @@ export default function Home() {
               return (
                 <article
                   key={post.slug + "-popular"}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:shadow-xl hover:border-gray-300/80 dark:hover:border-gray-700 transition duration-300"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
                 >
                   <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
                     <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
@@ -262,7 +262,7 @@ export default function Home() {
               <Link
                 key={item.slug}
                 href={`/blog/series/${item.slug}`}
-                className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-900 hover:border-gray-300/80 dark:hover:border-gray-700 cursor-pointer"
+                className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 dark:border-gray-800 dark:bg-gray-900 cursor-pointer"
               >
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400 group-hover:scale-110 transition duration-200">
                   {renderSeriesIcon(item.icon)}

@@ -94,6 +94,7 @@ export default function ArticleClient({ post, author }: ArticleClientProps) {
             {/* Back to Blog */}
             <Link
               href="/blog"
+              replace
               className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition group cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition duration-200" />

@@ -4,6 +4,8 @@ import { team } from "../../data";
 import ArticleClient from "../../components/ArticleClient";
 import { getCmsPostBySlug } from "@/lib/cms/wordpress";
 
+export const revalidate = 60;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

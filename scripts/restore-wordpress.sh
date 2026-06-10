@@ -14,8 +14,16 @@ if [ "${CONFIRM_RESTORE:-}" != "yes" ]; then
   exit 1
 fi
 
-if [ ! -f "${BACKUP_DIR}/database.sql" ] || [ ! -f "${BACKUP_DIR}/wordpress-files.tgz" ]; then
-  echo "Backup directory must contain database.sql and wordpress-files.tgz."
+if [ ! -f "${BACKUP_DIR}/database.sql" ]; then
+  echo "Backup directory must contain database.sql."
+  exit 1
+fi
+
+UPLOAD_ARCHIVE="${BACKUP_DIR}/uploads.tgz"
+LEGACY_FILES_ARCHIVE="${BACKUP_DIR}/wordpress-files.tgz"
+
+if [ ! -f "${UPLOAD_ARCHIVE}" ] && [ ! -f "${LEGACY_FILES_ARCHIVE}" ]; then
+  echo "Backup directory must contain uploads.tgz or legacy wordpress-files.tgz."
   exit 1
 fi
 
@@ -23,9 +31,15 @@ echo "Restoring database..."
 docker compose exec -T db sh -c 'mariadb -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"' \
   < "${BACKUP_DIR}/database.sql"
 
-echo "Restoring WordPress files/uploads..."
-docker compose exec -T wordpress sh -c 'rm -rf /var/www/html/* /var/www/html/.[!.]* /var/www/html/..?*'
-docker compose exec -T wordpress tar xzf - -C /var/www/html \
-  < "${BACKUP_DIR}/wordpress-files.tgz"
+if [ -f "${UPLOAD_ARCHIVE}" ]; then
+  echo "Restoring WordPress uploads..."
+  docker compose exec -T wordpress sh -c 'mkdir -p /var/www/html/wp-content'
+  docker compose exec -T wordpress tar xzf - -C /var/www/html/wp-content \
+    < "${UPLOAD_ARCHIVE}"
+else
+  echo "Restoring legacy WordPress files archive..."
+  docker compose exec -T wordpress tar xzf - -C /var/www/html \
+    < "${LEGACY_FILES_ARCHIVE}"
+fi
 
 echo "Restore complete from: ${BACKUP_DIR}"

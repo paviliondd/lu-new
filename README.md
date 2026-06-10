@@ -53,10 +53,12 @@ Stack hiện tại:
 │   ├── GIT_WORKFLOW.md
 │   └── headless-wordpress-roadmap.md
 ├── scripts/
+│   ├── backup.sh
 │   ├── backup-wordpress.sh
 │   ├── deploy.sh
 │   ├── import-roadmap-to-wordpress.mjs
 │   ├── list-wordpress-drafts.mjs
+│   ├── restore.sh
 │   └── restore-wordpress.sh
 ├── public/
 └── src/

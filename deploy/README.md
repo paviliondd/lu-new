@@ -145,8 +145,16 @@ Prometheus scrapes:
 - `cadvisor:8080`
 - `prometheus:9090`
 
-Grafana and Prometheus are not exposed publicly by default. Use an SSH tunnel or
-add an explicitly protected Caddy route later if you need browser access.
+Grafana is bound to `127.0.0.1:3000` on the VPS. Use an SSH tunnel for browser
+access:
+
+```bash
+ssh -L 3000:127.0.0.1:3000 root@<VPS_PUBLIC_IP>
+```
+
+Then open `http://127.0.0.1:3000` on your local machine. Prometheus is not
+exposed publicly by default. Add an explicitly protected Caddy route later only
+if you need public browser access.
 Grafana is provisioned with Prometheus as the default datasource.
 
 ## WordPress Redirect Fix
@@ -193,22 +201,23 @@ docker compose up -d caddy
 ## Backup
 
 ```bash
-chmod +x scripts/backup-wordpress.sh scripts/restore-wordpress.sh
-scripts/backup-wordpress.sh
+chmod +x scripts/backup.sh scripts/restore.sh scripts/backup-wordpress.sh scripts/restore-wordpress.sh
+scripts/backup.sh
 ```
 
 Backups are written to `./backups/<timestamp>/` and include:
 
 - `database.sql`
-- `wordpress-files.tgz`
+- `uploads.tgz`
 
 Restore from a backup:
 
 ```bash
-CONFIRM_RESTORE=yes scripts/restore-wordpress.sh ./backups/YYYYMMDD-HHMMSS
+CONFIRM_RESTORE=yes scripts/restore.sh ./backups/YYYYMMDD-HHMMSS
 ```
 
-Restore overwrites the WordPress database and WordPress files volume. Do not run it unless you intentionally want to roll back.
+Restore overwrites the WordPress database and overlays the backed-up uploads.
+Do not run it unless you intentionally want to roll back.
 
 ## Uploads and Permissions
 

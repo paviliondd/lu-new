@@ -57,9 +57,25 @@ async function getAllPosts() {
   let page = 1;
 
   while (true) {
-    const batch = await wpRequest(
-      `/posts?status=any&context=edit&per_page=100&page=${page}&_fields=id,slug,title,status`
-    );
+    let batch;
+
+    try {
+      batch = await wpRequest(
+        `/posts?status=any&context=edit&per_page=100&page=${page}&_fields=id,slug,title,status`
+      );
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes("rest_post_invalid_page_number")
+      ) {
+        break;
+      }
+
+      throw error;
+    }
+
+    if (batch?.code === "rest_post_invalid_page_number") break;
+
     posts.push(...batch);
 
     if (batch.length < 100) break;

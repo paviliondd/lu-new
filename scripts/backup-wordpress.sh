@@ -11,8 +11,8 @@ echo "Creating database backup..."
 docker compose exec -T db sh -c 'mariadb-dump -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"' \
   > "${BACKUP_DIR}/database.sql"
 
-echo "Creating WordPress files/uploads backup..."
-docker compose exec -T wordpress tar czf - -C /var/www/html . \
-  > "${BACKUP_DIR}/wordpress-files.tgz"
+echo "Creating WordPress uploads backup..."
+docker compose exec -T wordpress sh -c 'mkdir -p /var/www/html/wp-content/uploads && tar czf - -C /var/www/html/wp-content uploads' \
+  > "${BACKUP_DIR}/uploads.tgz"
 
 echo "Backup complete: ${BACKUP_DIR}"

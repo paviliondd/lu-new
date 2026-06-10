@@ -1,4 +1,4 @@
-import { posts as localPublishedPosts, type Post } from "@/app/data";
+import { posts as localPublishedPosts, team, type Post } from "@/app/data";
 
 interface WordPressRendered {
   rendered?: string;
@@ -27,6 +27,7 @@ interface WordPressPost {
   content?: WordPressRendered;
   yoast_head_json?: WordPressSeo;
   _embedded?: {
+    author?: Array<{ slug?: string }>;
     "wp:term"?: WordPressTerm[][];
   };
 }
@@ -76,13 +77,17 @@ function buildRestRouteApiBase(apiBase: string) {
 
 async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
   const primaryUrl = buildWordPressRestUrl(wordpressApiBase, endpoint);
-  let response = await fetch(primaryUrl);
+  let response = await fetch(primaryUrl, {
+    next: { revalidate: 60 },
+  });
 
   if (!response.ok && response.status === 404) {
     const fallbackApiBase = buildRestRouteApiBase(wordpressApiBase);
 
     if (fallbackApiBase) {
-      response = await fetch(buildWordPressRestUrl(fallbackApiBase, endpoint));
+      response = await fetch(buildWordPressRestUrl(fallbackApiBase, endpoint), {
+        next: { revalidate: 60 },
+      });
     }
   }
 
@@ -114,6 +119,8 @@ function mapWordPressPost(post: WordPressPost): Post {
   const tags = extractTerms(post, "post_tag");
   const isPublished = post.status === "publish";
   const publishDate = isPublished ? post.date || null : null;
+  const wpAuthorSlug = post._embedded?.author?.[0]?.slug;
+  const authorKey = wpAuthorSlug && team[wpAuthorSlug] ? wpAuthorSlug : "nhatnghia";
 
   return {
     id: post.id,
@@ -128,7 +135,7 @@ function mapWordPressPost(post: WordPressPost): Post {
     content_en: post.content?.rendered || "",
     category,
     tags,
-    author: "nhatnghia",
+    author: authorKey,
     status: isPublished ? "published" : "draft",
     publishDate,
     publish_date: publishDate,
@@ -164,7 +171,7 @@ function mapWordPressPost(post: WordPressPost): Post {
 
 async function fetchWordPressPosts(status = "publish") {
   const posts = await fetchWordPressJson<WordPressPost[]>(
-    `/posts?status=${status}&_embed=wp:term&per_page=100`
+    `/posts?status=${status}&_embed=author,wp:term&per_page=100`
   );
   return posts.map(mapWordPressPost);
 }
@@ -188,7 +195,7 @@ export async function getCmsPostBySlug(slug: string): Promise<Post | null> {
     const posts = await fetchWordPressJson<WordPressPost[]>(
       `/posts?slug=${encodeURIComponent(
         slug
-      )}&status=publish&_embed=wp:term&per_page=1`
+      )}&status=publish&_embed=author,wp:term&per_page=1`
     );
     return posts[0] ? mapWordPressPost(posts[0]) : null;
   } catch {

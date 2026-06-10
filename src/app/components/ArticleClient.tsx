@@ -92,14 +92,17 @@ export default function ArticleClient({ post, author }: ArticleClientProps) {
           {/* Left Column: Back button, author details & share (3 cols on desktop) */}
           <div className="lg:col-span-3 space-y-8 order-2 lg:order-1">
             {/* Back to Blog */}
-            <Link
-              href="/blog"
-              replace
+            <button
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                window.location.replace("/blog");
+              }}
               className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition group cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition duration-200" />
               {t("backToBlog")}
-            </Link>
+            </button>
 
             {/* Author Card */}
             <div className="rounded-2xl border border-gray-250/70 p-5 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/20">

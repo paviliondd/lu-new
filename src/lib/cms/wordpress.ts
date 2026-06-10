@@ -112,6 +112,14 @@ function extractTerms(post: WordPressPost, taxonomy: string) {
     .map((term) => term.name);
 }
 
+function hasRenderableContent(post: WordPressPost) {
+  return plainText(post.content?.rendered).length > 0;
+}
+
+function isRenderablePublishedPost(post: WordPressPost) {
+  return post.status === "publish" && Boolean(post.slug) && hasRenderableContent(post);
+}
+
 function mapWordPressPost(post: WordPressPost): Post {
   const title = plainText(post.title?.rendered);
   const description = plainText(post.excerpt?.rendered);
@@ -173,7 +181,7 @@ async function fetchWordPressPosts(status = "publish") {
   const posts = await fetchWordPressJson<WordPressPost[]>(
     `/posts?status=${status}&_embed=author,wp:term&per_page=100`
   );
-  return posts.map(mapWordPressPost);
+  return posts.filter(isRenderablePublishedPost).map(mapWordPressPost);
 }
 
 export async function getCmsPublishedPosts(): Promise<Post[]> {
@@ -197,8 +205,9 @@ export async function getCmsPostBySlug(slug: string): Promise<Post | null> {
         slug
       )}&status=publish&_embed=author,wp:term&per_page=1`
     );
-    return posts[0] ? mapWordPressPost(posts[0]) : null;
+    const post = posts[0];
+    return post && isRenderablePublishedPost(post) ? mapWordPressPost(post) : null;
   } catch {
-    return localPublishedPosts.find((post) => post.slug === slug) || null;
+    return null;
   }
 }

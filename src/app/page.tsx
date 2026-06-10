@@ -109,7 +109,7 @@ export default function Home() {
                   key={post.slug}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
                 >
-                  <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
+                  <a href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
                     {/* Cover Gradient Graphic */}
                     <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
                       <span className="max-w-[85%] text-center text-lg font-extrabold leading-snug text-white drop-shadow-md line-clamp-2">
@@ -127,14 +127,14 @@ export default function Home() {
                         </span>
                       ))}
                     </div>
-                  </Link>
+                  </a>
 
                   <div className="flex flex-1 flex-col p-5">
                     <span className="text-[11px] font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-2">
                       {post.category}
                     </span>
                     <h3 className="mb-2 line-clamp-2 font-bold text-base leading-snug text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                      <a href={`/blog/${post.slug}`}>{post.title}</a>
                     </h3>
                     <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                       {post.description}
@@ -197,17 +197,17 @@ export default function Home() {
                   key={post.slug + "-popular"}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
                 >
-                  <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
+                  <a href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
                     <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
                       <span className="max-w-[85%] text-center text-lg font-extrabold leading-snug text-white drop-shadow-md line-clamp-2">
                         {post.title}
                       </span>
                     </div>
-                  </Link>
+                  </a>
 
                   <div className="flex flex-1 flex-col p-5">
                     <h3 className="mb-2 line-clamp-2 font-bold text-base leading-snug text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                      <a href={`/blog/${post.slug}`}>{post.title}</a>
                     </h3>
                     <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                       {post.description}

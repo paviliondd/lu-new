@@ -1,8 +1,8 @@
-# Cloud DevOps Blog
+# LinuxUnity Blog
 
 ## Tổng quan
 
-Đây là mã nguồn website/blog Cloud DevOps dùng để triển khai nội dung học tập, ghi chú kỹ thuật, bài lab và tài liệu liên quan đến Linux, DevOps, Cloud, AWS, Docker, Kubernetes và các chủ đề hạ tầng.
+Đây là mã nguồn website/blog LinuxUnity dùng để triển khai nội dung học tập, ghi chú kỹ thuật, bài lab và tài liệu liên quan đến Linux, DevOps, Cloud, AWS, Docker, Kubernetes và các chủ đề hạ tầng.
 
 Website được quản lý mã nguồn bằng GitHub và triển khai lên VPS thông qua CI/CD.
 

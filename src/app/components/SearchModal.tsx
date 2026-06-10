@@ -13,7 +13,7 @@ interface SearchModalProps {
 }
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-  const { t, language } = useLanguage();
+  const { t, language, localePath } = useLanguage();
   const [query, setQuery] = useState("");
   const posts = usePublishedPosts(initialPosts);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -98,25 +98,21 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div className="max-h-[62vh] overflow-y-auto p-4">
           {query.trim() === "" ? (
             <div className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              {language === "vi"
-                ? "Nhập từ khóa để tìm kiếm các bài viết về AWS, Kubernetes, Terraform, CI/CD..."
-                : "Enter keywords to search posts about AWS, Kubernetes, Terraform, CI/CD..."}
+              {t("searchHint")}
             </div>
           ) : results.length === 0 ? (
             <div className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              {language === "vi"
-                ? `Không tìm thấy kết quả nào phù hợp với "${query}"`
-                : `No results found for "${query}"`}
+              {t("noSearchResults")}: &quot;{query}&quot;
             </div>
           ) : (
             <div className="space-y-2">
               <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 px-2 mb-2">
-                {language === "vi" ? `Bài viết (${results.length})` : `Articles (${results.length})`}
+                {t("articles")} ({results.length})
               </div>
               {results.map((post) => (
                 <Link
                   key={post.slug}
-                  href={`/blog/${post.slug}`}
+                  href={localePath(`/blog/${post.slug}`)}
                   onClick={onClose}
                 className="group flex items-start gap-3 rounded-2xl p-3 transition hover:bg-cyan-50/70 dark:hover:bg-cyan-950/20"
               >
@@ -146,14 +142,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50/80 px-5 py-3 text-[10px] text-gray-400 dark:border-gray-800 dark:bg-gray-900/60">
           <div>
-            {language === "vi" ? (
-              <>Nhấn <kbd className="font-sans font-bold">ESC</kbd> để đóng</>
-            ) : (
-              <>Press <kbd className="font-sans font-bold">ESC</kbd> to close</>
-            )}
+            {t("closeSearch")}
           </div>
           <div>
-            {language === "vi" ? "Tìm kiếm thông minh bởi Cloud DevOps" : "Smart search by Cloud DevOps"}
+            {t("smartSearch")}
           </div>
         </div>
       </div>

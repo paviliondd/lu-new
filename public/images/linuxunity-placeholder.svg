@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+  <title id="title">LinuxUnity image placeholder</title>
+  <desc id="description">A LinuxUnity branded fallback image.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="0.55" stop-color="#0c2741"/>
+      <stop offset="1" stop-color="#0b4f6c"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" rx="36" fill="url(#background)"/>
+  <circle cx="600" cy="286" r="104" fill="none" stroke="url(#mark)" stroke-width="18"/>
+  <path d="M546 226v120h116" fill="none" stroke="url(#mark)" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"/>
+  <text x="600" y="454" fill="#f8fafc" font-family="Arial, sans-serif" font-size="58" font-weight="700" text-anchor="middle">LinuxUnity</text>
+  <text x="600" y="510" fill="#94a3b8" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Cloud and DevOps knowledge, united.</text>
+</svg>

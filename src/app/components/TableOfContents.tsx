@@ -13,6 +13,7 @@ interface TableOfContentsProps {
   headings: TocHeading[];
   contentSelector?: string;
   emptyLabel: string;
+  title: string;
 }
 
 function slugifyHeading(text: string, index: number) {
@@ -31,6 +32,7 @@ export default function TableOfContents({
   headings,
   contentSelector = ".article-content",
   emptyLabel,
+  title,
 }: TableOfContentsProps) {
   const [tocHeadings, setTocHeadings] = useState<TocHeading[]>(headings);
   const [activeId, setActiveId] = useState("");
@@ -71,22 +73,45 @@ export default function TableOfContents({
       setTocHeadings(headingList.length ? headingList : headings);
     });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "0px 0px -60% 0px", threshold: 0.1 }
-    );
+    let ticking = false;
 
-    headingElements.forEach((element) => observer.observe(element));
+    const updateActiveHeading = () => {
+      const readingLine = window.scrollY + 160;
+      let currentId = headingElements[0]?.id ?? "";
+
+      headingElements.forEach((heading) => {
+        if ((heading as HTMLElement).offsetTop <= readingLine) {
+          currentId = heading.id;
+        }
+      });
+
+      const isAtPageEnd =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 8;
+
+      if (isAtPageEnd) {
+        currentId = headingElements[headingElements.length - 1]?.id ?? currentId;
+      }
+
+      setActiveId(currentId);
+    };
+
+    const handleScroll = () => {
+      if (ticking) return;
+
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        updateActiveHeading();
+        ticking = false;
+      });
+    };
+
+    updateActiveHeading();
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.cancelAnimationFrame(updateFrame);
-      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [contentSelector, headings]);
 
@@ -95,7 +120,7 @@ export default function TableOfContents({
       <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/70">
         <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-150">
           <List className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          Mục lục
+          {title}
         </h3>
 
         {tocHeadings.length === 0 ? (
@@ -108,6 +133,7 @@ export default function TableOfContents({
                   href={`#${heading.id}`}
                   onClick={(event) => {
                     event.preventDefault();
+                    setActiveId(heading.id);
                     const element = document.getElementById(heading.id);
                     if (!element) return;
 

@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { ChevronRight, Layers, Zap, GitPullRequest, Bookmark, PlayCircle } from "lucide-react";
-import { series, posts as initialPosts, team } from "../../data";
-import { useLanguage } from "../../components/LanguageProvider";
-import { usePublishedPosts } from "../../components/usePublishedPosts";
+import { series, posts as initialPosts, team } from "@/app/data";
+import { useLanguage } from "@/app/components/LanguageProvider";
+import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
 export default function SeriesListPage() {
-  const { t } = useLanguage();
+  const { t, language, localePath } = useLanguage();
   const posts = usePublishedPosts(initialPosts);
 
   const renderSeriesIcon = (iconName: string) => {
@@ -28,7 +28,7 @@ export default function SeriesListPage() {
       <div className="mx-auto max-w-6xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-6">
-          <Link href="/" className="hover:text-brand-650 transition">{t("home")}</Link>
+          <Link href={localePath("/")} className="hover:text-brand-650 transition">{t("home")}</Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-gray-900 dark:text-gray-100 font-medium">{t("series")}</span>
         </div>
@@ -36,7 +36,7 @@ export default function SeriesListPage() {
         {/* Title area */}
         <div className="mb-12 max-w-3xl">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
-            {t("series")}
+            {t("linuxUnitySeries")}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
             {t("logoSubtitle")}
@@ -65,7 +65,7 @@ export default function SeriesListPage() {
                       </div>
                       <div>
                         <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                          {item.title}
+                          {language === "vi" ? item.title : item.title_en}
                         </h2>
                         <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-600 dark:text-brand-400 mt-0.5">
                           <Bookmark className="h-3.5 w-3.5" />
@@ -74,7 +74,7 @@ export default function SeriesListPage() {
                       </div>
                     </div>
                     <p className="text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-400 max-w-3xl">
-                      {item.description}
+                      {language === "vi" ? item.description : item.description_en}
                     </p>
                   </div>
                 </div>
@@ -91,7 +91,7 @@ export default function SeriesListPage() {
                         return (
                           <Link
                             key={post.slug}
-                            href={`/blog/${post.slug}`}
+                            href={localePath(`/blog/${post.slug}`)}
                             className="flex items-start gap-3 rounded-xl border border-gray-100 dark:border-gray-800/60 bg-gray-50/20 dark:bg-gray-900/50 p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-200 dark:hover:border-gray-700 transition cursor-pointer"
                           >
                             <PlayCircle className="h-5 w-5 text-brand-500 shrink-0 mt-0.5" />
@@ -100,7 +100,7 @@ export default function SeriesListPage() {
                                 {t("part")} {index + 1}
                               </span>
                               <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-brand-600 line-clamp-1">
-                                {post.title}
+                                {language === "vi" ? post.title : post.title_en}
                               </span>
                               <span className="text-[10px] text-gray-450 block mt-1">
                                 {t("writtenBy")} {authorInfo?.name.split(" (")[0]} · {post.readTime}

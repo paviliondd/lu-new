@@ -9,6 +9,7 @@ import ArticleImageEnhancer from "./ArticleImageEnhancer";
 import CodeBlockEnhancer from "./CodeBlockEnhancer";
 import PostListRow from "./PostListRow";
 import TableOfContents, { TocHeading } from "./TableOfContents";
+import CustomImage from "./CustomImage";
 
 interface ArticleClientProps {
   post: Post;
@@ -25,7 +26,7 @@ export default function ArticleClient({
   relatedPosts,
   assetBase,
 }: ArticleClientProps) {
-  const { t, language } = useLanguage();
+  const { t, language, localePath } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const copyLink = () => {
@@ -41,9 +42,9 @@ export default function ArticleClient({
       <div className="mx-auto max-w-7xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-8">
-          <Link href="/" className="hover:text-brand-650 transition">{t("home")}</Link>
+          <Link href={localePath("/")} className="hover:text-brand-650 transition">{t("home")}</Link>
           <ChevronRight className="h-3 w-3" />
-          <Link href="/blog" className="hover:text-brand-650 transition">{t("blog")}</Link>
+          <Link href={localePath("/blog")} className="hover:text-brand-650 transition">{t("blog")}</Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-gray-900 dark:text-gray-100 font-medium truncate max-w-[200px] sm:max-w-xs">
             {post.title}
@@ -60,7 +61,7 @@ export default function ArticleClient({
               type="button"
               onClick={(event) => {
                 event.preventDefault();
-                window.location.replace("/blog");
+                window.location.replace(localePath("/blog"));
               }}
               className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition group cursor-pointer"
             >
@@ -176,7 +177,18 @@ export default function ArticleClient({
 
             {/* Banner Cover Gradient */}
             <div className={`relative w-full aspect-[21/9] rounded-2xl overflow-hidden shadow-inner bg-gradient-to-br ${post.gradient}`}>
-              <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+              {post.seo.ogImage ? (
+                <CustomImage
+                  src={post.seo.ogImage}
+                  alt={post.title}
+                  fill
+                  sizes="(min-width: 1024px) 780px, 100vw"
+                  className="object-cover"
+                  fetchPriority="high"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+              )}
             </div>
 
             {/* Prose Content Rendering */}
@@ -203,13 +215,13 @@ export default function ArticleClient({
               <section className="pt-10">
                 <div className="mb-4 flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-800">
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-                    Bài viết liên quan
+                    {t("relatedPosts")}
                   </h2>
                   <Link
-                    href="/blog"
+                    href={localePath("/blog")}
                     className="text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400"
                   >
-                    Xem tất cả
+                    {t("viewAll")}
                   </Link>
                 </div>
                 <div>
@@ -228,7 +240,11 @@ export default function ArticleClient({
             )}
           </div>
 
-          <TableOfContents headings={headings} emptyLabel={t("noToc")} />
+          <TableOfContents
+            headings={headings}
+            title={t("toc")}
+            emptyLabel={t("noToc")}
+          />
 
         </div>
       </div>

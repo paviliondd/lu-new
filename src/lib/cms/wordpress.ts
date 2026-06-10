@@ -1,4 +1,9 @@
 import { posts as localPublishedPosts, team, type Post } from "@/app/data";
+import {
+  getLocalizedFilePost,
+  getLocalizedFilePosts,
+} from "@/lib/content/localized-posts";
+import { localizePost, type Locale } from "@/i18n/config";
 
 interface WordPressRendered {
   rendered?: string;
@@ -177,7 +182,7 @@ function estimateReadTime(html = ""): string {
   return `${minutes} phút đọc`;
 }
 
-function mapWordPressPost(post: WordPressPost): Post {
+function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
   const title = plainText(post.title?.rendered);
   const description = plainText(post.excerpt?.rendered);
   const content = normalizeWordPressContent(post.content?.rendered || "");
@@ -188,7 +193,7 @@ function mapWordPressPost(post: WordPressPost): Post {
   const wpAuthorSlug = post._embedded?.author?.[0]?.slug;
   const authorKey = wpAuthorSlug && team[wpAuthorSlug] ? wpAuthorSlug : "nhatnghia";
 
-  return {
+  const mappedPost: Post = {
     id: post.id,
     roadmapId: post.id,
     roadmapOrder: 0,
@@ -207,7 +212,7 @@ function mapWordPressPost(post: WordPressPost): Post {
     publish_date: publishDate,
     date: post.date || "",
     readTime: estimateReadTime(content),
-    readTime_en: estimateReadTime(content),
+    readTime_en: estimateReadTime(content).replace("phút đọc", "min read"),
     views: 0,
     seriesSlug: null,
     topicSlug: "",
@@ -233,39 +238,87 @@ function mapWordPressPost(post: WordPressPost): Post {
       examDomainSlugs: [],
     },
   };
+
+  return localizePost(mappedPost, locale);
 }
 
-async function fetchWordPressPosts(status = "publish") {
-  const posts = await fetchWordPressJson<WordPressPost[]>(
-    `/posts?status=${status}&_embed=author,wp:term&per_page=100`
-  );
-  return posts.filter(isPublishedPost).map(mapWordPressPost);
-}
-
-export async function getCmsPublishedPosts(): Promise<Post[]> {
-  if (!wordpressApiBase) return localPublishedPosts;
+async function fetchWordPressPosts(locale: Locale, status = "publish") {
+  let posts: WordPressPost[];
 
   try {
-    return await fetchWordPressPosts("publish");
-  } catch {
-    return localPublishedPosts;
-  }
-}
-
-export async function getCmsPostBySlug(slug: string): Promise<Post | null> {
-  if (!wordpressApiBase) {
-    return localPublishedPosts.find((post) => post.slug === slug) || null;
-  }
-
-  try {
-    const posts = await fetchWordPressJson<WordPressPost[]>(
-      `/posts?slug=${encodeURIComponent(
-        slug
-      )}&status=publish&_embed=author,wp:term&per_page=1`
+    posts = await fetchWordPressJson<WordPressPost[]>(
+      `/posts?status=${status}&lang=${locale}&_embed=author,wp:term&per_page=100`
     );
-    const post = posts[0];
-    return post && isPublishedPost(post) ? mapWordPressPost(post) : null;
+  } catch (error) {
+    if (locale !== "vi") throw error;
+
+    // WordPress core only supports `lang` when a multilingual plugin provides it.
+    posts = await fetchWordPressJson<WordPressPost[]>(
+      `/posts?status=${status}&_embed=author,wp:term&per_page=100`
+    );
+  }
+
+  return posts.filter(isPublishedPost).map((post) => mapWordPressPost(post, locale));
+}
+
+function mergePosts(primary: Post[], fallback: Post[]) {
+  const postsBySlug = new Map(fallback.map((post) => [post.slug, post]));
+  primary.forEach((post) => postsBySlug.set(post.slug, post));
+  return [...postsBySlug.values()];
+}
+
+function localizedFallbackPosts(locale: Locale) {
+  return localPublishedPosts.map((post) => localizePost(post, locale));
+}
+
+export async function getCmsPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
+  const filePosts = await getLocalizedFilePosts(locale);
+  const fallbackPosts = localizedFallbackPosts(locale);
+  if (!wordpressApiBase) return mergePosts(filePosts, fallbackPosts);
+
+  try {
+    return mergePosts(filePosts, await fetchWordPressPosts(locale, "publish"));
   } catch {
-    return null;
+    return mergePosts(filePosts, fallbackPosts);
+  }
+}
+
+export async function getCmsPostBySlug(
+  slug: string,
+  locale: Locale = "vi"
+): Promise<Post | null> {
+  const filePost = await getLocalizedFilePost(slug, locale);
+  if (filePost?.status === "published") return filePost;
+  if (filePost?.status === "draft") return null;
+
+  if (!wordpressApiBase) {
+    const post = localPublishedPosts.find((item) => item.slug === slug);
+    return post ? localizePost(post, locale) : null;
+  }
+
+  try {
+    let posts: WordPressPost[];
+
+    try {
+      posts = await fetchWordPressJson<WordPressPost[]>(
+        `/posts?slug=${encodeURIComponent(
+          slug
+        )}&status=publish&lang=${locale}&_embed=author,wp:term&per_page=1`
+      );
+    } catch (error) {
+      if (locale !== "vi") throw error;
+
+      posts = await fetchWordPressJson<WordPressPost[]>(
+        `/posts?slug=${encodeURIComponent(
+          slug
+        )}&status=publish&_embed=author,wp:term&per_page=1`
+      );
+    }
+
+    const post = posts[0];
+    return post && isPublishedPost(post) ? mapWordPressPost(post, locale) : null;
+  } catch {
+    const post = localPublishedPosts.find((item) => item.slug === slug);
+    return post ? localizePost(post, locale) : null;
   }
 }

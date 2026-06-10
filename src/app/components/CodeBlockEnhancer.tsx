@@ -1,26 +1,31 @@
 "use client";
 
 import { useEffect } from "react";
-import Prism from "prismjs";
-import "prismjs/components/prism-bash";
-import "prismjs/components/prism-css";
-import "prismjs/components/prism-json";
-import "prismjs/components/prism-markup";
-import "prismjs/components/prism-typescript";
-import "prismjs/components/prism-yaml";
 
 interface CodeBlockEnhancerProps {
   containerSelector?: string;
   contentKey: string;
 }
 
-function getLanguage(codeElement: HTMLElement) {
-  const className = codeElement.className || "";
-  const match = className.match(/language-([a-z0-9-]+)/i);
-  return match?.[1] || "bash";
+async function copyText(value: string) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    return copied;
+  }
 }
 
-function getFilename(preElement: HTMLElement, codeElement: HTMLElement, language: string) {
+function getFilename(preElement: HTMLElement, codeElement: HTMLElement) {
   const explicitFilename =
     preElement.dataset.filename ||
     preElement.dataset.file ||
@@ -28,23 +33,7 @@ function getFilename(preElement: HTMLElement, codeElement: HTMLElement, language
     codeElement.dataset.filename ||
     codeElement.dataset.file;
 
-  if (explicitFilename) return explicitFilename;
-
-  const defaults: Record<string, string> = {
-    bash: "terminal.sh",
-    shell: "terminal.sh",
-    sh: "terminal.sh",
-    css: "styles.css",
-    json: "config.json",
-    markup: "index.html",
-    html: "index.html",
-    typescript: "example.ts",
-    ts: "example.ts",
-    yaml: "config.yaml",
-    yml: "config.yml",
-  };
-
-  return defaults[language] || `snippet.${language}`;
+  return explicitFilename || "code";
 }
 
 export default function CodeBlockEnhancer({
@@ -68,16 +57,8 @@ export default function CodeBlockEnhancer({
       preElement.dataset.enhanced = "true";
       preElement.classList.add("code-block");
 
-      const language = getLanguage(codeElement);
-      codeElement.classList.add(`language-${language}`);
-      preElement.dataset.filename = getFilename(preElement, codeElement, language);
-      preElement.dataset.language = language.toUpperCase();
-
-      const grammar = Prism.languages[language] || Prism.languages.markup;
       const rawCode = codeElement.textContent || "";
-      if (grammar) {
-        codeElement.innerHTML = Prism.highlight(rawCode, grammar, language);
-      }
+      preElement.dataset.filename = getFilename(preElement, codeElement);
 
       const copyButton = document.createElement("button");
       copyButton.type = "button";
@@ -85,8 +66,8 @@ export default function CodeBlockEnhancer({
       copyButton.textContent = "Copy";
 
       const handleCopy = async () => {
-        await navigator.clipboard.writeText(codeElement.textContent || rawCode);
-        copyButton.textContent = "Copied";
+        const copied = await copyText(rawCode);
+        copyButton.textContent = copied ? "Copied" : "Copy failed";
         window.setTimeout(() => {
           copyButton.textContent = "Copy";
         }, 1600);

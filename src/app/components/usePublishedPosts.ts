@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { Post } from "../data";
+import { useLanguage } from "./LanguageProvider";
 
 export function usePublishedPosts(initialPosts: Post[]) {
+  const { language } = useLanguage();
   const [publishedPosts, setPublishedPosts] = useState(initialPosts);
 
   useEffect(() => {
@@ -11,7 +13,7 @@ export function usePublishedPosts(initialPosts: Post[]) {
 
     async function loadPosts() {
       try {
-        const response = await fetch("/api/posts");
+        const response = await fetch(`/api/posts?locale=${language}`);
         if (!response.ok) return;
 
         const posts = (await response.json()) as Post[];
@@ -28,7 +30,7 @@ export function usePublishedPosts(initialPosts: Post[]) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [language]);
 
   return publishedPosts;
 }

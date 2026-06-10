@@ -151,6 +151,12 @@
   border-color: var(--color-gray-800);
 }
 
+.dark .prose pre.shiki,
+.dark .prose pre.shiki span {
+  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark) !important;
+}
+
 .prose pre code {
   color: var(--color-gray-200);
   background-color: transparent;
@@ -230,6 +236,11 @@
 .dark .article-content .article-image {
   border-color: var(--color-gray-800);
   background: var(--color-gray-900);
+}
+
+.article-content .article-image--fallback {
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
 }
 
 .article-image-fallback {

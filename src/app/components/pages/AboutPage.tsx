@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { ChevronRight, Cloud, Code, Shield, Cpu, ArrowRight } from "lucide-react";
-import { useLanguage } from "../components/LanguageProvider";
+import { useLanguage } from "@/app/components/LanguageProvider";
 
 export default function AboutPage() {
-  const { t, language } = useLanguage();
+  const { t, language, localePath } = useLanguage();
 
   const missionItems = [
     {
@@ -43,7 +43,7 @@ export default function AboutPage() {
       <div className="mx-auto max-w-6xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-6">
-          <Link href="/" className="hover:text-brand-650 transition">{t("home")}</Link>
+          <Link href={localePath("/")} className="hover:text-brand-650 transition">{t("home")}</Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-gray-900 dark:text-gray-100 font-medium">{t("about")}</span>
         </div>
@@ -69,7 +69,7 @@ export default function AboutPage() {
               {language === "vi" ? (
                 <>
                   <p>
-                    Tại Cloud DevOps, chúng tôi không chỉ viết lý thuyết. Mỗi bài lab được thiết lập theo hướng thực chiến: xây dựng hệ thống serverless hoàn chỉnh, giả lập và bắn hàng chục ngàn request để kiểm thử tải (Load testing), hoặc thiết kế các đường ống CI/CD có khả năng tự động rollback khi phát hiện lỗi.
+                    Tại LinuxUnity, chúng tôi không chỉ viết lý thuyết. Mỗi bài lab được thiết lập theo hướng thực chiến: xây dựng hệ thống serverless hoàn chỉnh, giả lập và bắn hàng chục ngàn request để kiểm thử tải (Load testing), hoặc thiết kế các đường ống CI/CD có khả năng tự động rollback khi phát hiện lỗi.
                   </p>
                   <p>
                     Tất cả mã nguồn triển khai (IaC code, script, test code) trong mỗi bài viết đều được chia sẻ công khai trên GitHub để bạn có thể tự mình chạy thử (Demo) và dọn dẹp sạch sẽ sau khi hoàn thành.
@@ -78,7 +78,7 @@ export default function AboutPage() {
               ) : (
                 <>
                   <p>
-                    At Cloud DevOps, the articles do not stop at theory. Each guide is built around practical labs: complete serverless systems, load tests with tens of thousands of simulated requests, or CI/CD pipelines that can automatically rollback when errors are detected.
+                    At LinuxUnity, the articles do not stop at theory. Each guide is built around practical labs: complete serverless systems, load tests with tens of thousands of simulated requests, or CI/CD pipelines that can automatically rollback when errors are detected.
                   </p>
                   <p>
                     Deployment source code (IaC code, scripts, test code) is shared publicly on GitHub so you can run the demo yourself and clean it up after completion.
@@ -142,7 +142,7 @@ export default function AboutPage() {
             </p>
             <div className="mt-8 flex justify-center">
               <Link
-                href="/blog"
+                href={localePath("/blog")}
                 className="inline-flex h-11 items-center rounded-xl bg-white px-6 text-xs font-bold text-brand-700 shadow hover:shadow-lg hover:bg-gray-50 transition cursor-pointer"
               >
                 {t("ctaButton")}

@@ -12,7 +12,7 @@ export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, localePath } = useLanguage();
 
   useEffect(() => {
     // Bind keyboard shortcut Ctrl+K / Cmd+K
@@ -27,9 +27,9 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { href: "/blog", label: t("blog") },
-    { href: "/blog/series", label: t("series") },
-    { href: "/about", label: t("about") },
+    { href: localePath("/blog"), label: t("blog") },
+    { href: localePath("/blog/series"), label: t("series") },
+    { href: localePath("/about"), label: t("about") },
   ];
 
   return (
@@ -37,12 +37,12 @@ export default function Header() {
       <header className="sticky top-0 z-40 border-b border-gray-200/50 bg-white/75 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-950/75 transition-colors duration-200">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href={localePath("/")} className="flex items-center gap-2 group">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-blue-600 text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition duration-200">
               <Cloud className="h-5 w-5" />
             </div>
             <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent dark:from-white dark:to-gray-300">
-              Cloud<span className="text-brand-500 font-extrabold">DevOps</span>
+              Linux<span className="text-brand-500 font-extrabold">Unity</span>
             </span>
           </Link>
 

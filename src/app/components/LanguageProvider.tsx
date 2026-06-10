@@ -1,8 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  localePath,
+  switchLocalePath,
+  type Locale,
+} from "@/i18n/config";
 
-export type Language = "vi" | "en";
+export type Language = Locale;
 
 export const translations = {
   vi: {
@@ -51,7 +57,24 @@ export const translations = {
     logoSubtitle: "Kênh chia sẻ kiến thức, hướng dẫn thực hành chuyên sâu về AWS, Kubernetes, Terraform và CI/CD.",
     heroTitlePart1: "Chúng tôi xây dựng hệ thống và ",
     heroTitlePart2: "viết về nó",
-    heroDesc: "Kênh chia sẻ kiến thức thực tế về Cloud & DevOps. Chúng tôi thiết kế hạ tầng tự động hóa, kiểm thử khả năng chịu tải và ghi chép lại mọi kinh nghiệm thu được."
+    heroDesc: "Kênh chia sẻ kiến thức thực tế về Cloud & DevOps. Chúng tôi thiết kế hạ tầng tự động hóa, kiểm thử khả năng chịu tải và ghi chép lại mọi kinh nghiệm thu được.",
+    collections: "Bộ sưu tập",
+    relatedPosts: "Bài viết liên quan",
+    searchHint: "Nhập từ khóa để tìm kiếm các bài viết về AWS, Kubernetes, Terraform, CI/CD...",
+    noSearchResults: "Không tìm thấy kết quả phù hợp",
+    articles: "Bài viết",
+    closeSearch: "Nhấn ESC để đóng",
+    smartSearch: "Tìm kiếm thông minh bởi LinuxUnity",
+    studyPath: "Lộ trình DVA-C02 & DOP-C02",
+    blogTitlePart1: "Ghi chú LinuxUnity",
+    blogTitlePart2: "theo exam domain AWS",
+    blogDescription: "Một thư viện bài viết ngắn gọn, có thứ tự, tập trung vào AWS Developer Associate và DevOps Professional để học, ôn tập và triển khai thực tế.",
+    postCount: "bài viết",
+    seriesCount: "chuỗi chủ đề",
+    seriesList: "Chuỗi bài viết",
+    roadmapPrompt: "Xem lộ trình học đầy đủ theo thứ tự exam domain.",
+    openRoadmap: "Mở roadmap",
+    linuxUnitySeries: "LinuxUnity DevOps Series"
   },
   en: {
     blog: "Blog",
@@ -99,7 +122,24 @@ export const translations = {
     logoSubtitle: "Deep-dive practical guides on AWS, Kubernetes, Terraform, and CI/CD.",
     heroTitlePart1: "We build systems and ",
     heroTitlePart2: "write about it",
-    heroDesc: "A blog sharing practical knowledge about Cloud & DevOps. We design automated infrastructure, run load testing, and document our findings."
+    heroDesc: "A blog sharing practical knowledge about Cloud & DevOps. We design automated infrastructure, run load testing, and document our findings.",
+    collections: "Collections",
+    relatedPosts: "Related posts",
+    searchHint: "Enter keywords to search posts about AWS, Kubernetes, Terraform, CI/CD...",
+    noSearchResults: "No matching results found",
+    articles: "Articles",
+    closeSearch: "Press ESC to close",
+    smartSearch: "Smart search by LinuxUnity",
+    studyPath: "DVA-C02 & DOP-C02 Study Path",
+    blogTitlePart1: "LinuxUnity notes",
+    blogTitlePart2: "organized by AWS exam domain",
+    blogDescription: "A concise, structured library focused on AWS Developer Associate and DevOps Professional study, review, and real-world implementation.",
+    postCount: "posts",
+    seriesCount: "topic series",
+    seriesList: "Article series",
+    roadmapPrompt: "Explore the complete learning roadmap organized by exam domain.",
+    openRoadmap: "Open roadmap",
+    linuxUnitySeries: "LinuxUnity DevOps Series"
   }
 };
 
@@ -107,24 +147,33 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: keyof typeof translations.vi) => string;
+  localePath: (pathname?: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("vi");
+export function LanguageProvider({
+  children,
+  initialLanguage,
+}: {
+  children: React.ReactNode;
+  initialLanguage: Language;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const language = initialLanguage;
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("language") as Language;
-    if (savedLang === "vi" || savedLang === "en") {
-      const langTimer = window.setTimeout(() => setLanguageState(savedLang), 0);
-      return () => window.clearTimeout(langTimer);
-    }
-  }, []);
+    document.documentElement.lang = language;
+    localStorage.setItem("language", language);
+    document.cookie = `linuxunity-locale=${language}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  }, [language]);
 
   const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
+    if (lang === language) return;
     localStorage.setItem("language", lang);
+    document.cookie = `linuxunity-locale=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    router.push(switchLocalePath(pathname, lang));
   };
 
   const t = (key: keyof typeof translations.vi) => {
@@ -132,7 +181,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider
+      value={{
+        language,
+        setLanguage,
+        t,
+        localePath: (pathname = "/") => localePath(language, pathname),
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );

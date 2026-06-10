@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { ArrowRight, Eye, Calendar, Layers, Zap, GitPullRequest } from "lucide-react";
-import { posts as initialPosts, series, team } from "./data";
-import { useLanguage } from "./components/LanguageProvider";
-import { usePublishedPosts } from "./components/usePublishedPosts";
-import PostListRow from "./components/PostListRow";
+import { posts as initialPosts, series, team } from "@/app/data";
+import { useLanguage } from "@/app/components/LanguageProvider";
+import { usePublishedPosts } from "@/app/components/usePublishedPosts";
+import PostListRow from "@/app/components/PostListRow";
 
 export default function Home() {
-  const { t, language } = useLanguage();
+  const { t, language, localePath } = useLanguage();
   const posts = usePublishedPosts(initialPosts);
 
   // Get 3 recent posts
@@ -60,14 +60,14 @@ export default function Home() {
           {/* CTA Buttons */}
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="/blog"
+              href={localePath("/blog")}
               className="inline-flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-7 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/25 sm:w-auto"
             >
               {t("readBlog")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href="/blog/series"
+              href={localePath("/blog/series")}
               className="inline-flex h-12 w-full items-center justify-center rounded-full border border-gray-300 bg-white/60 px-7 text-sm font-semibold text-gray-800 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-cyan-400 hover:text-cyan-700 dark:border-gray-700 dark:bg-gray-950/40 dark:text-gray-200 dark:hover:border-cyan-500 dark:hover:text-cyan-300 sm:w-auto"
             >
               {t("series")}
@@ -82,13 +82,13 @@ export default function Home() {
           <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-800">
             <h2 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
               <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              Bài viết mới nhất
+              {t("recentWriting")}
             </h2>
             <Link
-              href="/blog"
+              href={localePath("/blog")}
               className="text-sm font-semibold text-blue-600 transition hover:text-blue-700 dark:text-blue-400"
             >
-              → Xem tất cả
+              → {t("viewAll")}
             </Link>
           </div>
 
@@ -107,7 +107,7 @@ export default function Home() {
 
           <div className="mt-8 text-center sm:hidden">
             <Link
-              href="/blog"
+              href={localePath("/blog")}
               className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 dark:text-brand-400"
             >
               {t("allPosts")} <ArrowRight className="h-4 w-4" />
@@ -123,7 +123,7 @@ export default function Home() {
             <div className="mb-3 flex items-center gap-3">
               <div className="h-px w-8 bg-brand-500"></div>
               <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-                Most Read
+                {t("mostRead")}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -134,25 +134,28 @@ export default function Home() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {mostReadPosts.map((post) => {
               const authorInfo = team[post.author];
+              const title = language === "vi" ? post.title : post.title_en;
+              const description =
+                language === "vi" ? post.description : post.description_en;
               return (
                 <article
                   key={post.slug + "-popular"}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
                 >
-                  <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/10] w-full overflow-hidden">
+                  <Link href={localePath(`/blog/${post.slug}`)} className="block relative aspect-[16/10] w-full overflow-hidden">
                     <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
                       <span className="max-w-[85%] text-center text-lg font-extrabold leading-snug text-white drop-shadow-md line-clamp-2">
-                        {post.title}
+                        {title}
                       </span>
                     </div>
                   </Link>
 
                   <div className="flex flex-1 flex-col p-5">
                     <h3 className="mb-2 line-clamp-2 font-bold text-base leading-snug text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                      <Link href={localePath(`/blog/${post.slug}`)}>{title}</Link>
                     </h3>
                     <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                      {post.description}
+                      {description}
                     </p>
 
                     <div className="mt-auto flex items-center gap-2 pt-3.5 border-t border-gray-100 dark:border-gray-800/80">
@@ -183,7 +186,7 @@ export default function Home() {
               <div className="mb-3 flex items-center gap-3">
                 <div className="h-px w-8 bg-brand-500"></div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-                  Collections
+                  {t("collections")}
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -191,7 +194,7 @@ export default function Home() {
               </h2>
             </div>
             <Link
-              href="/blog/series"
+              href={localePath("/blog/series")}
               className="hidden text-sm font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition sm:flex items-center gap-1 cursor-pointer"
             >
               {t("viewAll")}
@@ -199,21 +202,21 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3 lg:gap-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
             {series.map((item) => (
               <Link
                 key={item.slug}
-                href={`/blog/series/${item.slug}`}
+                href={localePath(`/blog/series/${item.slug}`)}
                 className="group flex min-h-[220px] flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300 hover:shadow-2xl hover:shadow-cyan-500/10 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-cyan-800 dark:hover:shadow-cyan-950/30 cursor-pointer"
               >
                 <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 transition duration-200 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-cyan-500 group-hover:to-blue-600 group-hover:text-white dark:bg-cyan-950/40 dark:text-cyan-300">
                   {renderSeriesIcon(item.icon)}
                 </div>
                 <h3 className="line-clamp-2 text-base font-bold leading-snug text-gray-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
-                  {item.title}
+                  {language === "vi" ? item.title : item.title_en}
                 </h3>
                 <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                  {item.description}
+                  {language === "vi" ? item.description : item.description_en}
                 </p>
                 <p className="mt-auto flex items-center gap-1 pt-5 text-xs font-bold text-cyan-700 dark:text-cyan-300">
                   {item.partsCount} {t("parts")}

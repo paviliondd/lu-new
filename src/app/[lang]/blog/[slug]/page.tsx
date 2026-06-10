@@ -1,13 +1,19 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { posts as localPublishedPosts, team } from "../../data";
-import ArticleClient from "../../components/ArticleClient";
-import { getCmsPostBySlug } from "@/lib/cms/wordpress";
+import { team } from "@/app/data";
+import ArticleClient from "@/app/components/ArticleClient";
+import {
+  getCmsPostBySlug,
+  getCmsPublishedPosts,
+} from "@/lib/cms/wordpress";
+import { highlightCodeBlocks } from "@/lib/content/highlight";
+import { hasLocale } from "@/i18n/config";
+import { localizedAlternates } from "@/i18n/metadata";
 
 export const revalidate = 60;
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ lang: string; slug: string }>;
 }
 
 function stripHtml(html = "") {
@@ -47,13 +53,16 @@ function extractHeadings(content: string) {
 
 // Generate metadata dynamically for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getCmsPostBySlug(slug);
+  const { lang, slug } = await params;
+  if (!hasLocale(lang)) return {};
+
+  const post = await getCmsPostBySlug(slug, lang);
   if (!post) return {};
 
   return {
-    title: `${post.title} — Cloud DevOps`,
-    description: post.description,
+    title: post.seo.title || post.title,
+    description: post.seo.description || post.description,
+    alternates: localizedAlternates(lang, `/blog/${slug}`),
     openGraph: {
       title: post.title,
       description: post.description,
@@ -61,21 +70,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: post.date,
       authors: [team[post.author]?.name || ""],
       tags: post.tags,
+      locale: lang === "vi" ? "vi_VN" : "en_US",
+      alternateLocale: lang === "vi" ? ["en_US"] : ["vi_VN"],
+      images: post.seo.ogImage ? [post.seo.ogImage] : undefined,
     },
   };
 }
 
 export default async function BlogPostPage({ params }: Props) {
-  const { slug } = await params;
-  const post = await getCmsPostBySlug(slug);
+  const { lang, slug } = await params;
+  if (!hasLocale(lang)) notFound();
+
+  const post = await getCmsPostBySlug(slug, lang);
   
   if (!post) {
     notFound();
   }
 
   const author = team[post.author] || team.nhatnghia;
-  const headings = extractHeadings(post.content);
-  const relatedPosts = localPublishedPosts
+  const highlightedContent = await highlightCodeBlocks(post.content);
+  const localizedPost = { ...post, content: highlightedContent };
+  const headings = extractHeadings(highlightedContent);
+  const relatedPosts = (await getCmsPublishedPosts(lang))
     .filter((item) => item.slug !== post.slug && item.category === post.category)
     .slice(0, 3);
   const assetBase =
@@ -86,7 +102,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <ArticleClient
-      post={post}
+      post={localizedPost}
       author={author}
       headings={headings}
       relatedPosts={relatedPosts}

@@ -95,14 +95,13 @@ export default function ArticleImageEnhancer({
       }
 
       const handleError = () => {
-        image.removeAttribute("srcset");
-        image.classList.add("article-image--broken");
-        image.alt = image.alt || "Image unavailable";
+        if (image.dataset.fallbackApplied === "true") return;
 
-        const fallback = document.createElement("div");
-        fallback.className = "article-image-fallback";
-        fallback.textContent = image.alt;
-        image.replaceWith(fallback);
+        image.removeAttribute("srcset");
+        image.dataset.fallbackApplied = "true";
+        image.classList.add("article-image--fallback");
+        image.alt = image.alt || "LinuxUnity image unavailable";
+        image.src = "/images/linuxunity-placeholder.svg";
       };
 
       image.addEventListener("error", handleError, { once: true });

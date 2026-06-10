@@ -6,7 +6,7 @@ import { Cloud, Rss, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, localePath } = useLanguage();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
@@ -25,12 +25,12 @@ export default function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Info */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2 group w-fit">
+            <Link href={localePath("/")} className="flex items-center gap-2 group w-fit">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-400 to-blue-600 text-white shadow shadow-brand-500/20 group-hover:scale-105 transition">
                 <Cloud className="h-4.5 w-4.5" />
               </div>
               <span className="text-base font-bold tracking-tight text-gray-950 dark:text-white">
-                Cloud<span className="text-brand-500 font-extrabold">DevOps</span>
+                Linux<span className="text-brand-500 font-extrabold">Unity</span>
               </span>
             </Link>
             <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs">
@@ -73,22 +73,22 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-2 text-xs">
               <li>
-                <Link href="/blog" className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
+                <Link href={localePath("/blog")} className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
                   {t("recentWriting")}
                 </Link>
               </li>
               <li>
-                <Link href="/blog/series" className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
+                <Link href={localePath("/blog/series")} className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
                   {t("series")}
                 </Link>
               </li>
               <li>
-                <Link href="/blog?tag=IaC" className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
+                <Link href={`${localePath("/blog")}?tag=IaC`} className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
                   Infrastructure as Code
                 </Link>
               </li>
               <li>
-                <Link href="/blog?tag=Serverless" className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
+                <Link href={`${localePath("/blog")}?tag=Serverless`} className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
                   Serverless AWS
                 </Link>
               </li>
@@ -102,7 +102,7 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-2 text-xs">
               <li>
-                <Link href="/about" className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
+                <Link href={localePath("/about")} className="text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition">
                   {t("about")}
                 </Link>
               </li>
@@ -145,7 +145,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t border-gray-200 pt-8 text-center text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
-          <p>© {new Date().getFullYear()} Cloud DevOps. {t("footerText")}</p>
+          <p>© {new Date().getFullYear()} LinuxUnity. {t("footerText")}</p>
         </div>
       </div>
     </footer>

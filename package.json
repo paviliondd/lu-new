@@ -1,5 +1,5 @@
 {
-  "name": "cloud-devops-blog",
+  "name": "linuxunity-blog",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,23 +8,27 @@
     "start": "next start",
     "lint": "eslint",
     "wp:import-roadmap": "node scripts/import-roadmap-to-wordpress.mjs",
+    "xml:normalize-images": "node scripts/normalize-xml-images.mjs",
     "wp:check-auth": "node scripts/check-wordpress-auth.mjs",
     "wp:list-drafts": "node scripts/list-wordpress-drafts.mjs",
     "wp:audit": "node scripts/audit-wordpress-state.mjs"
   },
   "dependencies": {
     "@next/swc-linux-x64-gnu": "^16.2.7",
+    "cheerio": "^1.2.0",
+    "fast-xml-parser": "^5.8.0",
+    "gray-matter": "^4.0.3",
     "lightningcss-linux-x64-gnu": "^1.32.0",
     "lucide-react": "^1.17.0",
+    "marked": "^18.0.5",
     "next": "16.2.7",
-    "prismjs": "^1.30.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "shiki": "^4.2.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/prismjs": "^1.26.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import type { Author, Post } from "../data";
+import { useLanguage } from "./LanguageProvider";
 
 interface PostListRowProps {
   post: Post;
@@ -24,6 +27,7 @@ export default function PostListRow({
   language,
   isLast = false,
 }: PostListRowProps) {
+  const { localePath } = useLanguage();
   const serviceLabel = post.category.split(/[\s/&-]+/)[0] || "AWS";
   const displayDate = post.date
     ? new Date(post.date).toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {
@@ -35,7 +39,7 @@ export default function PostListRow({
 
   return (
     <Link
-      href={`/blog/${post.slug}`}
+      href={localePath(`/blog/${post.slug}`)}
       className={`group flex gap-4 px-2 py-5 transition hover:bg-gray-50 dark:hover:bg-gray-900/50 sm:px-3 ${
         isLast ? "" : "border-b border-gray-200 dark:border-gray-800"
       }`}

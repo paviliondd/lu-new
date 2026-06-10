@@ -90,7 +90,7 @@ export const team: Record<string, Author> = {
   },
   vanthao: {
     name: "Trần Văn Thảo",
-    role: "Cloud DevOps Engineer",
+    role: "Cloud & DevOps Engineer",
     avatar: "T",
     description: "Kỹ sư chuyên trách tự động hóa hạ tầng (IaC) và xây dựng hệ thống CI/CD thông suốt.",
     linkedin: "https://linkedin.com",

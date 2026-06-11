@@ -30,6 +30,9 @@ export default function Header() {
     { href: localePath("/blog/series"), label: t("series") },
     { href: localePath("/about"), label: t("about") },
   ];
+  const activeNavHref = navLinks
+    .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
+    .sort((left, right) => right.href.length - left.href.length)[0]?.href;
 
   return (
     <>
@@ -48,7 +51,7 @@ export default function Header() {
           {/* Desktop Nav Links */}
           <ul className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              const isActive = link.href === activeNavHref;
               return (
                 <li key={link.href}>
                   <Link
@@ -86,17 +89,17 @@ export default function Header() {
               aria-label={`${t("language")}: ${language.toUpperCase()}`}
               title={`${t("language")}: ${language.toUpperCase()}`}
               onClick={() => setLanguage(language === "vi" ? "en" : "vi")}
-              className="relative hidden h-9 w-[4.6rem] items-center rounded-full border border-slate-700 bg-slate-900 p-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-400 transition hover:border-emerald-400/60 sm:flex"
+              className="relative hidden h-9 w-20 items-center rounded-full border border-slate-700 bg-slate-900 p-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-400 transition hover:border-emerald-400/60 sm:flex"
             >
               <span
-                className={`absolute top-1 h-7 w-8 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 shadow transition-transform duration-200 ${
-                  language === "en" ? "translate-x-[1.55rem]" : "translate-x-0"
+                className={`absolute left-1 top-1 h-7 w-9 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 shadow transition-transform duration-200 ${
+                  language === "en" ? "translate-x-9" : "translate-x-0"
                 }`}
               />
-              <span className={`relative z-10 flex-1 ${language === "vi" ? "text-slate-950" : ""}`}>
+              <span className={`relative z-10 flex-1 text-center ${language === "vi" ? "text-slate-950" : ""}`}>
                 VI
               </span>
-              <span className={`relative z-10 flex-1 ${language === "en" ? "text-slate-950" : ""}`}>
+              <span className={`relative z-10 flex-1 text-center ${language === "en" ? "text-slate-950" : ""}`}>
                 EN
               </span>
             </button>
@@ -121,7 +124,7 @@ export default function Header() {
           <div className="border-t border-slate-800 bg-[#0B132B]/98 px-4 py-4 transition-all md:hidden">
             <ul className="space-y-1">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+                const isActive = link.href === activeNavHref;
                 return (
                   <li key={link.href}>
                     <Link

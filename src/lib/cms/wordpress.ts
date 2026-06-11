@@ -233,6 +233,30 @@ function matchesWordPressLocale(post: WordPressPost, locale: Locale) {
   return locale === "vi";
 }
 
+function mapPostsForLocale(posts: WordPressPost[], locale: Locale) {
+  const publishedPosts = posts.filter(isPublishedPost);
+  const matchedPosts = publishedPosts.filter((post) => matchesWordPressLocale(post, locale));
+
+  if (matchedPosts.length > 0 || locale === "vi") {
+    return matchedPosts.map((post) => mapWordPressPost(post, locale));
+  }
+
+  const responseHasLocaleMetadata = publishedPosts.some((post) => explicitWordPressLocale(post));
+  if (responseHasLocaleMetadata) return [];
+
+  return publishedPosts.map((post) => mapWordPressPost(post, locale));
+}
+
+function findPostForLocale(posts: WordPressPost[], locale: Locale) {
+  const publishedPosts = posts.filter(isPublishedPost);
+  const matchedPost = publishedPosts.find((post) => matchesWordPressLocale(post, locale));
+
+  if (matchedPost || locale === "vi") return matchedPost || null;
+
+  const responseHasLocaleMetadata = publishedPosts.some((post) => explicitWordPressLocale(post));
+  return responseHasLocaleMetadata ? null : publishedPosts[0] || null;
+}
+
 function estimateReadTime(html: string, locale: Locale): string {
   const wordCount = plainText(html).split(/\s+/).filter(Boolean).length;
   if (wordCount === 0) return locale === "vi" ? "< 1 phút" : "< 1 min read";
@@ -318,9 +342,7 @@ async function fetchWordPressPosts(locale: Locale, status = "publish") {
     );
   }
 
-  return posts
-    .filter((post) => isPublishedPost(post) && matchesWordPressLocale(post, locale))
-    .map((post) => mapWordPressPost(post, locale));
+  return mapPostsForLocale(posts, locale);
 }
 
 function mergePosts(primary: Post[], fallback: Post[]) {
@@ -351,7 +373,9 @@ export async function getCmsPublishedPosts(locale: Locale = "vi"): Promise<Post[
   if (!wordpressApiBase) return mergePosts(filePosts, fallbackPosts);
 
   try {
-    return mergePosts(filePosts, await fetchWordPressPosts(locale, "publish"));
+    const wordpressPosts = await fetchWordPressPosts(locale, "publish");
+    const remoteOrFallbackPosts = wordpressPosts.length > 0 ? wordpressPosts : fallbackPosts;
+    return mergePosts(filePosts, remoteOrFallbackPosts);
   } catch {
     return mergePosts(filePosts, fallbackPosts);
   }
@@ -388,8 +412,10 @@ export async function getCmsPostBySlug(
       );
     }
 
-    const post = posts.find((item) => matchesWordPressLocale(item, locale));
-    return post && isPublishedPost(post) ? mapWordPressPost(post, locale) : null;
+    const post = findPostForLocale(posts, locale);
+    if (post) return mapWordPressPost(post, locale);
+
+    return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
   } catch {
     return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
   }

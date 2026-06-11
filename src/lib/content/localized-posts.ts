@@ -6,6 +6,7 @@ import matter from "gray-matter";
 import { marked } from "marked";
 import { posts as fallbackPosts, type Post } from "@/app/data";
 import { localizePost, type Locale } from "@/i18n/config";
+import { sanitizeArticleHtml } from "@/lib/utils/security";
 
 const postsDirectory = path.join(process.cwd(), "content", "posts");
 
@@ -30,7 +31,7 @@ export async function getLocalizedFilePost(
   try {
     const source = await fs.readFile(filePath, "utf8");
     const { data, content } = matter(source);
-    const html = await marked.parse(content, { gfm: true });
+    const html = sanitizeArticleHtml(await marked.parse(content, { gfm: true }));
     const fallback = basePost(slug);
     const title = String(data.title || fallback?.title || slug);
     const description = String(data.description || fallback?.description || "");

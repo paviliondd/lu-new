@@ -29,6 +29,7 @@ services:
       NODE_ENV: production
       WORDPRESS_API_BASE: "http://wordpress?rest_route=/wp/v2"
       NEXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN}
+      NEXT_PUBLIC_WORDPRESS_PUBLIC_URL: ${NEXT_PUBLIC_WORDPRESS_PUBLIC_URL:-https://${SITE_DOMAIN}}
     depends_on:
       wordpress:
         condition: service_healthy

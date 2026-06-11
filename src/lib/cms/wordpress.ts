@@ -5,6 +5,7 @@ import {
 } from "@/lib/content/localized-posts";
 import { localizePost, type Locale } from "@/i18n/config";
 import { load } from "cheerio";
+import { sanitizeArticleHtml } from "@/lib/utils/security";
 
 interface WordPressRendered {
   rendered?: string;
@@ -48,8 +49,9 @@ const wordpressApiBase = (
 ).replace(/\/$/, "");
 
 const wordpressPublicBase = (
+  process.env.NEXT_PUBLIC_WORDPRESS_PUBLIC_URL ||
+  process.env.WORDPRESS_PUBLIC_URL ||
   process.env.WORDPRESS_SITE_URL ||
-  process.env.WORDPRESS_URL ||
   process.env.NEXT_PUBLIC_SITE_URL ||
   ""
 ).replace(/\/$/, "");
@@ -96,18 +98,29 @@ async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
   let response = await fetch(primaryUrl, {
     next: { revalidate: 60 },
   });
+  let requestUrl = primaryUrl;
 
   if (!response.ok && response.status === 404) {
     const fallbackApiBase = buildRestRouteApiBase(wordpressApiBase);
 
     if (fallbackApiBase) {
-      response = await fetch(buildWordPressRestUrl(fallbackApiBase, endpoint), {
+      requestUrl = buildWordPressRestUrl(fallbackApiBase, endpoint);
+      response = await fetch(requestUrl, {
         next: { revalidate: 60 },
       });
     }
   }
 
   if (!response.ok) {
+    if (response.status !== 404) {
+      console.error("WordPress fetch failed", {
+        endpoint,
+        status: response.status,
+        statusText: response.statusText,
+        url: requestUrl,
+      });
+    }
+
     throw new Error(`WordPress fetch failed: ${response.status}`);
   }
 
@@ -182,7 +195,7 @@ function normalizeWordPressContent(html = "") {
     if (href) link.attr("href", normalizeWordPressAssetUrl(href));
   });
 
-  return $.html();
+  return sanitizeArticleHtml($.html());
 }
 
 function extractTerms(post: WordPressPost, taxonomy: string) {

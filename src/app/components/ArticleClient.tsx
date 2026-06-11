@@ -19,6 +19,21 @@ interface ArticleClientProps {
   assetBase?: string;
 }
 
+function formatPostDate(value: string, language: string) {
+  if (!value) return language === "vi" ? "Chua xuat ban" : "Unpublished";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return language === "vi" ? "Ngay khong hop le" : "Invalid date";
+  }
+
+  return date.toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function ArticleClient({
   post,
   author,
@@ -157,11 +172,7 @@ export default function ArticleClient({
               <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-gray-400 pt-1">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
-                  {new Date(post.date).toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+                  {formatPostDate(post.date, language)}
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
@@ -223,7 +234,7 @@ export default function ArticleClient({
                     <PostListRow
                       key={relatedPost.slug}
                       post={relatedPost}
-                      author={team[relatedPost.author]}
+                      author={team[relatedPost.author] || team.nhatnghia}
                       index={index}
                       language={language}
                       isLast={index === relatedPosts.length - 1}

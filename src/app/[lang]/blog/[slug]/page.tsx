@@ -59,6 +59,16 @@ function prepareArticleContent(content: string) {
   return { html: $.html(), headings };
 }
 
+function publicWordPressAssetBase() {
+  return (
+    process.env.NEXT_PUBLIC_WORDPRESS_PUBLIC_URL ||
+    process.env.WORDPRESS_PUBLIC_URL ||
+    process.env.WORDPRESS_SITE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    ""
+  ).replace(/\/$/, "");
+}
+
 // Generate metadata dynamically for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
@@ -103,11 +113,7 @@ export default async function BlogPostPage({ params }: Props) {
   const relatedPosts = (await getCmsPublishedPosts(lang))
     .filter((item) => item.slug !== post.slug && item.category === post.category)
     .slice(0, 3);
-  const assetBase =
-    process.env.WORDPRESS_SITE_URL ||
-    process.env.WORDPRESS_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "";
+  const assetBase = publicWordPressAssetBase();
 
   return (
     <ArticleClient

@@ -80,7 +80,9 @@ export default function TableOfContents({
       let currentId = headingElements[0]?.id ?? "";
 
       headingElements.forEach((heading) => {
-        if ((heading as HTMLElement).offsetTop <= readingLine) {
+        const absoluteTop =
+          (heading as HTMLElement).getBoundingClientRect().top + window.scrollY;
+        if (absoluteTop <= readingLine) {
           currentId = heading.id;
         }
       });
@@ -117,20 +119,21 @@ export default function TableOfContents({
 
   return (
     <aside className="order-3 hidden w-72 lg:block">
-      <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/70">
-        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-gray-150">
-          <List className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+      <div className="sticky top-24 rounded-2xl border border-slate-700 bg-[#0B132B]/85 p-5 shadow-xl shadow-slate-950/30 backdrop-blur">
+        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-100">
+          <List className="h-4 w-4 text-emerald-300" />
           {title}
         </h3>
 
         {tocHeadings.length === 0 ? (
           <p className="mt-4 text-xs text-gray-400">{emptyLabel}</p>
         ) : (
-          <ul className="mt-4 space-y-2.5 border-l border-gray-250 py-1 pl-4 text-xs dark:border-gray-800">
+          <ul className="mt-4 space-y-2.5 border-l border-slate-700 py-1 pl-4 text-xs">
             {tocHeadings.map((heading) => (
               <li key={heading.id}>
                 <a
                   href={`#${heading.id}`}
+                  aria-current={activeId === heading.id ? "location" : undefined}
                   onClick={(event) => {
                     event.preventDefault();
                     setActiveId(heading.id);
@@ -142,12 +145,12 @@ export default function TableOfContents({
                       element.getBoundingClientRect().top + window.pageYOffset + yOffset;
                     window.scrollTo({ top: y, behavior: "smooth" });
                   }}
-                  className={`block transition-colors duration-200 hover:text-blue-600 dark:hover:text-blue-400 ${
+                  className={`block transition-colors duration-200 hover:text-cyan-300 ${
                     heading.level === 3 ? "pl-3" : ""
                   } ${
                     activeId === heading.id
-                      ? "font-semibold text-blue-600 dark:text-blue-400"
-                      : "text-gray-500 dark:text-gray-400"
+                      ? "font-semibold text-emerald-300"
+                      : "text-slate-400"
                   }`}
                 >
                   {heading.text}

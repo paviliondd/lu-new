@@ -6,19 +6,25 @@ import { useLanguage } from "./LanguageProvider";
 
 export function usePublishedPosts(initialPosts: Post[]) {
   const { language } = useLanguage();
-  const [publishedPosts, setPublishedPosts] = useState(initialPosts);
+  const [loadedPosts, setLoadedPosts] = useState<{
+    language: typeof language;
+    posts: Post[];
+  } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    const controller = new AbortController();
 
     async function loadPosts() {
       try {
-        const response = await fetch(`/api/posts?locale=${language}`);
+        const response = await fetch(`/api/posts?locale=${language}`, {
+          signal: controller.signal,
+        });
         if (!response.ok) return;
 
         const posts = (await response.json()) as Post[];
         if (isMounted) {
-          setPublishedPosts(posts);
+          setLoadedPosts({ language, posts });
         }
       } catch {
         // Keep the local published-post fallback when the headless CMS is unavailable.
@@ -29,8 +35,9 @@ export function usePublishedPosts(initialPosts: Post[]) {
 
     return () => {
       isMounted = false;
+      controller.abort();
     };
-  }, [language]);
+  }, [initialPosts, language]);
 
-  return publishedPosts;
+  return loadedPosts?.language === language ? loadedPosts.posts : initialPosts;
 }

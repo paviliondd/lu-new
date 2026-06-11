@@ -4,9 +4,16 @@ import path from "node:path";
 
 function configuredImageOrigins() {
   const manifestPath = path.join(process.cwd(), "content", "image-hosts.json");
-  const manifestOrigins = fs.existsSync(manifestPath)
-    ? (JSON.parse(fs.readFileSync(manifestPath, "utf8")) as string[])
-    : [];
+  let manifestOrigins: string[] = [];
+
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+      manifestOrigins = Array.isArray(manifest) ? manifest.map(String) : [];
+    } catch {
+      console.warn(`Ignoring invalid image host manifest: ${manifestPath}`);
+    }
+  }
   const environmentOrigins = [
     process.env.WORDPRESS_SITE_URL,
     process.env.WORDPRESS_URL,

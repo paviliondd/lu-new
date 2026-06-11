@@ -13,7 +13,7 @@ interface SearchModalProps {
 }
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-  const { t, language, localePath } = useLanguage();
+  const { t, localePath } = useLanguage();
   const [query, setQuery] = useState("");
   const posts = usePublishedPosts(initialPosts);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,10 +38,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     return posts.filter(
       (post) =>
         post.title.toLowerCase().includes(query.toLowerCase()) ||
-        post.title_en.toLowerCase().includes(query.toLowerCase()) ||
         post.description.toLowerCase().includes(query.toLowerCase()) ||
-        post.description_en.toLowerCase().includes(query.toLowerCase()) ||
-        post.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
+        post.category.toLowerCase().includes(query.toLowerCase())
     );
   }, [posts, query]);
 
@@ -62,7 +60,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-gray-950/55 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-[#0B132B]/75 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
@@ -70,7 +68,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       <div
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/70 bg-white/95 shadow-2xl shadow-gray-950/20 backdrop-blur-xl transition-all dark:border-gray-800/80 dark:bg-gray-950/95"
+        className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-700 bg-[#0B132B]/95 shadow-2xl shadow-slate-950/40 backdrop-blur-xl transition-all"
       >
         {/* Input area */}
         <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800">
@@ -120,16 +118,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     <FileText className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="truncate text-sm font-semibold text-gray-900 group-hover:text-cyan-700 dark:text-gray-100 dark:group-hover:text-cyan-300">
-                        {language === "vi" ? post.title : post.title_en}
-                      </span>
-                      <span className="shrink-0 rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-medium text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300">
-                        {post.category}
-                      </span>
-                    </div>
+                    <span className="block truncate text-sm font-semibold text-gray-900 group-hover:text-cyan-700 dark:text-gray-100 dark:group-hover:text-cyan-300">
+                      {post.title}
+                    </span>
                     <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-1">
-                      {language === "vi" ? post.description : post.description_en}
+                      {post.description}
                     </p>
                   </div>
                   <ArrowRight className="h-4 w-4 shrink-0 -translate-x-2 self-center text-gray-400 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />

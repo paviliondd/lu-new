@@ -10,6 +10,14 @@ interface CustomImageProps extends Omit<ImageProps, "src"> {
   fallbackSrc?: string;
 }
 
+function normalizeSource(source: string | null | undefined, fallback: string) {
+  const value = source?.trim().replaceAll("&amp;", "&");
+  if (!value) return fallback;
+  if (value.startsWith("//")) return `https:${value}`;
+  if (/^(https?:\/\/|\/)/i.test(value)) return value;
+  return `/${value.replace(/^\.?\//, "")}`;
+}
+
 export default function CustomImage({
   src,
   fallbackSrc = defaultFallback,
@@ -17,7 +25,7 @@ export default function CustomImage({
   onError,
   ...props
 }: CustomImageProps) {
-  const normalizedSrc = src || fallbackSrc;
+  const normalizedSrc = normalizeSource(src, fallbackSrc);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const currentSrc = failedSrc === normalizedSrc ? fallbackSrc : normalizedSrc;
 

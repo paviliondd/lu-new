@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import BlogListPage from "@/app/components/pages/BlogListPage";
 import { hasLocale } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
+import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
 
 interface BlogRouteProps {
   params: Promise<{ lang: string }>;
@@ -27,5 +28,6 @@ export async function generateMetadata({
 export default async function BlogRoute({ params }: BlogRouteProps) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  return <BlogListPage />;
+  const posts = await getCmsPublishedPosts(lang);
+  return <BlogListPage initialPosts={posts} />;
 }

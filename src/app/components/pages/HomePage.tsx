@@ -1,31 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Eye, Calendar, Layers, Zap, GitPullRequest } from "lucide-react";
-import { posts as initialPosts, series, team } from "@/app/data";
+import { ArrowRight, Boxes, GitPullRequest, Layers, Sparkles, Zap } from "lucide-react";
+import type { Post } from "@/app/data";
+import { series, team } from "@/app/data";
+import PostCard from "@/app/components/PostCard";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
-import PostListRow from "@/app/components/PostListRow";
 
-export default function Home() {
+interface HomePageProps {
+  initialPosts: Post[];
+}
+
+export default function HomePage({ initialPosts }: HomePageProps) {
   const { t, language, localePath } = useLanguage();
   const posts = usePublishedPosts(initialPosts);
-
-  // Get 3 recent posts
   const recentPosts = [...posts]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 3);
+    .slice(0, 7);
+  const featuredPost = recentPosts[0];
+  const supportingPosts = recentPosts.slice(1, 4);
+  const morePosts = recentPosts.slice(4, 7);
 
-  // Get 3 most read posts
-  const mostReadPosts = [...posts]
-    .sort((a, b) => b.views - a.views)
-    .slice(0, 3);
-
-  // Map icon strings to Lucide components
   const renderSeriesIcon = (iconName: string) => {
     switch (iconName) {
-      case "layers":
-        return <Layers className="h-5 w-5" />;
       case "zap":
         return <Zap className="h-5 w-5" />;
       case "git-pull-request":
@@ -36,198 +34,164 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full">
-      {/* Hero Section */}
-      <section className="relative flex min-h-[62vh] items-center overflow-hidden border-b border-gray-200 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_34%),linear-gradient(180deg,#ffffff,rgba(239,246,255,0.55))] transition-colors duration-200 dark:border-gray-800 dark:bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.18),transparent_34%),linear-gradient(180deg,#020617,#030712)]">
-        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:py-28">
-          {/* Pill Badge */}
-          <span className="mb-6 inline-flex rounded-full border border-cyan-200 bg-white/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-cyan-700 shadow-sm backdrop-blur-sm dark:border-cyan-900/60 dark:bg-cyan-950/20 dark:text-cyan-300">
-            {t("exploreBuildShare")}
-          </span>
-          {/* Title */}
-          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
-            <span className="block text-gray-950 dark:text-white">
-              {t("heroTitlePart1").trim()}
-            </span>
-            <span className="block bg-gradient-to-r from-cyan-400 via-sky-500 to-blue-600 bg-clip-text text-transparent dark:from-cyan-300 dark:via-sky-400 dark:to-blue-500">
-              {t("heroTitlePart2")}
-            </span>
-          </h1>
-          {/* Subtext */}
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-400 sm:text-lg">
-            {t("heroDesc")}
-          </p>
-          {/* CTA Buttons */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href={localePath("/blog")}
-              className="inline-flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-7 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/25 sm:w-auto"
-            >
-              {t("readBlog")}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-            <Link
-              href={localePath("/blog/series")}
-              className="inline-flex h-12 w-full items-center justify-center rounded-full border border-gray-300 bg-white/60 px-7 text-sm font-semibold text-gray-800 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-cyan-400 hover:text-cyan-700 dark:border-gray-700 dark:bg-gray-950/40 dark:text-gray-200 dark:hover:border-cyan-500 dark:hover:text-cyan-300 sm:w-auto"
-            >
-              {t("series")}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Latest Writing Section */}
-      <section className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-16 sm:py-20 transition-colors duration-200">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-800">
-            <h2 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
-              <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              {t("recentWriting")}
-            </h2>
-            <Link
-              href={localePath("/blog")}
-              className="text-sm font-semibold text-blue-600 transition hover:text-blue-700 dark:text-blue-400"
-            >
-              → {t("viewAll")}
-            </Link>
-          </div>
-
+    <div className="min-h-screen bg-[#0F172A] text-slate-100">
+      <section className="relative isolate overflow-hidden border-b border-slate-800">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(52,211,153,0.16),transparent_28%),radial-gradient(circle_at_85%_15%,rgba(34,211,238,0.15),transparent_28%),linear-gradient(180deg,#0B132B_0%,#0F172A_100%)]" />
+        <div className="mx-auto grid min-h-[68vh] max-w-7xl items-center gap-12 px-4 py-20 lg:grid-cols-[1.05fr_.95fr] lg:py-24">
           <div>
-            {recentPosts.map((post, index) => (
-              <PostListRow
-                key={post.slug}
-                post={post}
-                author={team[post.author]}
-                index={index}
-                language={language}
-                isLast={index === recentPosts.length - 1}
-              />
-            ))}
-          </div>
-
-          <div className="mt-8 text-center sm:hidden">
-            <Link
-              href={localePath("/blog")}
-              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 dark:text-brand-400"
-            >
-              {t("allPosts")} <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Most Read Section */}
-      <section className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-16 sm:py-20 transition-colors duration-200">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-10">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-px w-8 bg-brand-500"></div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-                {t("mostRead")}
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("exploreBuildShare")}
+            </span>
+            <h1 className="mt-7 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              {t("heroTitlePart1")}
+              <span className="block bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                {t("heroTitlePart2")}
               </span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              {t("heroDesc")}
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href={localePath("/blog")}
+                className="inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-7 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-950/40 transition hover:-translate-y-0.5 hover:brightness-110"
+              >
+                {t("readBlog")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+              <Link
+                href={localePath("/blog/series")}
+                className="inline-flex h-12 items-center justify-center rounded-full border border-slate-600 bg-slate-900/50 px-7 text-sm font-semibold text-slate-100 transition hover:border-cyan-400 hover:text-cyan-300"
+              >
+                {t("series")}
+              </Link>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-              {t("mostRead")}
-            </h2>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {mostReadPosts.map((post) => {
-              const authorInfo = team[post.author];
-              const title = language === "vi" ? post.title : post.title_en;
-              const description =
-                language === "vi" ? post.description : post.description_en;
-              return (
-                <article
-                  key={post.slug + "-popular"}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white dark:border-gray-800 dark:bg-gray-900 hover:-translate-y-1 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/10 transition duration-300"
-                >
-                  <Link href={localePath(`/blog/${post.slug}`)} className="block relative aspect-[16/10] w-full overflow-hidden">
-                    <div className={`flex h-full w-full items-center justify-center p-6 bg-gradient-to-br ${post.gradient} group-hover:scale-105 transition duration-300`}>
-                      <span className="max-w-[85%] text-center text-lg font-extrabold leading-snug text-white drop-shadow-md line-clamp-2">
-                        {title}
-                      </span>
-                    </div>
-                  </Link>
-
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="mb-2 line-clamp-2 font-bold text-base leading-snug text-gray-900 dark:text-gray-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition">
-                      <Link href={localePath(`/blog/${post.slug}`)}>{title}</Link>
-                    </h3>
-                    <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                      {description}
-                    </p>
-
-                    <div className="mt-auto flex items-center gap-2 pt-3.5 border-t border-gray-100 dark:border-gray-800/80">
-                      <div className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-[10px] font-bold text-brand-700 dark:text-brand-400">
-                        {authorInfo?.avatar || "A"}
-                      </div>
-                      <span className="text-xs font-semibold text-gray-750 dark:text-gray-300">
-                        {authorInfo?.name.split(" (")[0]}
-                      </span>
-                      <span className="ml-auto text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
-                        <Eye className="h-3.5 w-3.5" />
-                        {post.views} {t("views")}
-                      </span>
-                    </div>
+          <div className="relative hidden lg:block">
+            <div className="absolute -inset-8 rounded-full bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 blur-3xl" />
+            <div className="relative grid gap-4 rounded-[2rem] border border-slate-700/70 bg-slate-900/65 p-5 shadow-2xl shadow-slate-950/50 backdrop-blur-xl">
+              <div className="flex items-center gap-3 rounded-2xl border border-slate-700 bg-[#0B132B]/80 p-4">
+                <Boxes className="h-5 w-5 text-emerald-300" />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Cloud native</p>
+                  <p className="mt-1 font-semibold text-slate-100">Architecture, automation, security</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {["AWS", "Kubernetes", "Terraform", "CI/CD"].map((item, index) => (
+                  <div
+                    key={item}
+                    className={`rounded-2xl border border-slate-700 p-5 ${
+                      index % 2 === 0 ? "bg-emerald-400/10" : "bg-cyan-400/10"
+                    }`}
+                  >
+                    <span className="text-sm font-bold text-slate-100">{item}</span>
                   </div>
-                </article>
-              );
-            })}
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Series Section */}
-      <section className="border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 py-16 sm:py-20 transition-colors duration-200">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-10 flex items-end justify-between">
+      <section className="py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="mb-9 flex items-end justify-between gap-6">
             <div>
-              <div className="mb-3 flex items-center gap-3">
-                <div className="h-px w-8 bg-brand-500"></div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-                  {t("collections")}
-                </span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {t("series")}
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
+                {t("recentWriting")}
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                {t("allPosts")}
               </h2>
             </div>
             <Link
-              href={localePath("/blog/series")}
-              className="hidden text-sm font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition sm:flex items-center gap-1 cursor-pointer"
+              href={localePath("/blog")}
+              className="hidden items-center gap-2 text-sm font-bold text-cyan-300 transition hover:text-emerald-300 sm:flex"
             >
               {t("viewAll")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {featuredPost ? (
+            <>
+              <div className="grid gap-6 lg:grid-cols-[1.45fr_.75fr]">
+                <PostCard
+                  post={featuredPost}
+                  author={team[featuredPost.author]}
+                  locale={language}
+                  featured
+                />
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+                  {supportingPosts.slice(0, 2).map((post) => (
+                    <PostCard
+                      key={post.slug}
+                      post={post}
+                      author={team[post.author]}
+                      locale={language}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-6 md:grid-cols-3">
+                {[...supportingPosts.slice(2), ...morePosts].slice(0, 3).map((post) => (
+                  <PostCard
+                    key={post.slug}
+                    post={post}
+                    author={team[post.author]}
+                    locale={language}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 p-12 text-center text-sm text-slate-400">
+              {t("noPosts")}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="border-t border-slate-800 bg-[#0B132B] py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="mb-10">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
+              {t("collections")}
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-white">
+              {t("series")}
+            </h2>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
             {series.map((item) => (
               <Link
                 key={item.slug}
                 href={localePath(`/blog/series/${item.slug}`)}
-                className="group flex min-h-[220px] flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300 hover:shadow-2xl hover:shadow-cyan-500/10 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-cyan-800 dark:hover:shadow-cyan-950/30 cursor-pointer"
+                className="group flex min-h-60 flex-col rounded-2xl border border-slate-700 bg-slate-900/70 p-6 transition duration-300 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-950/30"
               >
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 transition duration-200 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-cyan-500 group-hover:to-blue-600 group-hover:text-white dark:bg-cyan-950/40 dark:text-cyan-300">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 text-cyan-300">
                   {renderSeriesIcon(item.icon)}
                 </div>
-                <h3 className="line-clamp-2 text-base font-bold leading-snug text-gray-900 transition group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+                <h3 className="mt-6 line-clamp-2 text-lg font-bold text-white transition group-hover:text-emerald-300">
                   {language === "vi" ? item.title : item.title_en}
                 </h3>
-                <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-400">
                   {language === "vi" ? item.description : item.description_en}
                 </p>
-                <p className="mt-auto flex items-center gap-1 pt-5 text-xs font-bold text-cyan-700 dark:text-cyan-300">
+                <span className="mt-auto flex items-center gap-2 pt-6 text-sm font-bold text-cyan-300">
                   {item.partsCount} {t("parts")}
-                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition duration-200" />
-                </p>
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                </span>
               </Link>
             ))}
           </div>
         </div>
       </section>
-
     </div>
   );
 }

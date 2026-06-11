@@ -42,7 +42,7 @@ export default async function SeriesDetailPage({ params }: SeriesDetailProps) {
     lang === "vi" ? selectedSeries.description : selectedSeries.description_en;
 
   return (
-    <div className="min-h-screen bg-white py-14 dark:bg-gray-950">
+    <div className="min-h-screen bg-[#0F172A] py-14 text-slate-100">
       <div className="mx-auto max-w-5xl px-4">
         <Link
           href={localePath(lang, "/blog/series")}
@@ -51,8 +51,8 @@ export default async function SeriesDetailPage({ params }: SeriesDetailProps) {
           ← {lang === "vi" ? "Tất cả chuyên đề" : "All series"}
         </Link>
 
-        <div className="mt-8 rounded-3xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-blue-50 p-8 dark:border-cyan-950 dark:from-cyan-950/30 dark:to-blue-950/20 sm:p-12">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white">
+        <div className="mt-8 rounded-3xl border border-slate-700 bg-gradient-to-br from-emerald-400/10 to-cyan-400/10 p-8 sm:p-12">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-950">
             <Layers className="h-6 w-6" />
           </div>
           <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300">
@@ -78,7 +78,7 @@ export default async function SeriesDetailPage({ params }: SeriesDetailProps) {
               <Link
                 key={post.slug}
                 href={localePath(lang, `/blog/${post.slug}`)}
-                className="group flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-xl hover:shadow-cyan-500/10 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-cyan-800"
+                className="group flex items-center gap-5 rounded-2xl border border-slate-700 bg-slate-900/70 p-5 transition hover:-translate-y-0.5 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-950/30"
               >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-sm font-bold text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-300">
                   {String(index + 1).padStart(2, "0")}

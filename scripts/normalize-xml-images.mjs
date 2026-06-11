@@ -46,32 +46,55 @@ function looksLikeImage(value) {
   return /\.(avif|gif|jpe?g|png|svg|webp)(?:[?#].*)?$/i.test(value);
 }
 
-function collectCandidates(xml) {
+function collectCandidates(parsedXml) {
   const candidates = new Map();
   const attributePattern =
     /\b(?:src|data-src|data-lazy-src|data-original|poster)=["']([^"']+)["']/gi;
   const sourceSetPattern = /\b(?:srcset|data-srcset)=["']([^"']+)["']/gi;
-  const attachmentPattern =
-    /<(?:wp:attachment_url|guid|enclosure:url)[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/(?:wp:attachment_url|guid|enclosure:url)>/gis;
+  const directUrlPattern =
+    /(?:https?:\/\/|\/\/|\/)[^\s"'<>]+?\.(?:avif|gif|jpe?g|png|svg|webp)(?:[?#][^\s"'<>]*)?/gi;
 
-  for (const pattern of [attributePattern, attachmentPattern]) {
+  function inspectText(text) {
     let match;
-    while ((match = pattern.exec(xml)) !== null) {
+    while ((match = attributePattern.exec(text)) !== null) {
       const raw = match[1].trim();
       const url = toAbsoluteUrl(raw);
       if (url && looksLikeImage(url)) candidates.set(raw, url);
     }
-  }
 
-  let sourceSetMatch;
-  while ((sourceSetMatch = sourceSetPattern.exec(xml)) !== null) {
-    for (const candidate of sourceSetMatch[1].split(",")) {
-      const raw = candidate.trim().split(/\s+/)[0];
+    let sourceSetMatch;
+    while ((sourceSetMatch = sourceSetPattern.exec(text)) !== null) {
+      for (const candidate of sourceSetMatch[1].split(",")) {
+        const raw = candidate.trim().split(/\s+/)[0];
+        const url = toAbsoluteUrl(raw);
+        if (url && looksLikeImage(url)) candidates.set(raw, url);
+      }
+    }
+
+    for (const directMatch of text.matchAll(directUrlPattern)) {
+      const raw = directMatch[0].trim();
       const url = toAbsoluteUrl(raw);
       if (url && looksLikeImage(url)) candidates.set(raw, url);
     }
   }
 
+  function walk(value) {
+    if (typeof value === "string") {
+      inspectText(value);
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(walk);
+      return;
+    }
+
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(walk);
+    }
+  }
+
+  walk(parsedXml);
   return candidates;
 }
 
@@ -132,12 +155,16 @@ async function main() {
   const xml = await fs.readFile(sourcePath, "utf8");
   const parser = new XMLParser({
     ignoreAttributes: false,
+    attributeNamePrefix: "",
+    textNodeName: "#text",
+    cdataPropName: "#cdata",
     processEntities: false,
+    preserveOrder: true,
     trimValues: false,
   });
 
-  parser.parse(xml);
-  const candidates = collectCandidates(xml);
+  const parsedXml = parser.parse(xml);
+  const candidates = collectCandidates(parsedXml);
   const replacements = new Map();
   const unresolvedOrigins = new Set();
 

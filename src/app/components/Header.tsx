@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, Menu, X, Cloud } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
 import SearchModal from "./SearchModal";
 import { useLanguage } from "./LanguageProvider";
 
@@ -34,15 +33,15 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-gray-200/50 bg-white/75 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-950/75 transition-colors duration-200">
-        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+      <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0B132B]/90 text-slate-100 backdrop-blur-xl">
+        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           {/* Logo */}
           <Link href={localePath("/")} className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-blue-600 text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition duration-200">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-950 shadow-md shadow-emerald-950/40 transition duration-200 group-hover:scale-105">
               <Cloud className="h-5 w-5" />
             </div>
-            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent dark:from-white dark:to-gray-300">
-              Linux<span className="text-brand-500 font-extrabold">Unity</span>
+            <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-lg font-bold tracking-tight text-transparent">
+              Linux<span className="font-extrabold text-emerald-300">Unity</span>
             </span>
           </Link>
 
@@ -56,8 +55,8 @@ export default function Header() {
                     href={link.href}
                     className={`rounded-lg px-3 py-2 text-sm font-medium transition cursor-pointer ${
                       isActive
-                        ? "bg-gray-150 text-gray-900 dark:bg-gray-800/80 dark:text-gray-100"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-100"
+                        ? "bg-emerald-400/10 text-emerald-300"
+                        : "text-slate-400 hover:bg-slate-800/70 hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -74,42 +73,38 @@ export default function Header() {
               onClick={() => setIsSearchOpen(true)}
               aria-label={t("search")}
               title={`${t("search")} (Ctrl+K)`}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200/80 bg-white text-gray-500 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:border-cyan-800 dark:hover:bg-cyan-950/30 dark:hover:text-cyan-300"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-400 shadow-sm transition hover:border-cyan-400/70 hover:text-cyan-300"
             >
               <Search className="h-4 w-4" />
             </button>
 
             {/* Language Switcher */}
-            <div className="items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium dark:border-gray-800 hidden sm:flex">
-              <button
-                onClick={() => setLanguage("vi")}
-                className={`rounded-md px-2 py-1 uppercase cursor-pointer transition ${
-                  language === "vi"
-                    ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-                    : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+            <button
+              type="button"
+              role="switch"
+              aria-checked={language === "en"}
+              aria-label={`${t("language")}: ${language.toUpperCase()}`}
+              title={`${t("language")}: ${language.toUpperCase()}`}
+              onClick={() => setLanguage(language === "vi" ? "en" : "vi")}
+              className="relative hidden h-9 w-[4.6rem] items-center rounded-full border border-slate-700 bg-slate-900 p-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-400 transition hover:border-emerald-400/60 sm:flex"
+            >
+              <span
+                className={`absolute top-1 h-7 w-8 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 shadow transition-transform duration-200 ${
+                  language === "en" ? "translate-x-[1.55rem]" : "translate-x-0"
                 }`}
-              >
-                vi
-              </button>
-              <button
-                onClick={() => setLanguage("en")}
-                className={`rounded-md px-2 py-1 uppercase cursor-pointer transition ${
-                  language === "en"
-                    ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-                    : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-                }`}
-              >
-                en
-              </button>
-            </div>
-
-            {/* Theme Toggle */}
-            <ThemeToggle />
+              />
+              <span className={`relative z-10 flex-1 ${language === "vi" ? "text-slate-950" : ""}`}>
+                VI
+              </span>
+              <span className={`relative z-10 flex-1 ${language === "en" ? "text-slate-950" : ""}`}>
+                EN
+              </span>
+            </button>
 
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 md:hidden dark:text-gray-400 dark:hover:bg-gray-800 cursor-pointer"
+              className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-slate-800 md:hidden"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -123,7 +118,7 @@ export default function Header() {
 
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
-          <div className="border-t border-gray-200 bg-white/95 px-4 py-4 md:hidden dark:border-gray-800 dark:bg-gray-950/95 transition-all">
+          <div className="border-t border-slate-800 bg-[#0B132B]/98 px-4 py-4 transition-all md:hidden">
             <ul className="space-y-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
@@ -134,8 +129,8 @@ export default function Header() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`block rounded-lg px-4 py-2.5 text-base font-medium ${
                         isActive
-                          ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                          ? "bg-emerald-400/10 text-emerald-300"
+                          : "text-slate-400 hover:bg-slate-800 hover:text-white"
                       }`}
                     >
                       {link.label}

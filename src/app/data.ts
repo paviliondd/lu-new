@@ -1,8 +1,10 @@
 export interface Author {
   name: string;
   role: string;
+  role_en?: string;
   avatar: string;
   description: string;
+  description_en?: string;
   linkedin: string;
   github: string;
 }
@@ -75,40 +77,50 @@ export const team: Record<string, Author> = {
   philong: {
     name: "Trần Phi Long",
     role: "Admin",
+    role_en: "Admin",
     avatar: "A",
     description: "Một kỹ sư Cloud & DevOps đầy tò mò, đam mê khám phá, thử nghiệm và xây dựng hạ tầng tự động hóa quy mô lớn.",
+    description_en: "A curious Cloud and DevOps engineer focused on experimentation and large-scale infrastructure automation.",
     linkedin: "https://linkedin.com",
     github: "https://github"
   },
   nhatnghia: {
     name: "Trần Phi Long",
     role: "Admin",
+    role_en: "Admin",
     avatar: "P",
     description: "Kỹ sư Cloud & DevOps với đam mê xây dựng hạ tầng tự động hóa.",
+    description_en: "A Cloud and DevOps engineer passionate about infrastructure automation.",
     linkedin: "https://linkedin.com",
     github: "https://github.com"
   },
   vanthao: {
     name: "Trần Văn Thảo",
     role: "Cloud & DevOps Engineer",
+    role_en: "Cloud & DevOps Engineer",
     avatar: "T",
     description: "Kỹ sư chuyên trách tự động hóa hạ tầng (IaC) và xây dựng hệ thống CI/CD thông suốt.",
+    description_en: "An engineer specializing in infrastructure as code and reliable CI/CD systems.",
     linkedin: "https://linkedin.com",
     github: "https://github"
   },
   ngovi: {
     name: "Ngô Tường Vy",
     role: "Security Engineer",
+    role_en: "Security Engineer",
     avatar: "V",
     description: "Chuyên gia bảo mật tập trung vào kiểm thử xâm nhập (Pentest) và tăng cường bảo mật cho các ứng dụng Cloud Native.",
+    description_en: "A security engineer focused on penetration testing and hardening cloud-native applications.",
     linkedin: "https://linkedin.com",
     github: "https://github"
   },
   hathu: {
     name: "Hà Thu",
     role: "Content Creator",
+    role_en: "Content Creator",
     avatar: "H",
     description: "Người kết nối kỹ thuật và cộng đồng, chịu trách nhiệm truyền tải các bài học phức tạp thành các bài viết dễ tiếp cận.",
+    description_en: "A technical communicator who turns complex engineering lessons into approachable articles.",
     linkedin: "https://linkedin.com",
     github: "https://github"
   }
@@ -118,9 +130,9 @@ export const series: Series[] = [
   {
     "slug": "compute-container-infrastructure-ha-tang-dong-goi-workloads",
     "title": "Chuỗi 1: Compute & Container Infrastructure (Hạ tầng & Đóng gói Workloads)",
-    "title_en": "Chuỗi 1: Compute & Container Infrastructure (Hạ tầng & Đóng gói Workloads)",
+    "title_en": "Series 1: Compute & Container Infrastructure",
     "description": "Topic cluster from AWS roadmap: Compute & Container Infrastructure (Hạ tầng & Đóng gói Workloads).",
-    "description_en": "AWS roadmap topic cluster: Compute & Container Infrastructure (Hạ tầng & Đóng gói Workloads).",
+    "description_en": "AWS compute, networking, container platforms, scaling, and workload packaging.",
     "icon": "layers",
     "partsCount": 5,
     "tag": "Compute",
@@ -129,9 +141,9 @@ export const series: Series[] = [
   {
     "slug": "serverless-datastores-developer-workloads-co-so-du-lieu-caching",
     "title": "Chuỗi 2: Serverless Datastores & Developer Workloads (Cơ sở dữ liệu & Caching)",
-    "title_en": "Chuỗi 2: Serverless Datastores & Developer Workloads (Cơ sở dữ liệu & Caching)",
+    "title_en": "Series 2: Serverless Datastores & Developer Workloads",
     "description": "Topic cluster from AWS roadmap: Serverless Datastores & Developer Workloads (Cơ sở dữ liệu & Caching).",
-    "description_en": "AWS roadmap topic cluster: Serverless Datastores & Developer Workloads (Cơ sở dữ liệu & Caching).",
+    "description_en": "Managed databases, serverless data stores, caching, and application data patterns.",
     "icon": "layers",
     "partsCount": 5,
     "tag": "Datastores",
@@ -140,9 +152,9 @@ export const series: Series[] = [
   {
     "slug": "serverless-core-sdk-coding-integration-lap-trinh-tach-roi-kien-truc",
     "title": "Chuỗi 3: Serverless Core, SDK Coding & Integration (Lập trình & Tách rời Kiến trúc)",
-    "title_en": "Chuỗi 3: Serverless Core, SDK Coding & Integration (Lập trình & Tách rời Kiến trúc)",
+    "title_en": "Series 3: Serverless Core, SDK Coding & Integration",
     "description": "Topic cluster from AWS roadmap: Serverless Core, SDK Coding & Integration (Lập trình & Tách rời Kiến trúc).",
-    "description_en": "AWS roadmap topic cluster: Serverless Core, SDK Coding & Integration (Lập trình & Tách rời Kiến trúc).",
+    "description_en": "Serverless application design, AWS SDK development, events, and decoupled integration.",
     "icon": "zap",
     "partsCount": 6,
     "tag": "Serverless",
@@ -151,9 +163,9 @@ export const series: Series[] = [
   {
     "slug": "ci-cd-sdlc-automation-gitops-tu-dong-hoa-kiem-thu-trien-khai",
     "title": "Chuỗi 4: CI/CD, SDLC Automation & GitOps (Tự động hóa Kiểm thử & Triển khai)",
-    "title_en": "Chuỗi 4: CI/CD, SDLC Automation & GitOps (Tự động hóa Kiểm thử & Triển khai)",
+    "title_en": "Series 4: CI/CD, SDLC Automation & GitOps",
     "description": "Topic cluster from AWS roadmap: CI/CD, SDLC Automation & GitOps (Tự động hóa Kiểm thử & Triển khai).",
-    "description_en": "AWS roadmap topic cluster: CI/CD, SDLC Automation & GitOps (Tự động hóa Kiểm thử & Triển khai).",
+    "description_en": "Automated testing, delivery pipelines, release strategies, and GitOps workflows.",
     "icon": "git-pull-request",
     "partsCount": 2,
     "tag": "DevOps/CICD",
@@ -162,9 +174,9 @@ export const series: Series[] = [
   {
     "slug": "infrastructure-as-code-iac-configuration-management-quy-mo-lon",
     "title": "Chuỗi 5: Infrastructure as Code (IaC) & Configuration Management Quy mô lớn",
-    "title_en": "Chuỗi 5: Infrastructure as Code (IaC) & Configuration Management Quy mô lớn",
+    "title_en": "Series 5: Infrastructure as Code & Configuration Management",
     "description": "Topic cluster from AWS roadmap: Infrastructure as Code (IaC) & Configuration Management Quy mô lớn.",
-    "description_en": "AWS roadmap topic cluster: Infrastructure as Code (IaC) & Configuration Management Quy mô lớn.",
+    "description_en": "Infrastructure as code and configuration management patterns for production at scale.",
     "icon": "layers",
     "partsCount": 2,
     "tag": "IaC/Config",
@@ -173,9 +185,9 @@ export const series: Series[] = [
   {
     "slug": "secops-monitoring-centralized-logging-disaster-recovery-bao-mat-giam-sat",
     "title": "Chuỗi 6: SecOps, Monitoring, Centralized Logging & Disaster Recovery (Bảo mật & Giám sát)",
-    "title_en": "Chuỗi 6: SecOps, Monitoring, Centralized Logging & Disaster Recovery (Bảo mật & Giám sát)",
+    "title_en": "Series 6: SecOps, Observability & Disaster Recovery",
     "description": "Topic cluster from AWS roadmap: SecOps, Monitoring, Centralized Logging & Disaster Recovery (Bảo mật & Giám sát).",
-    "description_en": "AWS roadmap topic cluster: SecOps, Monitoring, Centralized Logging & Disaster Recovery (Bảo mật & Giám sát).",
+    "description_en": "Security operations, monitoring, centralized logging, resilience, and disaster recovery.",
     "icon": "layers",
     "partsCount": 2,
     "tag": "SecOps",

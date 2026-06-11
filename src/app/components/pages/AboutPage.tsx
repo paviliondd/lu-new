@@ -39,7 +39,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="w-full bg-white dark:bg-gray-950 min-h-screen py-12 transition-colors duration-200">
+    <div className="min-h-screen w-full bg-[#0F172A] py-12 text-slate-100">
       <div className="mx-auto max-w-6xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-6">
@@ -88,7 +88,7 @@ export default function AboutPage() {
             </div>
             
             {/* Mission Illustration (Decorative Gradient Block) */}
-            <div className="relative aspect-video sm:aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-brand-500/80 via-blue-500 to-indigo-600/90 shadow-lg flex items-center justify-center p-8 text-center text-white">
+            <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/80 via-cyan-500 to-slate-900 p-8 text-center text-white shadow-lg sm:aspect-[4/3] md:aspect-square">
               <div className="space-y-2">
                 <Cloud className="h-14 w-14 mx-auto text-white/95 animate-pulse" />
                 <h3 className="text-lg font-extrabold">{t("exploreBuildShare")}</h3>
@@ -116,7 +116,7 @@ export default function AboutPage() {
               {missionItems.map((item, index) => (
                 <div
                   key={index}
-                  className="rounded-2xl border border-gray-150 p-6 bg-white dark:border-gray-800 dark:bg-gray-900/50 hover:shadow-md transition duration-200"
+                  className="rounded-2xl border border-slate-700 bg-slate-900/60 p-6 transition duration-200 hover:border-emerald-400/50 hover:shadow-xl hover:shadow-emerald-950/20"
                 >
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-950/60">
                     {item.icon}
@@ -133,11 +133,11 @@ export default function AboutPage() {
           </div>
 
           {/* Section 3: Call to Action */}
-          <div className="rounded-2xl bg-gradient-to-r from-brand-600 to-blue-600 p-8 sm:p-12 text-center text-white shadow-xl shadow-brand-500/10">
+          <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 p-8 text-center text-slate-950 shadow-xl shadow-emerald-950/30 sm:p-12">
             <h2 className="text-xl sm:text-2xl font-extrabold">
               {t("ctaTitle")}
             </h2>
-            <p className="mt-3 text-xs sm:text-sm text-white/85 max-w-md mx-auto leading-relaxed">
+            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-slate-900/80 sm:text-sm">
               {t("ctaSubtitle")}
             </p>
             <div className="mt-8 flex justify-center">

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
-import ThemeScript from "@/app/components/ThemeScript";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { LanguageProvider } from "@/app/components/LanguageProvider";
@@ -60,13 +59,10 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   return (
     <html
       lang={lang}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <ThemeScript />
-      </head>
-      <body className="min-h-full flex flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-200">
+      <body className="flex min-h-full flex-col bg-[#0F172A] text-slate-100">
         <LanguageProvider initialLanguage={lang}>
           <Header />
           <main className="flex-1 flex flex-col">{children}</main>

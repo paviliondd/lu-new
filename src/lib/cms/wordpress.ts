@@ -4,6 +4,7 @@ import {
   getLocalizedFilePosts,
 } from "@/lib/content/localized-posts";
 import { localizePost, type Locale } from "@/i18n/config";
+import { load } from "cheerio";
 
 interface WordPressRendered {
   rendered?: string;
@@ -30,6 +31,9 @@ interface WordPressPost {
   title?: WordPressRendered;
   excerpt?: WordPressRendered;
   content?: WordPressRendered;
+  lang?: string;
+  meta?: Record<string, unknown>;
+  translations?: Record<string, number | string>;
   yoast_head_json?: WordPressSeo;
   _embedded?: {
     author?: Array<{ slug?: string }>;
@@ -111,10 +115,8 @@ async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
 }
 
 function plainText(html = "") {
-  return html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  if (!html) return "";
+  return load(`<body>${html}</body>`).text().replace(/\s+/g, " ").trim();
 }
 
 function normalizeWordPressAssetUrl(value: string) {
@@ -151,16 +153,36 @@ function normalizeWordPressSrcSet(value: string) {
 }
 
 function normalizeWordPressContent(html = "") {
-  if (!html || !wordpressPublicBase) return html;
+  if (!html) return html;
 
-  return html
-    .replace(/\s(src|href)=["']([^"']+)["']/gi, (match, attr, value) => {
-      const normalized = normalizeWordPressAssetUrl(value);
-      return normalized === value ? match : ` ${attr}="${normalized}"`;
-    })
-    .replace(/\ssrcset=["']([^"']+)["']/gi, (_match, value) => {
-      return ` srcset="${normalizeWordPressSrcSet(value)}"`;
-    });
+  const $ = load(html, null, false);
+  $(".lightbox-trigger, script").remove();
+
+  $("img, source").each((_index, element) => {
+    const media = $(element);
+    const source =
+      media.attr("data-src") ||
+      media.attr("data-lazy-src") ||
+      media.attr("data-original") ||
+      media.attr("src");
+    const sourceSet = media.attr("data-srcset") || media.attr("srcset");
+
+    if (source) media.attr("src", normalizeWordPressAssetUrl(source));
+    if (sourceSet) media.attr("srcset", normalizeWordPressSrcSet(sourceSet));
+
+    media.removeAttr("data-src");
+    media.removeAttr("data-lazy-src");
+    media.removeAttr("data-original");
+    media.removeAttr("data-srcset");
+  });
+
+  $("a").each((_index, element) => {
+    const link = $(element);
+    const href = link.attr("href");
+    if (href) link.attr("href", normalizeWordPressAssetUrl(href));
+  });
+
+  return $.html();
 }
 
 function extractTerms(post: WordPressPost, taxonomy: string) {
@@ -174,12 +196,35 @@ function isPublishedPost(post: WordPressPost) {
   return post.status === "publish" && Boolean(post.slug);
 }
 
-/** Estimate reading time from rendered HTML content (~200 wpm Vietnamese). */
-function estimateReadTime(html = ""): string {
+function explicitWordPressLocale(post: WordPressPost): Locale | null {
+  const metadataLocale = [
+    post.lang,
+    post.meta?.linuxunity_locale,
+    post.meta?.locale,
+    post.meta?.language,
+  ].find((value) => value === "vi" || value === "en");
+
+  if (metadataLocale === "vi" || metadataLocale === "en") {
+    return metadataLocale;
+  }
+
+  const suffixLocale = post.slug.match(/(?:^|[-_.])(vi|en)$/i)?.[1]?.toLowerCase();
+  return suffixLocale === "vi" || suffixLocale === "en" ? suffixLocale : null;
+}
+
+function matchesWordPressLocale(post: WordPressPost, locale: Locale) {
+  const explicitLocale = explicitWordPressLocale(post);
+  if (explicitLocale) return explicitLocale === locale;
+
+  // Legacy WordPress articles have no locale metadata and are Vietnamese.
+  return locale === "vi";
+}
+
+function estimateReadTime(html: string, locale: Locale): string {
   const wordCount = plainText(html).split(/\s+/).filter(Boolean).length;
-  if (wordCount === 0) return "< 1 phút";
+  if (wordCount === 0) return locale === "vi" ? "< 1 phút" : "< 1 min read";
   const minutes = Math.max(1, Math.round(wordCount / 200));
-  return `${minutes} phút đọc`;
+  return locale === "vi" ? `${minutes} phút đọc` : `${minutes} min read`;
 }
 
 function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
@@ -211,8 +256,8 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
     publishDate,
     publish_date: publishDate,
     date: post.date || "",
-    readTime: estimateReadTime(content),
-    readTime_en: estimateReadTime(content).replace("phút đọc", "min read"),
+    readTime: estimateReadTime(content, locale),
+    readTime_en: estimateReadTime(content, "en"),
     views: 0,
     seriesSlug: null,
     topicSlug: "",
@@ -230,7 +275,9 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
     seo: {
       title: post.yoast_head_json?.title || title,
       description: post.yoast_head_json?.description || description,
-      ogImage: post.yoast_head_json?.og_image?.[0]?.url || null,
+      ogImage: post.yoast_head_json?.og_image?.[0]?.url
+        ? normalizeWordPressAssetUrl(post.yoast_head_json.og_image[0].url || "")
+        : null,
     },
     internalLinking: {
       hubSlug: "",
@@ -258,7 +305,9 @@ async function fetchWordPressPosts(locale: Locale, status = "publish") {
     );
   }
 
-  return posts.filter(isPublishedPost).map((post) => mapWordPressPost(post, locale));
+  return posts
+    .filter((post) => isPublishedPost(post) && matchesWordPressLocale(post, locale))
+    .map((post) => mapWordPressPost(post, locale));
 }
 
 function mergePosts(primary: Post[], fallback: Post[]) {
@@ -268,7 +317,19 @@ function mergePosts(primary: Post[], fallback: Post[]) {
 }
 
 function localizedFallbackPosts(locale: Locale) {
-  return localPublishedPosts.map((post) => localizePost(post, locale));
+  if (locale === "vi") {
+    return localPublishedPosts.map((post) => localizePost(post, locale));
+  }
+
+  return localPublishedPosts
+    .filter(
+      (post) =>
+        Boolean(post.title_en.trim()) &&
+        (post.title_en.trim() !== post.title.trim() ||
+          post.description_en.trim() !== post.description.trim() ||
+          post.content_en.trim() !== post.content.trim())
+    )
+    .map((post) => localizePost(post, locale));
 }
 
 export async function getCmsPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
@@ -292,8 +353,7 @@ export async function getCmsPostBySlug(
   if (filePost?.status === "draft") return null;
 
   if (!wordpressApiBase) {
-    const post = localPublishedPosts.find((item) => item.slug === slug);
-    return post ? localizePost(post, locale) : null;
+    return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
   }
 
   try {
@@ -315,10 +375,9 @@ export async function getCmsPostBySlug(
       );
     }
 
-    const post = posts[0];
+    const post = posts.find((item) => matchesWordPressLocale(item, locale));
     return post && isPublishedPost(post) ? mapWordPressPost(post, locale) : null;
   } catch {
-    const post = localPublishedPosts.find((item) => item.slug === slug);
-    return post ? localizePost(post, locale) : null;
+    return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
   }
 }

@@ -7,19 +7,27 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 
-  /* Brand Blue Palette */
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
-  --color-brand-950: #172554;
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
 
+}
+
+html {
+  background: #0f172a;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #0f172a;
 }
 
 /* Typography styles for article rendering */
@@ -29,6 +37,11 @@
   margin-top: 2rem;
   margin-bottom: 1rem;
   color: var(--color-gray-900);
+}
+
+.article-content h2,
+.article-content h3 {
+  scroll-margin-top: 7rem;
 }
 .dark .prose h2 {
   color: var(--color-gray-100);
@@ -141,9 +154,9 @@
 }
 
 .prose pre .code-copy-button:hover {
-  border-color: var(--color-brand-400);
-  background: var(--color-brand-600);
-  color: white;
+  border-color: #34d399;
+  background: linear-gradient(90deg, #34d399, #22d3ee);
+  color: #0f172a;
 }
 
 .dark .prose pre {
@@ -220,6 +233,47 @@
 
 .article-content figure {
   margin: 1.75rem 0;
+}
+
+.article-content a {
+  color: #22d3ee;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgb(34 211 238 / 0.35);
+  text-underline-offset: 0.2em;
+}
+
+.article-content blockquote {
+  margin: 1.5rem 0;
+  border-left: 3px solid #34d399;
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: rgb(16 185 129 / 0.08);
+  padding: 1rem 1.25rem;
+  color: #cbd5e1;
+}
+
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  font-size: 0.875rem;
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid #334155;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.article-content th {
+  background: #0b132b;
+  color: #a7f3d0;
+}
+
+.article-content td {
+  color: #cbd5e1;
 }
 
 .article-content img,

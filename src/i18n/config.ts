@@ -31,9 +31,9 @@ export function localizePost<T extends {
 
   return {
     ...post,
-    title: post.title_en || post.title,
-    description: post.description_en || post.description,
-    content: post.content_en || post.content,
-    readTime: post.readTime_en || post.readTime,
+    title: post.title_en.trim(),
+    description: post.description_en.trim(),
+    content: post.content_en.trim(),
+    readTime: post.readTime_en.trim() || "5 min read",
   };
 }

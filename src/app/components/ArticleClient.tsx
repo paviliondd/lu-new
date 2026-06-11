@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Eye, Clock, Tag, Link2, ChevronRight } from "lucide-react";
+import { ArrowLeft, Calendar, Eye, Clock, Link2, ChevronRight } from "lucide-react";
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import ArticleImageEnhancer from "./ArticleImageEnhancer";
@@ -38,7 +38,7 @@ export default function ArticleClient({
   };
 
   return (
-    <div className="w-full bg-white py-10 transition-colors duration-200 dark:bg-gray-950">
+    <div className="w-full bg-[#0F172A] py-10 text-slate-100">
       <div className="mx-auto max-w-7xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-8">
@@ -80,12 +80,14 @@ export default function ArticleClient({
                     {author.name}
                   </h4>
                   <p className="text-[10px] text-brand-600 dark:text-brand-400 font-medium mt-0.5">
-                    {author.role}
+                    {language === "en" ? author.role_en || author.role : author.role}
                   </p>
                 </div>
               </div>
               <p className="text-[11px] leading-relaxed text-gray-500 dark:text-gray-400 mb-4">
-                {author.description}
+                {language === "en"
+                  ? author.description_en || author.description
+                  : author.description}
               </p>
               
               {/* Author socials */}
@@ -144,13 +146,10 @@ export default function ArticleClient({
           <div className="order-1 space-y-6">
             {/* Header info */}
             <div className="space-y-4">
-              <span className="inline-flex rounded-full bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
-                {post.category}
-              </span>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
+              <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
                 {post.title}
               </h1>
-              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium italic">
+              <p className="text-sm font-medium leading-relaxed text-slate-400 sm:text-base">
                 {post.description}
               </p>
               
@@ -193,22 +192,17 @@ export default function ArticleClient({
 
             {/* Prose Content Rendering */}
             <div className="article-content prose max-w-none dark:prose-invert">
-              <CodeBlockEnhancer contentKey={post.slug} />
-              <ArticleImageEnhancer assetBase={assetBase} contentKey={post.slug} />
+              <CodeBlockEnhancer
+                contentKey={`${post.slug}-${language}`}
+                copyLabel={t("copyCode")}
+                copiedLabel={t("copiedCode")}
+                failedLabel={t("copyFailed")}
+              />
+              <ArticleImageEnhancer
+                assetBase={assetBase}
+                contentKey={`${post.slug}-${language}`}
+              />
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
-            </div>
-
-            {/* Post Tags Footer */}
-            <div className="flex flex-wrap gap-1.5 pt-6 border-t border-gray-100 dark:border-gray-800/80">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold text-gray-650 bg-gray-50 dark:bg-gray-900 dark:text-gray-400"
-                >
-                  <Tag className="h-3 w-3" />
-                  {tag}
-                </span>
-              ))}
             </div>
 
             {relatedPosts.length > 0 && (

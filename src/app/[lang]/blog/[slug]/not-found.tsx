@@ -7,7 +7,7 @@ export default function BlogPostNotFound() {
   const { language, localePath } = useLanguage();
 
   return (
-    <main className="min-h-[70vh] bg-white px-4 py-20 text-gray-900 dark:bg-gray-950 dark:text-white">
+    <main className="min-h-[70vh] bg-[#0F172A] px-4 py-20 text-white">
       <div className="mx-auto max-w-2xl text-center">
         <p className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
           404

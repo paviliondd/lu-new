@@ -9,15 +9,12 @@ import {
 import { highlightCodeBlocks } from "@/lib/content/highlight";
 import { hasLocale } from "@/i18n/config";
 import { localizedAlternates } from "@/i18n/metadata";
+import { load } from "cheerio";
 
 export const revalidate = 60;
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>;
-}
-
-function stripHtml(html = "") {
-  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function slugifyHeading(text: string, index: number) {
@@ -32,23 +29,34 @@ function slugifyHeading(text: string, index: number) {
   );
 }
 
-function extractHeadings(content: string) {
+function prepareArticleContent(content: string) {
+  const $ = load(content, null, false);
   const headings: Array<{ id: string; text: string; level: 2 | 3 }> = [];
-  const headingRegex = /<h([23])[^>]*>(.*?)<\/h\1>/gi;
-  let match: RegExpExecArray | null;
+  const seenIds = new Set<string>();
 
-  while ((match = headingRegex.exec(content)) !== null) {
-    const text = stripHtml(match[2]);
-    if (!text) continue;
+  $("h2, h3").each((index, element) => {
+    const heading = $(element);
+    const text = heading.text().replace(/\s+/g, " ").trim();
+    if (!text) return;
+
+    const baseId = heading.attr("id") || slugifyHeading(text, index);
+    let id = baseId;
+    let duplicate = 2;
+    while (seenIds.has(id)) {
+      id = `${baseId}-${duplicate}`;
+      duplicate += 1;
+    }
+    seenIds.add(id);
+    heading.attr("id", id);
 
     headings.push({
-      id: slugifyHeading(text, headings.length),
+      id,
       text,
-      level: Number(match[1]) as 2 | 3,
+      level: element.tagName.toLowerCase() === "h3" ? 3 : 2,
     });
-  }
+  });
 
-  return headings;
+  return { html: $.html(), headings };
 }
 
 // Generate metadata dynamically for SEO
@@ -89,8 +97,9 @@ export default async function BlogPostPage({ params }: Props) {
 
   const author = team[post.author] || team.nhatnghia;
   const highlightedContent = await highlightCodeBlocks(post.content);
-  const localizedPost = { ...post, content: highlightedContent };
-  const headings = extractHeadings(highlightedContent);
+  const preparedContent = prepareArticleContent(highlightedContent);
+  const localizedPost = { ...post, content: preparedContent.html };
+  const headings = preparedContent.headings;
   const relatedPosts = (await getCmsPublishedPosts(lang))
     .filter((item) => item.slug !== post.slug && item.category === post.category)
     .slice(0, 3);

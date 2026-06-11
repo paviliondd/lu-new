@@ -5,6 +5,9 @@ import { useEffect } from "react";
 interface CodeBlockEnhancerProps {
   containerSelector?: string;
   contentKey: string;
+  copyLabel: string;
+  copiedLabel: string;
+  failedLabel: string;
 }
 
 async function copyText(value: string) {
@@ -39,6 +42,9 @@ function getFilename(preElement: HTMLElement, codeElement: HTMLElement) {
 export default function CodeBlockEnhancer({
   containerSelector = ".article-content",
   contentKey,
+  copyLabel,
+  copiedLabel,
+  failedLabel,
 }: CodeBlockEnhancerProps) {
   useEffect(() => {
     const container = document.querySelector(containerSelector);
@@ -63,13 +69,14 @@ export default function CodeBlockEnhancer({
       const copyButton = document.createElement("button");
       copyButton.type = "button";
       copyButton.className = "code-copy-button";
-      copyButton.textContent = "Copy";
+      copyButton.textContent = copyLabel;
+      copyButton.setAttribute("aria-label", copyLabel);
 
       const handleCopy = async () => {
         const copied = await copyText(rawCode);
-        copyButton.textContent = copied ? "Copied" : "Copy failed";
+        copyButton.textContent = copied ? copiedLabel : failedLabel;
         window.setTimeout(() => {
-          copyButton.textContent = "Copy";
+          copyButton.textContent = copyLabel;
         }, 1600);
       };
 
@@ -86,7 +93,7 @@ export default function CodeBlockEnhancer({
     return () => {
       cleanupHandlers.forEach((cleanup) => cleanup());
     };
-  }, [containerSelector, contentKey]);
+  }, [containerSelector, contentKey, copiedLabel, copyLabel, failedLabel]);
 
   return null;
 }

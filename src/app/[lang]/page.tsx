@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import HomePage from "@/app/components/pages/HomePage";
 import { hasLocale } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
+import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
 
 interface HomeRouteProps {
   params: Promise<{ lang: string }>;
@@ -27,5 +28,6 @@ export async function generateMetadata({
 export default async function HomeRoute({ params }: HomeRouteProps) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  return <HomePage />;
+  const posts = await getCmsPublishedPosts(lang);
+  return <HomePage initialPosts={posts} />;
 }

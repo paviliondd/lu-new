@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SeriesListPage from "@/app/components/pages/SeriesListPage";
 import { hasLocale } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
+import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
 
 interface SeriesRouteProps {
   params: Promise<{ lang: string }>;
@@ -27,5 +28,6 @@ export async function generateMetadata({
 export default async function SeriesRoute({ params }: SeriesRouteProps) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  return <SeriesListPage />;
+  const posts = await getCmsPublishedPosts(lang);
+  return <SeriesListPage initialPosts={posts} />;
 }

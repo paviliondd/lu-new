@@ -51,6 +51,8 @@ function configuredImageOrigins() {
     process.env.WORDPRESS_PUBLIC_URL,
     process.env.WORDPRESS_SITE_URL,
     process.env.NEXT_PUBLIC_SITE_URL,
+    ...(process.env.NEXT_PUBLIC_WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
+    ...(process.env.WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
     ...(process.env.IMAGE_REMOTE_HOSTS || "").split(","),
   ];
 
@@ -65,13 +67,17 @@ function configuredImageOrigins() {
           return [];
         }
 
+        const basePattern = {
+          protocol: url.protocol.replace(":", "") as "http" | "https",
+          hostname: url.hostname,
+          port: url.port,
+        };
+
         return [
-          {
-            protocol: url.protocol.replace(":", "") as "http" | "https",
-            hostname: url.hostname,
-            port: url.port,
-            pathname: "/wp-content/uploads/**",
-          },
+          { ...basePattern, pathname: "/wp-content/**" },
+          { ...basePattern, pathname: "/wp-includes/**" },
+          { ...basePattern, pathname: "/**/wp-content/**" },
+          { ...basePattern, pathname: "/**/wp-includes/**" },
         ];
       } catch {
         return [];

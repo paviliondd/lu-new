@@ -17,6 +17,7 @@ interface ArticleClientProps {
   headings: TocHeading[];
   relatedPosts: Post[];
   assetBase?: string;
+  legacyAssetOrigins?: string[];
 }
 
 function formatPostDate(value: string, language: string) {
@@ -40,6 +41,7 @@ export default function ArticleClient({
   headings,
   relatedPosts,
   assetBase,
+  legacyAssetOrigins,
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -212,6 +214,7 @@ export default function ArticleClient({
               <ArticleImageEnhancer
                 assetBase={assetBase}
                 contentKey={`${post.slug}-${language}`}
+                legacyAssetOrigins={legacyAssetOrigins}
               />
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>

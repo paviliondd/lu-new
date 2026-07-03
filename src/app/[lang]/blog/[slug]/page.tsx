@@ -69,6 +69,16 @@ function publicWordPressAssetBase() {
   ).replace(/\/$/, "");
 }
 
+function legacyWordPressAssetOrigins() {
+  return [
+    ...(process.env.NEXT_PUBLIC_WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
+    ...(process.env.WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
+    ...(process.env.IMAGE_REMOTE_HOSTS || "").split(","),
+  ]
+    .map((value) => value.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+}
+
 // Generate metadata dynamically for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
@@ -114,6 +124,7 @@ export default async function BlogPostPage({ params }: Props) {
     .filter((item) => item.slug !== post.slug && item.category === post.category)
     .slice(0, 3);
   const assetBase = publicWordPressAssetBase();
+  const legacyAssetOrigins = legacyWordPressAssetOrigins();
 
   return (
     <ArticleClient
@@ -122,6 +133,7 @@ export default async function BlogPostPage({ params }: Props) {
       headings={headings}
       relatedPosts={relatedPosts}
       assetBase={assetBase}
+      legacyAssetOrigins={legacyAssetOrigins}
     />
   );
 }

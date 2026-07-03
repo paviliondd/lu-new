@@ -62,6 +62,23 @@ const wordpressPublicBase = (
   ""
 ).replace(/\/$/, "");
 
+const legacyAssetOrigins = [
+  ...(process.env.NEXT_PUBLIC_WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
+  ...(process.env.WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
+  ...(process.env.IMAGE_REMOTE_HOSTS || "").split(","),
+]
+  .map((value) => value.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
+function isLegacyWordPressAssetUrl(url: URL) {
+  const origin = url.origin.replace(/\/$/, "");
+
+  return (
+    (url.pathname.includes("/wp-content/") || url.pathname.includes("/wp-includes/")) &&
+    legacyAssetOrigins.includes(origin)
+  );
+}
+
 function buildWordPressRestUrl(apiBase: string, endpoint: string) {
   const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const [routePath, queryString = ""] = normalizedEndpoint.split("?");
@@ -150,6 +167,11 @@ function normalizeWordPressAssetUrl(value: string) {
 
   try {
     const url = new URL(value);
+    if (wordpressPublicBase && isLegacyWordPressAssetUrl(url)) {
+      const assetPath = url.pathname.replace(/^.*?(\/wp-(?:content|includes)\/)/, "$1");
+      return `${wordpressPublicBase}${assetPath}${url.search}${url.hash}`;
+    }
+
     if (wordpressPublicBase && (url.hostname === "wordpress" || url.hostname === "localhost")) {
       return `${wordpressPublicBase}${url.pathname}${url.search}${url.hash}`;
     }

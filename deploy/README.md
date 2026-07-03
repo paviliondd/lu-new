@@ -9,9 +9,11 @@ This deployment runs:
 - MariaDB for WordPress data.
 - Uptime Kuma at `https://kuma.linuxunity.com`.
 
-The database has no public port. Docker publishes the internal Nginx service on
-`127.0.0.1:8080`. The host Nginx vhost for `tesst.linuxunity.com` should proxy
-public `80/443` traffic to `http://127.0.0.1:8080`.
+The database has no public port. Docker publishes the Nginx service on public
+HTTP port `80` and also keeps `127.0.0.1:8080` as a local diagnostic endpoint.
+If you prefer to terminate TLS with a host-level Nginx, set
+`NGINX_HTTP_BIND=127.0.0.1:8080` and remove or change
+`NGINX_DIAGNOSTIC_BIND` to avoid binding the same host port twice.
 
 ## DNS
 
@@ -62,6 +64,7 @@ docker compose logs -f nginx app wordpress db
 Check the Docker-side reverse proxy:
 
 ```bash
+curl -I http://127.0.0.1
 curl -I http://127.0.0.1:8080
 curl -fsS http://127.0.0.1:8080/api/health
 ```

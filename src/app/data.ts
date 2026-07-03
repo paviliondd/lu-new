@@ -1743,9 +1743,7 @@ export const allPosts: Post[] = [
 
 export const draftPosts: Post[] = allPosts.filter((post) => post.status === "draft");
 
-export const publishedPosts: Post[] = allPosts.filter(
-  (post) => post.status === "published" && post.publishDate !== null
-);
+export const publishedPosts: Post[] = allPosts.filter((post) => post.status === "published");
 
 // Public frontend compatibility: only published posts are visible on the site.
 export const posts: Post[] = publishedPosts;

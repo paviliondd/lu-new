@@ -327,32 +327,53 @@ function matchesWordPressLocale(post: WordPressPost, locale: Locale) {
   const explicitLocale = explicitWordPressLocale(post);
   if (explicitLocale) return explicitLocale === locale;
 
-  // Legacy WordPress articles have no locale metadata and are Vietnamese.
-  return locale === "vi";
+  // Legacy WordPress articles have no locale metadata. Show them in every
+  // locale and let localizePost fall back to the original content when no
+  // English translation exists yet.
+  return locale === "vi" || locale === "en";
+}
+
+function localePriority(post: WordPressPost, locale: Locale) {
+  const explicitLocale = explicitWordPressLocale(post);
+  if (explicitLocale === locale) return 3;
+  if (!explicitLocale) return 2;
+  return 1;
+}
+
+function translationGroupKey(post: WordPressPost) {
+  const translationIds = Object.values(post.translations || {}).map(String).filter(Boolean);
+  if (translationIds.length > 0) {
+    return [String(post.id), ...translationIds].sort().join(":");
+  }
+
+  return post.slug.replace(/(?:^|[-_.])(vi|en)$/i, "");
 }
 
 function mapPostsForLocale(posts: WordPressPost[], locale: Locale) {
   const publishedPosts = posts.filter(isPublishedPost);
-  const matchedPosts = publishedPosts.filter((post) => matchesWordPressLocale(post, locale));
+  const postsByTranslation = new Map<string, WordPressPost>();
 
-  if (matchedPosts.length > 0 || locale === "vi") {
-    return matchedPosts.map((post) => mapWordPressPost(post, locale));
-  }
+  publishedPosts.forEach((post) => {
+    const key = translationGroupKey(post);
+    const current = postsByTranslation.get(key);
 
-  const responseHasLocaleMetadata = publishedPosts.some((post) => explicitWordPressLocale(post));
-  if (responseHasLocaleMetadata) return [];
+    if (!current || localePriority(post, locale) > localePriority(current, locale)) {
+      postsByTranslation.set(key, post);
+    }
+  });
 
-  return publishedPosts.map((post) => mapWordPressPost(post, locale));
+  return [...postsByTranslation.values()].map((post) => mapWordPressPost(post, locale));
 }
 
 function findPostForLocale(posts: WordPressPost[], locale: Locale) {
   const publishedPosts = posts.filter(isPublishedPost);
   const matchedPost = publishedPosts.find((post) => matchesWordPressLocale(post, locale));
+  if (matchedPost) return matchedPost;
 
-  if (matchedPost || locale === "vi") return matchedPost || null;
-
-  const responseHasLocaleMetadata = publishedPosts.some((post) => explicitWordPressLocale(post));
-  return responseHasLocaleMetadata ? null : publishedPosts[0] || null;
+  return (
+    publishedPosts
+      .sort((a, b) => localePriority(b, locale) - localePriority(a, locale))[0] || null
+  );
 }
 
 function estimateReadTime(html: string, locale: Locale): string {
@@ -426,21 +447,9 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
 }
 
 async function fetchWordPressPosts(locale: Locale, status = "publish") {
-  let posts: WordPressPost[];
-
-  try {
-    posts = await fetchWordPressJson<WordPressPost[]>(
-      `/posts?status=${status}&lang=${locale}&_embed=author,wp:term&per_page=100`
-    );
-  } catch (error) {
-    if (locale !== "vi") throw error;
-
-    // WordPress core only supports `lang` when a multilingual plugin provides it.
-    posts = await fetchWordPressJson<WordPressPost[]>(
-      `/posts?status=${status}&_embed=author,wp:term&per_page=100`
-    );
-  }
-
+  const posts = await fetchWordPressJson<WordPressPost[]>(
+    `/posts?status=${status}&_embed=author,wp:term&per_page=100`
+  );
   return mapPostsForLocale(posts, locale);
 }
 
@@ -451,18 +460,7 @@ function mergePosts(primary: Post[], fallback: Post[]) {
 }
 
 function localizedFallbackPosts(locale: Locale) {
-  if (locale === "vi") {
-    return localPublishedPosts.map((post) => localizePost(post, locale));
-  }
-
   return localPublishedPosts
-    .filter(
-      (post) =>
-        Boolean(post.title_en.trim()) &&
-        (post.title_en.trim() !== post.title.trim() ||
-          post.description_en.trim() !== post.description.trim() ||
-          post.content_en.trim() !== post.content.trim())
-    )
     .map((post) => localizePost(post, locale));
 }
 
@@ -493,23 +491,11 @@ export async function getCmsPostBySlug(
   }
 
   try {
-    let posts: WordPressPost[];
-
-    try {
-      posts = await fetchWordPressJson<WordPressPost[]>(
-        `/posts?slug=${encodeURIComponent(
-          slug
-        )}&status=publish&lang=${locale}&_embed=author,wp:term&per_page=1`
-      );
-    } catch (error) {
-      if (locale !== "vi") throw error;
-
-      posts = await fetchWordPressJson<WordPressPost[]>(
-        `/posts?slug=${encodeURIComponent(
-          slug
-        )}&status=publish&_embed=author,wp:term&per_page=1`
-      );
-    }
+    const posts = await fetchWordPressJson<WordPressPost[]>(
+      `/posts?slug=${encodeURIComponent(
+        slug
+      )}&status=publish&_embed=author,wp:term&per_page=1`
+    );
 
     const post = findPostForLocale(posts, locale);
     if (post) return mapWordPressPost(post, locale);

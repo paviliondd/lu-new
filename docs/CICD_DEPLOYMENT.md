@@ -26,7 +26,7 @@ GitHub main
 
 Production stack:
 
-- `caddy`: reverse proxy va HTTPS tu dong.
+- `nginx`: reverse proxy.
 - `app`: Next.js frontend.
 - `wordpress`: WordPress admin va REST API.
 - `db`: MariaDB noi bo.
@@ -110,7 +110,7 @@ docker compose config
 docker compose pull
 docker compose up -d
 docker compose ps
-docker compose logs -f caddy app wordpress db
+docker compose logs -f nginx app wordpress db
 ```
 
 Mo WordPress admin:
@@ -171,7 +171,7 @@ Logs:
 
 ```bash
 docker compose logs -f
-docker compose logs -f caddy app wordpress db
+docker compose logs -f nginx app wordpress db
 ```
 
 Trang thai:

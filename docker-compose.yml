@@ -1,21 +1,18 @@
 services:
-  caddy:
-    image: caddy:2.8.4-alpine
+  nginx:
+    image: nginx:1.27-alpine
     restart: unless-stopped
-    env_file:
-      - .env
     depends_on:
       app:
         condition: service_healthy
       wordpress:
         condition: service_healthy
+      uptime-kuma:
+        condition: service_started
     ports:
       - "80:80"
-      - "443:443"
     volumes:
-      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - public
       - internal
@@ -53,69 +50,6 @@ services:
       - "3001"
     networks:
       - internal
-      - monitoring
-
-  prometheus:
-    image: prom/prometheus:v2.55.1
-    restart: unless-stopped
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.retention.time=15d
-      - --web.enable-lifecycle
-    volumes:
-      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    expose:
-      - "9090"
-    networks:
-      - monitoring
-
-  grafana:
-    image: grafana/grafana:11.5.2
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-      GF_USERS_ALLOW_SIGN_UP: "false"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./deploy/grafana/provisioning:/etc/grafana/provisioning:ro
-    ports:
-      - "127.0.0.1:3002:3000"
-    networks:
-      - monitoring
-
-  node-exporter:
-    image: prom/node-exporter:v1.8.2
-    restart: unless-stopped
-    pid: host
-    command:
-      - --path.procfs=/host/proc
-      - --path.sysfs=/host/sys
-      - --path.rootfs=/host/rootfs
-      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/host/rootfs:ro
-    networks:
-      - monitoring
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
-    restart: unless-stopped
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
-      - /dev/disk:/dev/disk:ro
-    networks:
-      - monitoring
 
   wordpress:
     image: wordpress:6.8-php8.3-apache
@@ -205,15 +139,10 @@ services:
       - internal
 
 volumes:
-  caddy_data:
-  caddy_config:
   wordpress_data:
   db_data:
   uptime_kuma_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   public:
   internal:
-  monitoring:

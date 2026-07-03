@@ -111,6 +111,6 @@ log "Current service status"
 docker compose ps
 
 log "Recent logs"
-docker compose logs --tail=80 caddy app wordpress db uptime-kuma prometheus grafana || true
+docker compose logs --tail=80 nginx app wordpress db uptime-kuma || true
 
 log "Deployment completed"

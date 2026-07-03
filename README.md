@@ -10,7 +10,7 @@ Stack hiện tại:
 
 - Frontend: Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4.
 - CMS: Headless WordPress qua REST API.
-- Production runtime: Docker Compose với Caddy, Next.js, WordPress và MariaDB.
+- Production runtime: Docker Compose với Nginx, Next.js, WordPress và MariaDB.
 - Domain production dự kiến: `tesst.linuxunity.com`.
 
 ## Mục tiêu dự án
@@ -44,8 +44,8 @@ Stack hiện tại:
 │   └── roadmap-draft-posts.wordpress.json
 ├── deploy/
 │   ├── README.md
-│   ├── caddy/
-│   │   └── Caddyfile
+│   ├── nginx/
+│   │   └── default.conf
 │   └── wordpress/
 │       └── uploads.ini
 ├── docs/
@@ -159,7 +159,7 @@ Xem hướng dẫn chi tiết tại:
 
 Các dịch vụ production:
 
-- Caddy reverse proxy + HTTPS.
+- Nginx reverse proxy.
 - Next.js frontend.
 - WordPress backend tại `/wp-admin`.
 - MariaDB database nội bộ.

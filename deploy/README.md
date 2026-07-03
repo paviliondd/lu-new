@@ -2,19 +2,21 @@
 
 This deployment runs:
 
-- Caddy reverse proxy with automatic HTTPS.
+- Nginx reverse proxy.
 - Next.js frontend at `https://tesst.linuxunity.com/`.
 - WordPress backend/admin at `https://tesst.linuxunity.com/wp-admin`.
 - WordPress REST API at `https://tesst.linuxunity.com/?rest_route=/wp/v2`.
 - MariaDB for WordPress data.
 - Uptime Kuma at `https://kuma.linuxunity.com`.
-- Prometheus, Grafana, node-exporter, and cAdvisor on the private Docker monitoring network.
 
-The database has no public port. Only ports `80` and `443` are published by Docker.
+The database has no public port. Docker publishes port `80` for Nginx. Add TLS
+termination on the VPS or extend the Nginx config with certificates when you
+are ready to manage HTTPS yourself. See `deploy/nginx/tls.conf.example` for a
+starting point.
 
 ## DNS
 
-Create these records before starting Caddy:
+Create these records before starting Nginx:
 
 - `A tesst.linuxunity.com -> <VPS_PUBLIC_IP>`
 - Optional: `A www.tesst.linuxunity.com -> <VPS_PUBLIC_IP>` or `CNAME www.tesst -> tesst.linuxunity.com`
@@ -55,15 +57,17 @@ Start the stack:
 docker compose pull
 docker compose up -d
 docker compose ps
-docker compose logs -f caddy app wordpress db
+docker compose logs -f nginx app wordpress db
 ```
 
 Open:
 
 ```text
-https://tesst.linuxunity.com/wp-admin
-https://kuma.linuxunity.com
+http://tesst.linuxunity.com/wp-admin
+http://kuma.linuxunity.com
 ```
+
+Use the HTTPS URLs after you add TLS termination.
 
 If WordPress shows the installer, create the admin account in the browser.
 
@@ -138,9 +142,9 @@ http://wordpress?rest_route=/wp/v2
 
 This avoids relying on Apache rewrite rules inside the WordPress container.
 
-## Monitoring
+## Uptime Kuma
 
-Uptime Kuma is public behind Caddy:
+Uptime Kuma is routed by Nginx:
 
 ```text
 https://kuma.linuxunity.com
@@ -148,24 +152,6 @@ https://kuma.linuxunity.com
 
 Configure Telegram and Email alerts inside the Uptime Kuma UI. The settings are
 stored in the persistent Docker volume `uptime_kuma_data`.
-
-Prometheus scrapes:
-
-- `node-exporter:9100`
-- `cadvisor:8080`
-- `prometheus:9090`
-
-Grafana is bound to `127.0.0.1:3000` on the VPS. Use an SSH tunnel for browser
-access:
-
-```bash
-ssh -L 3000:127.0.0.1:3000 root@<VPS_PUBLIC_IP>
-```
-
-Then open `http://127.0.0.1:3000` on your local machine. Prometheus is not
-exposed publicly by default. Add an explicitly protected Caddy route later only
-if you need public browser access.
-Grafana is provisioned with Prometheus as the default datasource.
 
 ## WordPress Redirect Fix
 
@@ -176,7 +162,7 @@ options:
 ```bash
 docker compose --profile tools run --rm wpcli option update siteurl "https://tesst.linuxunity.com"
 docker compose --profile tools run --rm wpcli option update home "https://tesst.linuxunity.com"
-docker compose up -d --force-recreate wordpress caddy
+docker compose up -d --force-recreate wordpress nginx
 ```
 
 ## Daily Operations
@@ -197,7 +183,7 @@ View logs:
 
 ```bash
 docker compose logs -f
-docker compose logs -f app wordpress caddy db
+docker compose logs -f app wordpress nginx db
 ```
 
 Deploy frontend after a new ECR image is available:
@@ -205,7 +191,7 @@ Deploy frontend after a new ECR image is available:
 ```bash
 docker compose pull app
 docker compose up -d app
-docker compose up -d caddy
+docker compose up -d nginx
 ```
 
 ## Backup
@@ -256,7 +242,7 @@ Do not open MariaDB/MySQL ports publicly.
 ## Safety Notes
 
 - `.env` is ignored by git. Do not commit real secrets.
-- Docker volumes hold WordPress files/uploads, MariaDB data, and Caddy certificates.
+- Docker volumes hold WordPress files/uploads and MariaDB data.
 - The roadmap import is create-only. It skips existing slugs and refuses
   `WORDPRESS_DELETE_EXISTING_POSTS=true`.
 - If drafts, content, or admin login look wrong, follow

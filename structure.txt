@@ -1,0 +1,91 @@
+.
+├── Dockerfile
+├── README.md
+├── aws
+│   ├── README.md
+│   ├── THIRD_PARTY_LICENSES
+│   └── install
+├── blog_codebase.xml
+├── content
+│   ├── image-hosts.json
+│   ├── posts
+│   │   └── README.md
+│   ├── roadmap-draft-posts.json
+│   └── roadmap-draft-posts.wordpress.json
+├── deploy
+│   ├── README.md
+│   ├── caddy
+│   ├── grafana
+│   │   └── provisioning
+│   ├── nginx
+│   │   ├── default.conf
+│   │   └── tls.conf.example
+│   ├── prometheus
+│   └── wordpress
+│       ├── authorization.conf
+│       └── uploads.ini
+├── docker-compose.yml
+├── docs
+│   ├── CICD_DEPLOYMENT.md
+│   ├── GIT_WORKFLOW.md
+│   ├── WORDPRESS_DATA_RECOVERY.md
+│   └── headless-wordpress-roadmap.md
+├── eslint.config.mjs
+├── next-dev-3000.err.log
+├── next-dev-3000.log
+├── next-dev-3100.err.log
+├── next-dev-3100.log
+├── next-env.d.ts
+├── next-start-3000.err.log
+├── next-start-3000.log
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── images
+│   │   ├── imported
+│   │   └── linuxunity-placeholder.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── scripts
+│   ├── audit-wordpress-state.mjs
+│   ├── backup-wordpress.sh
+│   ├── backup.sh
+│   ├── check-wordpress-auth.mjs
+│   ├── deploy.sh
+│   ├── import-from-wordpress.mjs
+│   ├── import-roadmap-to-wordpress.mjs
+│   ├── list-wordpress-drafts.mjs
+│   ├── normalize-xml-images.mjs
+│   ├── restore-wordpress.sh
+│   ├── restore.sh
+│   ├── wordpress-auth.mjs
+│   └── wordpress-rest-url.mjs
+├── src
+│   ├── app
+│   │   ├── [lang]
+│   │   ├── about
+│   │   ├── api
+│   │   ├── blog
+│   │   ├── components
+│   │   ├── data.ts
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   └── team
+│   ├── i18n
+│   │   ├── config.ts
+│   │   └── metadata.ts
+│   ├── lib
+│   │   ├── cms
+│   │   ├── content
+│   │   └── utils
+│   └── proxy.ts
+├── structure.txt
+├── tsconfig.json
+└── tsconfig.tsbuildinfo
+
+29 directories, 60 files

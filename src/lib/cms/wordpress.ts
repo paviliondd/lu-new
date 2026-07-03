@@ -12,6 +12,11 @@ import {
 import { localizePost, type Locale } from "@/i18n/config";
 import { load } from "cheerio";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
+import {
+  buildRestRouteApiBase,
+  buildWordPressRestUrl,
+  wordpressApiBase,
+} from "@/lib/cms/wordpress-rest";
 
 interface WordPressRendered {
   rendered?: string;
@@ -40,19 +45,15 @@ interface WordPressPost {
   content?: WordPressRendered;
   lang?: string;
   meta?: Record<string, unknown>;
+  acf?: Record<string, unknown>;
   translations?: Record<string, number | string>;
+  view_count?: number;
   yoast_head_json?: WordPressSeo;
   _embedded?: {
     author?: Array<{ slug?: string }>;
     "wp:term"?: WordPressTerm[][];
   };
 }
-
-const wordpressApiBase = (
-  process.env.WORDPRESS_API_BASE ||
-  process.env.NEXT_PUBLIC_WORDPRESS_API_URL ||
-  ""
-).replace(/\/$/, "");
 
 const wordpressPublicBase = (
   process.env.NEXT_PUBLIC_WORDPRESS_PUBLIC_URL ||
@@ -77,43 +78,6 @@ function isLegacyWordPressAssetUrl(url: URL) {
     (url.pathname.includes("/wp-content/") || url.pathname.includes("/wp-includes/")) &&
     legacyAssetOrigins.includes(origin)
   );
-}
-
-function buildWordPressRestUrl(apiBase: string, endpoint: string) {
-  const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-  const [routePath, queryString = ""] = normalizedEndpoint.split("?");
-  const url = new URL(apiBase);
-  const restRoute = url.searchParams.get("rest_route");
-
-  if (!restRoute) {
-    return `${apiBase}${normalizedEndpoint}`;
-  }
-
-  const baseRoute = restRoute.replace(/\/$/, "");
-  url.searchParams.set("rest_route", `${baseRoute}${routePath}`);
-
-  const endpointParams = new URLSearchParams(queryString);
-  endpointParams.forEach((value, key) => {
-    url.searchParams.append(key, value);
-  });
-
-  return url.toString();
-}
-
-function buildRestRouteApiBase(apiBase: string) {
-  const url = new URL(apiBase);
-  const wpJsonIndex = url.pathname.indexOf("/wp-json");
-
-  if (wpJsonIndex === -1) return null;
-
-  const wordpressPath = url.pathname.slice(0, wpJsonIndex) || "/";
-  const routeBase = url.pathname.slice(wpJsonIndex + "/wp-json".length) || "/wp/v2";
-
-  url.pathname = wordpressPath.endsWith("/") ? wordpressPath : `${wordpressPath}/`;
-  url.search = "";
-  url.searchParams.set("rest_route", routeBase.replace(/\/$/, ""));
-
-  return url.toString();
 }
 
 async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
@@ -242,12 +206,24 @@ function extractTermSlugs(post: WordPressPost, taxonomy: string) {
 
 function readStringMeta(post: WordPressPost, keys: string[]) {
   for (const key of keys) {
-    const value = post.meta?.[key];
+    const value = post.meta?.[key] ?? post.acf?.[key];
     if (typeof value === "string" && value.trim()) return value.trim();
     if (typeof value === "number") return String(value);
   }
 
   return "";
+}
+
+function readNumberMeta(post: WordPressPost, keys: string[]) {
+  for (const key of keys) {
+    const value = post.meta?.[key] ?? post.acf?.[key];
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim() && Number.isFinite(Number(value))) {
+      return Number(value);
+    }
+  }
+
+  return null;
 }
 
 function normalizeComparableText(value: string) {
@@ -311,8 +287,10 @@ function explicitWordPressLocale(post: WordPressPost): Locale | null {
   const metadataLocale = [
     post.lang,
     post.meta?.linuxunity_locale,
+    post.meta?.lang,
     post.meta?.locale,
     post.meta?.language,
+    post.acf?.lang,
   ].find((value) => value === "vi" || value === "en");
 
   if (metadataLocale === "vi" || metadataLocale === "en") {
@@ -341,6 +319,11 @@ function localePriority(post: WordPressPost, locale: Locale) {
 }
 
 function translationGroupKey(post: WordPressPost) {
+  const translationOf = readNumberMeta(post, ["translation_of"]);
+  if (translationOf) {
+    return [String(post.id), String(translationOf)].sort().join(":");
+  }
+
   const translationIds = Object.values(post.translations || {}).map(String).filter(Boolean);
   if (translationIds.length > 0) {
     return [String(post.id), ...translationIds].sort().join(":");
@@ -415,7 +398,7 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
     date: post.date || "",
     readTime: estimateReadTime(content, locale),
     readTime_en: estimateReadTime(content, "en"),
-    views: 0,
+    views: Math.max(0, Number(post.view_count || 0)),
     seriesSlug: inferSeriesSlug(post, roadmapPost),
     topicSlug: roadmapPost?.topicSlug || "",
     clusterSlug: roadmapPost?.clusterSlug || "",

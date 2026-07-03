@@ -64,6 +64,8 @@ services:
       WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
       WORDPRESS_DEBUG: ${WORDPRESS_DEBUG}
+      NEXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN}
+      NEXT_REVALIDATE_SECRET: ${NEXT_REVALIDATE_SECRET:-}
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_HOME', '${WORDPRESS_SITE_URL}');
         define('WP_SITEURL', '${WORDPRESS_SITE_URL}');
@@ -81,6 +83,8 @@ services:
         condition: service_healthy
     volumes:
       - wordpress_data:/var/www/html
+      - ./deploy/wordpress/mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+      - ./deploy/wordpress/acf-json:/var/www/html/wp-content/acf-json:ro
       - ./deploy/wordpress/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
       - ./deploy/wordpress/authorization.conf:/etc/apache2/conf-enabled/authorization.conf:ro
     healthcheck:

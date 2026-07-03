@@ -69,6 +69,13 @@ curl -I http://127.0.0.1:8080
 curl -fsS http://127.0.0.1:8080/api/health
 ```
 
+Run the host diagnostic bundle:
+
+```bash
+chmod +x scripts/diagnose-host.sh
+scripts/diagnose-host.sh
+```
+
 Open:
 
 ```text

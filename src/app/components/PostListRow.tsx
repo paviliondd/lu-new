@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Eye } from "lucide-react";
 import type { Author, Post } from "../data";
 import { useLanguage } from "./LanguageProvider";
 
@@ -10,6 +11,13 @@ interface PostListRowProps {
   index: number;
   language: string;
   isLast?: boolean;
+}
+
+function formatCompactViews(value: number, language: string) {
+  return new Intl.NumberFormat(language === "vi" ? "vi-VN" : "en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 
 export default function PostListRow({
@@ -65,6 +73,11 @@ export default function PostListRow({
             {(author?.name || "Admin").split(" (")[0]}
           </span>
           <span>{displayDate}</span>
+          <span className="flex items-center gap-1">
+            <Eye className="h-3.5 w-3.5" />
+            {formatCompactViews(post.views || 0, language)}{" "}
+            {language === "vi" ? "lượt xem" : "views"}
+          </span>
           <span className="ml-auto">{post.readTime}</span>
         </div>
       </div>

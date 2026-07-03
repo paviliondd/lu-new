@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Eye, Clock, Link2, ChevronRight } from "lucide-react";
 import { Post, Author, team } from "../data";
@@ -35,6 +35,10 @@ function formatPostDate(value: string, language: string) {
   });
 }
 
+function formatViews(value: number, language: string) {
+  return value.toLocaleString(language === "vi" ? "vi-VN" : "en-US");
+}
+
 export default function ArticleClient({
   post,
   author,
@@ -45,6 +49,28 @@ export default function ArticleClient({
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
   const [copied, setCopied] = useState(false);
+  const [views, setViews] = useState(post.views || 0);
+
+  useEffect(() => {
+    const storageKey = `viewed:${post.slug}`;
+
+    if (sessionStorage.getItem(storageKey)) return;
+
+    sessionStorage.setItem(storageKey, "1");
+
+    fetch(`/api/posts/${encodeURIComponent(post.slug)}/view`, {
+      method: "POST",
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { views?: number } | null) => {
+        if (typeof payload?.views === "number") {
+          setViews(payload.views);
+        }
+      })
+      .catch(() => {
+        sessionStorage.removeItem(storageKey);
+      });
+  }, [post.slug]);
 
   const copyLink = () => {
     if (typeof window !== "undefined") {
@@ -182,7 +208,7 @@ export default function ArticleClient({
                 </span>
                 <span className="flex items-center gap-1">
                   <Eye className="h-3.5 w-3.5" />
-                  {post.views} {t("views")}
+                  {formatViews(views, language)} {t("views")}
                 </span>
               </div>
             </div>

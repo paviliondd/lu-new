@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Calendar, Clock } from "lucide-react";
+import { ArrowUpRight, Calendar, Clock, Eye } from "lucide-react";
 import type { Author, Post } from "@/app/data";
 import type { Locale } from "@/i18n/config";
 import CustomImage from "./CustomImage";
@@ -12,6 +12,13 @@ interface PostCardProps {
   author?: Author;
   locale: Locale;
   featured?: boolean;
+}
+
+function formatCompactViews(value: number, locale: Locale) {
+  return new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 
 export default function PostCard({
@@ -89,6 +96,10 @@ export default function PostCard({
           <span className="flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5" />
             {post.readTime}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Eye className="h-3.5 w-3.5" />
+            {formatCompactViews(post.views || 0, locale)} {locale === "vi" ? "lượt xem" : "views"}
           </span>
         </div>
       </div>

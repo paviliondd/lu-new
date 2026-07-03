@@ -129,7 +129,7 @@ export const team: Record<string, Author> = {
 export const series: Series[] = [
   {
     "slug": "compute-container-infrastructure-ha-tang-dong-goi-workloads",
-    "title": "Chuỗi 1: Compute & Container Infrastructure (Hạ tầng & Đóng gói Workloads)",
+    "title": "Series 1: Compute & Container Infrastructure (Hạ tầng & Đóng gói Workloads)",
     "title_en": "Series 1: Compute & Container Infrastructure",
     "description": "Topic cluster from AWS roadmap: Compute & Container Infrastructure (Hạ tầng & Đóng gói Workloads).",
     "description_en": "AWS compute, networking, container platforms, scaling, and workload packaging.",
@@ -140,7 +140,7 @@ export const series: Series[] = [
   },
   {
     "slug": "serverless-datastores-developer-workloads-co-so-du-lieu-caching",
-    "title": "Chuỗi 2: Serverless Datastores & Developer Workloads (Cơ sở dữ liệu & Caching)",
+    "title": "Series 2: Serverless Datastores & Developer Workloads (Cơ sở dữ liệu & Caching)",
     "title_en": "Series 2: Serverless Datastores & Developer Workloads",
     "description": "Topic cluster from AWS roadmap: Serverless Datastores & Developer Workloads (Cơ sở dữ liệu & Caching).",
     "description_en": "Managed databases, serverless data stores, caching, and application data patterns.",
@@ -151,7 +151,7 @@ export const series: Series[] = [
   },
   {
     "slug": "serverless-core-sdk-coding-integration-lap-trinh-tach-roi-kien-truc",
-    "title": "Chuỗi 3: Serverless Core, SDK Coding & Integration (Lập trình & Tách rời Kiến trúc)",
+    "title": "Series 3: Serverless Core, SDK Coding & Integration (Lập trình & Tách rời Kiến trúc)",
     "title_en": "Series 3: Serverless Core, SDK Coding & Integration",
     "description": "Topic cluster from AWS roadmap: Serverless Core, SDK Coding & Integration (Lập trình & Tách rời Kiến trúc).",
     "description_en": "Serverless application design, AWS SDK development, events, and decoupled integration.",
@@ -162,7 +162,7 @@ export const series: Series[] = [
   },
   {
     "slug": "ci-cd-sdlc-automation-gitops-tu-dong-hoa-kiem-thu-trien-khai",
-    "title": "Chuỗi 4: CI/CD, SDLC Automation & GitOps (Tự động hóa Kiểm thử & Triển khai)",
+    "title": "Series 4: CI/CD, SDLC Automation & GitOps (Tự động hóa Kiểm thử & Triển khai)",
     "title_en": "Series 4: CI/CD, SDLC Automation & GitOps",
     "description": "Topic cluster from AWS roadmap: CI/CD, SDLC Automation & GitOps (Tự động hóa Kiểm thử & Triển khai).",
     "description_en": "Automated testing, delivery pipelines, release strategies, and GitOps workflows.",
@@ -173,7 +173,7 @@ export const series: Series[] = [
   },
   {
     "slug": "infrastructure-as-code-iac-configuration-management-quy-mo-lon",
-    "title": "Chuỗi 5: Infrastructure as Code (IaC) & Configuration Management Quy mô lớn",
+    "title": "Series 5: Infrastructure as Code (IaC) & Configuration Management Quy mô lớn",
     "title_en": "Series 5: Infrastructure as Code & Configuration Management",
     "description": "Topic cluster from AWS roadmap: Infrastructure as Code (IaC) & Configuration Management Quy mô lớn.",
     "description_en": "Infrastructure as code and configuration management patterns for production at scale.",
@@ -184,7 +184,7 @@ export const series: Series[] = [
   },
   {
     "slug": "secops-monitoring-centralized-logging-disaster-recovery-bao-mat-giam-sat",
-    "title": "Chuỗi 6: SecOps, Monitoring, Centralized Logging & Disaster Recovery (Bảo mật & Giám sát)",
+    "title": "Series 6: SecOps, Monitoring, Centralized Logging & Disaster Recovery (Bảo mật & Giám sát)",
     "title_en": "Series 6: SecOps, Observability & Disaster Recovery",
     "description": "Topic cluster from AWS roadmap: SecOps, Monitoring, Centralized Logging & Disaster Recovery (Bảo mật & Giám sát).",
     "description_en": "Security operations, monitoring, centralized logging, resilience, and disaster recovery.",

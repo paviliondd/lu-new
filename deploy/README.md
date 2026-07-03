@@ -9,10 +9,9 @@ This deployment runs:
 - MariaDB for WordPress data.
 - Uptime Kuma at `https://kuma.linuxunity.com`.
 
-The database has no public port. Docker publishes port `80` for Nginx. Add TLS
-termination on the VPS or extend the Nginx config with certificates when you
-are ready to manage HTTPS yourself. See `deploy/nginx/tls.conf.example` for a
-starting point.
+The database has no public port. Docker publishes the internal Nginx service on
+`127.0.0.1:8080`. The host Nginx vhost for `tesst.linuxunity.com` should proxy
+public `80/443` traffic to `http://127.0.0.1:8080`.
 
 ## DNS
 
@@ -60,6 +59,13 @@ docker compose ps
 docker compose logs -f nginx app wordpress db
 ```
 
+Check the Docker-side reverse proxy:
+
+```bash
+curl -I http://127.0.0.1:8080
+curl -fsS http://127.0.0.1:8080/api/health
+```
+
 Open:
 
 ```text
@@ -67,7 +73,7 @@ http://tesst.linuxunity.com/wp-admin
 http://kuma.linuxunity.com
 ```
 
-Use the HTTPS URLs after you add TLS termination.
+Use the HTTPS URLs after you configure the host Nginx vhost and TLS.
 
 If WordPress shows the installer, create the admin account in the browser.
 

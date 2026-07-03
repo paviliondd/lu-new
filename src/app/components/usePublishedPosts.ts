@@ -23,6 +23,8 @@ export function usePublishedPosts(initialPosts: Post[]) {
         if (!response.ok) return;
 
         const posts = (await response.json()) as Post[];
+        if (posts.length === 0 && initialPosts.length > 0) return;
+
         if (isMounted) {
           setLoadedPosts({ language, posts });
         }

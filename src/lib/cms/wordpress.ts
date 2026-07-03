@@ -1,4 +1,10 @@
-import { posts as localPublishedPosts, team, type Post } from "@/app/data";
+import {
+  allPosts as roadmapPosts,
+  posts as localPublishedPosts,
+  series,
+  team,
+  type Post,
+} from "@/app/data";
 import {
   getLocalizedFilePost,
   getLocalizedFilePosts,
@@ -205,6 +211,76 @@ function extractTerms(post: WordPressPost, taxonomy: string) {
     .map((term) => term.name);
 }
 
+function extractTermSlugs(post: WordPressPost, taxonomy: string) {
+  return (post._embedded?.["wp:term"] || [])
+    .flat()
+    .filter((term) => term.taxonomy === taxonomy)
+    .map((term) => term.slug);
+}
+
+function readStringMeta(post: WordPressPost, keys: string[]) {
+  for (const key of keys) {
+    const value = post.meta?.[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number") return String(value);
+  }
+
+  return "";
+}
+
+function normalizeComparableText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function findRoadmapPost(post: WordPressPost, title: string) {
+  const bySlug = roadmapPosts.find((item) => item.slug === post.slug);
+  if (bySlug) return bySlug;
+
+  const normalizedTitle = normalizeComparableText(title);
+  if (!normalizedTitle) return null;
+
+  return (
+    roadmapPosts.find(
+      (item) =>
+        normalizeComparableText(item.title) === normalizedTitle ||
+        normalizeComparableText(item.title_en) === normalizedTitle
+    ) || null
+  );
+}
+
+function inferSeriesSlug(post: WordPressPost, fallbackPost?: Post | null) {
+  const metadataSeriesSlug = readStringMeta(post, [
+    "roadmap_series_slug",
+    "roadmap_cluster_slug",
+    "series_slug",
+    "cluster_slug",
+    "series",
+  ]);
+
+  if (series.some((item) => item.slug === metadataSeriesSlug)) return metadataSeriesSlug;
+
+  const termSlugs = [
+    ...extractTermSlugs(post, "category"),
+    ...extractTermSlugs(post, "post_tag"),
+  ];
+  const termNames = [
+    ...extractTerms(post, "category"),
+    ...extractTerms(post, "post_tag"),
+  ].map((term) => term.toLowerCase());
+
+  return (
+    series.find((item) => termSlugs.includes(item.slug))?.slug ||
+    series.find((item) => termNames.includes(item.tag.toLowerCase()))?.slug ||
+    fallbackPost?.seriesSlug ||
+    null
+  );
+}
+
 function isPublishedPost(post: WordPressPost) {
   return post.status === "publish" && Boolean(post.slug);
 }
@@ -268,6 +344,7 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
   const title = plainText(post.title?.rendered);
   const description = plainText(post.excerpt?.rendered);
   const content = normalizeWordPressContent(post.content?.rendered || "");
+  const roadmapPost = findRoadmapPost(post, title);
   const category = extractTerms(post, "category")[0] || "Uncategorized";
   const tags = extractTerms(post, "post_tag");
   const isPublished = post.status === "publish";
@@ -277,8 +354,8 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
 
   const mappedPost: Post = {
     id: post.id,
-    roadmapId: post.id,
-    roadmapOrder: 0,
+    roadmapId: roadmapPost?.roadmapId || post.id,
+    roadmapOrder: roadmapPost?.roadmapOrder || 0,
     slug: post.slug,
     title,
     title_en: title,
@@ -296,19 +373,19 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
     readTime: estimateReadTime(content, locale),
     readTime_en: estimateReadTime(content, "en"),
     views: 0,
-    seriesSlug: null,
-    topicSlug: "",
-    clusterSlug: "",
-    gradient: "from-slate-600/90 to-cyan-700/90",
-    certs: [],
-    services: [],
-    examDomains: [],
-    coverage: "",
-    labs: [],
-    costNote: "",
-    cleanupNote: "",
-    editorialNote: "",
-    quiz: "",
+    seriesSlug: inferSeriesSlug(post, roadmapPost),
+    topicSlug: roadmapPost?.topicSlug || "",
+    clusterSlug: roadmapPost?.clusterSlug || "",
+    gradient: roadmapPost?.gradient || "from-slate-600/90 to-cyan-700/90",
+    certs: roadmapPost?.certs || [],
+    services: roadmapPost?.services || [],
+    examDomains: roadmapPost?.examDomains || [],
+    coverage: roadmapPost?.coverage || "",
+    labs: roadmapPost?.labs || [],
+    costNote: roadmapPost?.costNote || "",
+    cleanupNote: roadmapPost?.cleanupNote || "",
+    editorialNote: roadmapPost?.editorialNote || "",
+    quiz: roadmapPost?.quiz || "",
     seo: {
       title: post.yoast_head_json?.title || title,
       description: post.yoast_head_json?.description || description,
@@ -317,9 +394,9 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
         : null,
     },
     internalLinking: {
-      hubSlug: "",
-      relatedServiceSlugs: [],
-      examDomainSlugs: [],
+      hubSlug: roadmapPost?.internalLinking.hubSlug || "",
+      relatedServiceSlugs: roadmapPost?.internalLinking.relatedServiceSlugs || [],
+      examDomainSlugs: roadmapPost?.internalLinking.examDomainSlugs || [],
     },
   };
 
@@ -374,8 +451,8 @@ export async function getCmsPublishedPosts(locale: Locale = "vi"): Promise<Post[
 
   try {
     const wordpressPosts = await fetchWordPressPosts(locale, "publish");
-    const remoteOrFallbackPosts = wordpressPosts.length > 0 ? wordpressPosts : fallbackPosts;
-    return mergePosts(filePosts, remoteOrFallbackPosts);
+    const remoteWithFallbackPosts = mergePosts(wordpressPosts, fallbackPosts);
+    return mergePosts(filePosts, remoteWithFallbackPosts);
   } catch {
     return mergePosts(filePosts, fallbackPosts);
   }

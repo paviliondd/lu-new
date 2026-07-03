@@ -83,6 +83,7 @@ function buildMeta(post) {
     roadmap_order: String(post.roadmap_order),
     roadmap_topic_slug: post.topic_cluster.topic_slug,
     roadmap_cluster_slug: post.topic_cluster.cluster_slug,
+    roadmap_series_slug: post.topic_cluster.series_slug || post.topic_cluster.cluster_slug,
     seo_title: post.seo.title,
     seo_description: post.seo.description,
     seo_og_image: post.seo.ogImage || "",

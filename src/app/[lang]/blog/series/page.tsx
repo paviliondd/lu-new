@@ -20,7 +20,7 @@ export async function generateMetadata({
     "/blog/series",
     "LinuxUnity DevOps Series",
     lang === "vi"
-      ? "Các chuỗi bài viết DevOps chuyên sâu của LinuxUnity."
+      ? "Các series bài viết DevOps chuyên sâu của LinuxUnity."
       : "LinuxUnity's in-depth DevOps article series."
   );
 }

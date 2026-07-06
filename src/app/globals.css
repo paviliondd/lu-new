@@ -24,13 +24,35 @@
 html {
   background: #0f172a;
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   background: #0f172a;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+* {
+  min-width: 0;
+}
+
+img,
+svg,
+video,
+canvas,
+iframe {
+  max-width: 100%;
 }
 
 /* Typography styles for article rendering */
+.prose,
+.article-content {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
 .prose h2 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -62,6 +84,7 @@ body {
   margin-bottom: 1.25rem;
   line-height: 1.75;
   color: var(--color-gray-600);
+  overflow-wrap: anywhere;
 }
 .dark .prose p {
   color: var(--color-gray-300);
@@ -94,6 +117,7 @@ body {
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   color: var(--color-brand-700);
+  overflow-wrap: anywhere;
 }
 .dark .prose code {
   background-color: var(--color-gray-800);
@@ -102,12 +126,15 @@ body {
 
 .prose pre {
   position: relative;
+  max-width: 100%;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-  padding: 1.25rem;
+  padding: 1rem;
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
   background-color: var(--color-gray-900);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--color-gray-800);
 }
 
@@ -128,7 +155,7 @@ body {
   border-bottom: 1px solid rgb(75 85 99 / 0.7);
   background: linear-gradient(180deg, rgb(31 41 55 / 0.96), rgb(17 24 39 / 0.96));
   padding-left: 1rem;
-  padding-right: 5.25rem;
+  padding-right: 4.75rem;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -171,6 +198,8 @@ body {
 }
 
 .prose pre code {
+  display: block;
+  min-width: max-content;
   color: var(--color-gray-200);
   background-color: transparent;
   padding: 0;
@@ -232,7 +261,9 @@ body {
 }
 
 .article-content figure {
+  max-width: 100%;
   margin: 1.75rem 0;
+  overflow-x: auto;
 }
 
 .article-content a {
@@ -253,9 +284,12 @@ body {
 }
 
 .article-content table {
+  display: block;
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 0.85rem;
   font-size: 0.875rem;
 }
@@ -280,10 +314,45 @@ body {
 .article-content .article-image {
   height: auto;
   max-width: 100%;
+  width: auto;
   border-radius: 1rem;
   border: 1px solid var(--color-gray-200);
   background: var(--color-gray-50);
   box-shadow: 0 20px 60px rgb(15 23 42 / 0.08);
+}
+
+@media (max-width: 640px) {
+  .prose h2 {
+    font-size: 1.3rem;
+    line-height: 1.3;
+  }
+
+  .prose h3 {
+    font-size: 1.12rem;
+    line-height: 1.35;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.1rem;
+  }
+
+  .prose pre {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
+
+  .prose pre.code-block::before {
+    padding-left: 0.85rem;
+    padding-right: 4.2rem;
+    font-size: 0.66rem;
+  }
+
+  .article-content blockquote {
+    padding: 0.9rem 1rem;
+  }
 }
 
 .dark .article-content img,

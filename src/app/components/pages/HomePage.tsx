@@ -34,16 +34,16 @@ export default function HomePage({ initialPosts }: HomePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-100">
+    <div className="min-h-screen overflow-x-clip bg-[#0F172A] text-slate-100">
       <section className="relative isolate overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(52,211,153,0.16),transparent_28%),radial-gradient(circle_at_85%_15%,rgba(34,211,238,0.15),transparent_28%),linear-gradient(180deg,#0B132B_0%,#0F172A_100%)]" />
-        <div className="mx-auto grid min-h-[68vh] max-w-7xl items-center gap-12 px-4 py-20 lg:grid-cols-[1.05fr_.95fr] lg:py-24">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
+        <div className="mx-auto grid min-h-[58vh] max-w-7xl items-center gap-10 px-4 py-14 sm:min-h-[68vh] sm:py-20 lg:grid-cols-[1.05fr_.95fr] lg:py-24">
+          <div className="min-w-0">
+            <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-emerald-300 sm:px-4 sm:text-xs sm:tracking-[0.18em]">
               <Sparkles className="h-3.5 w-3.5" />
               {t("exploreBuildShare")}
             </span>
-            <h1 className="mt-7 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="mt-7 max-w-4xl break-words text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
               {t("heroTitlePart1")}
               <span className="block bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                 {t("heroTitlePart2")}
@@ -55,14 +55,14 @@ export default function HomePage({ initialPosts }: HomePageProps) {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 href={localePath("/blog")}
-                className="inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-7 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-950/40 transition hover:-translate-y-0.5 hover:brightness-110"
+                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-7 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-950/40 transition hover:-translate-y-0.5 hover:brightness-110 sm:w-auto"
               >
                 {t("readBlog")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <Link
                 href={localePath("/blog/series")}
-                className="inline-flex h-12 items-center justify-center rounded-full border border-slate-600 bg-slate-900/50 px-7 text-sm font-semibold text-slate-100 transition hover:border-cyan-400 hover:text-cyan-300"
+                className="inline-flex h-12 w-full items-center justify-center rounded-full border border-slate-600 bg-slate-900/50 px-7 text-sm font-semibold text-slate-100 transition hover:border-cyan-400 hover:text-cyan-300 sm:w-auto"
               >
                 {t("series")}
               </Link>
@@ -97,13 +97,13 @@ export default function HomePage({ initialPosts }: HomePageProps) {
       </section>
 
       <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-9 flex items-end justify-between gap-6">
+        <div className="mx-auto w-full max-w-7xl px-4">
+          <div className="mb-9 flex min-w-0 items-end justify-between gap-6">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
                 {t("recentWriting")}
               </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              <h2 className="mt-3 break-words text-2xl font-bold tracking-tight text-white sm:text-4xl">
                 {t("allPosts")}
               </h2>
             </div>
@@ -157,7 +157,7 @@ export default function HomePage({ initialPosts }: HomePageProps) {
       </section>
 
       <section className="border-t border-slate-800 bg-[#0B132B] py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="mx-auto w-full max-w-7xl px-4">
           <div className="mb-10">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
               {t("collections")}

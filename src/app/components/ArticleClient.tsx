@@ -81,21 +81,21 @@ export default function ArticleClient({
   };
 
   return (
-    <div className="w-full bg-[#0F172A] py-10 text-slate-100">
-      <div className="mx-auto max-w-7xl px-4">
+    <div className="w-full overflow-x-clip bg-[#0F172A] py-8 text-slate-100 sm:py-10">
+      <div className="mx-auto w-full max-w-7xl px-4">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1 text-xs text-gray-500 mb-8">
+        <div className="mb-8 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-gray-500">
           <Link href={localePath("/")} className="hover:text-brand-650 transition">{t("home")}</Link>
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3 w-3 shrink-0" />
           <Link href={localePath("/blog")} className="hover:text-brand-650 transition">{t("blog")}</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-gray-900 dark:text-gray-100 font-medium truncate max-w-[200px] sm:max-w-xs">
+          <ChevronRight className="h-3 w-3 shrink-0" />
+          <span className="truncate text-gray-900 dark:text-gray-100 font-medium max-w-[52vw] sm:max-w-xs">
             {post.title}
           </span>
         </div>
 
         {/* 3-Column Layout */}
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,780px)_18rem] lg:justify-center">
+        <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,780px)_18rem] lg:justify-center lg:gap-10">
           
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
@@ -186,10 +186,10 @@ export default function ArticleClient({
           </div>
 
           {/* Center Column: Main Content */}
-          <div className="order-1 space-y-6">
+          <div className="order-1 min-w-0 space-y-6">
             {/* Header info */}
             <div className="space-y-4">
-              <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
+              <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
                 {post.title}
               </h1>
               <p className="text-sm font-medium leading-relaxed text-slate-400 sm:text-base">
@@ -197,8 +197,8 @@ export default function ArticleClient({
               </p>
               
               {/* Post Metadata row */}
-              <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-gray-400 pt-1">
-                <span className="flex items-center gap-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs text-gray-400">
+                <span className="flex min-w-0 items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
                   {formatPostDate(post.date, language)}
                 </span>
@@ -214,7 +214,7 @@ export default function ArticleClient({
             </div>
 
             {/* Banner Cover Gradient */}
-            <div className={`relative w-full aspect-[21/9] rounded-2xl overflow-hidden shadow-inner bg-gradient-to-br ${post.gradient}`}>
+            <div className={`relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-gradient-to-br shadow-inner sm:aspect-[21/9] sm:rounded-2xl ${post.gradient}`}>
               {post.seo.ogImage ? (
                 <CustomImage
                   src={post.seo.ogImage}
@@ -230,7 +230,7 @@ export default function ArticleClient({
             </div>
 
             {/* Prose Content Rendering */}
-            <div className="article-content prose max-w-none dark:prose-invert">
+            <div className="article-content prose max-w-none overflow-hidden dark:prose-invert">
               <CodeBlockEnhancer
                 contentKey={`${post.slug}-${language}`}
                 copyLabel={t("copyCode")}

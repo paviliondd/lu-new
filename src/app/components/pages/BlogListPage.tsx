@@ -31,15 +31,15 @@ export default function BlogListPage({ initialPosts }: BlogListPageProps) {
   }, [posts, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-100">
+    <div className="min-h-screen overflow-x-clip bg-[#0F172A] text-slate-100">
       <section className="relative overflow-hidden border-b border-slate-800 bg-[#0B132B]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(52,211,153,0.14),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(34,211,238,0.12),transparent_28%)]" />
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-20">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
+        <div className="relative mx-auto w-full max-w-7xl px-4 py-14 sm:py-20">
+          <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-emerald-300 sm:text-xs sm:tracking-[0.18em]">
             <SlidersHorizontal className="h-3.5 w-3.5" />
             {t("studyPath")}
           </span>
-          <h1 className="mt-6 max-w-4xl text-4xl font-bold tracking-tight text-white sm:text-6xl">
+          <h1 className="mt-6 max-w-4xl break-words text-3xl font-bold tracking-tight text-white sm:text-6xl">
             {t("blogTitlePart1")}
             <span className="block bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
               {t("blogTitlePart2")}
@@ -51,7 +51,7 @@ export default function BlogListPage({ initialPosts }: BlogListPageProps) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:py-14">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:py-14">
         <div className="mb-10 rounded-2xl border border-slate-700 bg-slate-900/65 p-4 shadow-lg shadow-slate-950/20">
           <div className="flex justify-end">
             <label className="relative block w-full lg:w-96">
@@ -81,7 +81,7 @@ export default function BlogListPage({ initialPosts }: BlogListPageProps) {
             </button>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid min-w-0 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post, index) => (
               <PostCard
                 key={post.slug}

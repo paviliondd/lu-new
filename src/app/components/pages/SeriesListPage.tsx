@@ -26,8 +26,8 @@ export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0F172A] py-12 text-slate-100">
-      <div className="mx-auto max-w-6xl px-4">
+    <div className="min-h-screen w-full overflow-x-clip bg-[#0F172A] py-12 text-slate-100">
+      <div className="mx-auto w-full max-w-6xl px-4">
         <div className="mb-6 flex items-center gap-1 text-xs text-gray-500">
           <Link href={localePath("/")} className="transition hover:text-emerald-300">
             {t("home")}
@@ -37,7 +37,7 @@ export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
         </div>
 
         <div className="mb-12 max-w-3xl">
-          <h1 className="mb-4 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
+          <h1 className="mb-4 break-words bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
             {t("linuxUnitySeries")}
           </h1>
           <p className="text-sm leading-relaxed text-slate-400">{t("logoSubtitle")}</p>
@@ -51,13 +51,13 @@ export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
               <Link
                 key={item.slug}
                 href={localePath(`/blog/series/${item.slug}`)}
-                className="group flex min-h-72 flex-col rounded-2xl border border-slate-700 bg-slate-900/70 p-6 transition hover:-translate-y-0.5 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-950/30 sm:p-8"
+                className="group flex min-h-72 min-w-0 flex-col rounded-2xl border border-slate-700 bg-slate-900/70 p-6 transition hover:-translate-y-0.5 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-950/30 sm:p-8"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 text-cyan-300">
                   {renderSeriesIcon(item.icon)}
                 </div>
 
-                <h2 className="mt-6 text-lg font-bold text-white transition group-hover:text-emerald-300 sm:text-xl">
+                <h2 className="mt-6 break-words text-lg font-bold text-white transition group-hover:text-emerald-300 sm:text-xl">
                   {language === "vi" ? item.title : item.title_en}
                 </h2>
                 <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-400">

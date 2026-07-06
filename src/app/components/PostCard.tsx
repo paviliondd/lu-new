@@ -39,8 +39,8 @@ export default function PostCard({
 
   return (
     <article
-      className={`group relative isolate overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/80 shadow-xl shadow-slate-950/20 transition duration-300 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-emerald-950/30 ${
-        featured ? "min-h-[30rem]" : "min-h-[23rem]"
+      className={`group relative isolate min-w-0 overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/80 shadow-xl shadow-slate-950/20 transition duration-300 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-emerald-950/30 ${
+        featured ? "min-h-[26rem] sm:min-h-[30rem]" : "min-h-[21rem] sm:min-h-[23rem]"
       }`}
     >
       <Link href={href} className="absolute inset-0 z-20" aria-label={post.title} />
@@ -66,8 +66,8 @@ export default function PostCard({
         </div>
 
         <h3
-          className={`line-clamp-2 font-bold leading-tight text-white ${
-            featured ? "max-w-3xl text-3xl sm:text-4xl" : "text-xl"
+          className={`line-clamp-2 break-words font-bold leading-tight text-white ${
+            featured ? "max-w-3xl text-2xl sm:text-4xl" : "text-xl"
           }`}
         >
           {post.title}

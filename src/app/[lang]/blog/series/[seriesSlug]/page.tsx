@@ -77,9 +77,9 @@ export default async function SeriesDetailPage({
     lang === "vi" ? selectedSeries.description : selectedSeries.description_en;
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-100">
+    <div className="min-h-screen overflow-x-clip bg-[#0F172A] text-slate-100">
       <section className="border-b border-slate-800 bg-[#0B132B]">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:py-16">
+        <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:py-16">
           <Link
             href={localePath(lang, "/blog/series")}
             className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-emerald-300"
@@ -95,7 +95,7 @@ export default async function SeriesDetailPage({
             <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
               LinuxUnity DevOps Series
             </p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-white sm:text-5xl">
               {title}
             </h1>
             <p className="mt-4 max-w-3xl leading-7 text-slate-300">{description}</p>
@@ -103,7 +103,7 @@ export default async function SeriesDetailPage({
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-14">
+      <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:py-14">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
@@ -144,7 +144,7 @@ export default async function SeriesDetailPage({
 
             {totalPages > 1 && (
               <nav
-                className="mt-12 flex items-center justify-center gap-3"
+                className="mt-12 flex flex-wrap items-center justify-center gap-2 sm:gap-3"
                 aria-label={lang === "vi" ? "Phân trang series" : "Series pagination"}
               >
                 <PaginationLink
@@ -190,7 +190,7 @@ function PaginationLink({
 }) {
   if (disabled) {
     return (
-      <span className="inline-flex h-10 min-w-10 cursor-not-allowed items-center justify-center rounded-lg bg-slate-500 px-4 text-sm font-semibold text-slate-900 opacity-70">
+      <span className="inline-flex h-10 min-w-10 cursor-not-allowed items-center justify-center rounded-lg bg-slate-500 px-3 text-sm font-semibold text-slate-900 opacity-70 sm:px-4">
         {children}
       </span>
     );
@@ -202,8 +202,8 @@ function PaginationLink({
       aria-current={active ? "page" : undefined}
       className={
         active
-          ? "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white"
-          : "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-white px-4 text-sm font-semibold text-slate-900 transition hover:bg-cyan-100"
+          ? "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-blue-600 px-3 text-sm font-semibold text-white sm:px-4"
+          : "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-white px-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-100 sm:px-4"
       }
     >
       {children}

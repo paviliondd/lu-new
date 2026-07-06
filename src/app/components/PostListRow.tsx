@@ -40,16 +40,16 @@ export default function PostListRow({
   return (
     <Link
       href={localePath(`/blog/${post.slug}`)}
-      className={`group flex gap-4 px-2 py-5 transition hover:bg-cyan-400/5 sm:px-3 ${
+      className={`group flex min-w-0 gap-3 px-1 py-5 transition hover:bg-cyan-400/5 sm:gap-4 sm:px-3 ${
         isLast ? "" : "border-b border-slate-700"
       }`}
     >
-      <span className="mt-1 w-6 shrink-0 text-xs font-medium text-gray-400">
+      <span className="mt-1 w-5 shrink-0 text-xs font-medium text-gray-400 sm:w-6">
         {String(index + 1).padStart(2, "0")}
       </span>
 
       <div
-        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${post.gradient}`}
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br sm:h-14 sm:w-14 ${post.gradient}`}
       >
         <span className="px-1 text-center text-xs font-bold uppercase tracking-wide text-white">
           {serviceLabel}
@@ -78,7 +78,7 @@ export default function PostListRow({
             {formatCompactViews(post.views || 0, language)}{" "}
             {language === "vi" ? "lượt xem" : "views"}
           </span>
-          <span className="ml-auto">{post.readTime}</span>
+          <span className="sm:ml-auto">{post.readTime}</span>
         </div>
       </div>
     </Link>

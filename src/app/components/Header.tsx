@@ -37,13 +37,13 @@ export default function Header() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0B132B]/90 text-slate-100 backdrop-blur-xl">
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+        <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
           {/* Logo */}
-          <Link href={localePath("/")} className="flex items-center gap-2 group">
+          <Link href={localePath("/")} className="group flex min-w-0 items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-950 shadow-md shadow-emerald-950/40 transition duration-200 group-hover:scale-105">
               <Cloud className="h-5 w-5" />
             </div>
-            <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-lg font-bold tracking-tight text-transparent">
+            <span className="truncate bg-gradient-to-r from-white to-slate-300 bg-clip-text text-lg font-bold tracking-tight text-transparent">
               Linux<span className="font-extrabold text-emerald-300">Unity</span>
             </span>
           </Link>
@@ -70,7 +70,7 @@ export default function Header() {
           </ul>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {/* Search Button */}
             <button
               onClick={() => setIsSearchOpen(true)}
@@ -142,7 +142,7 @@ export default function Header() {
                 );
               })}
             </ul>
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-800">
               <span className="text-xs text-gray-505">{t("language")}</span>
               <div className="flex items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium dark:border-gray-800">
                 <button

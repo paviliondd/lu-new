@@ -2,7 +2,7 @@ services:
   nginx:
     image: nginx:1.27-alpine
     restart: unless-stopped
-    entrypoint: ["/bin/sh", "-c", "/docker-entrypoint.d/30-render-site-conf.sh && exec nginx -g 'daemon off;'"]
+    entrypoint: ["/bin/sh", "-c", "sh /docker-entrypoint.d/30-render-site-conf.sh && exec nginx -g 'daemon off;'"]
     env_file:
       - .env
     depends_on:

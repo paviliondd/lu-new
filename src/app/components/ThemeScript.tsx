@@ -1,13 +1,15 @@
-"use client";
-
 import React from "react";
 
 export default function ThemeScript() {
   const code = `
     (function() {
       try {
-        const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        if (theme === 'dark') {
+        const preference = localStorage.getItem('theme') || 'system';
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const resolvedTheme = preference === 'system' ? (systemDark ? 'dark' : 'light') : preference;
+        document.documentElement.dataset.theme = preference;
+        document.documentElement.style.colorScheme = resolvedTheme;
+        if (resolvedTheme === 'dark') {
           document.documentElement.classList.add('dark');
         } else {
           document.documentElement.classList.remove('dark');
@@ -15,5 +17,5 @@ export default function ThemeScript() {
       } catch (e) {}
     })();
   `;
-  return <script dangerouslySetInnerHTML={{ __html: code }} />;
+  return <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: code }} />;
 }

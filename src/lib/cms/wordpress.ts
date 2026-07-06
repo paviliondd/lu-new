@@ -9,6 +9,7 @@ import {
   getLocalizedFilePost,
   getLocalizedFilePosts,
 } from "@/lib/content/localized-posts";
+import { translateLegacyPostToEnglish } from "@/lib/content/legacy-translation";
 import { localizePost, type Locale } from "@/i18n/config";
 import { load } from "cheerio";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
@@ -17,6 +18,7 @@ import {
   buildWordPressRestUrl,
   wordpressApiBase,
 } from "@/lib/cms/wordpress-rest";
+import { cachedJson } from "@/lib/server/redis-cache";
 
 interface WordPressRendered {
   rendered?: string;
@@ -50,7 +52,12 @@ interface WordPressPost {
   view_count?: number;
   yoast_head_json?: WordPressSeo;
   _embedded?: {
-    author?: Array<{ slug?: string }>;
+    author?: Array<{
+      slug?: string;
+      name?: string;
+      description?: string;
+      avatar_urls?: Record<string, string>;
+    }>;
     "wp:term"?: WordPressTerm[][];
   };
 }
@@ -76,6 +83,9 @@ const legacyAssetOrigins = [
 ]
   .map((value) => value.trim().replace(/\/$/, ""))
   .filter(Boolean);
+const shouldRewriteLegacyAssets =
+  process.env.NEXT_PUBLIC_REWRITE_LEGACY_WORDPRESS_ASSETS === "true" ||
+  process.env.REWRITE_LEGACY_WORDPRESS_ASSETS === "true";
 
 function isLegacyWordPressAssetUrl(url: URL) {
   const origin = url.origin.replace(/\/$/, "");
@@ -152,7 +162,7 @@ function normalizeWordPressAssetUrl(value: string) {
 
   try {
     const url = new URL(value);
-    if (wordpressPublicBase && isLegacyWordPressAssetUrl(url)) {
+    if (wordpressPublicBase && shouldRewriteLegacyAssets && isLegacyWordPressAssetUrl(url)) {
       const assetPath = url.pathname.replace(/^.*?(\/wp-(?:content|includes)\/)/, "$1");
       return `${wordpressPublicBase}${assetPath}${url.search}${url.hash}`;
     }
@@ -353,7 +363,13 @@ function translationGroupKey(post: WordPressPost) {
   return post.slug.replace(/(?:^|[-_.])(vi|en)$/i, "");
 }
 
-function mapPostsForLocale(posts: WordPressPost[], locale: Locale) {
+async function localizeMappedPost(post: Post, locale: Locale, scope: "summary" | "full") {
+  const localized = localizePost(post, locale);
+  if (locale !== "en") return localized;
+  return translateLegacyPostToEnglish(localized, scope);
+}
+
+async function mapPostsForLocale(posts: WordPressPost[], locale: Locale) {
   const publishedPosts = posts.filter(isPublishedPost);
   const postsByTranslation = new Map<string, WordPressPost>();
 
@@ -366,7 +382,11 @@ function mapPostsForLocale(posts: WordPressPost[], locale: Locale) {
     }
   });
 
-  return [...postsByTranslation.values()].map((post) => mapWordPressPost(post, locale));
+  return Promise.all(
+    [...postsByTranslation.values()].map((post) =>
+      localizeMappedPost(mapWordPressPost(post, locale), locale, "summary")
+    )
+  );
 }
 
 function findPostForLocale(posts: WordPressPost[], locale: Locale) {
@@ -396,8 +416,18 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
   const tags = extractTerms(post, "post_tag");
   const isPublished = post.status === "publish";
   const publishDate = isPublished ? post.date || null : null;
-  const wpAuthorSlug = post._embedded?.author?.[0]?.slug;
+  const wpAuthor = post._embedded?.author?.[0];
+  const wpAuthorSlug = wpAuthor?.slug;
   const authorKey = wpAuthorSlug && team[wpAuthorSlug] ? wpAuthorSlug : "nhatnghia";
+  const avatarUrls = wpAuthor?.avatar_urls || {};
+  const fallbackAvatarUrl = Object.values(avatarUrls).slice(-1)[0];
+  const authorAvatar =
+    avatarUrls["96"] ||
+    avatarUrls["48"] ||
+    avatarUrls["24"] ||
+    fallbackAvatarUrl ||
+    team[authorKey]?.avatarUrl ||
+    null;
 
   const mappedPost: Post = {
     id: post.id,
@@ -413,6 +443,9 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
     category,
     tags,
     author: authorKey,
+    authorName: wpAuthor?.name || team[authorKey]?.name,
+    authorAvatar: authorAvatar ? normalizeWordPressAssetUrl(authorAvatar) : null,
+    authorDescription: wpAuthor?.description || team[authorKey]?.description,
     status: isPublished ? "published" : "draft",
     publishDate,
     publish_date: publishDate,
@@ -467,49 +500,53 @@ function localizedFallbackPosts(locale: Locale) {
 }
 
 export async function getCmsPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
-  const filePosts = await getLocalizedFilePosts(locale);
-  const fallbackPosts = localizedFallbackPosts(locale);
-  if (!wordpressApiBase) return mergePosts(filePosts, fallbackPosts);
+  return cachedJson(`posts:published:${locale}`, 300, async () => {
+    const filePosts = await getLocalizedFilePosts(locale);
+    const fallbackPosts = localizedFallbackPosts(locale);
+    if (!wordpressApiBase) return mergePosts(filePosts, fallbackPosts);
 
-  try {
-    const wordpressPosts = await fetchWordPressPosts(locale, "publish");
-    const localFallbackPosts = mergePosts(filePosts, fallbackPosts);
-    return mergePosts(wordpressPosts, localFallbackPosts);
-  } catch (error) {
-    console.error("Unable to fetch WordPress published posts", { locale, error });
-    return mergePosts(filePosts, fallbackPosts);
-  }
+    try {
+      const wordpressPosts = await fetchWordPressPosts(locale, "publish");
+      const localFallbackPosts = mergePosts(filePosts, fallbackPosts);
+      return mergePosts(wordpressPosts, localFallbackPosts);
+    } catch (error) {
+      console.error("Unable to fetch WordPress published posts", { locale, error });
+      return mergePosts(filePosts, fallbackPosts);
+    }
+  });
 }
 
 export async function getCmsPostBySlug(
   slug: string,
   locale: Locale = "vi"
 ): Promise<Post | null> {
-  const filePost = await getLocalizedFilePost(slug, locale);
+  return cachedJson(`posts:detail:${locale}:${slug}`, 600, async () => {
+    const filePost = await getLocalizedFilePost(slug, locale);
 
-  if (!wordpressApiBase) {
-    if (filePost?.status === "published") return filePost;
-    if (filePost?.status === "draft") return null;
-    return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
-  }
+    if (!wordpressApiBase) {
+      if (filePost?.status === "published") return filePost;
+      if (filePost?.status === "draft") return null;
+      return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+    }
 
-  try {
-    const posts = await fetchWordPressJson<WordPressPost[]>(
-      `/posts?slug=${encodeURIComponent(
-        slug
-      )}&status=publish&_embed=author,wp:term&per_page=1`,
-      { cache: "no-store" }
-    );
+    try {
+      const posts = await fetchWordPressJson<WordPressPost[]>(
+        `/posts?slug=${encodeURIComponent(
+          slug
+        )}&status=publish&_embed=author,wp:term&per_page=1`,
+        { cache: "no-store" }
+      );
 
-    const post = findPostForLocale(posts, locale);
-    if (post) return mapWordPressPost(post, locale);
+      const post = findPostForLocale(posts, locale);
+      if (post) return localizeMappedPost(mapWordPressPost(post, locale), locale, "full");
 
-    if (filePost?.status === "draft") return null;
-    return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
-  } catch (error) {
-    console.error("Unable to resolve WordPress post by slug", { slug, locale, error });
-    if (filePost?.status === "published") return filePost;
-    if (filePost?.status === "draft") return null;
-    return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
-  }
+      if (filePost?.status === "draft") return null;
+      return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+    } catch (error) {
+      console.error("Unable to resolve WordPress post by slug", { slug, locale, error });
+      if (filePost?.status === "published") return filePost;
+      if (filePost?.status === "draft") return null;
+      return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+    }
+  });
 }

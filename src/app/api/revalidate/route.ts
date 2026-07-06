@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { hasLocale, locales, type Locale } from "@/i18n/config";
+import { invalidateCache } from "@/lib/server/redis-cache";
 
 function authorized(request: Request) {
   const secret = process.env.NEXT_REVALIDATE_SECRET;
@@ -39,6 +40,13 @@ export async function POST(request: Request) {
   } else {
     locales.forEach((locale) => revalidateLocalePaths(locale, slug));
   }
+
+  await invalidateCache([
+    "posts:published:*",
+    "posts:detail:*",
+    "sidebar:*",
+    "search:*",
+  ]);
 
   revalidatePath("/sitemap.xml");
 

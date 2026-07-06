@@ -35,6 +35,8 @@
 import {
   assertWordPressAuth,
   assertWordPressCapabilities,
+  buildWordPressHeaders,
+  buildWordPressRequestUrl,
   fetchWordPressRest,
   getWordPressScriptConfig,
 } from "./wordpress-auth.mjs";
@@ -56,13 +58,166 @@ const maxPages      = Math.max(0, parseInt(process.env.IMPORT_MAX_PAGES || "0", 
 const filterCats    = (process.env.IMPORT_CATEGORIES || "")
   .split(",").map(s => s.trim()).filter(Boolean);
 const isDryRun      = process.env.DRY_RUN === "true";
+const importMedia   = process.env.IMPORT_MEDIA !== "false";
 
 const targetConfig = getWordPressScriptConfig({ allowDryRun: false });
+const uploadedMediaByUrl = new Map();
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function plainText(html = "") {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function decodeHtmlUrl(value = "") {
+  return value
+    .replaceAll("&amp;", "&")
+    .replaceAll("&#038;", "&")
+    .replaceAll("&#38;", "&");
+}
+
+function looksLikeImage(value = "") {
+  return /\.(?:avif|gif|jpe?g|png|svg|webp)(?:[?#].*)?$/i.test(value);
+}
+
+function collectImageUrls(html = "") {
+  const urls = new Map();
+  const attributePattern =
+    /\b(?:src|data-src|data-lazy-src|data-original|poster)=["']([^"']+)["']/gi;
+  const sourceSetPattern = /\b(?:srcset|data-srcset)=["']([^"']+)["']/gi;
+  const directUrlPattern =
+    /(?:https?:\/\/|\/\/|\/)[^\s"'<>]+?\.(?:avif|gif|jpe?g|png|svg|webp)(?:[?#][^\s"'<>]*)?/gi;
+
+  const addUrl = (rawValue) => {
+    const decoded = decodeHtmlUrl(rawValue.trim());
+    if (!decoded || decoded.startsWith("data:") || decoded.startsWith("blob:")) return;
+
+    const absolute = decoded.startsWith("//")
+      ? `https:${decoded}`
+      : decoded.startsWith("/")
+        ? new URL(decoded, sourceUrl).toString()
+        : decoded;
+
+    if (/^https?:\/\//i.test(absolute) && looksLikeImage(absolute)) {
+      urls.set(rawValue, absolute);
+      urls.set(decodeHtmlUrl(rawValue), absolute);
+    }
+  };
+
+  let match;
+  while ((match = attributePattern.exec(html)) !== null) addUrl(match[1]);
+
+  while ((match = sourceSetPattern.exec(html)) !== null) {
+    for (const candidate of match[1].split(",")) {
+      addUrl(candidate.trim().split(/\s+/)[0]);
+    }
+  }
+
+  for (const directMatch of html.matchAll(directUrlPattern)) addUrl(directMatch[0]);
+
+  return urls;
+}
+
+function safeMediaFilename(url, contentType = "") {
+  const parsedUrl = new URL(url);
+  const name = decodeURIComponent(parsedUrl.pathname.split("/").pop() || "image");
+  const extensionByType = {
+    "image/avif": ".avif",
+    "image/gif": ".gif",
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/svg+xml": ".svg",
+    "image/webp": ".webp",
+  };
+  const extension = name.includes(".")
+    ? `.${name.split(".").pop()}`
+    : extensionByType[contentType] || ".jpg";
+  const stem = name
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[^a-z0-9_-]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 70) || "legacy-image";
+  return `${stem}${extension}`;
+}
+
+async function uploadTargetMedia(sourceImageUrl, altText = "") {
+  if (isDryRun || !importMedia) return null;
+  if (uploadedMediaByUrl.has(sourceImageUrl)) return uploadedMediaByUrl.get(sourceImageUrl);
+
+  const sourceResponse = await fetch(sourceImageUrl, {
+    headers: { "user-agent": "LinuxUnity WordPress importer/1.0" },
+    redirect: "follow",
+  });
+  const contentType = sourceResponse.headers.get("content-type")?.split(";")[0] || "";
+
+  if (!sourceResponse.ok || !contentType.startsWith("image/")) {
+    throw new Error(`media download failed ${sourceResponse.status} ${contentType || "unknown"}`);
+  }
+
+  const filename = safeMediaFilename(sourceImageUrl, contentType);
+  const formData = new FormData();
+  formData.append(
+    "file",
+    new Blob([await sourceResponse.arrayBuffer()], { type: contentType }),
+    filename
+  );
+  if (altText) formData.append("alt_text", altText);
+
+  let mediaResponse = await fetch(buildWordPressRequestUrl(targetConfig, "/media"), {
+    method: "POST",
+    headers: buildWordPressHeaders(targetConfig),
+    body: formData,
+  });
+  if (!mediaResponse.ok && mediaResponse.status === 404 && targetConfig.fallbackApiBase) {
+    const fallbackConfig = { ...targetConfig, apiBase: targetConfig.fallbackApiBase };
+    mediaResponse = await fetch(buildWordPressRequestUrl(fallbackConfig, "/media"), {
+      method: "POST",
+      headers: buildWordPressHeaders(targetConfig),
+      body: formData,
+    });
+  }
+  const mediaText = await mediaResponse.text();
+
+  if (!mediaResponse.ok) {
+    throw new Error(`media upload failed ${mediaResponse.status}: ${mediaText.slice(0, 300)}`);
+  }
+
+  const media = JSON.parse(mediaText);
+  const uploaded = {
+    id: media.id,
+    url: media.source_url,
+  };
+  uploadedMediaByUrl.set(sourceImageUrl, uploaded);
+  return uploaded;
+}
+
+async function localizeContentMedia(html, title) {
+  if (!importMedia) return { html, featuredMediaId: null };
+
+  const imageUrls = collectImageUrls(html);
+  const replacements = new Map();
+  let featuredMediaId = null;
+
+  for (const [rawValue, imageUrl] of imageUrls) {
+    try {
+      const uploaded = await uploadTargetMedia(imageUrl, title);
+      if (!uploaded?.url) continue;
+      replacements.set(rawValue, uploaded.url);
+      replacements.set(decodeHtmlUrl(rawValue), uploaded.url);
+      if (!featuredMediaId) featuredMediaId = uploaded.id || null;
+      console.log(`    media ${imageUrl} -> ${uploaded.url}`);
+    } catch (error) {
+      console.warn(`    warning: kept remote media ${imageUrl}: ${error.message}`);
+    }
+  }
+
+  let nextHtml = html;
+  for (const [source, destination] of replacements) {
+    nextHtml = nextHtml.replaceAll(source, destination);
+    nextHtml = nextHtml.replaceAll(source.replaceAll("&", "&amp;"), destination);
+  }
+
+  return { html: nextHtml, featuredMediaId };
 }
 
 /**
@@ -114,7 +269,7 @@ async function fetchAllSourcePosts() {
     let batch;
     try {
       batch = await fetchSource(
-        `/posts?status=${sourceStatus}&per_page=${perPage}&page=${page}&_embed=author,wp:term${categoryFilter}`
+        `/posts?status=${sourceStatus}&per_page=${perPage}&page=${page}&_embed=author,wp:term,wp:featuredmedia${categoryFilter}`
       );
     } catch (err) {
       if (err.message.includes("rest_post_invalid_page_number")) break;
@@ -178,16 +333,19 @@ async function createTargetPost(sourcePost, categoryIds, tagIds) {
   const excerpt = sourcePost.excerpt?.rendered || "";
   const slug    = sourcePost.slug;
   const date    = sourcePost.date || undefined;
+  const localizedContent = await localizeContentMedia(content, title);
+  const localizedExcerpt = await localizeContentMedia(excerpt, title);
 
   const payload = {
     title,
     slug,
     status: targetStatus,
-    content,
-    excerpt,
+    content: localizedContent.html,
+    excerpt: localizedExcerpt.html,
     date,
     categories: categoryIds.filter(id => id > 0),
     tags:       tagIds.filter(id => id > 0),
+    ...(localizedContent.featuredMediaId ? { featured_media: localizedContent.featuredMediaId } : {}),
   };
 
   if (isDryRun) {

@@ -6,6 +6,7 @@ import matter from "gray-matter";
 import { marked } from "marked";
 import { posts as fallbackPosts, type Post } from "@/app/data";
 import { localizePost, type Locale } from "@/i18n/config";
+import { translateLegacyPostToEnglish } from "@/lib/content/legacy-translation";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 
 const postsDirectory = path.join(process.cwd(), "content", "posts");
@@ -26,10 +27,26 @@ export async function getLocalizedFilePost(
   slug: string,
   locale: Locale
 ): Promise<Post | null> {
-  const filePath = path.join(postsDirectory, `${slug}.${locale}.mdx`);
+  const requestedFilePath = path.join(postsDirectory, `${slug}.${locale}.mdx`);
+  const fallbackViFilePath = path.join(postsDirectory, `${slug}.vi.mdx`);
 
   try {
-    const source = await fs.readFile(filePath, "utf8");
+    let filePath = requestedFilePath;
+    let sourceLocale = locale;
+    let source: string;
+
+    try {
+      source = await fs.readFile(filePath, "utf8");
+    } catch (error) {
+      if (locale !== "en" || (error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
+
+      filePath = fallbackViFilePath;
+      sourceLocale = "vi";
+      source = await fs.readFile(filePath, "utf8");
+    }
+
     const { data, content } = matter(source);
     const html = sanitizeArticleHtml(await marked.parse(content, { gfm: true }));
     const fallback = basePost(slug);
@@ -104,7 +121,12 @@ export async function getLocalizedFilePost(
       },
     };
 
-    return localizePost(post, locale);
+    const localized = localizePost(post, locale);
+    if (locale === "en" && sourceLocale === "vi") {
+      return translateLegacyPostToEnglish(localized, "full");
+    }
+
+    return localized;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
@@ -115,10 +137,25 @@ export async function getLocalizedFilePosts(locale: Locale): Promise<Post[]> {
   try {
     const files = await fs.readdir(postsDirectory);
     const suffix = `.${locale}.mdx`;
+    const viSuffix = ".vi.mdx";
+    const localizedSlugs = new Set(
+      files.filter((file) => file.endsWith(suffix)).map((file) => file.slice(0, -suffix.length))
+    );
+    const sourceFiles =
+      locale === "en"
+        ? [
+            ...files.filter((file) => file.endsWith(suffix)),
+            ...files.filter((file) => {
+              if (!file.endsWith(viSuffix)) return false;
+              return !localizedSlugs.has(file.slice(0, -viSuffix.length));
+            }),
+          ]
+        : files.filter((file) => file.endsWith(suffix));
     const posts = await Promise.all(
-      files
-        .filter((file) => file.endsWith(suffix))
-        .map((file) => getLocalizedFilePost(file.slice(0, -suffix.length), locale))
+      sourceFiles.map((file) => {
+        const activeSuffix = file.endsWith(suffix) ? suffix : viSuffix;
+        return getLocalizedFilePost(file.slice(0, -activeSuffix.length), locale);
+      })
     );
     return posts.filter((post): post is Post => Boolean(post && post.status === "published"));
   } catch (error) {

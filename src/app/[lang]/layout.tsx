@@ -5,6 +5,7 @@ import "../globals.css";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { LanguageProvider } from "@/app/components/LanguageProvider";
+import ThemeScript from "@/app/components/ThemeScript";
 import { hasLocale, locales } from "@/i18n/config";
 import { localizedAlternates, siteUrl } from "@/i18n/metadata";
 
@@ -59,10 +60,12 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   return (
     <html
       lang={lang}
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col bg-[#0F172A] text-slate-100">
+      <body className="flex min-h-full flex-col bg-[var(--site-bg)] text-[var(--site-fg)]">
+        <ThemeScript />
         <LanguageProvider initialLanguage={lang}>
           <Header />
           <main className="flex-1 flex flex-col">{children}</main>

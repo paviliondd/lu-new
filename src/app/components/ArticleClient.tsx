@@ -10,6 +10,7 @@ import CodeBlockEnhancer from "./CodeBlockEnhancer";
 import PostListRow from "./PostListRow";
 import TableOfContents, { TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
+import AuthorAvatar from "./AuthorAvatar";
 
 interface ArticleClientProps {
   post: Post;
@@ -52,11 +53,13 @@ export default function ArticleClient({
   const [views, setViews] = useState(post.views || 0);
 
   useEffect(() => {
-    const storageKey = `viewed:${post.slug}`;
+    const storageKey = `linuxunity:viewed:${post.slug}`;
+    const viewedAt = Number(localStorage.getItem(storageKey) || 0);
+    const viewWindowMs = 24 * 60 * 60 * 1000;
 
-    if (sessionStorage.getItem(storageKey)) return;
+    if (viewedAt && Date.now() - viewedAt < viewWindowMs) return;
 
-    sessionStorage.setItem(storageKey, "1");
+    localStorage.setItem(storageKey, String(Date.now()));
 
     fetch(`/api/posts/${encodeURIComponent(post.slug)}/view`, {
       method: "POST",
@@ -68,7 +71,7 @@ export default function ArticleClient({
         }
       })
       .catch(() => {
-        sessionStorage.removeItem(storageKey);
+        localStorage.removeItem(storageKey);
       });
   }, [post.slug]);
 
@@ -81,7 +84,7 @@ export default function ArticleClient({
   };
 
   return (
-    <div className="w-full overflow-x-clip bg-[#0F172A] py-8 text-slate-100 sm:py-10">
+    <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
       <div className="mx-auto w-full max-w-7xl px-4">
         {/* Breadcrumb */}
         <div className="mb-8 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-gray-500">
@@ -95,7 +98,7 @@ export default function ArticleClient({
         </div>
 
         {/* 3-Column Layout */}
-        <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,780px)_18rem] lg:justify-center lg:gap-10">
+        <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,980px)_18rem] lg:justify-center lg:gap-10">
           
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
@@ -115,9 +118,7 @@ export default function ArticleClient({
             {/* Author Card */}
             <div className="rounded-2xl border border-gray-250/70 p-5 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/20">
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/40 text-sm font-extrabold text-brand-700 dark:text-brand-400">
-                  {author.avatar}
-                </div>
+                <AuthorAvatar author={author} post={post} className="h-10 w-10" />
                 <div>
                   <h4 className="text-xs font-bold text-gray-900 dark:text-white">
                     {author.name}
@@ -189,10 +190,10 @@ export default function ArticleClient({
           <div className="order-1 min-w-0 space-y-6">
             {/* Header info */}
             <div className="space-y-4">
-              <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
+              <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-3xl lg:text-4xl">
                 {post.title}
               </h1>
-              <p className="text-sm font-medium leading-relaxed text-slate-400 sm:text-base">
+              <p className="theme-muted text-sm font-medium leading-relaxed sm:text-base">
                 {post.description}
               </p>
               
@@ -220,7 +221,7 @@ export default function ArticleClient({
                   src={post.seo.ogImage}
                   alt={post.title}
                   fill
-                  sizes="(min-width: 1024px) 780px, 100vw"
+                  sizes="(min-width: 1024px) 980px, 100vw"
                   className="object-cover"
                   fetchPriority="high"
                 />

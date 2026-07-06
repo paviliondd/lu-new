@@ -64,28 +64,45 @@ export default function CodeBlockEnhancer({
       preElement.classList.add("code-block");
 
       const rawCode = codeElement.textContent || "";
-      preElement.dataset.filename = getFilename(preElement, codeElement);
+      const filename = getFilename(preElement, codeElement);
+
+      const shell = document.createElement("div");
+      shell.className = "code-shell";
+
+      const header = document.createElement("div");
+      header.className = "code-shell__header";
+
+      const title = document.createElement("span");
+      title.className = "code-shell__filename";
+      title.textContent = filename;
 
       const copyButton = document.createElement("button");
       copyButton.type = "button";
       copyButton.className = "code-copy-button";
       copyButton.textContent = copyLabel;
       copyButton.setAttribute("aria-label", copyLabel);
+      copyButton.dataset.state = "idle";
 
       const handleCopy = async () => {
+        copyButton.dataset.state = "loading";
         const copied = await copyText(rawCode);
         copyButton.textContent = copied ? copiedLabel : failedLabel;
+        copyButton.dataset.state = copied ? "copied" : "failed";
         window.setTimeout(() => {
           copyButton.textContent = copyLabel;
-        }, 1600);
+          copyButton.dataset.state = "idle";
+        }, 2000);
       };
 
       copyButton.addEventListener("click", handleCopy);
-      preElement.appendChild(copyButton);
+      preElement.parentNode?.insertBefore(shell, preElement);
+      header.append(title, copyButton);
+      shell.append(header, preElement);
 
       cleanupHandlers.push(() => {
         copyButton.removeEventListener("click", handleCopy);
-        copyButton.remove();
+        shell.parentNode?.insertBefore(preElement, shell);
+        shell.remove();
         delete preElement.dataset.enhanced;
       });
     });

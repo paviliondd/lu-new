@@ -6,6 +6,7 @@ import type { Author, Post } from "@/app/data";
 import type { Locale } from "@/i18n/config";
 import CustomImage from "./CustomImage";
 import { useLanguage } from "./LanguageProvider";
+import AuthorAvatar, { getAuthorDisplay } from "./AuthorAvatar";
 
 interface PostCardProps {
   post: Post;
@@ -29,6 +30,9 @@ export default function PostCard({
 }: PostCardProps) {
   const { localePath } = useLanguage();
   const href = localePath(`/blog/${post.slug}`);
+  const displayAuthor = getAuthorDisplay(author, post);
+  const coverTags = post.tags.slice(0, 3);
+  const hiddenTagCount = Math.max(0, post.tags.length - coverTags.length);
   const displayDate = post.date
     ? new Date(post.date).toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
         month: "short",
@@ -39,7 +43,7 @@ export default function PostCard({
 
   return (
     <article
-      className={`group relative isolate min-w-0 overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/80 shadow-xl shadow-slate-950/20 transition duration-300 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-emerald-950/30 ${
+      className={`theme-card group relative isolate min-w-0 overflow-hidden rounded-2xl border transition duration-300 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-emerald-950/30 ${
         featured ? "min-h-[26rem] sm:min-h-[30rem]" : "min-h-[21rem] sm:min-h-[23rem]"
       }`}
     >
@@ -57,16 +61,35 @@ export default function PostCard({
         ) : (
           <div className={`h-full w-full bg-gradient-to-br ${post.gradient}`} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B132B] via-[#0B132B]/75 to-slate-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/78 to-white/15 dark:from-[#0B132B] dark:via-[#0B132B]/75 dark:to-slate-950/10" />
       </div>
 
       <div className="relative z-10 flex h-full min-h-[inherit] flex-col justify-end p-6 sm:p-7">
+        {coverTags.length > 0 && (
+          <div className="absolute left-5 top-5 z-30 flex max-w-[calc(100%-2.5rem)] flex-wrap gap-2">
+            {coverTags.map((tag) => (
+              <Link
+                key={tag}
+                href={localePath(`/blog?tag=${encodeURIComponent(tag)}`)}
+                className="rounded-full bg-slate-950/70 px-2.5 py-1 text-[11px] font-extrabold text-cyan-100 ring-1 ring-white/15 backdrop-blur transition hover:bg-cyan-300 hover:text-slate-950"
+              >
+                {tag}
+              </Link>
+            ))}
+            {hiddenTagCount > 0 && (
+              <span className="rounded-full bg-slate-950/70 px-2.5 py-1 text-[11px] font-extrabold text-slate-200 ring-1 ring-white/15 backdrop-blur">
+                +{hiddenTagCount}
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="mb-4 flex items-center justify-end">
-          <ArrowUpRight className="h-5 w-5 text-cyan-300 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <ArrowUpRight className="h-5 w-5 text-cyan-700 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 dark:text-cyan-300" />
         </div>
 
         <h3
-          className={`line-clamp-2 break-words font-bold leading-tight text-white ${
+          className={`line-clamp-2 break-words font-bold leading-tight text-slate-950 dark:text-white ${
             featured ? "max-w-3xl text-2xl sm:text-4xl" : "text-xl"
           }`}
         >
@@ -75,7 +98,7 @@ export default function PostCard({
 
         {post.description && (
           <p
-            className={`mt-3 line-clamp-2 leading-6 text-slate-300 ${
+            className={`theme-muted mt-3 line-clamp-2 leading-6 ${
               featured ? "max-w-2xl text-base" : "text-sm"
             }`}
           >
@@ -83,9 +106,10 @@ export default function PostCard({
           </p>
         )}
 
-        <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-slate-400">
-          <span className="font-semibold text-slate-200">
-            {(author?.name || "LinuxUnity").split(" (")[0]}
+        <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <span className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200">
+            <AuthorAvatar author={author} post={post} className="h-6 w-6" />
+            {displayAuthor.name}
           </span>
           {displayDate && (
             <span className="flex items-center gap-1.5">

@@ -119,8 +119,8 @@ export default function TableOfContents({
 
   return (
     <aside className="order-3 hidden w-72 lg:block">
-      <div className="sticky top-24 rounded-2xl border border-slate-700 bg-[#0B132B]/85 p-5 shadow-xl shadow-slate-950/30 backdrop-blur">
-        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-100">
+      <div className="theme-card sticky top-24 rounded-2xl border p-5 backdrop-blur">
+        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
           <List className="h-4 w-4 text-emerald-300" />
           {title}
         </h3>

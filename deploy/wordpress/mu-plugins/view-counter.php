@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 const LINUXUNITY_VIEW_META_KEY = '_view_count';
-const LINUXUNITY_VIEW_RATE_WINDOW = 30 * MINUTE_IN_SECONDS;
+const LINUXUNITY_VIEW_RATE_WINDOW = DAY_IN_SECONDS;
 
 function linuxunity_view_client_ip(): string {
     $candidates = [

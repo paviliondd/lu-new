@@ -34,6 +34,10 @@ function decodeXmlUrl(value) {
     .replaceAll("&#38;", "&");
 }
 
+function encodeXmlUrl(value) {
+  return value.replaceAll("&", "&amp;");
+}
+
 function toAbsoluteUrl(value) {
   const decoded = decodeXmlUrl(value.trim());
   if (/^https?:\/\//i.test(decoded)) return decoded;
@@ -189,6 +193,8 @@ async function main() {
   let normalizedXml = xml;
   for (const [source, destination] of replacements) {
     normalizedXml = normalizedXml.replaceAll(source, destination);
+    normalizedXml = normalizedXml.replaceAll(encodeXmlUrl(source), destination);
+    normalizedXml = normalizedXml.replaceAll(encodeURIComponent(source), destination);
   }
 
   await fs.writeFile(outputPath, normalizedXml, "utf8");

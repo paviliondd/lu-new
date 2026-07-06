@@ -1,44 +1,85 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sun, Moon } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
+
+type ThemePreference = "system" | "dark" | "light";
+type ResolvedTheme = "dark" | "light";
+
+function resolveTheme(preference: ThemePreference): ResolvedTheme {
+  if (preference === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return preference;
+}
+
+function applyTheme(preference: ThemePreference) {
+  const resolvedTheme = resolveTheme(preference);
+  document.documentElement.dataset.theme = preference;
+  document.documentElement.style.colorScheme = resolvedTheme;
+  document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+}
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<ThemePreference | null>(null);
+  const currentTheme = theme || "system";
 
   useEffect(() => {
-    // Determine initial theme
-    const themeTimer = window.setTimeout(() => {
-      const isDark = document.documentElement.classList.contains("dark");
-      setTheme(isDark ? "dark" : "light");
-    }, 0);
+    const readStoredTheme = (): ThemePreference => {
+      const storedTheme = localStorage.getItem("theme") as ThemePreference | null;
+      const documentTheme = document.documentElement.dataset.theme as ThemePreference | undefined;
+      if (storedTheme === "dark" || storedTheme === "light" || storedTheme === "system") {
+        return storedTheme;
+      }
+      if (documentTheme === "dark" || documentTheme === "light" || documentTheme === "system") {
+        return documentTheme;
+      }
+      return "system";
+    };
 
-    return () => window.clearTimeout(themeTimer);
+    const initialTheme = readStoredTheme();
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const syncSystemTheme = () => {
+      if ((localStorage.getItem("theme") || "system") === "system") {
+        applyTheme("system");
+      }
+    };
+
+    applyTheme(initialTheme);
+    window.requestAnimationFrame(() => setTheme(initialTheme));
+    media.addEventListener("change", syncSystemTheme);
+
+    return () => media.removeEventListener("change", syncSystemTheme);
   }, []);
 
   const toggleTheme = () => {
-    const nextTheme = theme === "light" ? "dark" : "light";
+    const nextTheme: ThemePreference =
+      currentTheme === "system" ? "dark" : currentTheme === "dark" ? "light" : "system";
     setTheme(nextTheme);
-    if (nextTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
+    localStorage.setItem("theme", nextTheme);
+    applyTheme(nextTheme);
   };
+
+  const label =
+    currentTheme === "system"
+      ? "System theme"
+      : currentTheme === "dark"
+        ? "Dark theme"
+        : "Light theme";
 
   return (
     <button
       onClick={toggleTheme}
-      className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 cursor-pointer"
-      aria-label={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
-      title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+      className="grid h-9 w-9 place-items-center rounded-full border border-slate-700 bg-slate-900 text-slate-400 transition hover:border-cyan-400/70 hover:text-cyan-300 dark:border-slate-700 dark:bg-slate-900"
+      aria-label={label}
+      title={`${label}: System → Dark → Light`}
     >
-      {theme === "light" ? (
-        <Moon className="h-5 w-5" />
-      ) : (
+      {currentTheme === "system" ? (
+        <Monitor className="h-4 w-4" />
+      ) : currentTheme === "dark" ? (
         <Sun className="h-5 w-5" />
+      ) : (
+        <Moon className="h-5 w-5" />
       )}
     </button>
   );

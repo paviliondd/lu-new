@@ -1,29 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, Cloud } from "lucide-react";
-import SearchModal from "./SearchModal";
+import { Menu, X, Cloud } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { language, setLanguage, t, localePath } = useLanguage();
-
-  useEffect(() => {
-    // Bind keyboard shortcut Ctrl+K / Cmd+K
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setIsSearchOpen(true);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   const navLinks = [
     { href: localePath("/blog"), label: t("blog") },
@@ -35,15 +22,14 @@ export default function Header() {
     .sort((left, right) => right.href.length - left.href.length)[0]?.href;
 
   return (
-    <>
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0B132B]/90 text-slate-100 backdrop-blur-xl">
+    <header className="theme-header sticky top-0 z-40 border-b backdrop-blur-xl">
         <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
           {/* Logo */}
           <Link href={localePath("/")} className="group flex min-w-0 items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-950 shadow-md shadow-emerald-950/40 transition duration-200 group-hover:scale-105">
               <Cloud className="h-5 w-5" />
             </div>
-            <span className="truncate bg-gradient-to-r from-white to-slate-300 bg-clip-text text-lg font-bold tracking-tight text-transparent">
+            <span className="truncate bg-gradient-to-r from-slate-950 to-slate-600 bg-clip-text text-lg font-bold tracking-tight text-transparent dark:from-white dark:to-slate-300">
               Linux<span className="font-extrabold text-emerald-300">Unity</span>
             </span>
           </Link>
@@ -59,7 +45,7 @@ export default function Header() {
                     className={`rounded-lg px-3 py-2 text-sm font-medium transition cursor-pointer ${
                       isActive
                         ? "bg-emerald-400/10 text-emerald-300"
-                        : "text-slate-400 hover:bg-slate-800/70 hover:text-white"
+                        : "text-slate-600 hover:bg-slate-200/70 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -71,15 +57,8 @@ export default function Header() {
 
           {/* Right Action Buttons */}
           <div className="flex shrink-0 items-center gap-2">
-            {/* Search Button */}
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              aria-label={t("search")}
-              title={`${t("search")} (Ctrl+K)`}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-400 shadow-sm transition hover:border-cyan-400/70 hover:text-cyan-300"
-            >
-              <Search className="h-4 w-4" />
-            </button>
+            {/* Language Switcher */}
+            <ThemeToggle />
 
             {/* Language Switcher */}
             <button
@@ -89,7 +68,7 @@ export default function Header() {
               aria-label={`${t("language")}: ${language.toUpperCase()}`}
               title={`${t("language")}: ${language.toUpperCase()}`}
               onClick={() => setLanguage(language === "vi" ? "en" : "vi")}
-              className="relative hidden h-9 w-20 items-center rounded-full border border-slate-700 bg-slate-900 p-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-400 transition hover:border-emerald-400/60 sm:flex"
+              className="relative hidden h-9 w-20 items-center rounded-full border border-slate-300 bg-white p-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-500 transition hover:border-emerald-400/60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:flex"
             >
               <span
                 className={`absolute left-1 top-1 h-7 w-9 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 shadow transition-transform duration-200 ${
@@ -107,7 +86,7 @@ export default function Header() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-slate-800 md:hidden"
+              className="cursor-pointer rounded-lg p-2 text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800 md:hidden"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -121,7 +100,7 @@ export default function Header() {
 
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
-          <div className="border-t border-slate-800 bg-[#0B132B]/98 px-4 py-4 transition-all md:hidden">
+          <div className="theme-surface border-t theme-border px-4 py-4 transition-all md:hidden">
             <ul className="space-y-1">
               {navLinks.map((link) => {
                 const isActive = link.href === activeNavHref;
@@ -133,7 +112,7 @@ export default function Header() {
                       className={`block rounded-lg px-4 py-2.5 text-base font-medium ${
                         isActive
                           ? "bg-emerald-400/10 text-emerald-300"
-                          : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                          : "text-slate-600 hover:bg-slate-200 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                       }`}
                     >
                       {link.label}
@@ -175,10 +154,6 @@ export default function Header() {
             </div>
           </div>
         )}
-      </header>
-
-      {/* Search Modal */}
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-    </>
+    </header>
   );
 }

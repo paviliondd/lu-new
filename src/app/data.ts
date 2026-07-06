@@ -3,6 +3,7 @@ export interface Author {
   role: string;
   role_en?: string;
   avatar: string;
+  avatarUrl?: string | null;
   description: string;
   description_en?: string;
   linkedin: string;
@@ -49,6 +50,9 @@ export interface Post {
   category: string;
   tags: string[];
   author: string;
+  authorName?: string;
+  authorAvatar?: string | null;
+  authorDescription?: string;
   status: PostStatus;
   publishDate: string | null;
   publish_date: string | null;

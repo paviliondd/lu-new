@@ -77,8 +77,8 @@ export default async function SeriesDetailPage({
     lang === "vi" ? selectedSeries.description : selectedSeries.description_en;
 
   return (
-    <div className="min-h-screen overflow-x-clip bg-[#0F172A] text-slate-100">
-      <section className="border-b border-slate-800 bg-[#0B132B]">
+    <div className="theme-page min-h-screen overflow-x-clip">
+      <section className="theme-surface border-b theme-border">
         <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:py-16">
           <Link
             href={localePath(lang, "/blog/series")}
@@ -95,10 +95,10 @@ export default async function SeriesDetailPage({
             <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
               LinuxUnity DevOps Series
             </p>
-            <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
               {title}
             </h1>
-            <p className="mt-4 max-w-3xl leading-7 text-slate-300">{description}</p>
+            <p className="theme-muted mt-4 max-w-3xl leading-7">{description}</p>
           </div>
         </div>
       </section>
@@ -109,20 +109,20 @@ export default async function SeriesDetailPage({
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
               {lang === "vi" ? "Bài viết mới nhất" : "Latest posts"}
             </p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-white">
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
               {posts.length} {lang === "vi" ? "bài viết" : "posts"}
             </h2>
           </div>
           {totalPages > 1 && (
-            <p className="text-sm text-slate-400">
+            <p className="text-sm theme-muted">
               {lang === "vi" ? "Trang" : "Page"} {currentPage}/{totalPages}
             </p>
           )}
         </div>
 
         {paginatedPosts.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 py-20 text-center">
-            <p className="text-sm text-slate-400">
+          <div className="theme-card rounded-2xl border border-dashed py-20 text-center">
+            <p className="text-sm theme-muted">
               {lang === "vi"
                 ? "Các bài viết trong series này đang được biên tập."
                 : "Articles in this series are currently being edited."}

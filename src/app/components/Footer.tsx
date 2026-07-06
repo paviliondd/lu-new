@@ -20,7 +20,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="border-t border-slate-800 bg-[#0B132B] text-slate-100">
+    <footer className="theme-surface border-t theme-border">
       <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Info */}
@@ -29,7 +29,7 @@ export default function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-950 shadow transition group-hover:scale-105">
                 <Cloud className="h-4.5 w-4.5" />
               </div>
-              <span className="text-base font-bold tracking-tight text-white">
+              <span className="text-base font-bold tracking-tight text-slate-950 dark:text-white">
                 Linux<span className="font-extrabold text-emerald-300">Unity</span>
               </span>
             </Link>
@@ -144,7 +144,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-slate-800 pt-8 text-center text-xs text-slate-500">
+        <div className="mt-12 border-t theme-border pt-8 text-center text-xs theme-muted">
           <p>© {new Date().getFullYear()} LinuxUnity. {t("footerText")}</p>
         </div>
       </div>

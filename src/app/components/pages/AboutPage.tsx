@@ -39,7 +39,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#0F172A] py-12 text-slate-100">
+    <div className="theme-page min-h-screen w-full py-12">
       <div className="mx-auto max-w-6xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-6">
@@ -116,7 +116,7 @@ export default function AboutPage() {
               {missionItems.map((item, index) => (
                 <div
                   key={index}
-                  className="rounded-2xl border border-slate-700 bg-slate-900/60 p-6 transition duration-200 hover:border-emerald-400/50 hover:shadow-xl hover:shadow-emerald-950/20"
+                  className="theme-card rounded-2xl border p-6 transition duration-200 hover:border-emerald-400/50 hover:shadow-xl hover:shadow-emerald-950/20"
                 >
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-950/60">
                     {item.icon}

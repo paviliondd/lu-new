@@ -24,6 +24,13 @@
 # misc
 .DS_Store
 *.pem
+deploy/certbot/**
+!deploy/certbot/
+!deploy/certbot/.gitkeep
+!deploy/certbot/www/
+!deploy/certbot/www/.gitkeep
+!deploy/certbot/letsencrypt/
+!deploy/certbot/letsencrypt/.gitkeep
 
 # debug
 npm-debug.log*

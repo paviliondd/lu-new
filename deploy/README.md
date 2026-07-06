@@ -10,10 +10,10 @@ This deployment runs:
 - Uptime Kuma at `https://kuma.linuxunity.com`.
 
 The database has no public port. Docker publishes the Nginx service on public
-HTTP port `80` and also keeps `127.0.0.1:8080` as a local diagnostic endpoint.
-If you prefer to terminate TLS with a host-level Nginx, set
-`NGINX_HTTP_BIND=127.0.0.1:8080` and remove or change
-`NGINX_DIAGNOSTIC_BIND` to avoid binding the same host port twice.
+HTTP port `80`, HTTPS port `443`, and keeps `127.0.0.1:8080` as a local
+diagnostic endpoint. The Nginx container starts in HTTP-only mode until
+Let's Encrypt certificates exist under `deploy/certbot/letsencrypt`; after that
+it enables the HTTPS server blocks automatically on restart.
 
 ## DNS
 
@@ -52,6 +52,14 @@ nano .env
 
 Change every placeholder password in `.env`.
 
+For container-managed Nginx TLS, keep these bind values:
+
+```bash
+NGINX_HTTP_BIND=0.0.0.0:80
+NGINX_HTTPS_BIND=0.0.0.0:443
+NGINX_DIAGNOSTIC_BIND=127.0.0.1:8080
+```
+
 Start the stack:
 
 ```bash
@@ -69,6 +77,53 @@ curl -I http://127.0.0.1:8080
 curl -fsS http://127.0.0.1:8080/api/health
 ```
 
+## HTTPS Certificates
+
+Make sure DNS points to the VPS and ports `80` and `443` are open. Start Nginx
+once in HTTP-only mode so Let's Encrypt can reach the ACME challenge path:
+
+```bash
+docker compose up -d nginx
+```
+
+Issue certificates for the main site:
+
+```bash
+docker compose --profile tools run --rm certbot certonly \
+  --webroot \
+  --webroot-path /var/www/certbot \
+  --email admin@tesst.linuxunity.com \
+  --agree-tos \
+  --no-eff-email \
+  -d tesst.linuxunity.com \
+  -d www.tesst.linuxunity.com
+```
+
+Optional: issue a separate certificate for Uptime Kuma:
+
+```bash
+docker compose --profile tools run --rm certbot certonly \
+  --webroot \
+  --webroot-path /var/www/certbot \
+  --email admin@tesst.linuxunity.com \
+  --agree-tos \
+  --no-eff-email \
+  -d kuma.linuxunity.com
+```
+
+Restart Nginx after certificates are created:
+
+```bash
+docker compose up -d --force-recreate nginx
+```
+
+Renew certificates:
+
+```bash
+docker compose --profile tools run --rm certbot renew --webroot --webroot-path /var/www/certbot
+docker compose exec nginx nginx -s reload
+```
+
 Run the host diagnostic bundle:
 
 ```bash
@@ -79,11 +134,9 @@ scripts/diagnose-host.sh
 Open:
 
 ```text
-http://tesst.linuxunity.com/wp-admin
-http://kuma.linuxunity.com
+https://tesst.linuxunity.com/wp-admin
+https://kuma.linuxunity.com
 ```
-
-Use the HTTPS URLs after you configure the host Nginx vhost and TLS.
 
 If WordPress shows the installer, create the admin account in the browser.
 

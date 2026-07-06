@@ -52,5 +52,5 @@ cat <<EOF
 - If 127.0.0.1:8080 works but $DOMAIN fails, check VPS firewall/provider security rules and NGINX_HTTP_BIND.
 - If nginx -t fails, inspect deploy/nginx/default.conf and recreate nginx.
 - If WordPress REST fails from app, check wordpress container health and WORDPRESS_API_BASE.
-- If HTTPS fails but HTTP works, configure TLS termination separately or mount certificates into the nginx container.
+- If HTTPS fails but HTTP works, issue/renew certificates with the certbot compose profile and recreate nginx.
 EOF

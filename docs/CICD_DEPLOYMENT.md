@@ -1,7 +1,7 @@
 # CI/CD Deployment
 
 Tai lieu nay mo ta cach deploy website `tesst.linuxunity.com` len VPS bang
-GitHub Actions, Docker Compose va Nginx host.
+GitHub Actions, Docker Compose va Nginx chay trong container.
 
 ## Tong quan
 
@@ -14,7 +14,7 @@ Developer
   -> cd /home/lu-new
   -> bash scripts/deploy.sh
   -> docker compose up -d
-  -> Nginx host proxy tesst.linuxunity.com -> 127.0.0.1:8080
+  -> Docker Nginx public ports 80/443
 ```
 
 Thu muc production tren VPS:
@@ -33,18 +33,12 @@ tesst.linuxunity.com
 
 Docker Compose chay cac service:
 
-- `nginx`: reverse proxy noi bo trong Docker, bind `127.0.0.1:8080`.
+- `nginx`: reverse proxy public trong Docker, bind `0.0.0.0:80` va `0.0.0.0:443`.
 - `app`: Next.js frontend.
 - `wordpress`: WordPress admin va REST API.
 - `db`: MariaDB noi bo.
 - `uptime-kuma`: Uptime Kuma noi bo, route qua Docker nginx.
 - `wpcli`: profile tools, chi chay khi can quan tri WordPress.
-
-Nginx cai tren VPS host se nhan traffic public port `80/443` va proxy vao:
-
-```text
-http://127.0.0.1:8080
-```
 
 MariaDB khong expose public port.
 
@@ -115,6 +109,9 @@ NEXT_PUBLIC_SITE_URL=https://tesst.linuxunity.com
 WORDPRESS_SITE_URL=https://tesst.linuxunity.com
 NEXT_PUBLIC_WORDPRESS_PUBLIC_URL=https://tesst.linuxunity.com
 WORDPRESS_API_BASE=http://wordpress?rest_route=/wp/v2
+NGINX_HTTP_BIND=0.0.0.0:80
+NGINX_HTTPS_BIND=0.0.0.0:443
+NGINX_DIAGNOSTIC_BIND=127.0.0.1:8080
 APP_IMAGE=<aws-ecr-registry>/cloud-devops-blog:production
 ```
 
@@ -138,67 +135,52 @@ dig +short www.tesst.linuxunity.com
 
 Ket qua phai tro ve IP cua VPS.
 
-## Nginx Host Vhost
+## HTTPS voi Certbot trong Docker
 
-Tao file:
-
-```bash
-sudo nano /etc/nginx/sites-available/tesst.linuxunity.com
-```
-
-Noi dung HTTP ban dau:
-
-```nginx
-server {
-    listen 80;
-    listen [::]:80;
-    server_name tesst.linuxunity.com www.tesst.linuxunity.com;
-
-    client_max_body_size 64m;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-```
-
-Enable vhost:
+Nginx chay trong container va tu bat HTTPS khi certificate ton tai trong
+`deploy/certbot/letsencrypt`. Lan dau, start Nginx HTTP-only de Let's Encrypt
+co the truy cap ACME challenge:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/tesst.linuxunity.com /etc/nginx/sites-enabled/tesst.linuxunity.com
-sudo nginx -t
-sudo systemctl reload nginx
+docker compose up -d nginx
 ```
 
-Neu domain van vao trang default cua Nginx, tat default site:
+Cap certificate cho website:
 
 ```bash
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl reload nginx
+docker compose --profile tools run --rm certbot certonly \
+  --webroot \
+  --webroot-path /var/www/certbot \
+  --email admin@tesst.linuxunity.com \
+  --agree-tos \
+  --no-eff-email \
+  -d tesst.linuxunity.com \
+  -d www.tesst.linuxunity.com
 ```
 
-## HTTPS voi Certbot
-
-Sau khi HTTP domain da vao dung app:
+Neu dung Uptime Kuma qua HTTPS, cap them cert rieng:
 
 ```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d tesst.linuxunity.com -d www.tesst.linuxunity.com
+docker compose --profile tools run --rm certbot certonly \
+  --webroot \
+  --webroot-path /var/www/certbot \
+  --email admin@tesst.linuxunity.com \
+  --agree-tos \
+  --no-eff-email \
+  -d kuma.linuxunity.com
 ```
 
-Kiem tra auto-renew:
+Restart Nginx de bat HTTPS:
 
 ```bash
-sudo certbot renew --dry-run
+docker compose up -d --force-recreate nginx
+```
+
+Renew certificate:
+
+```bash
+docker compose --profile tools run --rm certbot renew --webroot --webroot-path /var/www/certbot
+docker compose exec nginx nginx -s reload
 ```
 
 ## Start Lan Dau
@@ -316,11 +298,11 @@ Khong mo port MySQL/MariaDB public.
    dig +short tesst.linuxunity.com
    ```
 
-2. Kiem tra vhost co enable khong:
+2. Kiem tra port public cua Docker Nginx:
 
    ```bash
-   ls -l /etc/nginx/sites-enabled/
-   sudo nginx -T | grep -n "tesst.linuxunity.com"
+   docker compose ps nginx
+   ss -ltnp | grep -E ':80|:443'
    ```
 
 3. Kiem tra Docker nginx noi bo:
@@ -329,17 +311,16 @@ Khong mo port MySQL/MariaDB public.
    curl -I http://127.0.0.1:8080
    ```
 
-4. Kiem tra Nginx host proxy:
+4. Kiem tra Docker Nginx public:
 
    ```bash
    curl -H "Host: tesst.linuxunity.com" -I http://127.0.0.1
+   curl -k -H "Host: tesst.linuxunity.com" -I https://127.0.0.1
    ```
 
 5. Xem log:
 
    ```bash
-   sudo tail -n 100 /var/log/nginx/error.log
-   sudo tail -n 100 /var/log/nginx/access.log
    cd /home/lu-new && docker compose logs --tail=100 nginx app wordpress
    ```
 
@@ -350,4 +331,4 @@ Khong mo port MySQL/MariaDB public.
 - `https://tesst.linuxunity.com/wp-admin` vao duoc WordPress admin.
 - `https://tesst.linuxunity.com/?rest_route=/wp/v2/posts` tra ve REST API.
 - `docker compose ps` khong co service restart loop.
-- `sudo nginx -t` pass.
+- `docker compose exec nginx nginx -t` pass.

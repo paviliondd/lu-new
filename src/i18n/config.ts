@@ -10,7 +10,13 @@ export function hasLocale(value: string): value is Locale {
 export function localePath(locale: Locale, pathname = "/") {
   const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`;
   const pathWithoutLocale = normalizedPath.replace(/^\/(vi|en)(?=\/|$)/, "");
-  return `/${locale}${pathWithoutLocale || ""}` || `/${locale}`;
+  const cleanPath = pathWithoutLocale || "/";
+
+  if (locale === defaultLocale) {
+    return cleanPath;
+  }
+
+  return cleanPath === "/" ? `/${locale}` : `/${locale}${cleanPath}`;
 }
 
 export function switchLocalePath(pathname: string, locale: Locale) {

@@ -239,10 +239,10 @@ iframe {
   max-width: 100%;
   margin: 1.5rem 0;
   overflow: hidden;
-  border: 1px solid rgb(71 85 105 / 0.9);
-  border-radius: 0.9rem;
-  background: #0b0f19;
-  box-shadow: 0 24px 70px rgb(15 23 42 / 0.2);
+  border: 1px solid rgb(71 85 105 / 0.55);
+  border-radius: 0.75rem;
+  background: #0d1117;
+  box-shadow: none;
 }
 
 .code-shell__header {
@@ -251,8 +251,8 @@ iframe {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border-bottom: 1px solid rgb(75 85 99 / 0.72);
-  background: linear-gradient(180deg, rgb(31 41 55 / 0.96), rgb(17 24 39 / 0.96));
+  border-bottom: 1px solid rgb(75 85 99 / 0.45);
+  background: #161b22;
   padding: 0.45rem 0.75rem 0.45rem 1rem;
 }
 
@@ -263,13 +263,13 @@ iframe {
   white-space: nowrap;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   color: var(--color-gray-200);
 }
 
 .code-copy-button {
   flex: 0 0 auto;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   border: 1px solid rgb(75 85 99 / 0.8);
   background: rgb(15 23 42 / 0.88);
   padding: 0.34rem 0.75rem;
@@ -307,7 +307,10 @@ iframe {
 
 .prose pre code {
   display: block;
-  min-width: max-content;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   color: var(--color-gray-200);
   background-color: transparent;
   padding: 0;
@@ -442,8 +445,8 @@ iframe {
   position: fixed;
   inset: 0;
   z-index: 80;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   background: rgb(2 6 23 / 0.92);
   backdrop-filter: blur(10px);
 }
@@ -469,16 +472,24 @@ iframe {
 }
 
 .image-lightbox__stage {
+  display: grid;
+  flex: 1 1 auto;
+  place-items: center;
   min-height: 0;
-  overflow: auto;
+  padding: 1rem;
+  overflow: hidden;
   overscroll-behavior: contain;
-  touch-action: none;
+  touch-action: pinch-zoom;
 }
 
 .image-lightbox__image {
   display: block;
-  max-width: none;
-  margin: 2rem auto;
+  width: auto;
+  height: auto;
+  max-width: min(94vw, 1400px);
+  max-height: calc(100vh - 6.5rem);
+  margin: 0;
+  object-fit: contain;
   transform-origin: center center;
   transition: transform 140ms ease;
   user-select: none;

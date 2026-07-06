@@ -91,7 +91,6 @@ export default function ArticleImageEnhancer({
 }: ArticleImageEnhancerProps) {
   const [viewer, setViewer] = useState<{ src: string; alt: string } | null>(null);
   const [scale, setScale] = useState(1);
-  const [rotation, setRotation] = useState(0);
   const pinchDistance = useRef<number | null>(null);
 
   useEffect(() => {
@@ -135,7 +134,6 @@ export default function ArticleImageEnhancer({
       };
       const handleOpen = () => {
         setScale(1);
-        setRotation(0);
         setViewer({
           src: image.currentSrc || image.src,
           alt: image.alt || "Article image",
@@ -199,29 +197,13 @@ export default function ArticleImageEnhancer({
         <button className="image-lightbox__button" type="button" onClick={() => setScale((value) => Math.max(0.25, value - 0.25))}>
           Zoom -
         </button>
-        <button className="image-lightbox__button" type="button" onClick={() => setScale(1)}>
-          Fit
-        </button>
-        <button className="image-lightbox__button" type="button" onClick={() => setRotation((value) => value + 90)}>
-          Rotate
-        </button>
-        <a className="image-lightbox__button" href={viewer.src} download>
-          Download
-        </a>
-        <button
-          className="image-lightbox__button"
-          type="button"
-          onClick={() => document.documentElement.requestFullscreen?.()}
-        >
-          Fullscreen
-        </button>
         <button className="image-lightbox__button" type="button" onClick={() => setViewer(null)}>
           Close
         </button>
       </div>
       <div
         className="image-lightbox__stage"
-        onClick={(event) => event.stopPropagation()}
+        onClick={() => setViewer(null)}
         onWheel={(event) => {
           event.preventDefault();
           setScale((value) => Math.min(4, Math.max(0.25, value + (event.deltaY < 0 ? 0.12 : -0.12))));
@@ -250,7 +232,8 @@ export default function ArticleImageEnhancer({
           className="image-lightbox__image"
           src={viewer.src}
           alt={viewer.alt}
-          style={{ transform: `scale(${scale}) rotate(${rotation}deg)` }}
+          style={{ transform: `scale(${scale})` }}
+          onClick={(event) => event.stopPropagation()}
           draggable={false}
         />
       </div>

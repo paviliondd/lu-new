@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchWordPressRest } from "@/lib/cms/wordpress-rest";
 import { rateLimit } from "@/lib/server/rate-limit";
+import { invalidateCache } from "@/lib/server/redis-cache";
 
 interface ViewRouteProps {
   params: Promise<{ slug: string }>;
@@ -32,6 +33,8 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
     if (!response.ok) {
       return NextResponse.json(payload, { status: response.status });
     }
+
+    await invalidateCache(["posts:published:*", "posts:detail:*"]);
 
     return NextResponse.json({
       views: Math.max(0, Number(payload.views || 0)),

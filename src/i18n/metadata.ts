@@ -7,8 +7,9 @@ export const siteUrl = (
 ).replace(/\/$/, "");
 
 export function localizedAlternates(locale: Locale, pathname = "/"): Metadata["alternates"] {
+  const canonical = localePath(locale, pathname);
   return {
-    canonical: localePath(locale, pathname),
+    canonical,
     languages: {
       vi: localePath("vi", pathname),
       en: localePath("en", pathname),
@@ -35,6 +36,11 @@ export function localizedMetadata(
       alternateLocale: locale === "vi" ? ["en_US"] : ["vi_VN"],
       url: localePath(locale, pathname),
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
     },
   };
 }

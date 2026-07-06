@@ -9,7 +9,10 @@ import {
 import { highlightCodeBlocks } from "@/lib/content/highlight";
 import { hasLocale } from "@/i18n/config";
 import { localizedAlternates } from "@/i18n/metadata";
+import { localePath } from "@/i18n/config";
+import { siteUrl } from "@/i18n/metadata";
 import { load } from "cheerio";
+import { getComments } from "@/lib/comments/store";
 
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
@@ -126,15 +129,68 @@ export default async function BlogPostPage({ params }: Props) {
     .slice(0, 3);
   const assetBase = publicWordPressAssetBase();
   const legacyAssetOrigins = legacyWordPressAssetOrigins();
+  const comments = await getComments(post.slug);
+  const canonicalUrl = `${siteUrl}${localePath(lang, `/blog/${post.slug}`)}`;
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    image: post.seo.ogImage ? [post.seo.ogImage] : undefined,
+    datePublished: post.date,
+    dateModified: post.date,
+    author: {
+      "@type": "Person",
+      name: post.authorName || author.name,
+      image: post.authorAvatar || author.avatarUrl || undefined,
+    },
+    mainEntityOfPage: canonicalUrl,
+    commentCount: comments.length,
+  };
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: lang === "vi" ? "Trang chủ" : "Home",
+        item: `${siteUrl}${localePath(lang, "/")}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: `${siteUrl}${localePath(lang, "/blog")}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.title,
+        item: canonicalUrl,
+      },
+    ],
+  };
 
   return (
-    <ArticleClient
-      post={localizedPost}
-      author={author}
-      headings={headings}
-      relatedPosts={relatedPosts}
-      assetBase={assetBase}
-      legacyAssetOrigins={legacyAssetOrigins}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <ArticleClient
+        post={localizedPost}
+        author={author}
+        headings={headings}
+        relatedPosts={relatedPosts}
+        assetBase={assetBase}
+        legacyAssetOrigins={legacyAssetOrigins}
+        initialComments={comments}
+      />
+    </>
   );
 }

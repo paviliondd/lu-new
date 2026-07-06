@@ -39,6 +39,15 @@ function getFilename(preElement: HTMLElement, codeElement: HTMLElement) {
   return explicitFilename || "code";
 }
 
+function getLanguage(preElement: HTMLElement, codeElement: HTMLElement) {
+  const explicitLanguage =
+    preElement.dataset.language ||
+    codeElement.dataset.language ||
+    codeElement.className.match(/language-([a-z0-9-]+)/i)?.[1];
+
+  return explicitLanguage || getFilename(preElement, codeElement);
+}
+
 export default function CodeBlockEnhancer({
   containerSelector = ".article-content",
   contentKey,
@@ -64,7 +73,7 @@ export default function CodeBlockEnhancer({
       preElement.classList.add("code-block");
 
       const rawCode = codeElement.textContent || "";
-      const filename = getFilename(preElement, codeElement);
+      const language = getLanguage(preElement, codeElement);
 
       const shell = document.createElement("div");
       shell.className = "code-shell";
@@ -74,7 +83,7 @@ export default function CodeBlockEnhancer({
 
       const title = document.createElement("span");
       title.className = "code-shell__filename";
-      title.textContent = filename;
+      title.textContent = language.toLowerCase();
 
       const copyButton = document.createElement("button");
       copyButton.type = "button";

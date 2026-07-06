@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
-import { hasLocale } from "@/i18n/config";
+import { hasLocale, localePath } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
 
 interface FeedRouteProps {
@@ -32,11 +32,11 @@ export async function GET(_request: Request, { params }: FeedRouteProps) {
     lang === "vi"
       ? "Bai viet moi nhat tu LinuxUnity."
       : "Latest articles from LinuxUnity.";
-  const link = absoluteUrl(`/${lang}/blog`);
+  const link = absoluteUrl(localePath(lang, "/blog"));
 
   const items = posts
     .map((post) => {
-      const postUrl = absoluteUrl(`/${lang}/blog/${post.slug}`);
+      const postUrl = absoluteUrl(localePath(lang, `/blog/${post.slug}`));
       const pubDate = post.date ? new Date(post.date).toUTCString() : new Date().toUTCString();
 
       return `

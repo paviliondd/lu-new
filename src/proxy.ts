@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { defaultLocale, locales } from "@/i18n/config";
+import { defaultLocale } from "@/i18n/config";
 
 const reservedSegments = new Set([
   "about",
@@ -13,38 +13,32 @@ const reservedSegments = new Set([
   "xmlrpc.php",
 ]);
 
-function preferredLocale(request: NextRequest) {
-  const savedLocale = request.cookies.get("linuxunity-locale")?.value;
-  if (savedLocale && locales.includes(savedLocale as (typeof locales)[number])) {
-    return savedLocale;
-  }
-
-  const acceptedLanguages = request.headers.get("accept-language")?.toLowerCase() || "";
-  return acceptedLanguages.startsWith("en") ? "en" : defaultLocale;
-}
-
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const segments = pathname.split("/").filter(Boolean);
-  const hasLocalePrefix = locales.some(
-    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
-  );
+  const hasEnglishPrefix = pathname === "/en" || pathname.startsWith("/en/");
+  const hasVietnamesePrefix = pathname === "/vi" || pathname.startsWith("/vi/");
 
-  if (hasLocalePrefix) {
+  if (hasEnglishPrefix) {
     return NextResponse.next();
   }
 
-  const locale = preferredLocale(request);
-  const redirectUrl = request.nextUrl.clone();
+  if (hasVietnamesePrefix) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = pathname.replace(/^\/vi(?=\/|$)/, "") || "/";
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
+  const rewriteUrl = request.nextUrl.clone();
   const isWordPressPostPermalink =
     request.method === "GET" &&
     segments.length === 1 &&
     !reservedSegments.has(segments[0]);
 
-  redirectUrl.pathname = isWordPressPostPermalink
-    ? `/${locale}/blog/${segments[0]}`
-    : `/${locale}${pathname === "/" ? "" : pathname}`;
-  return NextResponse.redirect(redirectUrl);
+  rewriteUrl.pathname = isWordPressPostPermalink
+    ? `/${defaultLocale}/blog/${segments[0]}`
+    : `/${defaultLocale}${pathname === "/" ? "" : pathname}`;
+  return NextResponse.rewrite(rewriteUrl);
 }
 
 export const config = {

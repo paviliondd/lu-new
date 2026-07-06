@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Cloud } from "lucide-react";
+import { Menu, Search, X, Cloud } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 import ThemeToggle from "./ThemeToggle";
+import SearchModal from "./SearchModal";
 
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { language, setLanguage, t, localePath } = useLanguage();
 
   const navLinks = [
@@ -20,6 +22,17 @@ export default function Header() {
   const activeNavHref = navLinks
     .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
     .sort((left, right) => right.href.length - left.href.length)[0]?.href;
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <header className="theme-header sticky top-0 z-40 border-b backdrop-blur-xl">
@@ -57,7 +70,17 @@ export default function Header() {
 
           {/* Right Action Buttons */}
           <div className="flex shrink-0 items-center gap-2">
-            {/* Language Switcher */}
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
+              aria-label={t("search")}
+              title={t("search")}
+            >
+              <Search className="h-4 w-4" />
+              <span className="hidden text-[11px] text-slate-400 lg:inline">Ctrl K</span>
+            </button>
+
             <ThemeToggle />
 
             {/* Language Switcher */}
@@ -120,6 +143,19 @@ export default function Header() {
                   </li>
                 );
               })}
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSearchOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-base font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                  <Search className="h-4 w-4" />
+                  {t("search")}
+                </button>
+              </li>
             </ul>
             <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-800">
               <span className="text-xs text-gray-505">{t("language")}</span>
@@ -154,6 +190,7 @@ export default function Header() {
             </div>
           </div>
         )}
+        <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   );
 }

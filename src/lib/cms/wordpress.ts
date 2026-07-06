@@ -57,6 +57,10 @@ interface WordPressPost {
       name?: string;
       description?: string;
       avatar_urls?: Record<string, string>;
+      avatar_url?: string;
+      simple_local_avatar?: Record<string, string>;
+      acf?: Record<string, unknown>;
+      meta?: Record<string, unknown>;
     }>;
     "wp:term"?: WordPressTerm[][];
   };
@@ -421,7 +425,15 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
   const authorKey = wpAuthorSlug && team[wpAuthorSlug] ? wpAuthorSlug : "nhatnghia";
   const avatarUrls = wpAuthor?.avatar_urls || {};
   const fallbackAvatarUrl = Object.values(avatarUrls).slice(-1)[0];
+  const customAvatar =
+    wpAuthor?.avatar_url ||
+    wpAuthor?.simple_local_avatar?.["96"] ||
+    wpAuthor?.simple_local_avatar?.full ||
+    (typeof wpAuthor?.acf?.avatar === "string" ? wpAuthor.acf.avatar : null) ||
+    (typeof wpAuthor?.meta?.avatar === "string" ? wpAuthor.meta.avatar : null) ||
+    (typeof wpAuthor?.meta?.avatar_url === "string" ? wpAuthor.meta.avatar_url : null);
   const authorAvatar =
+    customAvatar ||
     avatarUrls["96"] ||
     avatarUrls["48"] ||
     avatarUrls["24"] ||

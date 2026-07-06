@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
-import { locales } from "@/i18n/config";
+import { localePath, locales } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
 
 function absoluteUrl(pathname: string) {
@@ -10,13 +10,13 @@ function absoluteUrl(pathname: string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
     {
-      url: absoluteUrl("/vi"),
+      url: absoluteUrl("/"),
       lastModified: new Date(),
       alternates: {
         languages: {
-          vi: absoluteUrl("/vi"),
+          vi: absoluteUrl("/"),
           en: absoluteUrl("/en"),
-          "x-default": absoluteUrl("/vi"),
+          "x-default": absoluteUrl("/"),
         },
       },
     },
@@ -31,27 +31,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   postsByLocale.forEach(({ locale, posts }) => {
     entries.push({
-      url: absoluteUrl(`/${locale}/blog`),
+      url: absoluteUrl(localePath(locale, "/blog")),
       lastModified: new Date(),
       alternates: {
         languages: {
-          vi: absoluteUrl("/vi/blog"),
+          vi: absoluteUrl("/blog"),
           en: absoluteUrl("/en/blog"),
-          "x-default": absoluteUrl("/vi/blog"),
+          "x-default": absoluteUrl("/blog"),
         },
       },
     });
 
     posts.forEach((post) => {
-      const pathname = `/${locale}/blog/${post.slug}`;
+      const pathname = localePath(locale, `/blog/${post.slug}`);
       entries.push({
         url: absoluteUrl(pathname),
         lastModified: post.date ? new Date(post.date) : new Date(),
         alternates: {
           languages: {
-            vi: absoluteUrl(`/vi/blog/${post.slug}`),
+            vi: absoluteUrl(`/blog/${post.slug}`),
             en: absoluteUrl(`/en/blog/${post.slug}`),
-            "x-default": absoluteUrl(`/vi/blog/${post.slug}`),
+            "x-default": absoluteUrl(`/blog/${post.slug}`),
           },
         },
       });

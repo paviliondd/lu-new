@@ -1,26 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useRef } from "react";
-import { Search, X, FileText, ArrowRight } from "lucide-react";
-import { posts as initialPosts } from "../data";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, FileText, Search, X } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
-import { usePublishedPosts } from "./usePublishedPosts";
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface SearchResult {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  excerpt: string;
+}
+
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-  const { t, localePath } = useLanguage();
+  const { t, localePath, language } = useLanguage();
   const [query, setQuery] = useState("");
-  const posts = usePublishedPosts(initialPosts);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setTimeout(() => inputRef.current?.focus(), 80);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -30,116 +39,169 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     };
   }, [isOpen]);
 
-  const results = useMemo(() => {
-    if (!query.trim()) {
-      return [];
+  useEffect(() => {
+    if (!isOpen || query.trim().length < 2) {
+      return;
     }
 
-    return posts.filter(
-      (post) =>
-        post.title.toLowerCase().includes(query.toLowerCase()) ||
-        post.description.toLowerCase().includes(query.toLowerCase()) ||
-        post.category.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [posts, query]);
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams({
+          q: query,
+          locale: language,
+          limit: "8",
+        });
+        const response = await fetch(`/api/search?${params}`, {
+          signal: controller.signal,
+        });
+        const payload = response.ok ? await response.json() : { results: [] };
+        setResults(payload.results || []);
+        setActiveIndex(0);
+      } catch {
+        if (!controller.signal.aborted) setResults([]);
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
+      }
+    }, 180);
 
-  // Handle ESC key to close
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [isOpen, language, query]);
+
+  const activeHref = useMemo(() => {
+    const result = results[activeIndex];
+    return result ? localePath(`/blog/${result.slug}`) : null;
+  }, [activeIndex, localePath, results]);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isOpen) return;
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        setActiveIndex((value) => Math.min(results.length - 1, value + 1));
+      }
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        setActiveIndex((value) => Math.max(0, value - 1));
+      }
+      if (event.key === "Enter" && activeHref) {
+        event.preventDefault();
+        window.location.href = activeHref;
         onClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [activeHref, isOpen, onClose, results.length]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden px-3 py-6 sm:px-4 sm:py-8">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-[#0B132B]/75 backdrop-blur-md transition-opacity"
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-x-hidden px-3 py-16 sm:px-4 sm:py-20">
+      <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md" onClick={onClose} />
 
-      {/* Modal Dialog */}
       <div
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-700 bg-[#0B132B]/95 shadow-2xl shadow-slate-950/40 backdrop-blur-xl transition-all sm:rounded-3xl"
+        className="theme-card relative w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl shadow-slate-950/30"
       >
-        {/* Input area */}
-        <div className="flex min-w-0 items-center gap-2 border-b border-gray-200 px-3 py-3 dark:border-gray-800 sm:gap-3 sm:px-5 sm:py-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-50 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-300">
-            <Search className="h-4 w-4" />
-          </div>
+        <div className="flex min-w-0 items-center gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-800">
+          <Search className="h-5 w-5 shrink-0 text-slate-400" />
           <input
             ref={inputRef}
-            type="text"
+            type="search"
             placeholder={t("searchPlaceholder")}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-11 min-w-0 flex-1 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100"
+            onChange={(event) => {
+              const nextQuery = event.target.value;
+              setQuery(nextQuery);
+              if (nextQuery.trim().length < 2) {
+                setResults([]);
+                setIsLoading(false);
+                setActiveIndex(0);
+              }
+            }}
+            className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-slate-400"
           />
+          {query.trim() && (
+            <Link
+              href={`${localePath("/search")}?q=${encodeURIComponent(query.trim())}`}
+              onClick={onClose}
+              className="hidden rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold transition hover:border-emerald-400 dark:border-slate-700 sm:inline-flex"
+            >
+              {language === "vi" ? "Tất cả" : "All"}
+            </Link>
+          )}
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Close search"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Results area */}
         <div className="max-h-[62vh] overflow-y-auto p-3 sm:p-4">
-          {query.trim() === "" ? (
-            <div className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          {query.trim().length < 2 ? (
+            <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
               {t("searchHint")}
             </div>
+          ) : isLoading ? (
+            <div className="space-y-3">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="animate-pulse rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                  <div className="mb-3 h-4 w-2/3 rounded bg-slate-200 dark:bg-slate-800" />
+                  <div className="h-3 w-full rounded bg-slate-200 dark:bg-slate-800" />
+                </div>
+              ))}
+            </div>
           ) : results.length === 0 ? (
-            <div className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+            <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
               {t("noSearchResults")}: &quot;{query}&quot;
             </div>
           ) : (
             <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 px-2 mb-2">
+              <div className="px-2 pb-1 text-xs font-bold uppercase text-slate-400">
                 {t("articles")} ({results.length})
               </div>
-              {results.map((post) => (
+              {results.map((post, index) => (
                 <Link
                   key={post.slug}
                   href={localePath(`/blog/${post.slug}`)}
+                  onMouseEnter={() => setActiveIndex(index)}
                   onClick={onClose}
-                className="group flex min-w-0 items-start gap-3 rounded-2xl p-3 transition hover:bg-cyan-50/70 dark:hover:bg-cyan-950/20"
-              >
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-400 transition group-hover:bg-cyan-100 group-hover:text-cyan-700 dark:bg-gray-900 dark:group-hover:bg-cyan-950/50 dark:group-hover:text-cyan-300">
+                  className={`group flex min-w-0 items-start gap-3 rounded-xl p-3 transition ${
+                    index === activeIndex
+                      ? "bg-emerald-400/10"
+                      : "hover:bg-slate-100 dark:hover:bg-slate-800/70"
+                  }`}
+                >
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-300">
                     <FileText className="h-4 w-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="block truncate text-sm font-semibold text-gray-900 group-hover:text-cyan-700 dark:text-gray-100 dark:group-hover:text-cyan-300">
+                  <div className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-extrabold text-slate-950 dark:text-white">
                       {post.title}
                     </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-1">
-                      {post.description}
+                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                      {post.excerpt || post.description}
                     </p>
                   </div>
-                  <ArrowRight className="h-4 w-4 shrink-0 -translate-x-2 self-center text-gray-400 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
+                  <ArrowRight className="h-4 w-4 shrink-0 -translate-x-2 self-center text-slate-400 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
                 </Link>
               ))}
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-gray-50/80 px-4 py-3 text-[10px] text-gray-400 dark:border-gray-800 dark:bg-gray-900/60 sm:px-5">
-          <div>
-            {t("closeSearch")}
-          </div>
-          <div>
-            {t("smartSearch")}
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 px-4 py-3 text-[11px] text-slate-400 dark:border-slate-800">
+          <span>{t("closeSearch")}</span>
+          <span>{language === "vi" ? "↑ ↓ để chọn, Enter để mở" : "Use ↑ ↓ to select, Enter to open"}</span>
         </div>
       </div>
     </div>

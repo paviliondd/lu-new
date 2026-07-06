@@ -20,6 +20,8 @@ function revalidateLocalePaths(locale: Locale, slug?: string) {
 
   if (slug) {
     revalidatePath(`/${locale}/blog/${slug}`);
+    revalidatePath(`/blog/${slug}`);
+    revalidatePath(`/${slug}`);
   }
 }
 

@@ -38,3 +38,20 @@ function linuxunity_revalidate_post(int $post_id, WP_Post $post, bool $update): 
 }
 
 add_action('save_post_post', 'linuxunity_revalidate_post', 20, 3);
+
+function linuxunity_frontend_post_link(string $permalink, WP_Post $post): string {
+    if ($post->post_type !== 'post' || $post->post_status !== 'publish') {
+        return $permalink;
+    }
+
+    $site_url = rtrim((string) (getenv('NEXT_PUBLIC_SITE_URL') ?: home_url()), '/');
+    $lang = get_post_meta($post->ID, 'lang', true) ?: get_post_meta($post->ID, 'linuxunity_locale', true) ?: 'vi';
+
+    if ($lang !== 'en') {
+        $lang = 'vi';
+    }
+
+    return $site_url . '/' . $lang . '/blog/' . $post->post_name;
+}
+
+add_filter('post_link', 'linuxunity_frontend_post_link', 20, 2);

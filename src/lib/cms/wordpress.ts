@@ -55,6 +55,12 @@ interface WordPressPost {
   };
 }
 
+type NextFetchInit = RequestInit & {
+  next?: {
+    revalidate?: number;
+  };
+};
+
 const wordpressPublicBase = (
   process.env.NEXT_PUBLIC_WORDPRESS_PUBLIC_URL ||
   process.env.WORDPRESS_PUBLIC_URL ||
@@ -80,11 +86,12 @@ function isLegacyWordPressAssetUrl(url: URL) {
   );
 }
 
-async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
+async function fetchWordPressJson<T>(
+  endpoint: string,
+  init: NextFetchInit = { next: { revalidate: 60 } }
+): Promise<T> {
   const primaryUrl = buildWordPressRestUrl(wordpressApiBase, endpoint);
-  let response = await fetch(primaryUrl, {
-    next: { revalidate: 60 },
-  });
+  let response = await fetch(primaryUrl, init);
   let requestUrl = primaryUrl;
 
   if (!response.ok && response.status === 404) {
@@ -92,9 +99,7 @@ async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
 
     if (fallbackApiBase) {
       requestUrl = buildWordPressRestUrl(fallbackApiBase, endpoint);
-      response = await fetch(requestUrl, {
-        next: { revalidate: 60 },
-      });
+      response = await fetch(requestUrl, init);
     }
   }
 
@@ -112,6 +117,22 @@ async function fetchWordPressJson<T>(endpoint: string): Promise<T> {
   }
 
   return response.json() as Promise<T>;
+}
+
+async function fetchWordPressPostPages(status = "publish") {
+  const perPage = 100;
+  const allPosts: WordPressPost[] = [];
+
+  for (let page = 1; page <= 20; page += 1) {
+    const posts = await fetchWordPressJson<WordPressPost[]>(
+      `/posts?status=${status}&_embed=author,wp:term&per_page=${perPage}&page=${page}&orderby=date&order=desc`
+    );
+
+    allPosts.push(...posts);
+    if (posts.length < perPage) break;
+  }
+
+  return allPosts;
 }
 
 function plainText(html = "") {
@@ -430,9 +451,7 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
 }
 
 async function fetchWordPressPosts(locale: Locale, status = "publish") {
-  const posts = await fetchWordPressJson<WordPressPost[]>(
-    `/posts?status=${status}&_embed=author,wp:term&per_page=100`
-  );
+  const posts = await fetchWordPressPostPages(status);
   return mapPostsForLocale(posts, locale);
 }
 
@@ -454,9 +473,10 @@ export async function getCmsPublishedPosts(locale: Locale = "vi"): Promise<Post[
 
   try {
     const wordpressPosts = await fetchWordPressPosts(locale, "publish");
-    const remoteWithFallbackPosts = mergePosts(wordpressPosts, fallbackPosts);
-    return mergePosts(filePosts, remoteWithFallbackPosts);
-  } catch {
+    const localFallbackPosts = mergePosts(filePosts, fallbackPosts);
+    return mergePosts(wordpressPosts, localFallbackPosts);
+  } catch (error) {
+    console.error("Unable to fetch WordPress published posts", { locale, error });
     return mergePosts(filePosts, fallbackPosts);
   }
 }
@@ -466,10 +486,10 @@ export async function getCmsPostBySlug(
   locale: Locale = "vi"
 ): Promise<Post | null> {
   const filePost = await getLocalizedFilePost(slug, locale);
-  if (filePost?.status === "published") return filePost;
-  if (filePost?.status === "draft") return null;
 
   if (!wordpressApiBase) {
+    if (filePost?.status === "published") return filePost;
+    if (filePost?.status === "draft") return null;
     return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
   }
 
@@ -477,14 +497,19 @@ export async function getCmsPostBySlug(
     const posts = await fetchWordPressJson<WordPressPost[]>(
       `/posts?slug=${encodeURIComponent(
         slug
-      )}&status=publish&_embed=author,wp:term&per_page=1`
+      )}&status=publish&_embed=author,wp:term&per_page=1`,
+      { cache: "no-store" }
     );
 
     const post = findPostForLocale(posts, locale);
     if (post) return mapWordPressPost(post, locale);
 
+    if (filePost?.status === "draft") return null;
     return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
-  } catch {
+  } catch (error) {
+    console.error("Unable to resolve WordPress post by slug", { slug, locale, error });
+    if (filePost?.status === "published") return filePost;
+    if (filePost?.status === "draft") return null;
     return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
   }
 }

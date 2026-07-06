@@ -12,6 +12,7 @@ import { localizedAlternates } from "@/i18n/metadata";
 import { load } from "cheerio";
 
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>;

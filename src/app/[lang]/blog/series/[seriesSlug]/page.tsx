@@ -11,6 +11,8 @@ import { localizedMetadata } from "@/i18n/metadata";
 
 const POSTS_PER_PAGE = 6;
 
+export const dynamic = "force-dynamic";
+
 interface SeriesDetailProps {
   params: Promise<{ lang: string; seriesSlug: string }>;
   searchParams?: Promise<{ page?: string }>;

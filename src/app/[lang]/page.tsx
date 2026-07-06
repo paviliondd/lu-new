@@ -5,6 +5,8 @@ import { hasLocale } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
 import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
 
+export const dynamic = "force-dynamic";
+
 interface HomeRouteProps {
   params: Promise<{ lang: string }>;
 }

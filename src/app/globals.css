@@ -445,13 +445,15 @@ iframe {
   position: fixed;
   inset: 0;
   z-index: 80;
-  display: flex;
-  flex-direction: column;
+  display: block;
   background: rgb(2 6 23 / 0.92);
   backdrop-filter: blur(10px);
 }
 
 .image-lightbox__toolbar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -472,11 +474,12 @@ iframe {
 }
 
 .image-lightbox__stage {
+  position: absolute;
+  inset: 0;
   display: grid;
-  flex: 1 1 auto;
   place-items: center;
   min-height: 0;
-  padding: 1rem;
+  padding: 4rem 1rem;
   overflow: hidden;
   overscroll-behavior: contain;
   touch-action: pinch-zoom;
@@ -487,7 +490,7 @@ iframe {
   width: auto;
   height: auto;
   max-width: min(94vw, 1400px);
-  max-height: calc(100vh - 6.5rem);
+  max-height: calc(100vh - 8rem);
   margin: 0;
   object-fit: contain;
   transform-origin: center center;

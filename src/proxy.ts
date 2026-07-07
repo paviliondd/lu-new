@@ -5,6 +5,9 @@ import { defaultLocale } from "@/i18n/config";
 const reservedSegments = new Set([
   "about",
   "blog",
+  "feed.xml",
+  "rss.xml",
+  "search",
   "team",
   "wp-admin",
   "wp-content",

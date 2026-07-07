@@ -19,6 +19,7 @@ import {
   wordpressApiBase,
 } from "@/lib/cms/wordpress-rest";
 import { cachedJson } from "@/lib/server/redis-cache";
+import { getLocalPostViews } from "@/lib/views/store";
 
 interface WordPressRendered {
   rendered?: string;
@@ -511,19 +512,35 @@ function localizedFallbackPosts(locale: Locale) {
     .map((post) => localizePost(post, locale));
 }
 
+async function withLocalViews(posts: Post[]) {
+  const localViews = await getLocalPostViews();
+  return posts.map((post) => ({
+    ...post,
+    views: Math.max(post.views || 0, localViews[post.slug] || 0),
+  }));
+}
+
+async function withLocalView(post: Post) {
+  const localViews = await getLocalPostViews();
+  return {
+    ...post,
+    views: Math.max(post.views || 0, localViews[post.slug] || 0),
+  };
+}
+
 export async function getCmsPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
   return cachedJson(`posts:published:${locale}`, 300, async () => {
     const filePosts = await getLocalizedFilePosts(locale);
     const fallbackPosts = localizedFallbackPosts(locale);
-    if (!wordpressApiBase) return mergePosts(filePosts, fallbackPosts);
+    if (!wordpressApiBase) return withLocalViews(mergePosts(filePosts, fallbackPosts));
 
     try {
       const wordpressPosts = await fetchWordPressPosts(locale, "publish");
       const localFallbackPosts = mergePosts(filePosts, fallbackPosts);
-      return mergePosts(wordpressPosts, localFallbackPosts);
+      return withLocalViews(mergePosts(wordpressPosts, localFallbackPosts));
     } catch (error) {
       console.error("Unable to fetch WordPress published posts", { locale, error });
-      return mergePosts(filePosts, fallbackPosts);
+      return withLocalViews(mergePosts(filePosts, fallbackPosts));
     }
   });
 }
@@ -536,9 +553,12 @@ export async function getCmsPostBySlug(
     const filePost = await getLocalizedFilePost(slug, locale);
 
     if (!wordpressApiBase) {
-      if (filePost?.status === "published") return filePost;
+      if (filePost?.status === "published") {
+        return withLocalView(filePost);
+      }
       if (filePost?.status === "draft") return null;
-      return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+      const fallback = localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+      return fallback ? withLocalView(fallback) : null;
     }
 
     try {
@@ -550,15 +570,17 @@ export async function getCmsPostBySlug(
       );
 
       const post = findPostForLocale(posts, locale);
-      if (post) return localizeMappedPost(mapWordPressPost(post, locale), locale, "full");
+      if (post) return withLocalView(await localizeMappedPost(mapWordPressPost(post, locale), locale, "full"));
 
       if (filePost?.status === "draft") return null;
-      return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+      const fallback = localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+      return fallback ? withLocalView(fallback) : null;
     } catch (error) {
       console.error("Unable to resolve WordPress post by slug", { slug, locale, error });
-      if (filePost?.status === "published") return filePost;
+      if (filePost?.status === "published") return withLocalView(filePost);
       if (filePost?.status === "draft") return null;
-      return localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+      const fallback = localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;
+      return fallback ? withLocalView(fallback) : null;
     }
   });
 }

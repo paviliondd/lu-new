@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { fetchWordPressRest } from "@/lib/cms/wordpress-rest";
 import { rateLimit } from "@/lib/server/rate-limit";
 import { invalidateCache } from "@/lib/server/redis-cache";
+import { incrementLocalPostView } from "@/lib/views/store";
 
 interface ViewRouteProps {
   params: Promise<{ slug: string }>;
@@ -15,6 +16,12 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
     windowMs: 60_000,
   });
   if (limited) return limited;
+
+  async function recordLocalView() {
+    const views = await incrementLocalPostView(slug);
+    await invalidateCache(["posts:published:*", "posts:detail:*"]);
+    return NextResponse.json({ views });
+  }
 
   try {
     const response = await fetchWordPressRest(
@@ -31,6 +38,9 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
     const payload = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      if (response.status === 404 || response.status === 501) {
+        return recordLocalView();
+      }
       return NextResponse.json(payload, { status: response.status });
     }
 
@@ -40,6 +50,6 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
       views: Math.max(0, Number(payload.views || 0)),
     });
   } catch {
-    return NextResponse.json({ error: "Unable to record view" }, { status: 502 });
+    return recordLocalView();
   }
 }

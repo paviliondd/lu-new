@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
+import { getCmsPublishedPosts } from "@/lib/cms/payload";
 import { hasLocale, localePath } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
 

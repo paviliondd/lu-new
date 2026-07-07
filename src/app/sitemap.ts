@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
+import { getCmsPublishedPosts } from "@/lib/cms/payload";
 import { siteUrl } from "@/i18n/metadata";
 
 function absoluteUrl(pathname: string) {

@@ -4,16 +4,12 @@ import { defaultLocale } from "@/i18n/config";
 
 const reservedSegments = new Set([
   "about",
+  "admin",
   "blog",
   "feed.xml",
   "rss.xml",
   "search",
   "team",
-  "wp-admin",
-  "wp-content",
-  "wp-includes",
-  "wp-json",
-  "xmlrpc.php",
 ]);
 
 export function proxy(request: NextRequest) {
@@ -22,19 +18,27 @@ export function proxy(request: NextRequest) {
   const hasEnglishPrefix = pathname === "/en" || pathname.startsWith("/en/");
   const hasVietnamesePrefix = pathname === "/vi" || pathname.startsWith("/vi/");
 
-  if (hasEnglishPrefix || hasVietnamesePrefix) {
+  if (hasEnglishPrefix) {
+    return NextResponse.next();
+  }
+
+  if (hasVietnamesePrefix) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = pathname.replace(/^\/(?:en|vi)(?=\/|$)/, "") || "/";
+    redirectUrl.pathname = pathname.replace(/^\/vi(?=\/|$)/, "") || "/";
     return NextResponse.redirect(redirectUrl, 308);
   }
 
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return NextResponse.next();
+  }
+
   const rewriteUrl = request.nextUrl.clone();
-  const isWordPressPostPermalink =
+  const isLegacyPostPermalink =
     request.method === "GET" &&
     segments.length === 1 &&
     !reservedSegments.has(segments[0]);
 
-  rewriteUrl.pathname = isWordPressPostPermalink
+  rewriteUrl.pathname = isLegacyPostPermalink
     ? `/${defaultLocale}/blog/${segments[0]}`
     : `/${defaultLocale}${pathname === "/" ? "" : pathname}`;
   return NextResponse.rewrite(rewriteUrl);

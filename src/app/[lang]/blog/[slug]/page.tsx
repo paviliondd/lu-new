@@ -5,7 +5,7 @@ import ArticleClient from "@/app/components/ArticleClient";
 import {
   getCmsPostBySlug,
   getCmsPublishedPosts,
-} from "@/lib/cms/wordpress";
+} from "@/lib/cms/payload";
 import { highlightCodeBlocks } from "@/lib/content/highlight";
 import { hasLocale } from "@/i18n/config";
 import { localizedAlternates } from "@/i18n/metadata";
@@ -62,20 +62,12 @@ function prepareArticleContent(content: string) {
   return { html: $.html(), headings };
 }
 
-function publicWordPressAssetBase() {
-  return (
-    process.env.NEXT_PUBLIC_WORDPRESS_PUBLIC_URL ||
-    process.env.WORDPRESS_PUBLIC_URL ||
-    process.env.WORDPRESS_SITE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    ""
-  ).replace(/\/$/, "");
+function publicAssetBase() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
 }
 
-function legacyWordPressAssetOrigins() {
+function legacyAssetOrigins() {
   return [
-    ...(process.env.NEXT_PUBLIC_WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
-    ...(process.env.WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
     ...(process.env.IMAGE_REMOTE_HOSTS || "").split(","),
   ]
     .map((value) => value.trim().replace(/\/$/, ""))
@@ -126,8 +118,8 @@ export default async function BlogPostPage({ params }: Props) {
   const relatedPosts = (await getCmsPublishedPosts(lang))
     .filter((item) => item.slug !== post.slug && item.category === post.category)
     .slice(0, 3);
-  const assetBase = publicWordPressAssetBase();
-  const legacyAssetOrigins = legacyWordPressAssetOrigins();
+  const assetBase = publicAssetBase();
+  const externalAssetOrigins = legacyAssetOrigins();
   const canonicalUrl = `${siteUrl}${localePath(lang, `/blog/${post.slug}`)}`;
   const articleSchema = {
     "@context": "https://schema.org",
@@ -186,7 +178,7 @@ export default async function BlogPostPage({ params }: Props) {
         headings={headings}
         relatedPosts={relatedPosts}
         assetBase={assetBase}
-        legacyAssetOrigins={legacyAssetOrigins}
+        legacyAssetOrigins={externalAssetOrigins}
       />
     </>
   );

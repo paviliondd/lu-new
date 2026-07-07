@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { getCmsPostBySlug } from "@/lib/cms/wordpress";
+import { getCmsPostBySlug } from "@/lib/cms/payload";
 import { defaultLocale, localePath, locales } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";

@@ -21,6 +21,11 @@ section "Container Nginx"
 run "$COMPOSE exec -T nginx nginx -t"
 run "$COMPOSE exec -T nginx wget -qO- http://127.0.0.1/api/health"
 
+section "App and Payload"
+run "$COMPOSE exec -T app wget -qO- http://127.0.0.1:3000/api/health"
+run "$COMPOSE exec -T app wget -S --spider http://127.0.0.1:3000/admin"
+run "$COMPOSE exec -T postgres pg_isready -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DB\""
+
 section "Host HTTP checks"
 run "curl -I --max-time 5 http://127.0.0.1 || true"
 run "curl -I --max-time 5 http://127.0.0.1:8080 || true"
@@ -38,19 +43,10 @@ else
   run "getent hosts $KUMA_DOMAIN"
 fi
 
-section "WordPress options"
-run "$COMPOSE --profile tools run --rm -T wpcli option get siteurl"
-run "$COMPOSE --profile tools run --rm -T wpcli option get home"
-run "$COMPOSE --profile tools run --rm -T wpcli rewrite structure"
-
-section "WordPress REST"
-run "$COMPOSE exec -T app wget -qO- 'http://wordpress?rest_route=/wp/v2/posts&per_page=1'"
-run "$COMPOSE exec -T app wget -qO- 'http://wordpress?rest_route=/linuxunity/v1/posts/non-existent/view' --post-data=''"
-
 section "Summary hints"
 cat <<EOF
 - If 127.0.0.1:8080 works but $DOMAIN fails, check VPS firewall/provider security rules and NGINX_HTTP_BIND.
 - If nginx -t fails, inspect deploy/nginx/default.conf and recreate nginx.
-- If WordPress REST fails from app, check wordpress container health and WORDPRESS_API_BASE.
+- If /admin fails, check app logs, PAYLOAD_SECRET, DATABASE_URL, and postgres health.
 - If HTTPS fails but HTTP works, issue/renew certificates with the certbot compose profile and recreate nginx.
 EOF

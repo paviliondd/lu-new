@@ -1,4 +1,4 @@
-import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
+import { getCmsPublishedPosts } from "@/lib/cms/payload";
 import { defaultLocale, hasLocale } from "@/i18n/config";
 import { rateLimit } from "@/lib/server/rate-limit";
 

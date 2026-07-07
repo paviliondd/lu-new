@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { defaultLocale, localePath } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
-import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
+import { getCmsPublishedPosts } from "@/lib/cms/payload";
 
 function escapeXml(value: string) {
   return value

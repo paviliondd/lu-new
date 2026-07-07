@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { fetchWordPressRest } from "@/lib/cms/wordpress-rest";
+import { incrementPayloadPostView } from "@/lib/cms/payload";
 import { rateLimit } from "@/lib/server/rate-limit";
 import { invalidateCache } from "@/lib/server/redis-cache";
 import {
@@ -114,35 +114,13 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
   }
 
   try {
-    const response = await fetchWordPressRest(
-      `/linuxunity/v1/posts/${encodeURIComponent(slug)}/view`,
-      {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          "user-agent": request.headers.get("user-agent") || "",
-          "accept-language": request.headers.get("accept-language") || "",
-          "x-forwarded-for": clientIp(request),
-          "x-real-ip": clientIp(request),
-        },
-        cache: "no-store",
-      }
-    );
-
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      if (response.status === 404 || response.status === 501) {
-        return recordLocalView();
-      }
-      return NextResponse.json(payload, { status: response.status });
-    }
-
+    const views = await incrementPayloadPostView(slug);
+    if (views === null) return recordLocalView();
     await invalidateCache(["posts:published:*", "posts:detail:*"]);
     await rememberViewSession(sessionKey);
 
     const nextResponse = NextResponse.json({
-      views: Math.max(0, Number(payload.views || 0)),
+      views,
       counted: true,
     });
     nextResponse.cookies.set(currentCookieName, "1", {
@@ -153,7 +131,8 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
     });
 
     return nextResponse;
-  } catch {
+  } catch (error) {
+    console.error("Unable to record Payload post view", { slug, error });
     return recordLocalView();
   }
 }

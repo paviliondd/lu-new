@@ -37,13 +37,7 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
-    location = /wp-admin {
-        return 308 /wp-admin/;
-    }
-
     location / {
-        resolver 127.0.0.11 ipv6=off valid=30s;
-
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -53,7 +47,7 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$connection_upgrade;
 
-        proxy_pass \$proxy_target;
+        proxy_pass http://app:3000;
     }
 }
 EOF

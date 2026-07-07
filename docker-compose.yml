@@ -8,8 +8,6 @@ services:
     depends_on:
       app:
         condition: service_healthy
-      wordpress:
-        condition: service_healthy
       uptime-kuma:
         condition: service_started
     ports:
@@ -32,12 +30,14 @@ services:
       - .env
     environment:
       NODE_ENV: production
-      WORDPRESS_API_BASE: "http://wordpress?rest_route=/wp/v2"
       NEXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN}
-      NEXT_PUBLIC_WORDPRESS_PUBLIC_URL: ${NEXT_PUBLIC_WORDPRESS_PUBLIC_URL:-https://${SITE_DOMAIN}}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     depends_on:
-      wordpress:
+      postgres:
         condition: service_healthy
+    volumes:
+      - payload_media:/app/public/uploads
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1"]
       interval: 30s
@@ -59,94 +59,23 @@ services:
     networks:
       - internal
 
-  wordpress:
-    image: wordpress:6.8-php8.3-apache
+  postgres:
+    image: postgres:16-alpine
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
-      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
-      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
-      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
-      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG}
-      NEXT_PUBLIC_SITE_URL: https://${SITE_DOMAIN}
-      NEXT_REVALIDATE_SECRET: ${NEXT_REVALIDATE_SECRET:-}
-      WORDPRESS_CONFIG_EXTRA: |
-        define('WP_HOME', '${WORDPRESS_SITE_URL}');
-        define('WP_SITEURL', '${WORDPRESS_SITE_URL}');
-        define('FORCE_SSL_ADMIN', true);
-        define('DISALLOW_FILE_EDIT', true);
-        define('WP_MEMORY_LIMIT', '${WORDPRESS_MEMORY_LIMIT}');
-        if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-          $$_SERVER['HTTPS'] = 'on';
-        }
-        if (!isset($$_SERVER['HTTP_AUTHORIZATION']) && isset($$_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-          $$_SERVER['HTTP_AUTHORIZATION'] = $$_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
-        }
-    depends_on:
-      db:
-        condition: service_healthy
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - wordpress_data:/var/www/html
-      - ./deploy/wordpress/mu-plugins:/var/www/html/wp-content/mu-plugins:ro
-      - ./deploy/wordpress/acf-json:/var/www/html/wp-content/acf-json:ro
-      - ./deploy/wordpress/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
-      - ./deploy/wordpress/authorization.conf:/etc/apache2/conf-enabled/authorization.conf:ro
+      - payload_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\", 80) ? 0 : 1);'"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-    expose:
-      - "80"
-    networks:
-      - internal
-
-  db:
-    image: mariadb:11.4
-    restart: unless-stopped
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-    env_file:
-      - .env
-    environment:
-      MARIADB_DATABASE: ${WORDPRESS_DB_NAME}
-      MARIADB_USER: ${WORDPRESS_DB_USER}
-      MARIADB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-    volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u\"$${MARIADB_USER}\" -p\"$${MARIADB_PASSWORD}\" --silent"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 30s
       timeout: 5s
       retries: 10
-      start_period: 60s
-    networks:
-      - internal
-
-  wpcli:
-    image: wordpress:cli-php8.3
-    profiles:
-      - tools
-    env_file:
-      - .env
-    environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
-      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
-      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
-      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - wordpress_data:/var/www/html
-    user: "33:33"
-    entrypoint: ["wp"]
-    command: ["--info"]
+      start_period: 20s
     networks:
       - internal
 
@@ -160,8 +89,8 @@ services:
     entrypoint: ["certbot"]
 
 volumes:
-  wordpress_data:
-  db_data:
+  payload_postgres_data:
+  payload_media:
   uptime_kuma_data:
 
 networks:

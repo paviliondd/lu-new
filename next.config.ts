@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withPayload } from "@payloadcms/next/withPayload";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -26,7 +27,7 @@ function isPrivateImageHost(hostname: string) {
 
   return (
     normalized === "localhost" ||
-    normalized === "wordpress" ||
+    normalized === "postgres" ||
     normalized === "::1" ||
     normalized.endsWith(".localhost") ||
     normalized.endsWith(".local") ||
@@ -47,12 +48,7 @@ function configuredImageOrigins() {
     }
   }
   const environmentOrigins = [
-    process.env.NEXT_PUBLIC_WORDPRESS_PUBLIC_URL,
-    process.env.WORDPRESS_PUBLIC_URL,
-    process.env.WORDPRESS_SITE_URL,
     process.env.NEXT_PUBLIC_SITE_URL,
-    ...(process.env.NEXT_PUBLIC_WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
-    ...(process.env.WORDPRESS_LEGACY_ASSET_ORIGINS || "").split(","),
     ...(process.env.IMAGE_REMOTE_HOSTS || "").split(","),
   ];
 
@@ -74,10 +70,9 @@ function configuredImageOrigins() {
         };
 
         return [
-          { ...basePattern, pathname: "/wp-content/**" },
-          { ...basePattern, pathname: "/wp-includes/**" },
-          { ...basePattern, pathname: "/**/wp-content/**" },
-          { ...basePattern, pathname: "/**/wp-includes/**" },
+          { ...basePattern, pathname: "/uploads/**" },
+          { ...basePattern, pathname: "/images/**" },
+          { ...basePattern, pathname: "/**" },
         ];
       } catch {
         return [];
@@ -92,4 +87,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPayload(nextConfig);

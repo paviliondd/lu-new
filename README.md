@@ -1,177 +1,72 @@
 # LinuxUnity Blog
 
-## Tổng quan
+Next.js 16 blog and Payload CMS backend for LinuxUnity.
 
-Đây là mã nguồn website/blog LinuxUnity dùng để triển khai nội dung học tập, ghi chú kỹ thuật, bài lab và tài liệu liên quan đến Linux, DevOps, Cloud, AWS, Docker, Kubernetes và các chủ đề hạ tầng.
+## Stack
 
-Website được quản lý mã nguồn bằng GitHub và triển khai lên VPS thông qua CI/CD.
+- Frontend: Next.js App Router, React 19, TypeScript, Tailwind CSS v4.
+- Backend CMS: Payload CMS embedded in the same Next.js app.
+- Database: Postgres through `@payloadcms/db-postgres`.
+- Media: Payload `media` collection stored under `/public/uploads`.
+- Production: Docker Compose with Nginx, app, Postgres, Uptime Kuma, and Certbot.
 
-Stack hiện tại:
-
-- Frontend: Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4.
-- CMS: Headless WordPress qua REST API.
-- Production runtime: Docker Compose với Nginx, Next.js, WordPress và MariaDB.
-- Domain production dự kiến: `tesst.linuxunity.com`.
-
-## Mục tiêu dự án
-
-- Quản lý source code rõ ràng bằng Git.
-- Tách biệt môi trường phát triển, test và production.
-- Chuẩn hoá luồng làm việc với các branch:
-  - `main`
-  - `develop`
-  - `feature/*`
-  - `bugfix/*`
-  - `hotfix/*`
-- Tự động deploy lên VPS khi có thay đổi mới được merge/push vào `main`.
-- Giữ an toàn cho dữ liệu thật, file cấu hình production và secret.
-- Không commit `.env`, backup, upload, cache, database dump hoặc secret lên GitHub.
-
-## Cấu trúc thư mục
-
-```text
-.
-├── README.md
-├── .gitattributes
-├── Dockerfile
-├── docker-compose.yml
-├── .env.example
-├── .github/
-│   └── workflows/
-│       └── deploy-production.yml
-├── content/
-│   ├── roadmap-draft-posts.json
-│   └── roadmap-draft-posts.wordpress.json
-├── deploy/
-│   ├── README.md
-│   ├── nginx/
-│   │   └── default.conf
-│   └── wordpress/
-│       └── uploads.ini
-├── docs/
-│   ├── CICD_DEPLOYMENT.md
-│   ├── GIT_WORKFLOW.md
-│   └── headless-wordpress-roadmap.md
-├── scripts/
-│   ├── backup.sh
-│   ├── backup-wordpress.sh
-│   ├── deploy.sh
-│   ├── import-roadmap-to-wordpress.mjs
-│   ├── list-wordpress-drafts.mjs
-│   ├── restore.sh
-│   └── restore-wordpress.sh
-├── public/
-└── src/
-    ├── app/
-    │   ├── api/
-    │   ├── blog/
-    │   ├── components/
-    │   ├── data.ts
-    │   ├── layout.tsx
-    │   └── page.tsx
-    └── lib/
-        └── cms/
-            └── wordpress.ts
-```
-
-## Luồng deploy tổng quan
-
-```text
-Local machine
-   ↓ git commit
-   ↓ git push
-GitHub Repository
-   ↓ GitHub Actions
-VPS
-   ↓ git fetch / git reset origin/main
-   ↓ docker compose pull / docker compose up -d
-Production Website
-```
-
-## Branch chính
-
-| Branch      | Mục đích                    | Deploy production          |
-| ----------- | --------------------------- | -------------------------- |
-| `main`      | Production                  | Có                         |
-| `develop`   | Test/tích hợp               | Không deploy production    |
-| `feature/*` | Tính năng mới               | Không                      |
-| `bugfix/*`  | Sửa lỗi thường              | Không                      |
-| `hotfix/*`  | Sửa lỗi khẩn cấp production | Merge vào `main` để deploy |
-
-## Cách clone source
-
-```bash
-git clone git@github.com:paviliondd/lu-new.git
-cd lu-new
-```
-
-## Cách chạy local
+## Local Development
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Mở:
+Open:
 
 ```text
 http://localhost:3000
+http://localhost:3000/admin
 ```
 
-## Cách làm việc cơ bản
-
-Tạo branch tính năng mới:
+Payload needs these variables when you want the admin/database features:
 
 ```bash
-git switch develop
-git pull origin develop
-git switch -c feature/ten-tinh-nang
+PAYLOAD_SECRET=change-this-long-random-payload-secret
+DATABASE_URL=postgres://payload:change-this-payload-db-password@localhost:5432/payload
 ```
 
-Commit thay đổi:
+## Content Flow
 
-```bash
-git status
-git add .
-git commit -m "Add feature ..."
-git push -u origin feature/ten-tinh-nang
-```
+Editors manage content at `/admin`.
 
-Sau đó tạo Pull Request:
+The public site reads from Payload first, maps Payload documents into the existing frontend `Post` shape, and falls back to local MDX files if Payload is unavailable in development.
+
+Language flow:
+
+- `/vi` reads `titleVi`, `excerptVi`, and `contentVi`.
+- `/en` reads `titleEn`, `excerptEn`, and `contentEn`.
+- Missing English content falls back to Vietnamese content.
+
+View count flow:
+
+- Article pages call `/api/posts/[slug]/view`.
+- The route increments the Payload `posts.views` field.
+- If Payload/Postgres is unavailable locally, it falls back to `data/views.json`.
+
+More detail: [Payload CMS Flow](./docs/PAYLOAD_CMS_FLOW.md).
+
+## Production
+
+Admin URL:
 
 ```text
-feature/ten-tinh-nang → develop
+https://tesst.linuxunity.com/admin
 ```
 
-Khi test ổn, tạo Pull Request:
-
-```text
-develop → main
-```
-
-Khi `main` được cập nhật, CI/CD sẽ deploy lên VPS.
-
-## Production Docker Compose
-
-Xem hướng dẫn chi tiết tại:
+Deploy guide:
 
 - [VPS Deployment](./deploy/README.md)
-
-Các dịch vụ production:
-
-- Nginx reverse proxy.
-- Next.js frontend.
-- WordPress backend tại `/wp-admin`.
-- MariaDB database nội bộ.
-
-Chỉ expose public ports:
-
-- `80`
-- `443`
-
-## Tài liệu liên quan
-
-- [Git Workflow](./docs/GIT_WORKFLOW.md)
 - [CI/CD Deployment](./docs/CICD_DEPLOYMENT.md)
-- [Headless WordPress Roadmap](./docs/headless-wordpress-roadmap.md)
-- [VPS Deployment](./deploy/README.md)
+
+## Verification
+
+```bash
+npm run lint
+npm run build
+```

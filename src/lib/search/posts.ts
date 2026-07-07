@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Post } from "@/app/data";
-import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
+import { getCmsPublishedPosts } from "@/lib/cms/payload";
 
 export interface SearchResult {
   post: Post;

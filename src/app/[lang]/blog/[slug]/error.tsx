@@ -23,7 +23,7 @@ export default function ArticleError({
           Could not load this article.
         </h2>
         <p className="mt-3 text-sm leading-6 text-slate-400">
-          The content may be updating or the WordPress response failed while rendering this page.
+          The content may be updating or the CMS response failed while rendering this page.
         </p>
         <button
           type="button"

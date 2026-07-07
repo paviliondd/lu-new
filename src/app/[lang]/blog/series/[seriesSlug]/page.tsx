@@ -5,7 +5,7 @@ import { ChevronLeft, Layers } from "lucide-react";
 import { notFound } from "next/navigation";
 import { series, team } from "@/app/data";
 import PostCard from "@/app/components/PostCard";
-import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
+import { getCmsPublishedPosts } from "@/lib/cms/payload";
 import { hasLocale, localePath } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
 

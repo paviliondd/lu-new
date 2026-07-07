@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import SeriesListPage from "@/app/components/pages/SeriesListPage";
 import { hasLocale } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
-import { getCmsPublishedPosts } from "@/lib/cms/wordpress";
+import { getCmsPublishedPosts } from "@/lib/cms/payload";
 
 export const dynamic = "force-dynamic";
 

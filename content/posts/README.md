@@ -1,4 +1,6 @@
-# Localized article files
+# Localized Article Files
+
+Payload CMS is the primary backend. Local MDX files are kept only as a development/build fallback.
 
 Use one file per locale:
 
@@ -26,14 +28,4 @@ ogImage: /images/example.webp
 ---
 ```
 
-The application resolves the requested locale first. A missing local file falls
-back to WordPress only when the REST response explicitly identifies the same
-locale. Supported WordPress signals are:
-
-- A multilingual plugin exposing `lang: "vi"` or `lang: "en"`.
-- A REST-visible custom field named `linuxunity_locale`, `locale`, or `language`.
-- A localized slug ending in `-vi`, `.vi`, `-en`, or `.en`.
-
-Legacy WordPress posts without locale metadata are treated as Vietnamese. They
-are never reused on `/en`, which prevents Vietnamese titles and content from
-leaking into the English site.
+The application resolves the requested locale first. Missing English MDX falls back to Vietnamese MDX in development.

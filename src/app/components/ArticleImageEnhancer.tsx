@@ -27,19 +27,15 @@ function getAssetOrigin(assetBase?: string) {
 }
 
 function normalizeLegacyAssetUrl(url: URL, assetOrigin: string, legacyAssetOrigins: string[]) {
-  const shouldRewriteLegacyAssets =
-    process.env.NEXT_PUBLIC_REWRITE_LEGACY_WORDPRESS_ASSETS === "true";
+  const shouldRewriteLegacyAssets = process.env.NEXT_PUBLIC_REWRITE_LEGACY_ASSETS === "true";
   const origin = url.origin.replace(/\/$/, "");
   const isLegacyOrigin = legacyAssetOrigins.includes(origin);
-  const isWordPressAsset =
-    url.pathname.includes("/wp-content/") || url.pathname.includes("/wp-includes/");
 
-  if (!assetOrigin || !shouldRewriteLegacyAssets || !isLegacyOrigin || !isWordPressAsset) {
+  if (!assetOrigin || !shouldRewriteLegacyAssets || !isLegacyOrigin) {
     return null;
   }
 
-  const assetPath = url.pathname.replace(/^.*?(\/wp-(?:content|includes)\/)/, "$1");
-  return `${trimTrailingSlash(assetOrigin)}${assetPath}${url.search}${url.hash}`;
+  return `${trimTrailingSlash(assetOrigin)}${url.pathname}${url.search}${url.hash}`;
 }
 
 function normalizeAssetUrl(value: string, assetOrigin: string, legacyAssetOrigins: string[]) {
@@ -51,7 +47,7 @@ function normalizeAssetUrl(value: string, assetOrigin: string, legacyAssetOrigin
     return `${protocol}${value}`;
   }
 
-  if (value.startsWith("/wp-content/") || value.startsWith("/wp-includes/")) {
+  if (value.startsWith("/uploads/") || value.startsWith("/images/")) {
     return normalizedOrigin ? `${normalizedOrigin}${value}` : value;
   }
 
@@ -60,7 +56,7 @@ function normalizeAssetUrl(value: string, assetOrigin: string, legacyAssetOrigin
     const legacyUrl = normalizeLegacyAssetUrl(url, normalizedOrigin, legacyAssetOrigins);
     if (legacyUrl) return legacyUrl;
 
-    if (url.hostname === "wordpress" || url.hostname === "localhost") {
+    if (url.hostname === "localhost") {
       return normalizedOrigin
         ? `${normalizedOrigin}${url.pathname}${url.search}${url.hash}`
         : `${url.pathname}${url.search}${url.hash}`;

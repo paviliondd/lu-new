@@ -28,6 +28,10 @@ COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nextjs /app/content ./content
 COPY --from=builder --chown=nextjs:nextjs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nextjs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nextjs /app/src/payload.config.ts ./src/payload.config.ts
+COPY --from=builder --chown=nextjs:nextjs /app/src/migrations ./src/migrations
+COPY --from=builder --chown=nextjs:nextjs /app/tsconfig.json ./tsconfig.json
 COPY --from=builder --chown=nextjs:nextjs /app/package.json ./package.json
 
 RUN mkdir -p /app/public/uploads && chown -R nextjs:nextjs /app/public/uploads
@@ -36,4 +40,4 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npm run payload -- migrate && node server.js"]

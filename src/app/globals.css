@@ -211,6 +211,14 @@ iframe {
   color: var(--color-brand-700);
   overflow-wrap: anywhere;
 }
+
+.article-content mark,
+.theme-card mark {
+  border-radius: 0.25rem;
+  background: rgb(250 204 21 / 0.32);
+  padding: 0.05rem 0.16rem;
+  color: inherit;
+}
 .dark .prose code {
   background-color: var(--color-gray-800);
   color: var(--color-brand-300);
@@ -220,13 +228,13 @@ iframe {
   position: relative;
   max-width: 100%;
   margin: 0;
-  padding: 1rem;
+  padding: 1.15rem 1.25rem;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   -webkit-overflow-scrolling: touch;
-  background-color: var(--color-gray-900);
+  background-color: #0d1117;
   border-radius: 0.75rem;
-  border: 1px solid var(--color-gray-800);
+  border: 1px solid #30363d;
 }
 
 .prose pre.code-block {
@@ -237,12 +245,12 @@ iframe {
 
 .code-shell {
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 1.75rem 0;
   overflow: hidden;
-  border: 1px solid rgb(71 85 105 / 0.55);
-  border-radius: 0.75rem;
+  border: 1px solid #30363d;
+  border-radius: 0.9rem;
   background: #0d1117;
-  box-shadow: none;
+  box-shadow: 0 18px 40px rgb(2 6 23 / 0.28);
 }
 
 .code-shell__header {
@@ -253,7 +261,7 @@ iframe {
   gap: 0.75rem;
   border-bottom: 1px solid rgb(75 85 99 / 0.45);
   background: #161b22;
-  padding: 0.45rem 0.75rem 0.45rem 1rem;
+  padding: 0.55rem 0.75rem 0.55rem 1rem;
 }
 
 .code-shell__filename {
@@ -264,14 +272,14 @@ iframe {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0;
-  color: var(--color-gray-200);
+  color: #f8fafc;
 }
 
 .code-copy-button {
   flex: 0 0 auto;
-  border-radius: 0.5rem;
-  border: 1px solid rgb(75 85 99 / 0.8);
-  background: rgb(15 23 42 / 0.88);
+  border-radius: 0.55rem;
+  border: 1px solid rgb(148 163 184 / 0.26);
+  background: rgb(15 23 42 / 0.72);
   padding: 0.34rem 0.75rem;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -307,16 +315,16 @@ iframe {
 
 .prose pre code {
   display: block;
-  min-width: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  min-width: max-content;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
   color: var(--color-gray-200);
   background-color: transparent;
   padding: 0;
   border-radius: 0;
   font-size: 0.875rem;
-  line-height: 1.6;
+  line-height: 1.75;
 }
 
 .prose .token.comment,

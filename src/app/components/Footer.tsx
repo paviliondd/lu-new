@@ -9,13 +9,37 @@ export default function Footer() {
   const { t, localePath } = useLanguage();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
+    const nextEmail = email.trim();
+    if (!nextEmail || isSubmitting) return;
+
+    setError("");
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email: nextEmail }),
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Unable to subscribe");
+      }
+
       setSubscribed(true);
       setEmail("");
       setTimeout(() => setSubscribed(false), 5000);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to subscribe");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -130,16 +154,21 @@ export default function Footer() {
                   placeholder={t("newsletterPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  aria-invalid={Boolean(error)}
                   className="w-full rounded-xl border border-gray-300 bg-white py-2 pl-3 pr-10 text-xs text-gray-900 outline-none focus:border-brand-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-brand-400"
                 />
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   aria-label="Submit"
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-brand-600 p-1 text-white transition hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 cursor-pointer"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-brand-600 p-1 text-white transition hover:bg-brand-700 disabled:cursor-wait disabled:opacity-70 dark:bg-brand-500 dark:hover:bg-brand-600 cursor-pointer"
                 >
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </form>
+            )}
+            {error && (
+              <p className="text-xs font-medium text-red-600 dark:text-red-400">{error}</p>
             )}
           </div>
         </div>

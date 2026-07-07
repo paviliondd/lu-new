@@ -87,6 +87,15 @@ export default function ArticleClient({
     }
   };
 
+  const shareToTwitter = () => {
+    if (typeof window === "undefined") return;
+    window.open(
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
       <div className="mx-auto w-full max-w-7xl px-4">
@@ -172,15 +181,14 @@ export default function ArticleClient({
                 >
                   <Link2 className="h-4 w-4" />
                 </button>
-                <a
-                  href={`https://twitter.com/intent/tweet?url=${typeof window !== "undefined" ? encodeURIComponent(window.location.href) : ""}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={shareToTwitter}
                   className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                   title={t("shareTwitter")}
                 >
                   <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                </a>
+                </button>
                 {copied && (
                   <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 animate-fade-in">
                     {t("copiedLink")}
@@ -230,7 +238,14 @@ export default function ArticleClient({
                   fetchPriority="high"
                 />
               ) : (
-                <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+                <CustomImage
+                  src="/images/linuxunity-placeholder.svg"
+                  alt={post.title}
+                  fill
+                  sizes="(min-width: 1024px) 980px, 100vw"
+                  className="object-cover opacity-90"
+                  fetchPriority="high"
+                />
               )}
             </div>
 

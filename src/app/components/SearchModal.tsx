@@ -13,10 +13,12 @@ interface SearchModalProps {
 interface SearchResult {
   slug: string;
   title: string;
+  titleHtml?: string;
   description: string;
   category: string;
   tags: string[];
   excerpt: string;
+  excerptHtml?: string;
 }
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
@@ -40,7 +42,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || query.trim().length < 2) {
+    if (!isOpen) {
+      return;
+    }
+
+    if (query.trim().length < 2) {
       return;
     }
 
@@ -162,7 +168,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           ) : results.length === 0 ? (
             <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-              {t("noSearchResults")}: &quot;{query}&quot;
+              No results found: &quot;{query}&quot;
             </div>
           ) : (
             <div className="space-y-2">
@@ -185,11 +191,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     <FileText className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-extrabold text-slate-950 dark:text-white">
-                      {post.title}
-                    </span>
+                    <span
+                      className="block truncate text-sm font-extrabold text-slate-950 dark:text-white"
+                      dangerouslySetInnerHTML={{ __html: post.titleHtml || post.title }}
+                    />
                     <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                      {post.excerpt || post.description}
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: post.excerptHtml || post.excerpt || post.description,
+                        }}
+                      />
                     </p>
                   </div>
                   <ArrowRight className="h-4 w-4 shrink-0 -translate-x-2 self-center text-slate-400 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />

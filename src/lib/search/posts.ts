@@ -6,6 +6,8 @@ export interface SearchResult {
   post: Post;
   score: number;
   excerpt: string;
+  titleHtml: string;
+  excerptHtml: string;
   highlights: string[];
 }
 
@@ -41,16 +43,6 @@ function tokens(value: string) {
   return normalize(value).split(/[^a-z0-9]+/).filter((token) => token.length >= 2);
 }
 
-function fuzzyIncludes(text: string, query: string) {
-  if (text.includes(query)) return true;
-  let index = 0;
-  for (const char of text) {
-    if (char === query[index]) index += 1;
-    if (index === query.length) return true;
-  }
-  return false;
-}
-
 function fieldScore(field: string, query: string, queryTokens: string[], weight: number) {
   const normalized = normalize(field);
   if (!normalized) return 0;
@@ -59,8 +51,6 @@ function fieldScore(field: string, query: string, queryTokens: string[], weight:
   for (const token of queryTokens) {
     if (normalized.includes(token)) {
       score += weight;
-    } else if (token.length >= 4 && fuzzyIncludes(normalized, token)) {
-      score += weight * 0.35;
     }
   }
 
@@ -125,6 +115,8 @@ export async function searchPosts(locale: Locale, query: string, limit = 12): Pr
         post,
         score,
         excerpt: makeExcerpt(post, queryTokens),
+        titleHtml: highlightText(post.title, trimmedQuery),
+        excerptHtml: highlightText(makeExcerpt(post, queryTokens), trimmedQuery),
         highlights: queryTokens,
       };
     })

@@ -121,6 +121,29 @@ async function translatePayload(input: TranslationPayload, scope: TranslationSco
   );
 }
 
+function readableList(values: string[]) {
+  const items = values.filter(Boolean);
+  if (items.length === 0) return "cloud engineering";
+  if (items.length === 1) return items[0];
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+function synthesizeEnglishFallback(post: Post, scope: TranslationScope): TranslationPayload {
+  const services = readableList(post.services);
+  const certs = readableList(post.certs);
+  const title = `${services}: ${post.category} practical guide`;
+  const description = `A practical ${post.category} guide covering ${services}${
+    post.certs.length > 0 ? ` for ${certs}` : ""
+  }.`;
+  const body = `<p>${description}</p><p>This English fallback is generated from article metadata. Add a dedicated English translation for the full article body.</p>`;
+
+  return {
+    title,
+    description,
+    ...(scope === "full" ? { content: body || `<p>${description}</p>` } : {}),
+  };
+}
+
 export async function translateLegacyPostToEnglish(
   post: Post,
   scope: TranslationScope
@@ -132,7 +155,7 @@ export async function translateLegacyPostToEnglish(
     description: post.description,
     ...(scope === "full" ? { content: post.content } : {}),
   };
-  const translated = await translatePayload(input, scope);
+  const translated = (await translatePayload(input, scope)) || synthesizeEnglishFallback(post, scope);
   if (!translated) return post;
 
   return {

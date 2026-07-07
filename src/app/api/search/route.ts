@@ -21,9 +21,10 @@ export async function GET(request: Request) {
   return NextResponse.json({
     query,
     locale,
-    results: results.map(({ post, score, excerpt }) => ({
+    results: results.map(({ post, score, excerpt, titleHtml, excerptHtml }) => ({
       slug: post.slug,
       title: post.title,
+      titleHtml,
       description: post.description,
       category: post.category,
       tags: post.tags,
@@ -31,6 +32,7 @@ export async function GET(request: Request) {
       views: post.views,
       score,
       excerpt,
+      excerptHtml,
     })),
   });
 }

@@ -405,6 +405,19 @@ function findPostForLocale(posts: WordPressPost[], locale: Locale) {
   );
 }
 
+function findTranslatedPostBySlug(posts: WordPressPost[], slug: string, locale: Locale) {
+  const publishedPosts = posts.filter(isPublishedPost);
+  const sourcePost = publishedPosts.find((post) => post.slug === slug);
+  if (!sourcePost) return null;
+
+  const sourceGroupKey = translationGroupKey(sourcePost);
+  return (
+    publishedPosts
+      .filter((post) => translationGroupKey(post) === sourceGroupKey)
+      .sort((a, b) => localePriority(b, locale) - localePriority(a, locale))[0] || sourcePost
+  );
+}
+
 function estimateReadTime(html: string, locale: Locale): string {
   const wordCount = plainText(html).split(/\s+/).filter(Boolean).length;
   if (wordCount === 0) return locale === "vi" ? "< 1 phút" : "< 1 min read";
@@ -508,8 +521,56 @@ function mergePosts(primary: Post[], fallback: Post[]) {
 }
 
 function localizedFallbackPosts(locale: Locale) {
-  return localPublishedPosts
-    .map((post) => localizePost(post, locale));
+  const fallbackSource = localPublishedPosts.length > 0 ? localPublishedPosts : roadmapPosts;
+  const offlinePublishDate = "2026-06-09T00:00:00+07:00";
+  const englishFallback = (post: Post) => {
+    const services = post.services.filter(Boolean).join(", ") || post.category || "Cloud";
+    const certs = post.certs.length > 0 ? ` for ${post.certs.join(", ")}` : "";
+    const title = `${services}: ${post.category} practical guide`;
+    const description = `A practical ${post.category} guide covering ${services}${certs}.`;
+    const content = `<p>${description}</p><p>This English fallback is generated from article metadata. Add a dedicated English translation in WordPress or content/posts for the full article body.</p>`;
+
+    return { title, description, content };
+  };
+
+  return fallbackSource.map((post) =>
+    {
+      const english = locale === "en" ? englishFallback(post) : null;
+      return localizePost(
+      {
+        ...post,
+        status: "published" as const,
+        publishDate: post.publishDate || post.date || offlinePublishDate,
+        publish_date: post.publish_date || post.date || offlinePublishDate,
+        date: post.date || post.publishDate || offlinePublishDate,
+        description:
+          english?.description ||
+          post.description ||
+          post.editorialNote ||
+          post.labs[0] ||
+          `${post.category} guide for ${post.services.join(", ") || "cloud engineering"}.`,
+        description_en:
+          english?.description ||
+          post.description_en ||
+          post.editorialNote ||
+          post.labs[0] ||
+          `${post.category} guide for ${post.services.join(", ") || "cloud engineering"}.`,
+        content:
+          english?.content ||
+          post.content ||
+          `<p>${post.editorialNote || post.labs[0] || post.quiz || post.title}</p>`,
+        content_en:
+          english?.content ||
+          post.content_en ||
+          `<p>${post.editorialNote || post.labs[0] || post.quiz || post.title_en || post.title}</p>`,
+        title_en: english?.title || post.title_en,
+        readTime: post.readTime === "Draft" ? "3 phút đọc" : post.readTime,
+        readTime_en: post.readTime_en === "Draft" ? "3 min read" : post.readTime_en,
+      },
+      locale
+    );
+    }
+  );
 }
 
 async function withLocalViews(posts: Post[]) {
@@ -571,6 +632,16 @@ export async function getCmsPostBySlug(
 
       const post = findPostForLocale(posts, locale);
       if (post) return withLocalView(await localizeMappedPost(mapWordPressPost(post, locale), locale, "full"));
+
+      if (locale !== "vi") {
+        const allPosts = await fetchWordPressPostPages("publish");
+        const translatedPost = findTranslatedPostBySlug(allPosts, slug, locale);
+        if (translatedPost) {
+          return withLocalView(
+            await localizeMappedPost(mapWordPressPost(translatedPost, locale), locale, "full")
+          );
+        }
+      }
 
       if (filePost?.status === "draft") return null;
       const fallback = localizedFallbackPosts(locale).find((item) => item.slug === slug) || null;

@@ -17,11 +17,11 @@ export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
   const renderSeriesIcon = (iconName: string) => {
     switch (iconName) {
       case "zap":
-        return <Zap className="h-6 w-6" />;
+        return <Zap className="h-4 w-4" />;
       case "git-pull-request":
-        return <GitPullRequest className="h-6 w-6" />;
+        return <GitPullRequest className="h-4 w-4" />;
       default:
-        return <Layers className="h-6 w-6" />;
+        return <Layers className="h-4 w-4" />;
     }
   };
 
@@ -43,7 +43,7 @@ export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
           <p className="theme-muted text-sm leading-relaxed">{t("logoSubtitle")}</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {series.map((item) => {
             const seriesPostsCount = posts.filter((post) => post.seriesSlug === item.slug).length;
 
@@ -51,24 +51,24 @@ export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
               <Link
                 key={item.slug}
                 href={localePath(`/blog/series/${item.slug}`)}
-                className="theme-card group flex min-h-72 min-w-0 flex-col rounded-2xl border p-6 transition hover:-translate-y-0.5 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-950/30 sm:p-8"
+                className="theme-card group flex min-h-48 min-w-0 flex-col rounded-xl border p-5 transition duration-200 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-950/30"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 text-cyan-300">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 text-cyan-300 transition group-hover:scale-105">
                   {renderSeriesIcon(item.icon)}
                 </div>
 
-                <h2 className="mt-6 break-words text-lg font-bold text-slate-950 transition group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-300 sm:text-xl">
+                <h2 className="mt-4 line-clamp-2 break-words text-base font-bold leading-snug text-slate-950 transition group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-300">
                   {language === "vi" ? item.title : item.title_en}
                 </h2>
-                <p className="theme-muted mt-4 line-clamp-3 text-sm leading-6">
+                <p className="theme-muted mt-3 line-clamp-3 text-sm leading-6">
                   {language === "vi" ? item.description : item.description_en}
                 </p>
 
-                <div className="mt-auto flex items-center justify-between gap-4 pt-8">
-                  <span className="text-sm font-bold text-cyan-300">
+                <div className="mt-auto flex items-center justify-between gap-4 pt-5">
+                  <span className="text-xs font-bold text-cyan-300">
                     {seriesPostsCount || item.partsCount} {t("parts")}
                   </span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 text-cyan-300 transition group-hover:border-emerald-400 group-hover:text-emerald-300">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 text-cyan-300 transition group-hover:border-emerald-400 group-hover:text-emerald-300">
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                   </div>
                 </div>

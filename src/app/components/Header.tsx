@@ -81,30 +81,30 @@ export default function Header() {
               <span className="hidden text-[11px] text-slate-400 lg:inline">Ctrl K</span>
             </button>
 
-            <ThemeToggle />
-
             {/* Language Switcher */}
-            <button
-              type="button"
-              role="switch"
-              aria-checked={language === "en"}
+            <div
+              className="hidden items-center gap-1 sm:flex"
               aria-label={`${t("language")}: ${language.toUpperCase()}`}
-              title={`${t("language")}: ${language.toUpperCase()}`}
-              onClick={() => setLanguage(language === "vi" ? "en" : "vi")}
-              className="relative hidden h-9 w-20 items-center rounded-full border border-slate-300 bg-white p-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-500 transition hover:border-emerald-400/60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:flex"
             >
-              <span
-                className={`absolute left-1 top-1 h-7 w-9 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 shadow transition-transform duration-200 ${
-                  language === "en" ? "translate-x-9" : "translate-x-0"
-                }`}
-              />
-              <span className={`relative z-10 flex-1 text-center ${language === "vi" ? "text-slate-950" : ""}`}>
-                VI
-              </span>
-              <span className={`relative z-10 flex-1 text-center ${language === "en" ? "text-slate-950" : ""}`}>
-                EN
-              </span>
-            </button>
+              {(["vi", "en"] as const).map((locale) => (
+                <button
+                  key={locale}
+                  type="button"
+                  aria-pressed={language === locale}
+                  title={`${t("language")}: ${locale.toUpperCase()}`}
+                  onClick={() => setLanguage(locale)}
+                  className={`grid h-9 w-10 place-items-center rounded-md border text-[11px] font-extrabold uppercase transition ${
+                    language === locale
+                      ? "border-cyan-300 bg-cyan-300 text-slate-950 shadow-sm shadow-cyan-950/20"
+                      : "border-slate-300 bg-white text-slate-600 hover:border-emerald-400 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-white"
+                  }`}
+                >
+                  {locale}
+                </button>
+              ))}
+            </div>
+
+            <ThemeToggle />
 
             {/* Mobile Menu Toggle */}
             <button

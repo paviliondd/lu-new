@@ -11,8 +11,6 @@ import PostListRow from "./PostListRow";
 import TableOfContents, { TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
 import AuthorAvatar from "./AuthorAvatar";
-import Comments from "./Comments";
-import type { CommentRecord } from "@/lib/comments/types";
 
 interface ArticleClientProps {
   post: Post;
@@ -21,7 +19,6 @@ interface ArticleClientProps {
   relatedPosts: Post[];
   assetBase?: string;
   legacyAssetOrigins?: string[];
-  initialComments?: CommentRecord[];
 }
 
 function formatPostDate(value: string, language: string) {
@@ -50,7 +47,6 @@ export default function ArticleClient({
   relatedPosts,
   assetBase,
   legacyAssetOrigins,
-  initialComments = [],
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -292,7 +288,6 @@ export default function ArticleClient({
                 </div>
               </section>
             )}
-            <Comments postSlug={post.slug} initialComments={initialComments} />
           </div>
 
           <TableOfContents

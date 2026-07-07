@@ -15,7 +15,8 @@ export function buildWordPressRestUrl(apiBase: string, endpoint: string) {
   }
 
   const baseRoute = restRoute.replace(/\/$/, "");
-  url.searchParams.set("rest_route", `${baseRoute}${routePath}`);
+  const isAbsoluteRestRoute = /^\/(?:wp|linuxunity)\//.test(routePath);
+  url.searchParams.set("rest_route", isAbsoluteRestRoute ? routePath : `${baseRoute}${routePath}`);
 
   const endpointParams = new URLSearchParams(queryString);
   endpointParams.forEach((value, key) => {

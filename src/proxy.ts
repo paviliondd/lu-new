@@ -22,13 +22,9 @@ export function proxy(request: NextRequest) {
   const hasEnglishPrefix = pathname === "/en" || pathname.startsWith("/en/");
   const hasVietnamesePrefix = pathname === "/vi" || pathname.startsWith("/vi/");
 
-  if (hasEnglishPrefix) {
-    return NextResponse.next();
-  }
-
-  if (hasVietnamesePrefix) {
+  if (hasEnglishPrefix || hasVietnamesePrefix) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = pathname.replace(/^\/vi(?=\/|$)/, "") || "/";
+    redirectUrl.pathname = pathname.replace(/^\/(?:en|vi)(?=\/|$)/, "") || "/";
     return NextResponse.redirect(redirectUrl, 308);
   }
 

@@ -4,7 +4,6 @@ import { fetchWordPressRest } from "@/lib/cms/wordpress-rest";
 import { rateLimit } from "@/lib/server/rate-limit";
 import { invalidateCache } from "@/lib/server/redis-cache";
 import {
-  getLocalPostView,
   hasRecentViewSession,
   incrementLocalPostView,
   rememberViewSession,
@@ -63,9 +62,8 @@ function isCrawlerOrPrefetch(request: Request) {
   );
 }
 
-async function duplicateResponse(slug: string, reason: string) {
+function duplicateResponse(reason: string) {
   return NextResponse.json({
-    views: await getLocalPostView(slug),
     counted: false,
     reason,
   });
@@ -81,17 +79,17 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
   if (limited) return limited;
 
   if (isCrawlerOrPrefetch(request)) {
-    return duplicateResponse(slug, "ignored-crawler-or-prefetch");
+    return duplicateResponse("ignored-crawler-or-prefetch");
   }
 
   const currentCookieName = cookieName(slug);
   if (cookieValue(request, currentCookieName)) {
-    return duplicateResponse(slug, "recent-cookie");
+    return duplicateResponse("recent-cookie");
   }
 
   const sessionKey = viewSessionKey(request, slug);
   if (await hasRecentViewSession(sessionKey)) {
-    const response = await duplicateResponse(slug, "recent-session");
+    const response = duplicateResponse("recent-session");
     response.cookies.set(currentCookieName, "1", {
       httpOnly: true,
       maxAge: viewCookieMaxAge,
@@ -122,6 +120,10 @@ export async function POST(request: Request, { params }: ViewRouteProps) {
         method: "POST",
         headers: {
           accept: "application/json",
+          "user-agent": request.headers.get("user-agent") || "",
+          "accept-language": request.headers.get("accept-language") || "",
+          "x-forwarded-for": clientIp(request),
+          "x-real-ip": clientIp(request),
         },
         cache: "no-store",
       }

@@ -38,11 +38,24 @@ interface WordPressSeo {
   og_image?: Array<{ url?: string }>;
 }
 
+interface WordPressMediaSize {
+  source_url?: string;
+}
+
+interface WordPressFeaturedMedia {
+  source_url?: string;
+  media_details?: {
+    sizes?: Record<string, WordPressMediaSize>;
+  };
+}
+
 interface WordPressPost {
   id: number;
   slug: string;
   status: string;
   date?: string;
+  featured_media?: number;
+  featured_media_url?: string;
   title?: WordPressRendered;
   excerpt?: WordPressRendered;
   content?: WordPressRendered;
@@ -63,6 +76,7 @@ interface WordPressPost {
       acf?: Record<string, unknown>;
       meta?: Record<string, unknown>;
     }>;
+    "wp:featuredmedia"?: WordPressFeaturedMedia[];
     "wp:term"?: WordPressTerm[][];
   };
 }
@@ -140,7 +154,7 @@ async function fetchWordPressPostPages(status = "publish") {
 
   for (let page = 1; page <= 20; page += 1) {
     const posts = await fetchWordPressJson<WordPressPost[]>(
-      `/posts?status=${status}&_embed=author,wp:term&per_page=${perPage}&page=${page}&orderby=date&order=desc`
+      `/posts?status=${status}&_embed=1&per_page=${perPage}&page=${page}&orderby=date&order=desc`
     );
 
     allPosts.push(...posts);
@@ -260,6 +274,45 @@ function readNumberMeta(post: WordPressPost, keys: string[]) {
   }
 
   return null;
+}
+
+function readArrayObjectUrl(value: unknown) {
+  if (!Array.isArray(value)) return "";
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const url = (item as { url?: unknown; source_url?: unknown }).url || (item as { source_url?: unknown }).source_url;
+    if (typeof url === "string" && url.trim()) return url.trim();
+  }
+  return "";
+}
+
+function extractFeaturedImageUrl(post: WordPressPost) {
+  const embeddedMedia = post._embedded?.["wp:featuredmedia"]?.[0];
+  const mediaSizes = embeddedMedia?.media_details?.sizes || {};
+  const embeddedUrl =
+    mediaSizes.full?.source_url ||
+    mediaSizes.large?.source_url ||
+    embeddedMedia?.source_url ||
+    "";
+
+  const metaUrl =
+    readStringMeta(post, [
+      "featured_image",
+      "featured_image_url",
+      "post_thumbnail",
+      "post_thumbnail_url",
+      "thumbnail",
+      "thumbnail_url",
+      "_thumbnail_url",
+      "og_image",
+      "cover_image",
+      "cover_image_url",
+    ]) ||
+    readArrayObjectUrl(post.yoast_head_json?.og_image) ||
+    post.featured_media_url ||
+    embeddedUrl;
+
+  return metaUrl ? normalizeWordPressAssetUrl(metaUrl) : null;
 }
 
 function normalizeComparableText(value: string) {
@@ -495,9 +548,7 @@ function mapWordPressPost(post: WordPressPost, locale: Locale): Post {
     seo: {
       title: post.yoast_head_json?.title || title,
       description: post.yoast_head_json?.description || description,
-      ogImage: post.yoast_head_json?.og_image?.[0]?.url
-        ? normalizeWordPressAssetUrl(post.yoast_head_json.og_image[0].url || "")
-        : null,
+      ogImage: extractFeaturedImageUrl(post),
     },
     internalLinking: {
       hubSlug: roadmapPost?.internalLinking.hubSlug || "",
@@ -626,7 +677,7 @@ export async function getCmsPostBySlug(
       const posts = await fetchWordPressJson<WordPressPost[]>(
         `/posts?slug=${encodeURIComponent(
           slug
-        )}&status=publish&_embed=author,wp:term&per_page=1`,
+        )}&status=publish&_embed=1&per_page=1`,
         { cache: "no-store" }
       );
 

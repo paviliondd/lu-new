@@ -12,7 +12,7 @@ export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { language, setLanguage, t, localePath } = useLanguage();
+  const { t, localePath } = useLanguage();
 
   const navLinks = [
     { href: localePath("/blog"), label: t("blog") },
@@ -81,29 +81,6 @@ export default function Header() {
               <span className="hidden text-[11px] text-slate-400 lg:inline">Ctrl K</span>
             </button>
 
-            {/* Language Switcher */}
-            <div
-              className="hidden items-center gap-1 sm:flex"
-              aria-label={`${t("language")}: ${language.toUpperCase()}`}
-            >
-              {(["vi", "en"] as const).map((locale) => (
-                <button
-                  key={locale}
-                  type="button"
-                  aria-pressed={language === locale}
-                  title={`${t("language")}: ${locale.toUpperCase()}`}
-                  onClick={() => setLanguage(locale)}
-                  className={`grid h-9 w-10 place-items-center rounded-md border text-[11px] font-extrabold uppercase transition ${
-                    language === locale
-                      ? "border-cyan-300 bg-cyan-300 text-slate-950 shadow-sm shadow-cyan-950/20"
-                      : "border-slate-300 bg-white text-slate-600 hover:border-emerald-400 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-white"
-                  }`}
-                >
-                  {locale}
-                </button>
-              ))}
-            </div>
-
             <ThemeToggle />
 
             {/* Mobile Menu Toggle */}
@@ -157,37 +134,6 @@ export default function Header() {
                 </button>
               </li>
             </ul>
-            <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-800">
-              <span className="text-xs text-gray-505">{t("language")}</span>
-              <div className="flex items-center rounded-lg border border-gray-200 p-0.5 text-xs font-medium dark:border-gray-800">
-                <button
-                  onClick={() => {
-                    setLanguage("vi");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`rounded-md px-2.5 py-1 uppercase transition ${
-                    language === "vi"
-                      ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-                      : "text-gray-550"
-                  }`}
-                >
-                  vi
-                </button>
-                <button
-                  onClick={() => {
-                    setLanguage("en");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`rounded-md px-2.5 py-1 uppercase transition ${
-                    language === "en"
-                      ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-                      : "text-gray-550"
-                  }`}
-                >
-                  en
-                </button>
-              </div>
-            </div>
           </div>
         )}
         <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

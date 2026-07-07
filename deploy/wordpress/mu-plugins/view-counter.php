@@ -30,7 +30,19 @@ function linuxunity_view_client_ip(): string {
 }
 
 function linuxunity_view_rate_key(int $post_id, string $ip): string {
-    return 'linuxunity_view_' . md5($post_id . '|' . $ip);
+    $user_agent = substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 180);
+    return 'linuxunity_view_' . md5($post_id . '|' . $ip . '|' . $user_agent);
+}
+
+function linuxunity_is_crawler_or_prefetch(): bool {
+    $user_agent = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+    $purpose = (string) ($_SERVER['HTTP_PURPOSE'] ?? '') . ' ' . (string) ($_SERVER['HTTP_SEC_PURPOSE'] ?? '');
+
+    return (
+        preg_match('/\b(bot|crawler|spider|slurp|preview|facebookexternalhit|whatsapp|telegrambot|linkedinbot|embedly)\b/i', $user_agent) === 1 ||
+        preg_match('/\bprefetch\b/i', $purpose) === 1 ||
+        (string) ($_SERVER['HTTP_NEXT_ROUTER_PREFETCH'] ?? '') === '1'
+    );
 }
 
 function linuxunity_get_view_count(int $post_id): int {
@@ -106,17 +118,29 @@ function linuxunity_register_view_counter_routes(): void {
                     return new WP_Error('linuxunity_post_not_found', 'Post not found.', ['status' => 404]);
                 }
 
+                if (linuxunity_is_crawler_or_prefetch()) {
+                    return rest_ensure_response([
+                        'views' => linuxunity_get_view_count((int) $post->ID),
+                        'counted' => false,
+                        'reason' => 'ignored-crawler-or-prefetch',
+                    ]);
+                }
+
                 $ip = linuxunity_view_client_ip();
                 $rate_key = linuxunity_view_rate_key((int) $post->ID, $ip);
 
                 if (get_transient($rate_key)) {
-                    return rest_ensure_response(['views' => linuxunity_get_view_count((int) $post->ID)]);
+                    return rest_ensure_response([
+                        'views' => linuxunity_get_view_count((int) $post->ID),
+                        'counted' => false,
+                        'reason' => 'recent-session',
+                    ]);
                 }
 
                 set_transient($rate_key, 1, LINUXUNITY_VIEW_RATE_WINDOW);
                 $views = linuxunity_increment_view_count((int) $post->ID);
 
-                return rest_ensure_response(['views' => $views]);
+                return rest_ensure_response(['views' => $views, 'counted' => true]);
             },
         ]
     );

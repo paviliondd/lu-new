@@ -12,7 +12,6 @@ import { localizedAlternates } from "@/i18n/metadata";
 import { localePath } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
 import { load } from "cheerio";
-import { getComments } from "@/lib/comments/store";
 
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
@@ -129,7 +128,6 @@ export default async function BlogPostPage({ params }: Props) {
     .slice(0, 3);
   const assetBase = publicWordPressAssetBase();
   const legacyAssetOrigins = legacyWordPressAssetOrigins();
-  const comments = await getComments(post.slug);
   const canonicalUrl = `${siteUrl}${localePath(lang, `/blog/${post.slug}`)}`;
   const articleSchema = {
     "@context": "https://schema.org",
@@ -145,7 +143,7 @@ export default async function BlogPostPage({ params }: Props) {
       image: post.authorAvatar || author.avatarUrl || undefined,
     },
     mainEntityOfPage: canonicalUrl,
-    commentCount: comments.length,
+    commentCount: 0,
   };
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -189,7 +187,6 @@ export default async function BlogPostPage({ params }: Props) {
         relatedPosts={relatedPosts}
         assetBase={assetBase}
         legacyAssetOrigins={legacyAssetOrigins}
-        initialComments={comments}
       />
     </>
   );

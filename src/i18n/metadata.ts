@@ -12,7 +12,6 @@ export function localizedAlternates(locale: Locale, pathname = "/"): Metadata["a
     canonical,
     languages: {
       vi: localePath("vi", pathname),
-      en: localePath("en", pathname),
       "x-default": localePath("vi", pathname),
     },
   };
@@ -33,7 +32,6 @@ export function localizedMetadata(
       description,
       siteName: "LinuxUnity",
       locale: locale === "vi" ? "vi_VN" : "en_US",
-      alternateLocale: locale === "vi" ? ["en_US"] : ["vi_VN"],
       url: localePath(locale, pathname),
       type: "website",
     },

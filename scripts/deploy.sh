@@ -76,20 +76,11 @@ log "Resetting code to origin/${DEPLOY_BRANCH}"
 git reset --hard "origin/${DEPLOY_BRANCH}"
 
 load_env_file ".env"
-sanitize_var AWS_DEFAULT_REGION
-sanitize_var AWS_ECR_REGISTRY
-sanitize_var AWS_ECR_REPOSITORY
 sanitize_var APP_IMAGE
 
-if [ -z "${APP_IMAGE:-}" ] && [ -n "${AWS_ECR_REGISTRY:-}" ] && [ -n "${AWS_ECR_REPOSITORY:-}" ]; then
-  export APP_IMAGE="${AWS_ECR_REGISTRY}/${AWS_ECR_REPOSITORY}:production"
-fi
-
-if printf '%s' "${AWS_ECR_REPOSITORY:-}" | grep -Eq '(^https?://|\.amazonaws\.com)'; then
-  fail "AWS_ECR_REPOSITORY must be only the repository name, for example: cloud-devops-blog."
-fi
-
 if [ -n "${AWS_ECR_REGISTRY:-}" ]; then
+  sanitize_var AWS_DEFAULT_REGION
+  sanitize_var AWS_ECR_REGISTRY
   command -v aws >/dev/null 2>&1 || fail "aws CLI is required to pull from AWS ECR."
   [ -n "${AWS_DEFAULT_REGION:-}" ] || fail "AWS_DEFAULT_REGION is required for AWS ECR login."
 
@@ -101,8 +92,11 @@ fi
 log "Validating Docker Compose configuration"
 docker compose config >/dev/null
 
-log "Pulling production images"
-docker compose pull
+log "Pulling external images"
+docker compose pull --ignore-buildable
+
+log "Building app image"
+docker compose build app
 
 log "Starting production containers"
 docker compose up -d --remove-orphans

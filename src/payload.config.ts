@@ -2,7 +2,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { buildConfig, type CollectionConfig } from "payload";
-import sharp from "sharp";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -55,20 +54,6 @@ const Media: CollectionConfig = {
   },
   upload: {
     staticDir: path.resolve(dirname, "../public/uploads"),
-    imageSizes: [
-      {
-        name: "card",
-        width: 960,
-        height: 540,
-        position: "centre",
-      },
-      {
-        name: "og",
-        width: 1200,
-        height: 630,
-        position: "centre",
-      },
-    ],
     mimeTypes: ["image/*"],
   },
   fields: [
@@ -219,7 +204,6 @@ export default buildConfig({
     graphQLPlayground: "/api/graphql-playground",
   },
   secret: process.env.PAYLOAD_SECRET || "development-payload-secret-change-me",
-  sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },

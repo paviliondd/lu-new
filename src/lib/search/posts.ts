@@ -40,7 +40,9 @@ function escapeHtml(value: string) {
 }
 
 function tokens(value: string) {
-  return normalize(value).split(/[^a-z0-9]+/).filter((token) => token.length >= 2);
+  return Array.from(
+    new Set(normalize(value).split(/[^a-z0-9]+/).filter((token) => token.length >= 2))
+  );
 }
 
 function fieldScore(field: string, query: string, queryTokens: string[], weight: number) {
@@ -101,15 +103,31 @@ export async function searchPosts(locale: Locale, query: string, limit = 12): Pr
         ...post.tags,
         post.topicSlug,
         post.clusterSlug,
+        post.seriesSlug || "",
+        post.series?.title || "",
+        post.series?.title_en || "",
         ...post.services,
         ...post.examDomains,
         ...post.certs,
+        ...post.labs,
+        post.coverage,
       ].join(" ");
+      const searchableSummary = [
+        post.description,
+        post.description_en,
+        post.editorialNote,
+        post.quiz,
+        post.costNote,
+        post.cleanupNote,
+        post.seo?.title || "",
+        post.seo?.description || "",
+      ].join(" ");
+      const searchableContent = [post.content, post.content_en].join(" ");
       const score =
-        fieldScore(post.title, normalizedQuery, queryTokens, 10) +
+        fieldScore([post.title, post.title_en].join(" "), normalizedQuery, queryTokens, 10) +
         fieldScore(searchableTags, normalizedQuery, queryTokens, 7) +
-        fieldScore(post.description, normalizedQuery, queryTokens, 5) +
-        fieldScore(post.content, normalizedQuery, queryTokens, 1);
+        fieldScore(searchableSummary, normalizedQuery, queryTokens, 5) +
+        fieldScore(searchableContent, normalizedQuery, queryTokens, 1);
 
       return {
         post,

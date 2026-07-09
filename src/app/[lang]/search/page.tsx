@@ -42,7 +42,9 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
           <div className="theme-card flex items-center gap-3 rounded-xl border px-4 py-3">
             <Search className="h-5 w-5 text-slate-400" />
             <input
+              id="site-search-input"
               name="q"
+              type="search"
               defaultValue={query}
               placeholder={lang === "vi" ? "Nhập tiêu đề, nội dung, tag..." : "Search title, content, tags..."}
               className="min-w-0 flex-1 bg-transparent text-base outline-none"

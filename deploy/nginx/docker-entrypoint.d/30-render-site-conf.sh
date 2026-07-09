@@ -38,6 +38,8 @@ server {
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
     location / {
+        set \$app_upstream http://app:3000;
+
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -47,7 +49,9 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$connection_upgrade;
 
-        proxy_pass http://app:3000;
+        proxy_next_upstream error timeout http_502 http_503 http_504;
+        proxy_next_upstream_tries 2;
+        proxy_pass \$app_upstream;
     }
 }
 EOF
@@ -78,6 +82,8 @@ server {
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
     location / {
+        set \$kuma_upstream http://uptime-kuma:3001;
+
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -87,7 +93,9 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$connection_upgrade;
 
-        proxy_pass http://uptime-kuma:3001;
+        proxy_next_upstream error timeout http_502 http_503 http_504;
+        proxy_next_upstream_tries 2;
+        proxy_pass \$kuma_upstream;
     }
 }
 EOF

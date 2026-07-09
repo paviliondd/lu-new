@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Search, X, Cloud } from "lucide-react";
@@ -22,17 +22,26 @@ export default function Header() {
   const activeNavHref = navLinks
     .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
     .sort((left, right) => right.href.length - left.href.length)[0]?.href;
+  const isSearchPage = pathname === localePath("/search");
+
+  const openSearch = useCallback(() => {
+    if (isSearchPage) {
+      document.getElementById("site-search-input")?.focus();
+      return;
+    }
+    setIsSearchOpen(true);
+  }, [isSearchPage]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setIsSearchOpen(true);
+        openSearch();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [openSearch]);
 
   return (
     <header className="theme-header sticky top-0 z-40 border-b backdrop-blur-xl">
@@ -72,7 +81,7 @@ export default function Header() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsSearchOpen(true)}
+              onClick={openSearch}
               className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
               aria-label={t("search")}
               title={t("search")}
@@ -167,7 +176,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => {
-                    setIsSearchOpen(true);
+                    openSearch();
                     setIsMobileMenuOpen(false);
                   }}
                   className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-base font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
@@ -179,7 +188,7 @@ export default function Header() {
             </ul>
           </div>
         )}
-        <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+        <SearchModal isOpen={!isSearchPage && isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   );
 }

@@ -24,10 +24,33 @@ Change every placeholder password, especially:
 
 ```bash
 PAYLOAD_SECRET=change-this-long-random-payload-secret
+AUTH_SESSION_SECRET=change-this-long-random-auth-session-secret
 POSTGRES_DB=payload
 POSTGRES_USER=payload
 POSTGRES_PASSWORD=change-this-payload-db-password
 DATABASE_URL=postgres://payload:change-this-payload-db-password@postgres:5432/payload
+```
+
+Configure comment OAuth before testing GitHub or Google login:
+
+```bash
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+GITHUB_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/github/callback
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/google/callback
+```
+
+Create provider apps with these callback URLs:
+
+- GitHub: `https://tesst.linuxunity.com/api/auth/github/callback`
+- Google: `https://tesst.linuxunity.com/api/auth/google/callback`
+
+After changing `.env`, recreate the app container so it receives the new values:
+
+```bash
+docker compose up -d --force-recreate app nginx
 ```
 
 Start the stack:
@@ -45,6 +68,18 @@ Check the app:
 curl -fsS http://127.0.0.1:8080/api/health
 curl -I http://127.0.0.1:8080/admin
 ```
+
+If Nginx returns `502 Bad Gateway`, check whether the app restarted or is still
+unhealthy before restarting Nginx:
+
+```bash
+docker compose ps
+docker compose logs --since 30m app nginx
+docker stats --no-stream
+```
+
+The Nginx config uses Docker DNS (`127.0.0.11`) and variable upstreams so the
+proxy can resolve a new app container IP after restarts.
 
 ## Payload Admin
 

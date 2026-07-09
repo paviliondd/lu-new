@@ -130,6 +130,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 setResults([]);
                 setIsLoading(false);
                 setActiveIndex(0);
+              } else {
+                setResults([]);
+                setIsLoading(true);
+                setActiveIndex(0);
               }
             }}
             className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-slate-400"

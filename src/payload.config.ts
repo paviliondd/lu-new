@@ -75,6 +75,17 @@ const Users: CollectionConfig = {
       name: "name",
       type: "text",
     },
+    {
+      name: "provider",
+      type: "select",
+      options: [
+        { label: "GitHub", value: "github" },
+        { label: "Google", value: "google" },
+      ],
+      admin: { position: "sidebar" },
+    },
+    { name: "providerId", type: "text", admin: { position: "sidebar" } },
+    { name: "avatarUrl", type: "text" },
   ],
 };
 
@@ -349,7 +360,18 @@ const Comments: CollectionConfig = {
     { name: "email", type: "email" },
     { name: "content", type: "textarea", required: true },
     { name: "post", type: "relationship", relationTo: "posts", required: true },
+    { name: "user", type: "relationship", relationTo: "users" },
     { name: "parent", type: "relationship", relationTo: "comments" },
+    {
+      name: "provider",
+      type: "select",
+      options: [
+        { label: "GitHub", value: "github" },
+        { label: "Google", value: "google" },
+      ],
+    },
+    { name: "providerUserId", type: "text" },
+    { name: "username", type: "text" },
     { name: "avatarUrl", type: "text", admin: { hidden: true } },
     { name: "postSlug", type: "text", admin: { hidden: true } },
   ],

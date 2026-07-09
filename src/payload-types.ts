@@ -132,6 +132,9 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name?: string | null;
+  provider?: ('github' | 'google') | null;
+  providerId?: string | null;
+  avatarUrl?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -303,7 +306,11 @@ export interface Comment {
   email?: string | null;
   content: string;
   post: number | Post;
+  user?: (number | null) | User;
   parent?: (number | null) | Comment;
+  provider?: ('github' | 'google') | null;
+  providerUserId?: string | null;
+  username?: string | null;
   avatarUrl?: string | null;
   postSlug?: string | null;
   updatedAt: string;
@@ -405,6 +412,9 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  provider?: T;
+  providerId?: T;
+  avatarUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -556,7 +566,11 @@ export interface CommentsSelect<T extends boolean = true> {
   email?: T;
   content?: T;
   post?: T;
+  user?: T;
   parent?: T;
+  provider?: T;
+  providerUserId?: T;
+  username?: T;
   avatarUrl?: T;
   postSlug?: T;
   updatedAt?: T;

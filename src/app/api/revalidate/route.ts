@@ -14,19 +14,20 @@ function authorized(request: Request) {
 }
 
 function revalidateLocalePaths(locale: Locale, slug?: string, seriesSlug?: string) {
-  revalidatePath(`/${locale}`);
-  revalidatePath(`/${locale}/blog`);
-  revalidatePath(`/${locale}/blog/series`);
-  revalidatePath(`/${locale}/feed.xml`);
+  const prefix = locale === "vi" ? "" : `/${locale}`;
+  revalidatePath(prefix || "/");
+  revalidatePath(`${prefix}/blog`);
+  revalidatePath(`${prefix}/blog/series`);
+  revalidatePath(`${prefix}/feed.xml`);
 
   if (slug) {
-    revalidatePath(`/${locale}/blog/${slug}`);
+    revalidatePath(`${prefix}/blog/${slug}`);
     revalidatePath(`/blog/${slug}`);
     revalidatePath(`/${slug}`);
   }
 
   if (seriesSlug) {
-    revalidatePath(`/${locale}/blog/series/${seriesSlug}`);
+    revalidatePath(`${prefix}/blog/series/${seriesSlug}`);
   }
 }
 

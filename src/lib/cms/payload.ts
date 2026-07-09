@@ -1,8 +1,9 @@
 import "server-only";
 
+import crypto from "node:crypto";
 import config from "@payload-config";
 import { marked } from "marked";
-import { getPayload } from "payload";
+import { getPayload, type Where } from "payload";
 import { FilterXSS } from "xss";
 import { allPosts, series as fileSeries, team, type Post, type Series } from "@/app/data";
 import { localizePost, type Locale } from "@/i18n/config";
@@ -11,6 +12,7 @@ import { sanitizeArticleHtml } from "@/lib/utils/security";
 import { cachedJson } from "@/lib/server/redis-cache";
 import { getLocalPostViews } from "@/lib/views/store";
 import type { CommentRecord } from "@/lib/comments/types";
+import type { AuthUser } from "@/lib/auth/session";
 
 type PayloadDoc = Record<string, unknown>;
 
@@ -304,7 +306,7 @@ async function withLocalView(post: Post) {
 }
 
 export async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
-  return cachedJson(`posts:published:${locale}`, 300, async () => {
+  return cachedJson(`posts:published:${locale}`, 30, async () => {
     const filePosts = await getLocalizedFilePosts(locale);
     const payload = await getPayloadClient();
     if (!payload) return withLocalViews(filePosts);
@@ -333,7 +335,7 @@ export async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<P
 export const getCmsPublishedPosts = getPayloadPublishedPosts;
 
 export async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]> {
-  return cachedJson(`series:list:${locale}`, 300, async () => {
+  return cachedJson(`series:list:${locale}`, 30, async () => {
     const posts = await getPayloadPublishedPosts(locale);
     const counts = new Map<string, number>();
     for (const post of posts) {
@@ -370,7 +372,7 @@ export async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]>
 export const getCmsSeries = getPayloadSeries;
 
 export async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promise<Post | null> {
-  return cachedJson(`posts:detail:${locale}:${slug}`, 300, async () => {
+  return cachedJson(`posts:detail:${locale}:${slug}`, 30, async () => {
     const filePost = await getLocalizedFilePost(slug, locale);
     const payload = await getPayloadClient();
     if (!payload) return filePost ? withLocalView(filePost) : null;
@@ -445,13 +447,19 @@ function renderCommentBody(value: unknown) {
 function mapPayloadComment(doc: PayloadDoc): CommentRecord {
   const post = relationDoc(doc.post);
   const parent = relationDoc(doc.parent);
+  const user = relationDoc(doc.user);
+  const name = asString(doc.username, asString(doc.name, asString(user?.name, "LinuxUnity reader")));
+  const avatarUrl = asString(doc.avatarUrl, asString(user?.avatarUrl)) || null;
   return {
     id: String(doc.id || ""),
     postSlug: asString(doc.postSlug, asString(post?.slug)),
     parentId: parent ? String(parent.id || "") : null,
-    name: asString(doc.name, "LinuxUnity reader"),
-    email: asString(doc.email) || null,
-    avatarUrl: asString(doc.avatarUrl) || null,
+    name,
+    email: asString(doc.email, asString(user?.email)) || null,
+    avatarUrl,
+    provider: doc.provider === "github" || doc.provider === "google" ? doc.provider : null,
+    providerUserId: asString(doc.providerUserId) || null,
+    userId: user?.id ? String(user.id) : null,
     body: asString(doc.content),
     bodyHtml: renderCommentBody(doc.content),
     status: doc.status === "approved" || doc.status === "rejected" ? doc.status : "pending",
@@ -494,9 +502,7 @@ export async function getApprovedPayloadComments(postSlug: string): Promise<Comm
 export async function addPendingPayloadComment(input: {
   postSlug: string;
   parentId?: string | null;
-  name: string;
-  email?: string | null;
-  avatarUrl?: string | null;
+  user: AuthUser;
   body: string;
 }): Promise<CommentRecord | null> {
   const payload = await getPayloadClient();
@@ -524,13 +530,17 @@ export async function addPendingPayloadComment(input: {
       overrideAccess: true,
       data: {
         status: "pending",
-        name: input.name.trim().slice(0, 80),
-        email: input.email?.trim().slice(0, 160) || undefined,
+        name: input.user.name.trim().slice(0, 80),
+        email: input.user.email.trim().slice(0, 160) || undefined,
         content: input.body.trim().slice(0, 4000),
         post: postId,
+        user: input.user.userId ? Number(input.user.userId) : undefined,
         postSlug: input.postSlug,
         parent: Number.isFinite(parentId) ? parentId : undefined,
-        avatarUrl: input.avatarUrl?.trim().slice(0, 400) || undefined,
+        provider: input.user.provider,
+        providerUserId: input.user.providerUserId,
+        username: input.user.name.trim().slice(0, 80),
+        avatarUrl: input.user.avatar?.trim().slice(0, 400) || undefined,
       },
     });
 
@@ -539,4 +549,80 @@ export async function addPendingPayloadComment(input: {
     console.error("Unable to create Payload comment", { postSlug: input.postSlug, error });
     return null;
   }
+}
+
+export async function upsertPayloadOAuthUser(user: Omit<AuthUser, "userId">): Promise<AuthUser> {
+  const payload = await getPayloadClient();
+  if (!payload) return user;
+
+  const where: Where = {
+    and: [
+      {
+        provider: {
+          equals: user.provider,
+        },
+      },
+      {
+        providerId: {
+          equals: user.providerUserId,
+        },
+      },
+    ],
+  };
+
+  const existing = await payload.find({
+    collection: "users",
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    where,
+  });
+  const data = {
+    email: user.email || `${user.provider}-${user.providerUserId}@linuxunity.local`,
+    name: user.name,
+    provider: user.provider,
+    providerId: user.providerUserId,
+    avatarUrl: user.avatar || undefined,
+  };
+
+  let found = existing.docs[0];
+  if (!found?.id && user.email) {
+    const existingByEmail = await payload.find({
+      collection: "users",
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      where: {
+        email: {
+          equals: user.email,
+        },
+      },
+    });
+    found = existingByEmail.docs[0];
+  }
+
+  if (found?.id) {
+    await payload.update({
+      collection: "users",
+      id: found.id,
+      overrideAccess: true,
+      data,
+    });
+    return { ...user, userId: String(found.id) };
+  }
+
+  const created = await payload.create({
+    collection: "users",
+    overrideAccess: true,
+    data: {
+      ...data,
+      password: cryptoRandomPassword(),
+    },
+  });
+
+  return { ...user, userId: String(created.id) };
+}
+
+function cryptoRandomPassword() {
+  return `oauth-${crypto.randomUUID()}-${crypto.randomUUID()}`;
 }

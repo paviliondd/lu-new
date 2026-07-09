@@ -15,5 +15,9 @@ export async function GET(request: Request) {
   const requestedLocale = new URL(request.url).searchParams.get("locale") || defaultLocale;
   const locale = hasLocale(requestedLocale) ? requestedLocale : defaultLocale;
   const posts = await getCmsPublishedPosts(locale);
-  return Response.json(posts);
+  return Response.json(posts, {
+    headers: {
+      "Cache-Control": "no-store",
+    },
+  });
 }

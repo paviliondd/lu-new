@@ -62,6 +62,7 @@ export async function addComment(input: {
   postSlug: string;
   parentId?: string | null;
   name: string;
+  email?: string | null;
   avatarUrl?: string | null;
   body: string;
 }) {
@@ -74,6 +75,7 @@ export async function addComment(input: {
     postSlug: input.postSlug,
     parentId: input.parentId || null,
     name: input.name.trim().slice(0, 80) || "LinuxUnity reader",
+    email: input.email?.trim().slice(0, 160) || null,
     avatarUrl: input.avatarUrl?.trim().slice(0, 400) || null,
     body,
     bodyHtml: html,

@@ -169,7 +169,7 @@ export default function Comments({
 
       <div className="theme-card mb-8 overflow-hidden rounded-2xl border p-4 sm:p-5">
         {!user ? (
-          <div className="grid gap-4 lg:grid-cols-[1fr_17rem] lg:items-stretch">
+          <div className="grid gap-4 lg:grid-cols-[1fr_14.5rem] lg:items-stretch">
             <div className="rounded-md border border-dashed border-slate-300 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-950/35">
               <div className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
                 <MessageCircle className="h-4 w-4 text-emerald-400" />
@@ -184,14 +184,14 @@ export default function Comments({
             <div className="flex flex-col justify-center gap-2">
               <a
                 href={`/api/auth/github?returnTo=${loginReturnTo}`}
-                className="inline-flex min-h-11 items-center justify-center gap-3 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-950 transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:border-slate-700 dark:bg-slate-50 dark:text-slate-950 dark:hover:bg-white"
+                className="inline-flex min-h-10 items-center justify-center gap-2.5 rounded-md border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm font-semibold text-slate-100 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-100 dark:hover:border-slate-500 dark:hover:bg-slate-700"
               >
                 <GitHubMark />
                 Continue with GitHub
               </a>
               <a
                 href={`/api/auth/google?returnTo=${loginReturnTo}`}
-                className="inline-flex min-h-11 items-center justify-center gap-3 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-950 transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:border-slate-700 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-50"
+                className="inline-flex min-h-10 items-center justify-center gap-2.5 rounded-md border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm font-semibold text-slate-100 transition hover:border-slate-500 hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-100 dark:hover:border-slate-500 dark:hover:bg-slate-700"
               >
                 <GoogleMark />
                 Continue with Google

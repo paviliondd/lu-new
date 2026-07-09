@@ -9,6 +9,7 @@
     "lint": "eslint",
     "payload": "payload",
     "payload:generate-types": "payload generate:types",
+    "payload:sync-series": "node scripts/sync-payload-series.mjs",
     "xml:normalize-images": "node scripts/normalize-xml-images.mjs"
   },
   "dependencies": {

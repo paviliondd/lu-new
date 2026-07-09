@@ -152,7 +152,7 @@ export default function Comments({
         </p>
       </div>
 
-      <div className="mb-8 rounded-lg border border-slate-200 bg-white/60 p-4 dark:border-slate-800 dark:bg-slate-900/40 sm:p-5">
+      <div className="theme-card mb-8 overflow-hidden rounded-2xl border p-4 sm:p-5">
         {!user ? (
           <div className="grid gap-4 lg:grid-cols-[1fr_17rem] lg:items-stretch">
             <div className="rounded-md border border-dashed border-slate-300 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-950/35">

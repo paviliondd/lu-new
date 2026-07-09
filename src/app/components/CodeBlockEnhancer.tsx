@@ -28,6 +28,38 @@ async function copyText(value: string) {
   }
 }
 
+function createIcon(state: "idle" | "loading" | "copied" | "failed") {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.classList.add("code-copy-button__icon");
+
+  if (state === "copied") {
+    svg.innerHTML = '<path d="M20 6 9 17l-5-5"></path>';
+    return svg;
+  }
+
+  if (state === "failed") {
+    svg.innerHTML = '<path d="M12 8v4"></path><path d="M12 16h.01"></path><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path>';
+    return svg;
+  }
+
+  if (state === "loading") {
+    svg.setAttribute("stroke-dasharray", "8 4");
+    svg.classList.add("code-copy-button__icon--spin");
+    svg.innerHTML = '<path d="M21 12a9 9 0 1 1-3-6.7"></path>';
+    return svg;
+  }
+
+  svg.innerHTML = '<path d="M20 2H10a2 2 0 0 0-2 2v10"></path><path d="M4 8h10a2 2 0 0 1 2 2v10H6a2 2 0 0 1-2-2Z"></path>';
+  return svg;
+}
+
 function getFilename(preElement: HTMLElement, codeElement: HTMLElement) {
   const explicitFilename =
     preElement.dataset.filename ||
@@ -88,18 +120,24 @@ export default function CodeBlockEnhancer({
       const copyButton = document.createElement("button");
       copyButton.type = "button";
       copyButton.className = "code-copy-button";
-      copyButton.textContent = copyLabel;
       copyButton.setAttribute("aria-label", copyLabel);
+      copyButton.setAttribute("title", copyLabel);
       copyButton.dataset.state = "idle";
+      copyButton.appendChild(createIcon("idle"));
 
       const handleCopy = async () => {
         copyButton.dataset.state = "loading";
+        copyButton.replaceChildren(createIcon("loading"));
         const copied = await copyText(rawCode);
-        copyButton.textContent = copied ? copiedLabel : failedLabel;
         copyButton.dataset.state = copied ? "copied" : "failed";
+        copyButton.setAttribute("aria-label", copied ? copiedLabel : failedLabel);
+        copyButton.setAttribute("title", copied ? copiedLabel : failedLabel);
+        copyButton.replaceChildren(createIcon(copied ? "copied" : "failed"));
         window.setTimeout(() => {
-          copyButton.textContent = copyLabel;
           copyButton.dataset.state = "idle";
+          copyButton.setAttribute("aria-label", copyLabel);
+          copyButton.setAttribute("title", copyLabel);
+          copyButton.replaceChildren(createIcon("idle"));
         }, 2000);
       };
 

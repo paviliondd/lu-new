@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { exchangeOAuthCode } from "@/lib/auth/oauth";
+import { exchangeOAuthCode, oauthRedirectUrl } from "@/lib/auth/oauth";
 import {
   clearOAuthReturnTo,
   clearOAuthState,
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const returnTo = await consumeOAuthReturnTo("google");
-  const response = NextResponse.redirect(new URL(returnTo, request.url));
+  const response = NextResponse.redirect(oauthRedirectUrl(returnTo, request.url));
 
   try {
     if (!code || !(await consumeOAuthState("google", state))) {

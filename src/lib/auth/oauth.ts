@@ -4,8 +4,17 @@ import type { AuthUser, OAuthProvider } from "./session";
 
 type OAuthProfile = Omit<AuthUser, "userId">;
 
-function siteUrl(requestUrl: string) {
-  return (process.env.NEXT_PUBLIC_SITE_URL || new URL(requestUrl).origin).replace(/\/$/, "");
+export function siteUrl(requestUrl?: string) {
+  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configuredUrl) return configuredUrl.replace(/\/$/, "");
+
+  const fallbackOrigin = requestUrl ? new URL(requestUrl).origin : "http://localhost:3000";
+  return fallbackOrigin.replace(/\/$/, "");
+}
+
+export function oauthRedirectUrl(returnTo: string, requestUrl?: string) {
+  const safePath = returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
+  return new URL(safePath, siteUrl(requestUrl));
 }
 
 export function callbackUrl(provider: OAuthProvider, requestUrl: string) {

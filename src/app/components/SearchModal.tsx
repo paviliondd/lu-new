@@ -70,7 +70,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
       }
-    }, 180);
+    }, 300);
 
     return () => {
       window.clearTimeout(timer);
@@ -138,6 +138,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             }}
             className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-slate-400"
           />
+          {isLoading && (
+            <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-[10px] font-black text-slate-400 dark:border-slate-700">
+              …
+            </span>
+          )}
           {query.trim() && (
             <Link
               href={`${localePath("/search")}?q=${encodeURIComponent(query.trim())}`}
@@ -185,10 +190,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   href={localePath(`/blog/${post.slug}`)}
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={onClose}
-                  className={`group flex min-w-0 items-start gap-3 rounded-xl p-3 transition ${
+                  className={`group flex min-w-0 items-start gap-3 rounded-xl border border-transparent p-3 transition ${
                     index === activeIndex
-                      ? "bg-emerald-400/10"
-                      : "hover:bg-slate-100 dark:hover:bg-slate-800/70"
+                      ? "border-emerald-400/20 bg-emerald-400/10"
+                      : "hover:border-slate-200 hover:bg-slate-100 dark:hover:border-slate-700 dark:hover:bg-slate-800/70"
                   }`}
                 >
                   <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-900 dark:text-slate-300">
@@ -199,6 +204,19 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       className="block truncate text-sm font-extrabold text-slate-950 dark:text-white"
                       dangerouslySetInnerHTML={{ __html: post.titleHtml || post.title }}
                     />
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                        {post.category}
+                      </span>
+                      {post.tags.slice(0, 2).map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                     <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                       <span
                         dangerouslySetInnerHTML={{

@@ -250,7 +250,8 @@ iframe {
   border: 1px solid #30363d;
   border-radius: 0.9rem;
   background: #0d1117;
-  box-shadow: 0 18px 40px rgb(2 6 23 / 0.28);
+  box-shadow: none;
+  filter: drop-shadow(0 18px 40px rgb(2 6 23 / 0.28));
 }
 
 .code-shell__header {
@@ -277,12 +278,14 @@ iframe {
 
 .code-copy-button {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
   border-radius: 0.55rem;
   border: 1px solid rgb(148 163 184 / 0.26);
   background: rgb(15 23 42 / 0.72);
-  padding: 0.34rem 0.75rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
   color: var(--color-gray-200);
   transition:
     background-color 150ms ease,
@@ -295,6 +298,24 @@ iframe {
   border-color: #34d399;
   background: linear-gradient(90deg, #34d399, #22d3ee);
   color: #0f172a;
+}
+
+.code-copy-button__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.code-copy-button__icon--spin {
+  animation: code-copy-spin 900ms linear infinite;
+}
+
+@keyframes code-copy-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .code-copy-button[data-state="loading"] {

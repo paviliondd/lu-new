@@ -329,7 +329,8 @@ const Comments: CollectionConfig = {
   slug: "comments",
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "post", "status", "createdAt"],
+    defaultColumns: ["content", "name", "email", "provider", "status", "createdAt"],
+    listSearchableFields: ["name", "username", "email", "providerUserId", "content", "postSlug"],
   },
   access: {
     read: ({ req: { user } }) =>
@@ -356,8 +357,8 @@ const Comments: CollectionConfig = {
         { label: "Rejected", value: "rejected" },
       ],
     },
-    { name: "name", type: "text", required: true },
-    { name: "email", type: "email" },
+    { name: "name", type: "text", required: true, admin: { description: "Display name from OAuth profile." } },
+    { name: "email", type: "email", admin: { description: "Email from GitHub/Google OAuth when available." } },
     { name: "content", type: "textarea", required: true },
     { name: "post", type: "relationship", relationTo: "posts", required: true },
     { name: "user", type: "relationship", relationTo: "users" },
@@ -370,10 +371,10 @@ const Comments: CollectionConfig = {
         { label: "Google", value: "google" },
       ],
     },
-    { name: "providerUserId", type: "text" },
-    { name: "username", type: "text" },
-    { name: "avatarUrl", type: "text", admin: { hidden: true } },
-    { name: "postSlug", type: "text", admin: { hidden: true } },
+    { name: "providerUserId", type: "text", admin: { position: "sidebar" } },
+    { name: "username", type: "text", admin: { position: "sidebar" } },
+    { name: "avatarUrl", type: "text", admin: { position: "sidebar" } },
+    { name: "postSlug", type: "text", admin: { position: "sidebar" } },
   ],
 };
 

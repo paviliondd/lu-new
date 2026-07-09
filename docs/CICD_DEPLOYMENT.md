@@ -19,6 +19,20 @@ POSTGRES_PASSWORD=change-this-payload-db-password
 DATABASE_URL=postgres://payload:change-this-payload-db-password@postgres:5432/payload
 ```
 
+OAuth login for comments:
+
+```bash
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+GITHUB_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/github/callback
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/google/callback
+```
+
+The OAuth callback must always redirect using `NEXT_PUBLIC_SITE_URL` as the public base,
+never the container host name or internal Docker address.
+
 Admin URL:
 
 ```text

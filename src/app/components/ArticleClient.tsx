@@ -79,6 +79,12 @@ export default function ArticleClient({
       });
   }, [post.slug]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash && window.location.hash.length > 1) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [post.slug]);
+
   const copyLink = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);

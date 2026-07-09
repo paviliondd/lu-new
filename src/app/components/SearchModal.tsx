@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, FileText, Search, X } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
@@ -105,16 +106,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeHref, isOpen, onClose, results.length]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-x-hidden px-3 py-16 sm:px-4 sm:py-20">
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-x-hidden px-3 py-4 sm:px-4 sm:py-20">
       <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md" onClick={onClose} />
 
       <div
         role="dialog"
         aria-modal="true"
-        className="theme-card relative w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl shadow-slate-950/30"
+        aria-label={t("search")}
+        className="theme-card relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border shadow-xl shadow-slate-950/20 sm:max-h-[72dvh]"
       >
         <div className="flex min-w-0 items-center gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-800">
           <Search className="h-5 w-5 shrink-0 text-slate-400" />
@@ -147,21 +149,21 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <Link
               href={`${localePath("/search")}?q=${encodeURIComponent(query.trim())}`}
               onClick={onClose}
-              className="hidden rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold transition hover:border-emerald-400 dark:border-slate-700 sm:inline-flex"
+              className="hidden rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold transition hover:border-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:border-slate-700 sm:inline-flex"
             >
               {language === "vi" ? "Tất cả" : "All"}
             </Link>
           )}
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Close search"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="max-h-[62vh] overflow-y-auto p-3 sm:p-4">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4">
           {query.trim().length < 2 ? (
             <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
               {t("searchHint")}
@@ -190,7 +192,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   href={localePath(`/blog/${post.slug}`)}
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={onClose}
-                  className={`group flex min-w-0 items-start gap-3 rounded-xl border border-transparent p-3 transition ${
+                  className={`group flex min-w-0 items-start gap-3 rounded-xl border border-transparent p-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 ${
                     index === activeIndex
                       ? "border-emerald-400/20 bg-emerald-400/10"
                       : "hover:border-slate-200 hover:bg-slate-100 dark:hover:border-slate-700 dark:hover:bg-slate-800/70"
@@ -201,7 +203,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <span
-                      className="block truncate text-sm font-extrabold text-slate-950 dark:text-white"
+                      className="block text-sm font-extrabold leading-snug text-slate-950 dark:text-white"
                       dangerouslySetInnerHTML={{ __html: post.titleHtml || post.title }}
                     />
                     <div className="mt-1 flex flex-wrap gap-1">
@@ -217,7 +219,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </span>
                       ))}
                     </div>
-                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                    <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400 sm:text-sm">
                       <span
                         dangerouslySetInnerHTML={{
                           __html: post.excerptHtml || post.excerpt || post.description,
@@ -237,6 +239,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <span>{language === "vi" ? "↑ ↓ để chọn, Enter để mở" : "Use ↑ ↓ to select, Enter to open"}</span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

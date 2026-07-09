@@ -107,9 +107,9 @@ export default function ArticleClient({
       <div className="mx-auto w-full max-w-7xl px-4">
         {/* Breadcrumb */}
         <div className="mb-8 flex min-w-0 items-center gap-1 overflow-hidden text-xs text-gray-500">
-          <Link href={localePath("/")} className="hover:text-brand-650 transition">{t("home")}</Link>
+          <Link href={localePath("/")} className="hover:text-brand-600 transition">{t("home")}</Link>
           <ChevronRight className="h-3 w-3 shrink-0" />
-          <Link href={localePath("/blog")} className="hover:text-brand-650 transition">{t("blog")}</Link>
+          <Link href={localePath("/blog")} className="hover:text-brand-600 transition">{t("blog")}</Link>
           <ChevronRight className="h-3 w-3 shrink-0" />
           <span className="truncate text-gray-900 dark:text-gray-100 font-medium max-w-[52vw] sm:max-w-xs">
             {post.title}
@@ -135,7 +135,7 @@ export default function ArticleClient({
             </button>
 
             {/* Author Card */}
-            <div className="rounded-2xl border border-gray-250/70 p-5 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/20">
+            <div className="rounded-2xl border border-gray-200/70 p-5 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/20">
               <div className="flex items-center gap-3 mb-4">
                 <AuthorAvatar author={author} post={post} className="h-10 w-10" />
                 <div>

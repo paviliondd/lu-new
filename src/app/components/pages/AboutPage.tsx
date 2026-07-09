@@ -9,28 +9,28 @@ export default function AboutPage() {
 
   const missionItems = [
     {
-      icon: <Cloud className="h-6 w-6 text-brand-650 dark:text-brand-400" />,
+      icon: <Cloud className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
       title: "Cloud Computing",
       desc: language === "vi" 
         ? "Nghiên cứu sâu các dịch vụ trên AWS, Azure, Google Cloud để xây dựng các giải pháp tối ưu chi phí và hiệu năng."
         : "Deep dive into AWS, Azure, and Google Cloud services to build cost-effective and high-performance solutions.",
     },
     {
-      icon: <Code className="h-6 w-6 text-brand-650 dark:text-brand-400" />,
+      icon: <Code className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
       title: "Automation & IaC",
       desc: language === "vi"
         ? "Thay thế các thao tác cấu hình thủ công bằng Code (Terraform, Ansible, CloudFormation), kiểm soát phiên bản qua Git."
         : "Replace manual configuration tasks with Code (Terraform, Ansible, CloudFormation), version controlled via Git.",
     },
     {
-      icon: <Shield className="h-6 w-6 text-brand-650 dark:text-brand-400" />,
+      icon: <Shield className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
       title: "DevSecOps",
       desc: language === "vi"
         ? "Tích hợp bảo mật vào quy trình CI/CD từ sớm (Shift-Left Security), kiểm thử mã nguồn tĩnh (SAST), động (DAST)."
         : "Integrate security early in the CI/CD pipeline (Shift-Left), scanning static (SAST) and dynamic (DAST) code.",
     },
     {
-      icon: <Cpu className="h-6 w-6 text-brand-650 dark:text-brand-400" />,
+      icon: <Cpu className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
       title: "Platform Engineering",
       desc: language === "vi"
         ? "Xây dựng các Cổng thông tin tự phục vụ dành cho lập trình viên (Developer Portals), giảm tải vận hành hạ tầng."
@@ -43,7 +43,7 @@ export default function AboutPage() {
       <div className="mx-auto max-w-6xl px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-xs text-gray-500 mb-6">
-          <Link href={localePath("/")} className="hover:text-brand-650 transition">{t("home")}</Link>
+          <Link href={localePath("/")} className="hover:text-brand-600 transition">{t("home")}</Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-gray-900 dark:text-gray-100 font-medium">{t("about")}</span>
         </div>
@@ -62,7 +62,7 @@ export default function AboutPage() {
         <div className="space-y-16">
           {/* Section 1: Introduction */}
           <div className="grid gap-8 md:grid-cols-2 items-center">
-            <div className="space-y-4 text-sm leading-relaxed text-gray-650 dark:text-gray-400">
+            <div className="space-y-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {t("missionTitle")}
               </h2>
@@ -107,7 +107,7 @@ export default function AboutPage() {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {t("coreTopicsTitle")}
               </h2>
-              <p className="text-xs text-gray-505 dark:text-gray-405 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {t("coreTopicsSubtitle")}
               </p>
             </div>
@@ -146,7 +146,7 @@ export default function AboutPage() {
                 className="inline-flex h-11 items-center rounded-xl bg-white px-6 text-xs font-bold text-brand-700 shadow hover:shadow-lg hover:bg-gray-50 transition cursor-pointer"
               >
                 {t("ctaButton")}
-                <ArrowRight className="ml-1.5 h-4 w-4 text-brand-705" />
+                <ArrowRight className="ml-1.5 h-4 w-4 text-brand-700" />
               </Link>
             </div>
           </div>

@@ -12,9 +12,15 @@ interface CodeBlockEnhancerProps {
 
 async function copyText(value: string) {
   try {
-    await navigator.clipboard.writeText(value);
-    return true;
+    if (window.isSecureContext && navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
   } catch {
+    // Fall through to the textarea fallback below.
+  }
+
+  try {
     const textarea = document.createElement("textarea");
     textarea.value = value;
     textarea.setAttribute("readonly", "");
@@ -25,6 +31,8 @@ async function copyText(value: string) {
     const copied = document.execCommand("copy");
     textarea.remove();
     return copied;
+  } catch {
+    return false;
   }
 }
 
@@ -126,6 +134,8 @@ export default function CodeBlockEnhancer({
       copyButton.appendChild(createIcon("idle"));
 
       const handleCopy = async () => {
+        if (copyButton.dataset.state === "loading") return;
+
         copyButton.dataset.state = "loading";
         copyButton.replaceChildren(createIcon("loading"));
         const copied = await copyText(rawCode);

@@ -11,12 +11,15 @@ import PostListRow from "./PostListRow";
 import TableOfContents, { TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
 import AuthorAvatar from "./AuthorAvatar";
+import Comments from "./Comments";
+import type { CommentRecord } from "@/lib/comments/types";
 
 interface ArticleClientProps {
   post: Post;
   author: Author;
   headings: TocHeading[];
   relatedPosts: Post[];
+  initialComments?: CommentRecord[];
   assetBase?: string;
   legacyAssetOrigins?: string[];
 }
@@ -45,6 +48,7 @@ export default function ArticleClient({
   author,
   headings,
   relatedPosts,
+  initialComments = [],
   assetBase,
   legacyAssetOrigins,
 }: ArticleClientProps) {
@@ -55,7 +59,7 @@ export default function ArticleClient({
   useEffect(() => {
     const storageKey = `linuxunity:viewed:${post.slug}`;
     const viewedAt = Number(localStorage.getItem(storageKey) || 0);
-    const viewWindowMs = 24 * 60 * 60 * 1000;
+    const viewWindowMs = 30 * 60 * 1000;
 
     if (viewedAt && Date.now() - viewedAt < viewWindowMs) return;
 
@@ -288,6 +292,8 @@ export default function ArticleClient({
                 </div>
               </section>
             )}
+
+            <Comments postSlug={post.slug} initialComments={initialComments} />
           </div>
 
           <TableOfContents

@@ -23,11 +23,13 @@ function CommentForm({
 }) {
   const { language } = useLanguage();
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [body, setBody] = useState("");
   const [website, setWebsite] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -37,12 +39,12 @@ function CommentForm({
       const response = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postSlug, parentId, name, avatarUrl, body, website }),
+        body: JSON.stringify({ postSlug, parentId, name, email, avatarUrl, body, website }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to post comment");
-      onCreated(payload.comment);
       setBody("");
+      setSubmitted(true);
       if (!parentId) setAvatarUrl("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to post comment");
@@ -70,6 +72,13 @@ function CommentForm({
           required
         />
         <input
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder={language === "vi" ? "Email (khong hien thi)" : "Email (not shown)"}
+          className="rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-emerald-400 dark:border-slate-700"
+          type="email"
+        />
+        <input
           value={avatarUrl}
           onChange={(event) => setAvatarUrl(event.target.value)}
           placeholder={language === "vi" ? "URL avatar (tùy chọn)" : "Avatar URL (optional)"}
@@ -83,6 +92,13 @@ function CommentForm({
         className="min-h-28 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-emerald-400 dark:border-slate-700"
         required
       />
+      {submitted && (
+        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-300">
+          {language === "vi"
+            ? "Binh luan da duoc gui va dang cho duyet."
+            : "Comment submitted and waiting for approval."}
+        </p>
+      )}
       {error && <p className="text-xs font-semibold text-red-500">{error}</p>}
       <button
         type="submit"

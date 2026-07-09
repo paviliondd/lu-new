@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import { ArrowRight, Boxes, GitPullRequest, Layers, Sparkles, Zap } from "lucide-react";
-import type { Post } from "@/app/data";
-import { series, team } from "@/app/data";
+import type { Post, Series } from "@/app/data";
+import { team } from "@/app/data";
 import PostCard from "@/app/components/PostCard";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
 interface HomePageProps {
   initialPosts: Post[];
+  seriesItems: Series[];
 }
 
-export default function HomePage({ initialPosts }: HomePageProps) {
+export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
   const { t, language, localePath } = useLanguage();
   const posts = usePublishedPosts(initialPosts);
   const recentPosts = [...posts]
@@ -168,7 +169,7 @@ export default function HomePage({ initialPosts }: HomePageProps) {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            {series.map((item) => (
+            {seriesItems.map((item) => (
               <Link
                 key={item.slug}
                 href={localePath(`/blog/series/${item.slug}`)}

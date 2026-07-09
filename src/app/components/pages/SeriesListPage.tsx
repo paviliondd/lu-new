@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { ArrowRight, ChevronRight, GitPullRequest, Layers, Zap } from "lucide-react";
-import { series, type Post } from "@/app/data";
+import type { Post, Series } from "@/app/data";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
 interface SeriesListPageProps {
   initialPosts: Post[];
+  seriesItems: Series[];
 }
 
-export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
+export default function SeriesListPage({ initialPosts, seriesItems }: SeriesListPageProps) {
   const { t, language, localePath } = useLanguage();
   const posts = usePublishedPosts(initialPosts);
 
@@ -44,7 +45,7 @@ export default function SeriesListPage({ initialPosts }: SeriesListPageProps) {
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {series.map((item) => {
+          {seriesItems.map((item) => {
             const seriesPostsCount = posts.filter((post) => post.seriesSlug === item.slug).length;
 
             return (

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import SeriesListPage from "@/app/components/pages/SeriesListPage";
 import { hasLocale } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
-import { getCmsPublishedPosts } from "@/lib/cms/payload";
+import { getCmsPublishedPosts, getCmsSeries } from "@/lib/cms/payload";
 
 export const dynamic = "force-dynamic";
 
@@ -31,5 +31,6 @@ export default async function SeriesRoute({ params }: SeriesRouteProps) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const posts = await getCmsPublishedPosts(lang);
-  return <SeriesListPage initialPosts={posts} />;
+  const seriesItems = await getCmsSeries(lang);
+  return <SeriesListPage initialPosts={posts} seriesItems={seriesItems} />;
 }

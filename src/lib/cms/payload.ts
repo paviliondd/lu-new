@@ -3,14 +3,38 @@ import "server-only";
 import config from "@payload-config";
 import { marked } from "marked";
 import { getPayload } from "payload";
-import { allPosts, team, type Post } from "@/app/data";
+import { FilterXSS } from "xss";
+import { allPosts, series as fileSeries, team, type Post, type Series } from "@/app/data";
 import { localizePost, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 import { cachedJson } from "@/lib/server/redis-cache";
 import { getLocalPostViews } from "@/lib/views/store";
+import type { CommentRecord } from "@/lib/comments/types";
 
 type PayloadDoc = Record<string, unknown>;
+
+function asPayloadDoc(value: unknown): PayloadDoc {
+  return value && typeof value === "object" ? (value as PayloadDoc) : {};
+}
+
+const commentFilter = new FilterXSS({
+  whiteList: {
+    a: ["href", "title", "target", "rel"],
+    blockquote: [],
+    br: [],
+    code: [],
+    em: [],
+    li: [],
+    ol: [],
+    p: [],
+    pre: [],
+    strong: [],
+    ul: [],
+  },
+  stripIgnoreTag: true,
+  stripIgnoreTagBody: ["script", "style", "iframe", "object", "embed"],
+});
 
 function canUsePayload() {
   return Boolean(process.env.DATABASE_URL && process.env.PAYLOAD_SECRET);
@@ -78,6 +102,24 @@ function estimateReadTime(content: string, locale: Locale) {
 
 function fallbackBase(slug: string): Post | null {
   return allPosts.find((post) => post.slug === slug) || null;
+}
+
+function mapPayloadSeries(doc: PayloadDoc): Series {
+  const slug = asString(doc.slug);
+  const titleVi = asString(doc.titleVi, slug);
+  const descriptionVi = asString(doc.descriptionVi);
+
+  return {
+    slug,
+    title: titleVi,
+    title_en: asString(doc.titleEn, titleVi),
+    description: descriptionVi,
+    description_en: asString(doc.descriptionEn, descriptionVi),
+    icon: asString(doc.icon, "layers"),
+    partsCount: 0,
+    tag: asString(doc.tag),
+    color: asString(doc.color, "#2563eb"),
+  };
 }
 
 async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
@@ -172,6 +214,16 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
     readTime_en: asString(doc.readTimeEn, fallback?.readTime_en || estimateReadTime(contentEn, "en")),
     views: Math.max(0, asNumber(doc.views, fallback?.views || 0)),
     seriesSlug: asString(series?.slug, fallback?.seriesSlug || "") || null,
+    series: series
+      ? {
+          slug: asString(series.slug),
+          title: asString(series.titleVi),
+          title_en: asString(series.titleEn, asString(series.titleVi)),
+        }
+      : null,
+    thumbnail: seoImage || coverImage || fallback?.seo.ogImage || null,
+    comments: [],
+    commentCount: 0,
     topicSlug: asString(doc.topicSlug, fallback?.topicSlug || ""),
     clusterSlug: asString(doc.clusterSlug, fallback?.clusterSlug || asString(series?.slug, "")),
     gradient: asString(doc.gradient, fallback?.gradient || "from-slate-600/90 to-cyan-700/90"),
@@ -225,6 +277,20 @@ function mergePosts(primary: Post[], fallback: Post[]) {
   });
 }
 
+function mergeSeries(primary: Series[], fallback: Series[]) {
+  const seriesBySlug = new Map<string, Series>();
+  for (const item of fallback) seriesBySlug.set(item.slug, item);
+  for (const item of primary) {
+    const current = seriesBySlug.get(item.slug);
+    seriesBySlug.set(item.slug, {
+      ...(current || item),
+      ...item,
+      partsCount: current?.partsCount || item.partsCount || 0,
+    });
+  }
+  return Array.from(seriesBySlug.values());
+}
+
 async function withLocalViews(posts: Post[]) {
   const localViews = await getLocalPostViews();
   return posts.map((post) => ({
@@ -255,7 +321,7 @@ export async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<P
           },
         },
       });
-      const payloadPosts = await Promise.all(result.docs.map((doc) => mapPayloadPost(doc, locale)));
+      const payloadPosts = await Promise.all(result.docs.map((doc) => mapPayloadPost(asPayloadDoc(doc), locale)));
       return withLocalViews(mergePosts(payloadPosts, filePosts));
     } catch (error) {
       console.error("Unable to fetch Payload published posts", { locale, error });
@@ -265,6 +331,43 @@ export async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<P
 }
 
 export const getCmsPublishedPosts = getPayloadPublishedPosts;
+
+export async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]> {
+  return cachedJson(`series:list:${locale}`, 300, async () => {
+    const posts = await getPayloadPublishedPosts(locale);
+    const counts = new Map<string, number>();
+    for (const post of posts) {
+      if (!post.seriesSlug) continue;
+      counts.set(post.seriesSlug, (counts.get(post.seriesSlug) || 0) + 1);
+    }
+
+    const fallback = fileSeries.map((item) => ({
+      ...item,
+      partsCount: counts.get(item.slug) || item.partsCount,
+    }));
+    const payload = await getPayloadClient();
+    if (!payload) return fallback;
+
+    try {
+      const result = await payload.find({
+        collection: "series",
+        depth: 0,
+        limit: 100,
+        sort: "titleVi",
+      });
+      const payloadSeries = result.docs.map((doc) => mapPayloadSeries(asPayloadDoc(doc)));
+      return mergeSeries(payloadSeries, fallback).map((item) => ({
+        ...item,
+        partsCount: counts.get(item.slug) || item.partsCount,
+      }));
+    } catch (error) {
+      console.error("Unable to fetch Payload series", { locale, error });
+      return fallback;
+    }
+  });
+}
+
+export const getCmsSeries = getPayloadSeries;
 
 export async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promise<Post | null> {
   return cachedJson(`posts:detail:${locale}:${slug}`, 300, async () => {
@@ -295,7 +398,7 @@ export async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"):
 
       const doc = result.docs[0];
       if (!doc) return filePost ? withLocalView(filePost) : null;
-      return withLocalView(await mapPayloadPost(doc, locale));
+      return withLocalView(await mapPayloadPost(asPayloadDoc(doc), locale));
     } catch (error) {
       console.error("Unable to resolve Payload post by slug", { slug, locale, error });
       return filePost ? withLocalView(filePost) : null;
@@ -319,7 +422,7 @@ export async function incrementPayloadPostView(slug: string): Promise<number | n
       },
     },
   });
-  const doc = result.docs[0] as PayloadDoc | undefined;
+  const doc = result.docs[0] ? asPayloadDoc(result.docs[0]) : undefined;
   if (!doc) return null;
   if (typeof doc.id !== "string" && typeof doc.id !== "number") return null;
 
@@ -331,4 +434,109 @@ export async function incrementPayloadPostView(slug: string): Promise<number | n
   });
 
   return views;
+}
+
+function renderCommentBody(value: unknown) {
+  const source = asString(value).slice(0, 4000);
+  const html = marked.parse(source, { async: false }) as string;
+  return commentFilter.process(html);
+}
+
+function mapPayloadComment(doc: PayloadDoc): CommentRecord {
+  const post = relationDoc(doc.post);
+  const parent = relationDoc(doc.parent);
+  return {
+    id: String(doc.id || ""),
+    postSlug: asString(doc.postSlug, asString(post?.slug)),
+    parentId: parent ? String(parent.id || "") : null,
+    name: asString(doc.name, "LinuxUnity reader"),
+    email: asString(doc.email) || null,
+    avatarUrl: asString(doc.avatarUrl) || null,
+    body: asString(doc.content),
+    bodyHtml: renderCommentBody(doc.content),
+    status: doc.status === "approved" || doc.status === "rejected" ? doc.status : "pending",
+    createdAt: asString(doc.createdAt, new Date().toISOString()),
+  };
+}
+
+export async function getApprovedPayloadComments(postSlug: string): Promise<CommentRecord[] | null> {
+  const payload = await getPayloadClient();
+  if (!payload) return null;
+
+  try {
+    const result = await payload.find({
+      collection: "comments",
+      depth: 1,
+      limit: 100,
+      sort: "createdAt",
+      where: {
+        and: [
+          {
+            postSlug: {
+              equals: postSlug,
+            },
+          },
+          {
+            status: {
+              equals: "approved",
+            },
+          },
+        ],
+      },
+    });
+    return result.docs.map((doc) => mapPayloadComment(asPayloadDoc(doc)));
+  } catch (error) {
+    console.error("Unable to fetch Payload comments", { postSlug, error });
+    return null;
+  }
+}
+
+export async function addPendingPayloadComment(input: {
+  postSlug: string;
+  parentId?: string | null;
+  name: string;
+  email?: string | null;
+  avatarUrl?: string | null;
+  body: string;
+}): Promise<CommentRecord | null> {
+  const payload = await getPayloadClient();
+  if (!payload) return null;
+
+  try {
+    const postResult = await payload.find({
+      collection: "posts",
+      depth: 0,
+      limit: 1,
+      where: {
+        slug: {
+          equals: input.postSlug,
+        },
+      },
+    });
+    const post = postResult.docs[0] ? asPayloadDoc(postResult.docs[0]) : undefined;
+    if (!post?.id) return null;
+    const postId = Number(post.id);
+    if (!Number.isFinite(postId)) return null;
+    const parentId = input.parentId ? Number(input.parentId) : undefined;
+
+    const comment = await payload.create({
+      collection: "comments",
+      overrideAccess: true,
+      data: {
+        status: "pending",
+        name: input.name.trim().slice(0, 80),
+        email: input.email?.trim().slice(0, 160) || undefined,
+        content: input.body.trim().slice(0, 4000),
+        post: postId,
+        postSlug: input.postSlug,
+        parent: Number.isFinite(parentId) ? parentId : undefined,
+        avatarUrl: input.avatarUrl?.trim().slice(0, 400) || undefined,
+      },
+    });
+
+    return mapPayloadComment(asPayloadDoc(comment));
+  } catch (error) {
+    console.error("Unable to create Payload comment", { postSlug: input.postSlug, error });
+    return null;
+  }
 }

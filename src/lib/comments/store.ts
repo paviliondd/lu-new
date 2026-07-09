@@ -54,6 +54,7 @@ export async function getComments(postSlug: string) {
   const comments = await readAllComments();
   return comments
     .filter((comment) => comment.postSlug === postSlug)
+    .filter((comment) => !comment.status || comment.status === "approved")
     .sort((left, right) => +new Date(left.createdAt) - +new Date(right.createdAt));
 }
 
@@ -76,6 +77,7 @@ export async function addComment(input: {
     avatarUrl: input.avatarUrl?.trim().slice(0, 400) || null,
     body,
     bodyHtml: html,
+    status: "pending",
     createdAt: now,
   };
 

@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft, Layers } from "lucide-react";
 import { notFound } from "next/navigation";
-import { series, team } from "@/app/data";
+import { team } from "@/app/data";
 import PostCard from "@/app/components/PostCard";
-import { getCmsPublishedPosts } from "@/lib/cms/payload";
+import { getCmsPublishedPosts, getCmsSeries } from "@/lib/cms/payload";
 import { hasLocale, localePath } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
 
@@ -39,7 +39,7 @@ export async function generateMetadata({
   const { lang, seriesSlug } = await params;
   if (!hasLocale(lang)) return {};
 
-  const selectedSeries = series.find((item) => item.slug === seriesSlug);
+  const selectedSeries = (await getCmsSeries(lang)).find((item) => item.slug === seriesSlug);
   if (!selectedSeries) return {};
 
   const title = lang === "vi" ? selectedSeries.title : selectedSeries.title_en;
@@ -56,7 +56,7 @@ export default async function SeriesDetailPage({
   const { lang, seriesSlug } = await params;
   if (!hasLocale(lang)) notFound();
 
-  const selectedSeries = series.find((item) => item.slug === seriesSlug);
+  const selectedSeries = (await getCmsSeries(lang)).find((item) => item.slug === seriesSlug);
   if (!selectedSeries) notFound();
 
   const requestedPage = parsePage((await searchParams)?.page);

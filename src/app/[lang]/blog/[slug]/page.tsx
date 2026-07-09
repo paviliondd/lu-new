@@ -3,9 +3,11 @@ import { Metadata } from "next";
 import { team } from "@/app/data";
 import ArticleClient from "@/app/components/ArticleClient";
 import {
+  getApprovedPayloadComments,
   getCmsPostBySlug,
   getCmsPublishedPosts,
 } from "@/lib/cms/payload";
+import { getComments } from "@/lib/comments/store";
 import { highlightCodeBlocks } from "@/lib/content/highlight";
 import { hasLocale } from "@/i18n/config";
 import { localizedAlternates } from "@/i18n/metadata";
@@ -118,6 +120,7 @@ export default async function BlogPostPage({ params }: Props) {
   const relatedPosts = (await getCmsPublishedPosts(lang))
     .filter((item) => item.slug !== post.slug && item.category === post.category)
     .slice(0, 3);
+  const initialComments = (await getApprovedPayloadComments(post.slug)) || (await getComments(post.slug));
   const assetBase = publicAssetBase();
   const externalAssetOrigins = legacyAssetOrigins();
   const canonicalUrl = `${siteUrl}${localePath(lang, `/blog/${post.slug}`)}`;
@@ -135,7 +138,7 @@ export default async function BlogPostPage({ params }: Props) {
       image: post.authorAvatar || author.avatarUrl || undefined,
     },
     mainEntityOfPage: canonicalUrl,
-    commentCount: 0,
+    commentCount: initialComments.length,
   };
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -177,6 +180,7 @@ export default async function BlogPostPage({ params }: Props) {
         author={author}
         headings={headings}
         relatedPosts={relatedPosts}
+        initialComments={initialComments}
         assetBase={assetBase}
         legacyAssetOrigins={externalAssetOrigins}
       />

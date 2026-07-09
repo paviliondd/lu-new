@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { addComment, getComments } from "@/lib/comments/store";
+import { addPendingPayloadComment, getApprovedPayloadComments } from "@/lib/cms/payload";
 import { rateLimit } from "@/lib/server/rate-limit";
 
 export async function GET(request: Request) {
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing slug" }, { status: 400 });
   }
 
-  const comments = await getComments(slug);
+  const comments = (await getApprovedPayloadComments(slug)) || (await getComments(slug));
   return NextResponse.json({ comments });
 }
 
@@ -28,17 +29,27 @@ export async function POST(request: Request) {
   const postSlug = String(payload.postSlug || "").trim();
   const body = String(payload.body || "").trim();
   const name = String(payload.name || "").trim();
+  const email = String(payload.email || "").trim();
   if (!postSlug || body.length < 2 || name.length < 2) {
     return NextResponse.json({ error: "Name and comment are required" }, { status: 400 });
   }
 
-  const comment = await addComment({
-    postSlug,
-    parentId: payload.parentId ? String(payload.parentId) : null,
-    name,
-    avatarUrl: payload.avatarUrl ? String(payload.avatarUrl) : null,
-    body,
-  });
+  const comment =
+    (await addPendingPayloadComment({
+      postSlug,
+      parentId: payload.parentId ? String(payload.parentId) : null,
+      name,
+      email: email || null,
+      avatarUrl: payload.avatarUrl ? String(payload.avatarUrl) : null,
+      body,
+    })) ||
+    (await addComment({
+      postSlug,
+      parentId: payload.parentId ? String(payload.parentId) : null,
+      name,
+      avatarUrl: payload.avatarUrl ? String(payload.avatarUrl) : null,
+      body,
+    }));
 
-  return NextResponse.json({ comment }, { status: 201 });
+  return NextResponse.json({ comment, pendingApproval: true }, { status: 201 });
 }

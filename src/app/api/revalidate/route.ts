@@ -13,7 +13,7 @@ function authorized(request: Request) {
   );
 }
 
-function revalidateLocalePaths(locale: Locale, slug?: string) {
+function revalidateLocalePaths(locale: Locale, slug?: string, seriesSlug?: string) {
   revalidatePath(`/${locale}`);
   revalidatePath(`/${locale}/blog`);
   revalidatePath(`/${locale}/blog/series`);
@@ -24,6 +24,10 @@ function revalidateLocalePaths(locale: Locale, slug?: string) {
     revalidatePath(`/blog/${slug}`);
     revalidatePath(`/${slug}`);
   }
+
+  if (seriesSlug) {
+    revalidatePath(`/${locale}/blog/series/${seriesSlug}`);
+  }
 }
 
 export async function POST(request: Request) {
@@ -33,17 +37,19 @@ export async function POST(request: Request) {
 
   const payload = await request.json().catch(() => ({}));
   const slug = typeof payload.slug === "string" ? payload.slug : undefined;
+  const seriesSlug = typeof payload.seriesSlug === "string" ? payload.seriesSlug : undefined;
   const lang = typeof payload.lang === "string" && hasLocale(payload.lang) ? payload.lang : null;
 
   if (lang) {
-    revalidateLocalePaths(lang, slug);
+    revalidateLocalePaths(lang, slug, seriesSlug);
   } else {
-    locales.forEach((locale) => revalidateLocalePaths(locale, slug));
+    locales.forEach((locale) => revalidateLocalePaths(locale, slug, seriesSlug));
   }
 
   await invalidateCache([
     "posts:published:*",
     "posts:detail:*",
+    "series:list:*",
     "sidebar:*",
     "search:*",
   ]);
@@ -53,6 +59,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     revalidated: true,
     slug: slug || null,
+    seriesSlug: seriesSlug || null,
     lang: lang || "all",
   });
 }

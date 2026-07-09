@@ -2,10 +2,12 @@ import "server-only";
 
 import { promises as fs } from "fs";
 import path from "path";
+import { getCachedJson, setCachedJson } from "@/lib/server/redis-cache";
 
 const viewsFile = path.join(process.cwd(), "data", "views.json");
 const sessionsFile = path.join(process.cwd(), "data", "view-sessions.json");
-const viewWindowMs = 24 * 60 * 60 * 1000;
+const viewWindowMs = 30 * 60 * 1000;
+const viewWindowSeconds = Math.floor(viewWindowMs / 1000);
 
 async function ensureStore() {
   await fs.mkdir(path.dirname(viewsFile), { recursive: true });
@@ -66,12 +68,17 @@ async function writeViewSessions(sessions: Record<string, number>) {
 }
 
 export async function hasRecentViewSession(sessionKey: string, now = Date.now()) {
+  const redisHit = await getCachedJson<boolean>(`views:session:${sessionKey}`);
+  if (redisHit) return true;
+
   const sessions = await getViewSessions();
   const lastViewedAt = Number(sessions[sessionKey] || 0);
   return lastViewedAt > 0 && now - lastViewedAt < viewWindowMs;
 }
 
 export async function rememberViewSession(sessionKey: string, now = Date.now()) {
+  await setCachedJson(`views:session:${sessionKey}`, true, viewWindowSeconds);
+
   const sessions = await getViewSessions();
   const cutoff = now - viewWindowMs;
   for (const [key, viewedAt] of Object.entries(sessions)) {

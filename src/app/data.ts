@@ -61,6 +61,14 @@ export interface Post {
   readTime_en: string;
   views: number;
   seriesSlug: string | null;
+  series?: {
+    slug: string;
+    title: string;
+    title_en?: string;
+  } | null;
+  thumbnail?: string | null;
+  comments?: unknown[];
+  commentCount?: number;
   topicSlug: string;
   clusterSlug: string;
   gradient: string;

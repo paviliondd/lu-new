@@ -9,28 +9,28 @@ export default function AboutPage() {
 
   const missionItems = [
     {
-      icon: <Cloud className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
+      icon: <Cloud className="h-5 w-5" />,
       title: "Cloud Computing",
       desc: language === "vi" 
         ? "Nghiên cứu sâu các dịch vụ trên AWS, Azure, Google Cloud để xây dựng các giải pháp tối ưu chi phí và hiệu năng."
         : "Deep dive into AWS, Azure, and Google Cloud services to build cost-effective and high-performance solutions.",
     },
     {
-      icon: <Code className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
+      icon: <Code className="h-5 w-5" />,
       title: "Automation & IaC",
       desc: language === "vi"
         ? "Thay thế các thao tác cấu hình thủ công bằng Code (Terraform, Ansible, CloudFormation), kiểm soát phiên bản qua Git."
         : "Replace manual configuration tasks with Code (Terraform, Ansible, CloudFormation), version controlled via Git.",
     },
     {
-      icon: <Shield className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
+      icon: <Shield className="h-5 w-5" />,
       title: "DevSecOps",
       desc: language === "vi"
         ? "Tích hợp bảo mật vào quy trình CI/CD từ sớm (Shift-Left Security), kiểm thử mã nguồn tĩnh (SAST), động (DAST)."
         : "Integrate security early in the CI/CD pipeline (Shift-Left), scanning static (SAST) and dynamic (DAST) code.",
     },
     {
-      icon: <Cpu className="h-6 w-6 text-brand-600 dark:text-brand-400" />,
+      icon: <Cpu className="h-5 w-5" />,
       title: "Platform Engineering",
       desc: language === "vi"
         ? "Xây dựng các Cổng thông tin tự phục vụ dành cho lập trình viên (Developer Portals), giảm tải vận hành hạ tầng."
@@ -39,31 +39,34 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="theme-page min-h-screen w-full py-12">
-      <div className="mx-auto max-w-6xl px-4">
+    <div className="theme-page min-h-screen w-full py-12 sm:py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1 text-xs text-gray-500 mb-6">
-          <Link href={localePath("/")} className="hover:text-brand-600 transition">{t("home")}</Link>
+        <div className="mb-6 flex items-center gap-1 text-xs theme-muted">
+          <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("home")}</Link>
           <ChevronRight className="h-3 w-3" />
-          <span className="text-gray-900 dark:text-gray-100 font-medium">{t("about")}</span>
+          <span className="font-medium text-slate-900 dark:text-slate-100">{t("about")}</span>
         </div>
 
         {/* Title area */}
         <div className="mb-12 max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
+            LinuxUnity
+          </p>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
             {t("about")}
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+          <p className="mt-4 max-w-2xl text-base leading-7 theme-muted">
             {t("logoSubtitle")}
           </p>
         </div>
 
         {/* Core Sections */}
-        <div className="space-y-16">
+        <div className="space-y-14">
           {/* Section 1: Introduction */}
-          <div className="grid gap-8 md:grid-cols-2 items-center">
-            <div className="space-y-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
+            <div className="space-y-4 text-base leading-7 theme-muted">
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">
                 {t("missionTitle")}
               </h2>
               {language === "vi" ? (
@@ -88,11 +91,13 @@ export default function AboutPage() {
             </div>
             
             {/* Mission Illustration (Decorative Gradient Block) */}
-            <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/80 via-cyan-500 to-slate-900 p-8 text-center text-white shadow-lg sm:aspect-[4/3] md:aspect-square">
+            <div className="theme-card relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border p-8 text-center sm:aspect-[4/3] md:aspect-square">
               <div className="space-y-2">
-                <Cloud className="h-14 w-14 mx-auto text-white/95 animate-pulse" />
-                <h3 className="text-lg font-extrabold">{t("exploreBuildShare")}</h3>
-                <p className="text-xs text-white/80 max-w-xs mx-auto">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border theme-border bg-white text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
+                  <Cloud className="h-7 w-7" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-950 dark:text-white">{t("exploreBuildShare")}</h3>
+                <p className="mx-auto max-w-xs text-sm leading-6 theme-muted">
                   {language === "vi"
                     ? "Khám phá công nghệ mới, xây dựng dự án thật và chia sẻ bài học kinh nghiệm."
                     : "Discover new technologies, build real-world projects, and share lessons learned."}
@@ -104,10 +109,10 @@ export default function AboutPage() {
           {/* Section 2: Mission Items Grid */}
           <div className="space-y-8">
             <div className="text-center md:text-left">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">
                 {t("coreTopicsTitle")}
               </h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="mt-2 text-sm theme-muted">
                 {t("coreTopicsSubtitle")}
               </p>
             </div>
@@ -116,15 +121,15 @@ export default function AboutPage() {
               {missionItems.map((item, index) => (
                 <div
                   key={index}
-                  className="theme-card rounded-2xl border p-6 transition duration-200 hover:border-emerald-400/50 hover:shadow-xl hover:shadow-emerald-950/20"
+                  className="theme-card rounded-xl border p-5 transition duration-200 hover:-translate-y-0.5 hover:border-teal-500/50 hover:shadow-lg dark:hover:border-emerald-400/50"
                 >
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-950/60">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border theme-border bg-white text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
                     {item.icon}
                   </div>
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                  <h3 className="text-sm font-bold text-slate-950 dark:text-white">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                  <p className="mt-2 text-sm leading-6 theme-muted">
                     {item.desc}
                   </p>
                 </div>
@@ -133,20 +138,20 @@ export default function AboutPage() {
           </div>
 
           {/* Section 3: Call to Action */}
-          <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 p-8 text-center text-slate-950 shadow-xl shadow-emerald-950/30 sm:p-12">
-            <h2 className="text-xl sm:text-2xl font-extrabold">
+          <div className="theme-card rounded-xl border p-8 text-center sm:p-10">
+            <h2 className="text-xl font-bold text-slate-950 dark:text-white sm:text-2xl">
               {t("ctaTitle")}
             </h2>
-            <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-slate-900/80 sm:text-sm">
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 theme-muted">
               {t("ctaSubtitle")}
             </p>
             <div className="mt-8 flex justify-center">
               <Link
                 href={localePath("/blog")}
-                className="inline-flex h-11 items-center rounded-xl bg-white px-6 text-xs font-bold text-brand-700 shadow hover:shadow-lg hover:bg-gray-50 transition cursor-pointer"
+                className="inline-flex h-11 items-center rounded-lg bg-slate-950 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
               >
                 {t("ctaButton")}
-                <ArrowRight className="ml-1.5 h-4 w-4 text-brand-700" />
+                <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
             </div>
           </div>

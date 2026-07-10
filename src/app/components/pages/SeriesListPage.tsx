@@ -27,21 +27,24 @@ export default function SeriesListPage({ initialPosts, seriesItems }: SeriesList
   };
 
   return (
-    <div className="theme-page min-h-screen w-full overflow-x-clip py-12">
-      <div className="mx-auto w-full max-w-6xl px-4">
-        <div className="mb-6 flex items-center gap-1 text-xs text-gray-500">
-          <Link href={localePath("/")} className="transition hover:text-emerald-300">
+    <div className="theme-page min-h-screen w-full overflow-x-clip py-12 sm:py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-6 flex items-center gap-1 text-xs theme-muted">
+          <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">
             {t("home")}
           </Link>
           <ChevronRight className="h-3 w-3" />
           <span className="font-medium text-slate-800 dark:text-slate-200">{t("series")}</span>
         </div>
 
-        <div className="mb-12 max-w-3xl">
-          <h1 className="mb-4 break-words bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
+        <div className="mb-12 max-w-3xl min-w-0">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
+            LinuxUnity
+          </p>
+          <h1 className="mt-4 break-words text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
             {t("linuxUnitySeries")}
           </h1>
-          <p className="theme-muted text-sm leading-relaxed">{t("logoSubtitle")}</p>
+          <p className="mt-4 max-w-2xl break-words text-base leading-7 theme-muted">{t("logoSubtitle")}</p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -52,24 +55,24 @@ export default function SeriesListPage({ initialPosts, seriesItems }: SeriesList
               <Link
                 key={item.slug}
                 href={localePath(`/blog/series/${item.slug}`)}
-                className="theme-card group flex min-h-48 min-w-0 flex-col rounded-xl border p-5 transition duration-200 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-950/30"
+                className="theme-card group flex min-h-48 min-w-0 flex-col overflow-hidden rounded-xl border p-5 transition duration-200 hover:-translate-y-0.5 hover:border-teal-500/50 hover:shadow-lg dark:hover:border-emerald-400/50"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 text-cyan-300 transition group-hover:scale-105">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border theme-border bg-white text-teal-700 transition group-hover:border-teal-500 dark:bg-slate-900 dark:text-emerald-300 dark:group-hover:border-emerald-400">
                   {renderSeriesIcon(item.icon)}
                 </div>
 
-                <h2 className="mt-4 line-clamp-2 break-words text-base font-bold leading-snug text-slate-950 transition group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-300">
+                <h2 className="mt-4 line-clamp-2 break-words text-base font-bold leading-snug text-slate-950 transition [overflow-wrap:anywhere] group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-300">
                   {language === "vi" ? item.title : item.title_en}
                 </h2>
-                <p className="theme-muted mt-3 line-clamp-3 text-sm leading-6">
+                <p className="theme-muted mt-3 line-clamp-3 break-words text-sm leading-6 [overflow-wrap:anywhere]">
                   {language === "vi" ? item.description : item.description_en}
                 </p>
 
                 <div className="mt-auto flex items-center justify-between gap-4 pt-5">
-                  <span className="text-xs font-bold text-cyan-300">
+                  <span className="text-xs font-bold text-teal-700 dark:text-emerald-300">
                     {seriesPostsCount || item.partsCount} {t("parts")}
                   </span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 text-cyan-300 transition group-hover:border-emerald-400 group-hover:text-emerald-300">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg border theme-border text-slate-500 transition group-hover:border-teal-500 group-hover:text-teal-700 dark:text-slate-400 dark:group-hover:border-emerald-400 dark:group-hover:text-emerald-300">
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                   </div>
                 </div>

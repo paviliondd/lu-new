@@ -45,29 +45,29 @@ export default function Header() {
 
   return (
     <header className="theme-header sticky top-0 z-40 border-b backdrop-blur-xl">
-        <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
+        <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           {/* Logo */}
           <Link href={localePath("/")} className="group flex min-w-0 items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-950 shadow-md shadow-emerald-950/40 transition duration-200 group-hover:scale-105">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border theme-border bg-white text-teal-700 shadow-sm transition duration-200 group-hover:border-teal-500 group-hover:text-teal-800 dark:bg-slate-900 dark:text-emerald-300">
               <Cloud className="h-5 w-5" />
             </div>
-            <span className="truncate bg-gradient-to-r from-slate-950 to-slate-600 bg-clip-text text-lg font-bold tracking-tight text-transparent dark:from-white dark:to-slate-300">
-              Linux<span className="font-extrabold text-emerald-300">Unity</span>
+            <span className="truncate text-lg font-bold tracking-tight text-slate-950 dark:text-white">
+              Linux<span className="font-extrabold text-teal-600 dark:text-emerald-300">Unity</span>
             </span>
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden items-center gap-1 md:flex">
+          <ul className="hidden items-center gap-1 rounded-xl border theme-border bg-white/70 p-1 dark:bg-slate-950/35 md:flex">
             {navLinks.map((link) => {
               const isActive = link.href === activeNavHref;
               return (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`rounded-lg px-3 py-2 text-sm font-medium transition cursor-pointer ${
+                    className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition cursor-pointer ${
                       isActive
-                        ? "bg-emerald-400/10 text-emerald-300"
-                        : "text-slate-600 hover:bg-slate-200/70 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-white"
+                        ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -82,7 +82,7 @@ export default function Header() {
             <button
               type="button"
               onClick={openSearch}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
+              className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-lg border theme-border bg-white px-3 text-sm font-semibold text-slate-600 transition hover:border-teal-500 hover:bg-slate-50 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:bg-slate-800 dark:hover:text-white"
               aria-label={t("search")}
               title={t("search")}
             >
@@ -93,7 +93,7 @@ export default function Header() {
             <ThemeToggle />
 
             <div
-              className="hidden h-9 items-center rounded-lg border border-slate-300 bg-white/70 p-1 text-xs font-bold text-slate-600 dark:border-slate-700 dark:bg-slate-950/50 dark:text-slate-300 sm:flex"
+              className="hidden h-10 items-center rounded-lg border theme-border bg-white/70 p-1 text-xs font-bold text-slate-600 dark:bg-slate-950/50 dark:text-slate-300 sm:flex"
               aria-label={t("language")}
             >
               {(["vi", "en"] as const).map((locale) => (
@@ -103,7 +103,7 @@ export default function Header() {
                   onClick={() => setLanguage(locale)}
                   className={`h-7 rounded-md px-2.5 uppercase transition ${
                     language === locale
-                      ? "bg-emerald-400 text-slate-950"
+                      ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
                       : "hover:bg-slate-200 dark:hover:bg-slate-800"
                   }`}
                   aria-pressed={language === locale}
@@ -115,8 +115,9 @@ export default function Header() {
 
             {/* Mobile Menu Toggle */}
             <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="cursor-pointer rounded-lg p-2 text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800 md:hidden"
+              className="grid h-10 w-10 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white md:hidden"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -130,7 +131,7 @@ export default function Header() {
 
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
-          <div className="theme-surface border-t theme-border px-4 py-4 transition-all md:hidden">
+          <div className="theme-surface border-t theme-border px-4 py-4 shadow-xl shadow-slate-950/5 transition-all md:hidden">
             <ul className="space-y-1">
               {navLinks.map((link) => {
                 const isActive = link.href === activeNavHref;
@@ -139,9 +140,9 @@ export default function Header() {
                     <Link
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`block rounded-lg px-4 py-2.5 text-base font-medium ${
+                      className={`block min-h-11 rounded-lg px-4 py-2.5 text-base font-semibold ${
                         isActive
-                          ? "bg-emerald-400/10 text-emerald-300"
+                          ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
                           : "text-slate-600 hover:bg-slate-200 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                       }`}
                     >
@@ -162,7 +163,7 @@ export default function Header() {
                       }}
                       className={`h-9 rounded-lg px-4 text-sm font-bold uppercase ${
                         language === locale
-                          ? "bg-emerald-400 text-slate-950"
+                          ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
                           : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                       }`}
                       aria-pressed={language === locale}
@@ -179,7 +180,7 @@ export default function Header() {
                     openSearch();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-base font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                  className="flex min-h-11 w-full items-center gap-2 rounded-lg px-4 py-2.5 text-base font-semibold text-slate-600 hover:bg-slate-200 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                 >
                   <Search className="h-4 w-4" />
                   {t("search")}

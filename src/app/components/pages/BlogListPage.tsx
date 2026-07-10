@@ -48,14 +48,14 @@ export default function BlogListPage({
     <div className="theme-page min-h-screen overflow-x-clip">
       <section className="theme-surface relative overflow-hidden border-b theme-border">
         <div className="theme-hero absolute inset-0" />
-        <div className="relative mx-auto w-full max-w-7xl px-4 py-14 sm:py-20">
-          <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-emerald-300 sm:text-xs sm:tracking-[0.18em]">
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+          <span className="inline-flex max-w-full items-center gap-2 rounded-full border theme-border bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-teal-700 shadow-sm dark:bg-slate-900/70 dark:text-emerald-300 sm:text-xs sm:tracking-[0.18em]">
             <SlidersHorizontal className="h-3.5 w-3.5" />
             {t("studyPath")}
           </span>
-          <h1 className="mt-6 max-w-4xl break-words text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-6xl">
+          <h1 className="mt-6 max-w-4xl break-words text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
             {t("blogTitlePart1")}
-            <span className="block bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="block text-teal-700 dark:text-emerald-300">
               {t("blogTitlePart2")}
             </span>
           </h1>
@@ -65,22 +65,22 @@ export default function BlogListPage({
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:py-14">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
         {selectedTag && (
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b theme-border pb-5">
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               {selectedTag}
             </p>
-            <Link href={localePath("/blog")} className="text-sm font-bold text-cyan-300 hover:text-emerald-300">
+            <Link href={localePath("/blog")} className="text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
               {t("resetFilter")}
             </Link>
           </div>
         )}
 
         {filteredPosts.length === 0 ? (
-          <div className="theme-card rounded-2xl border border-dashed py-20 text-center">
+          <div className="theme-card rounded-xl border border-dashed py-20 text-center">
             <p className="text-sm theme-muted">{t("noPosts")}</p>
-            <Link href={localePath("/blog")} className="mt-4 inline-block text-sm font-bold text-cyan-300 hover:text-emerald-300">
+            <Link href={localePath("/blog")} className="mt-4 inline-block text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
               {t("resetFilter")}
             </Link>
           </div>
@@ -105,7 +105,7 @@ export default function BlogListPage({
                   className={`rounded-lg border px-3 py-2 text-sm font-bold ${
                     safePage === 1
                       ? "pointer-events-none border-slate-300 bg-slate-200 text-slate-500 dark:border-slate-700 dark:bg-slate-800"
-                      : "border-slate-300 text-slate-700 hover:border-cyan-400 hover:text-cyan-700 dark:border-slate-700 dark:text-slate-200 dark:hover:text-cyan-300"
+                      : "border-slate-300 text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
                   }`}
                 >
                   ← Newer
@@ -129,8 +129,8 @@ export default function BlogListPage({
                       href={pageHref(page)}
                       className={`grid h-9 min-w-9 place-items-center rounded-lg px-3 text-sm font-bold ${
                         page === safePage
-                          ? "bg-cyan-400 text-slate-950"
-                          : "border border-slate-300 text-slate-700 hover:border-cyan-400 hover:text-cyan-700 dark:border-slate-700 dark:text-slate-200 dark:hover:text-cyan-300"
+                          ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
+                          : "border border-slate-300 text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
                       }`}
                     >
                       {page}
@@ -143,7 +143,7 @@ export default function BlogListPage({
                   className={`rounded-lg border px-3 py-2 text-sm font-bold ${
                     safePage === totalPages
                       ? "pointer-events-none border-slate-300 bg-slate-200 text-slate-500 dark:border-slate-700 dark:bg-slate-800"
-                      : "border-slate-300 text-slate-700 hover:border-cyan-400 hover:text-cyan-700 dark:border-slate-700 dark:text-slate-200 dark:hover:text-cyan-300"
+                      : "border-slate-300 text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
                   }`}
                 >
                   Older →

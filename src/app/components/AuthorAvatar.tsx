@@ -51,7 +51,7 @@ export default function AuthorAvatar({
 
   return (
     <span
-      className={`flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-400 text-[10px] font-extrabold text-slate-950 ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-full border theme-border bg-white text-[10px] font-extrabold text-teal-700 dark:bg-slate-900 dark:text-emerald-300 ${className}`}
       aria-label={display.name}
     >
       {display.initial}

@@ -118,17 +118,17 @@ export default function TableOfContents({
   }, [contentSelector, headings]);
 
   return (
-    <aside className="order-3 hidden w-72 lg:block">
-      <div className="theme-card sticky top-24 rounded-2xl border p-5 backdrop-blur">
+    <aside className="order-3 hidden w-64 lg:block">
+      <div className="sticky top-24 rounded-xl border theme-border bg-white/70 p-4 backdrop-blur dark:bg-slate-900/45">
         <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
-          <List className="h-4 w-4 text-emerald-300" />
+          <List className="h-4 w-4 text-teal-700 dark:text-emerald-300" />
           {title}
         </h3>
 
         {tocHeadings.length === 0 ? (
           <p className="mt-4 text-xs text-gray-400">{emptyLabel}</p>
         ) : (
-          <ul className="mt-4 space-y-2.5 border-l border-slate-700 py-1 pl-4 text-xs">
+          <ul className="mt-4 space-y-2.5 border-l theme-border py-1 pl-4 text-xs">
             {tocHeadings.map((heading) => (
               <li key={heading.id}>
                 <a
@@ -145,12 +145,12 @@ export default function TableOfContents({
                       element.getBoundingClientRect().top + window.pageYOffset + yOffset;
                     window.scrollTo({ top: y, behavior: "smooth" });
                   }}
-                  className={`block transition-colors duration-200 hover:text-cyan-300 ${
+                  className={`block leading-5 transition-colors duration-200 hover:text-teal-700 dark:hover:text-emerald-300 ${
                     heading.level === 3 ? "pl-3" : ""
                   } ${
                     activeId === heading.id
-                      ? "font-semibold text-emerald-300"
-                      : "text-slate-400"
+                      ? "font-semibold text-teal-700 dark:text-emerald-300"
+                      : "text-slate-500 dark:text-slate-400"
                   }`}
                 >
                   {heading.text}

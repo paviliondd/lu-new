@@ -83,6 +83,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const result = results[activeIndex];
     return result ? localePath(`/blog/${result.slug}`) : null;
   }, [activeIndex, localePath, results]);
+  const suggestedQueries = ["AWS", "Kubernetes", "Terraform", "CI/CD"];
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -116,9 +117,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={t("search")}
-        className="theme-card relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border shadow-xl shadow-slate-950/20 sm:max-h-[72dvh]"
+        className="theme-card relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-xl border shadow-xl shadow-slate-950/20 sm:max-h-[72dvh]"
       >
-        <div className="flex min-w-0 items-center gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-800">
+        <div className="flex min-w-0 items-center gap-3 border-b theme-border px-4 py-3">
           <Search className="h-5 w-5 shrink-0 text-slate-400" />
           <input
             ref={inputRef}
@@ -149,14 +150,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <Link
               href={`${localePath("/search")}?q=${encodeURIComponent(query.trim())}`}
               onClick={onClose}
-              className="hidden rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold transition hover:border-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:border-slate-700 sm:inline-flex"
+              className="hidden min-h-10 rounded-lg border theme-border px-3 py-2 text-xs font-bold transition hover:border-teal-500 dark:hover:border-emerald-400 sm:inline-flex"
             >
               {language === "vi" ? "Tất cả" : "All"}
             </Link>
           )}
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="grid h-10 w-10 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Close search"
           >
             <X className="h-5 w-5" />
@@ -166,12 +167,24 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div className="flex-1 overflow-y-auto p-3 sm:p-4">
           {query.trim().length < 2 ? (
             <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-              {t("searchHint")}
+              <p>{t("searchHint")}</p>
+              <div className="mt-5 flex max-w-full flex-nowrap justify-start gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-visible">
+                {suggestedQueries.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setQuery(item)}
+                    className="min-h-9 rounded-full border theme-border bg-white px-3 text-xs font-bold text-slate-600 transition hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : isLoading ? (
             <div className="space-y-3">
               {[0, 1, 2].map((item) => (
-                <div key={item} className="animate-pulse rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                <div key={item} className="animate-pulse rounded-xl border theme-border p-4">
                   <div className="mb-3 h-4 w-2/3 rounded bg-slate-200 dark:bg-slate-800" />
                   <div className="h-3 w-full rounded bg-slate-200 dark:bg-slate-800" />
                 </div>
@@ -179,7 +192,20 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           ) : results.length === 0 ? (
             <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-              No results found: &quot;{query}&quot;
+              <p className="font-semibold text-slate-800 dark:text-slate-100">{t("noSearchResults")}</p>
+              <p className="mt-1">&quot;{query}&quot;</p>
+              <div className="mt-5 flex max-w-full flex-nowrap justify-start gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-visible">
+                {suggestedQueries.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setQuery(item)}
+                    className="min-h-9 rounded-full border theme-border bg-white px-3 text-xs font-bold text-slate-600 transition hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -194,7 +220,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   onClick={onClose}
                   className={`group flex min-w-0 items-start gap-3 rounded-xl border border-transparent p-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 ${
                     index === activeIndex
-                      ? "border-emerald-400/20 bg-emerald-400/10"
+                      ? "border-teal-500/30 bg-teal-500/10 dark:border-emerald-400/30 dark:bg-emerald-400/10"
                       : "hover:border-slate-200 hover:bg-slate-100 dark:hover:border-slate-700 dark:hover:bg-slate-800/70"
                   }`}
                 >
@@ -234,7 +260,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           )}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 px-4 py-3 text-[11px] text-slate-400 dark:border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t theme-border px-4 py-3 text-[11px] text-slate-400">
           <span>{t("closeSearch")}</span>
           <span>{language === "vi" ? "↑ ↓ để chọn, Enter để mở" : "Use ↑ ↓ to select, Enter to open"}</span>
         </div>

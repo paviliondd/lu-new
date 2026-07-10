@@ -79,20 +79,20 @@ export default async function SeriesDetailPage({
   return (
     <div className="theme-page min-h-screen overflow-x-clip">
       <section className="theme-surface border-b theme-border">
-        <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
           <Link
             href={localePath(lang, "/blog/series")}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-emerald-300"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border theme-border bg-white px-3 text-sm font-semibold text-slate-600 transition hover:border-teal-500 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-white"
           >
             <ChevronLeft className="h-4 w-4" />
             {lang === "vi" ? "Tất cả series" : "All series"}
           </Link>
 
           <div className="mt-8 max-w-4xl">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 text-slate-950">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border theme-border bg-white text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
               <Layers className="h-6 w-6" />
             </div>
-            <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+            <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
               LinuxUnity DevOps Series
             </p>
             <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
@@ -103,10 +103,10 @@ export default async function SeriesDetailPage({
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:py-14">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
               {lang === "vi" ? "Bài viết mới nhất" : "Latest posts"}
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
@@ -121,7 +121,7 @@ export default async function SeriesDetailPage({
         </div>
 
         {paginatedPosts.length === 0 ? (
-          <div className="theme-card rounded-2xl border border-dashed py-20 text-center">
+          <div className="theme-card rounded-xl border border-dashed py-20 text-center">
             <p className="text-sm theme-muted">
               {lang === "vi"
                 ? "Các bài viết trong series này đang được biên tập."
@@ -190,7 +190,7 @@ function PaginationLink({
 }) {
   if (disabled) {
     return (
-      <span className="inline-flex h-10 min-w-10 cursor-not-allowed items-center justify-center rounded-lg bg-slate-500 px-3 text-sm font-semibold text-slate-900 opacity-70 sm:px-4">
+      <span className="inline-flex h-10 min-w-10 cursor-not-allowed items-center justify-center rounded-lg border theme-border px-3 text-sm font-semibold theme-muted opacity-60 sm:px-4">
         {children}
       </span>
     );
@@ -202,8 +202,8 @@ function PaginationLink({
       aria-current={active ? "page" : undefined}
       className={
         active
-          ? "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-blue-600 px-3 text-sm font-semibold text-white sm:px-4"
-          : "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-white px-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-100 sm:px-4"
+          ? "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-slate-950 px-3 text-sm font-semibold text-white sm:px-4 dark:bg-white dark:text-slate-950"
+          : "inline-flex h-10 min-w-10 items-center justify-center rounded-lg border theme-border bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-teal-500 hover:text-slate-950 sm:px-4 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-white"
       }
     >
       {children}

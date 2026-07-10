@@ -70,7 +70,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="grid h-9 w-9 place-items-center rounded-md border border-slate-300 bg-white text-slate-600 transition hover:border-cyan-400/70 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-cyan-300"
+      className="grid h-10 w-10 place-items-center rounded-lg border theme-border bg-white text-slate-600 transition hover:border-teal-500 hover:bg-slate-50 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:bg-slate-800 dark:hover:text-white"
       aria-label={label}
       title={`${label}: System -> Dark -> Light`}
     >

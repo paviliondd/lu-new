@@ -8,6 +8,7 @@
     "start": "node .next/standalone/server.js",
     "lint": "eslint",
     "payload": "payload",
+    "payload:generate-importmap": "payload generate:importmap",
     "payload:generate-types": "payload generate:types",
     "payload:migrate-richtext": "tsx scripts/migrate-payload-richtext.mjs",
     "payload:sync-series": "node scripts/sync-payload-series.mjs",

@@ -42,24 +42,22 @@ export default function PostListRow({
   return (
     <Link
       href={localePath(`/blog/${post.slug}`)}
-      className={`group flex min-w-0 gap-3 px-1 py-5 transition hover:bg-cyan-400/5 sm:gap-4 sm:px-3 ${
-        isLast ? "" : "border-b border-slate-700"
+      className={`group flex min-w-0 gap-3 rounded-lg px-2 py-5 transition hover:bg-slate-100/70 dark:hover:bg-slate-900/70 sm:gap-4 sm:px-3 ${
+        isLast ? "" : "border-b theme-border"
       }`}
     >
       <span className="mt-1 w-5 shrink-0 text-xs font-medium text-gray-400 sm:w-6">
         {String(index + 1).padStart(2, "0")}
       </span>
 
-      <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br sm:h-14 sm:w-14 ${post.gradient}`}
-      >
-        <span className="px-1 text-center text-xs font-bold uppercase tracking-wide text-white">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border theme-border bg-white text-slate-600 dark:bg-slate-900 dark:text-slate-300 sm:h-14 sm:w-14">
+        <span className="px-1 text-center text-xs font-bold uppercase tracking-wide">
           {serviceLabel}
         </span>
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="text-base font-medium leading-snug text-slate-950 transition group-hover:text-cyan-700 dark:text-slate-100 dark:group-hover:text-cyan-300">
+        <h3 className="text-base font-semibold leading-snug text-slate-950 transition group-hover:text-teal-700 dark:text-slate-100 dark:group-hover:text-emerald-300">
           {post.title}
         </h3>
 

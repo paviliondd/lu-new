@@ -31,10 +31,11 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
   const query = (await searchParams)?.q?.trim() || "";
   const results = query ? await searchPosts(lang, query, 24) : [];
+  const suggestedQueries = ["AWS", "Kubernetes", "Terraform", "CI/CD"];
 
   return (
     <div className="theme-page flex-1 py-10">
-      <div className="mx-auto w-full max-w-5xl px-4">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <form action={localePath(lang, "/search")} className="mb-8">
           <label className="mb-3 block text-sm font-bold text-slate-700 dark:text-slate-200">
             {lang === "vi" ? "Tìm kiếm toàn website" : "Search the whole site"}
@@ -49,20 +50,47 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
               placeholder={lang === "vi" ? "Nhập tiêu đề, nội dung, tag..." : "Search title, content, tags..."}
               className="min-w-0 flex-1 bg-transparent text-base outline-none"
             />
-            <button className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-extrabold text-slate-950" type="submit">
+            <button
+              className="min-h-10 rounded-lg bg-slate-950 px-4 py-2 text-sm font-extrabold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+              type="submit"
+            >
               {lang === "vi" ? "Tìm" : "Search"}
             </button>
           </div>
         </form>
 
         {!query ? (
-          <p className="theme-muted text-sm">
-            {lang === "vi" ? "Nhập từ khóa để bắt đầu tìm kiếm." : "Enter a keyword to start searching."}
-          </p>
+          <div className="theme-card rounded-xl border p-8 text-center">
+            <p className="theme-muted text-sm">
+              {lang === "vi" ? "Nhập từ khóa để bắt đầu tìm kiếm." : "Enter a keyword to start searching."}
+            </p>
+            <div className="mt-5 flex max-w-full flex-nowrap justify-start gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-visible">
+              {suggestedQueries.map((item) => (
+                <Link
+                  key={item}
+                  href={`${localePath(lang, "/search")}?q=${encodeURIComponent(item)}`}
+                  className="rounded-full border theme-border bg-white px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+                >
+                  {item}
+                </Link>
+              ))}
+            </div>
+          </div>
         ) : results.length === 0 ? (
           <div className="theme-card rounded-xl border p-8 text-center">
             <p className="font-bold">{lang === "vi" ? "Không tìm thấy kết quả" : "No results found"}</p>
             <p className="theme-muted mt-2 text-sm">&quot;{query}&quot;</p>
+            <div className="mt-5 flex max-w-full flex-nowrap justify-start gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-center sm:overflow-visible">
+              {suggestedQueries.map((item) => (
+                <Link
+                  key={item}
+                  href={`${localePath(lang, "/search")}?q=${encodeURIComponent(item)}`}
+                  className="rounded-full border theme-border bg-white px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+                >
+                  {item}
+                </Link>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
@@ -73,11 +101,11 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
               <Link
                 key={post.slug}
                 href={localePath(lang, `/blog/${post.slug}`)}
-                className="theme-card block rounded-xl border p-5 transition hover:border-emerald-400/70"
+                className="theme-card block rounded-xl border p-5 transition hover:-translate-y-0.5 hover:border-teal-500 dark:hover:border-emerald-400"
               >
                 <div className="mb-2 flex flex-wrap gap-2">
                   {[post.category, ...post.tags.slice(0, 3)].filter(Boolean).map((tag) => (
-                    <span key={tag} className="rounded-full bg-slate-200 px-2 py-1 text-[11px] font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                    <span key={tag} className="rounded-full border theme-border bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                       {tag}
                     </span>
                   ))}

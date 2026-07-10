@@ -27,7 +27,25 @@
   box-shadow: 0 10px 22px -20px rgb(15 23 42 / 0.25);
 }
 
+.code-fullscreen-open {
+  overflow: hidden;
+}
+
+.code-shell--fullscreen {
+  position: fixed;
+  inset: 1rem;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  margin: 0;
+  border-radius: 0.85rem;
+  box-shadow: 0 24px 80px rgb(15 23 42 / 0.36);
+}
+
 .code-shell__header {
+  position: relative;
+  z-index: 1;
   display: flex;
   min-height: 2.6rem;
   align-items: center;
@@ -36,6 +54,13 @@
   border-bottom: 1px solid #dedee3;
   background: #f6f6f6;
   padding: 0.45rem 0.65rem 0.45rem 1rem;
+}
+
+.code-shell__toolbar {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.15rem;
 }
 
 .code-shell__filename {
@@ -54,7 +79,9 @@
   visibility: hidden;
 }
 
-.code-copy-button {
+.code-copy-button,
+.code-action-button,
+.code-edit-link {
   position: sticky;
   right: 0;
   flex: 0 0 auto;
@@ -76,17 +103,38 @@
     opacity 150ms ease;
 }
 
+.code-edit-link {
+  width: auto;
+  gap: 0.35rem;
+  padding: 0 0.55rem;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.code-edit-link[hidden] {
+  display: none;
+}
+
 .code-shell:hover .code-copy-button,
 .code-copy-button:focus-visible,
 .code-copy-button:hover,
 .code-copy-button[data-state="loading"],
 .code-copy-button[data-state="failed"],
-.code-copy-button[data-state="copied"] {
+.code-copy-button[data-state="copied"],
+.code-action-button:focus-visible,
+.code-action-button:hover,
+.code-edit-link:focus-visible,
+.code-edit-link:hover {
   opacity: 1;
 }
 
 .code-copy-button:hover,
-.code-copy-button:focus-visible {
+.code-copy-button:focus-visible,
+.code-action-button:hover,
+.code-action-button:focus-visible,
+.code-edit-link:hover,
+.code-edit-link:focus-visible {
   border-color: #c8c8ce;
   background: #ececef;
   color: #24292f;
@@ -103,7 +151,14 @@
   outline-offset: 2px;
 }
 
-.code-copy-button__icon {
+.code-action-button:focus-visible,
+.code-edit-link:focus-visible {
+  outline: 2px solid #8ab4f8;
+  outline-offset: 2px;
+}
+
+.code-copy-button__icon,
+.code-action-button__icon {
   width: 1rem;
   height: 1rem;
 }
@@ -126,6 +181,40 @@
   opacity: 0.75;
 }
 
+.code-shell__footer {
+  display: grid;
+  border-top: 1px solid #dedee3;
+  background: #f6f6f6;
+}
+
+.code-toggle-button {
+  display: inline-flex;
+  min-height: 2.65rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 0;
+  background: transparent;
+  color: #4b5563;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.code-toggle-button:hover,
+.code-toggle-button:focus-visible {
+  background: #ececef;
+  color: #24292f;
+}
+
+.code-toggle-button:focus-visible {
+  outline: 2px solid #8ab4f8;
+  outline-offset: -2px;
+}
+
 .prose pre code {
   display: block;
   min-width: max-content;
@@ -139,6 +228,25 @@
   overflow-wrap: normal;
   white-space: pre;
   word-break: normal;
+}
+
+.code-shell[data-long="true"][data-expanded="false"]:not(.code-shell--fullscreen) pre {
+  max-height: calc((0.9rem * 1.6 * 30) + 2.2rem);
+}
+
+.code-shell[data-expanded="true"] pre,
+.code-shell--fullscreen pre {
+  max-height: none;
+}
+
+.code-shell--fullscreen pre {
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 0;
+}
+
+.code-shell--fullscreen .code-shell__footer {
+  display: none;
 }
 
 .prose pre.shiki,
@@ -240,7 +348,11 @@
 }
 
 .dark .code-copy-button:hover,
-.dark .code-copy-button:focus-visible {
+.dark .code-copy-button:focus-visible,
+.dark .code-action-button:hover,
+.dark .code-action-button:focus-visible,
+.dark .code-edit-link:hover,
+.dark .code-edit-link:focus-visible {
   border-color: #4d4d4d;
   background: #303030;
   color: #f2f2f2;
@@ -265,6 +377,21 @@
   color: var(--shiki-dark, #e6edf3) !important;
 }
 
+.dark .code-shell__footer {
+  border-top-color: #383838;
+  background: #252526;
+}
+
+.dark .code-toggle-button {
+  color: #c9d1d9;
+}
+
+.dark .code-toggle-button:hover,
+.dark .code-toggle-button:focus-visible {
+  background: #303030;
+  color: #f2f2f2;
+}
+
 @media (max-width: 640px) {
   .code-shell {
     margin-left: -0.25rem;
@@ -287,5 +414,20 @@
   .code-copy-button {
     width: 2rem;
     height: 2rem;
+  }
+
+  .code-action-button {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .code-edit-link {
+    width: 2rem;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .code-shell--fullscreen {
+    inset: 0.5rem;
   }
 }

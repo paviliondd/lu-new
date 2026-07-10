@@ -11,13 +11,19 @@ const languageAliases: Record<string, BundledLanguage> = {
   html: "html",
   js: "javascript",
   jsx: "jsx",
+  nginx: "nginx",
+  py: "python",
+  python: "python",
   shell: "bash",
   sh: "bash",
+  sql: "sql",
   terraform: "terraform",
   tf: "terraform",
   ts: "typescript",
   tsx: "tsx",
   yml: "yaml",
+  aws: "bash",
+  awscli: "bash",
 };
 
 function codeLanguage(className = ""): BundledLanguage {

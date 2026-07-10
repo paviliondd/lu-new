@@ -2,7 +2,7 @@
 
 const hiddenLanguageLabels = new Set(["", "text", "txt", "plain", "plaintext", "output"]);
 
-export function getCodeLanguageLabel(preElement: HTMLElement, codeElement: HTMLElement) {
+export function getCodeLanguage(preElement: HTMLElement, codeElement: HTMLElement) {
   const explicitLanguage =
     preElement.dataset.language ||
     codeElement.dataset.language ||
@@ -13,4 +13,20 @@ export function getCodeLanguageLabel(preElement: HTMLElement, codeElement: HTMLE
   if (hiddenLanguageLabels.has(normalized)) return "";
 
   return normalized;
+}
+
+export function getCodeFilename(preElement: HTMLElement, codeElement: HTMLElement) {
+  const filename =
+    preElement.dataset.filename ||
+    preElement.dataset.file ||
+    preElement.dataset.title ||
+    codeElement.dataset.filename ||
+    codeElement.dataset.file ||
+    "";
+
+  return filename.trim();
+}
+
+export function getCodeHeaderLabel(preElement: HTMLElement, codeElement: HTMLElement) {
+  return getCodeFilename(preElement, codeElement) || getCodeLanguage(preElement, codeElement);
 }

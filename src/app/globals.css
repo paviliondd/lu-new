@@ -327,6 +327,12 @@ iframe {
   color: #e2e8f0;
 }
 
+.image-lightbox__button--close {
+  min-width: 2.25rem;
+  padding-inline: 0.7rem;
+  font-size: 0.85rem;
+}
+
 .image-lightbox__stage {
   position: absolute;
   inset: 0;

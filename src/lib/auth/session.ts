@@ -33,7 +33,7 @@ function sign(payload: string) {
   return crypto.createHmac("sha256", secret()).update(payload).digest("base64url");
 }
 
-export function encodeSession(user: AuthUser) {
+function encodeSession(user: AuthUser) {
   const payload = base64Url(
     JSON.stringify({
       ...user,
@@ -43,7 +43,7 @@ export function encodeSession(user: AuthUser) {
   return `${payload}.${sign(payload)}`;
 }
 
-export function decodeSession(value: string | undefined): AuthUser | null {
+function decodeSession(value: string | undefined): AuthUser | null {
   if (!value) return null;
   const [payload, signature] = value.split(".");
   if (!payload || !signature || sign(payload) !== signature) return null;

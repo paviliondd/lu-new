@@ -14,20 +14,19 @@
     "xml:normalize-images": "node scripts/normalize-xml-images.mjs"
   },
   "dependencies": {
-    "@next/swc-linux-x64-gnu": "^16.2.7",
     "@payloadcms/db-postgres": "^3.85.2",
     "@payloadcms/next": "^3.85.2",
-    "@payloadcms/richtext-lexical": "^3.85.2",
     "cheerio": "^1.2.0",
     "fast-xml-parser": "^5.8.0",
     "gray-matter": "^4.0.3",
-    "lightningcss-linux-x64-gnu": "^1.32.0",
     "lucide-react": "^1.17.0",
     "marked": "^18.0.5",
     "next": "16.2.7",
     "payload": "^3.85.2",
+    "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "server-only": "^0.0.1",
     "shiki": "^4.2.0",
     "xss": "^1.0.15"
   },

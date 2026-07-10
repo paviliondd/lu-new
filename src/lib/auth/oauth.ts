@@ -4,7 +4,7 @@ import type { AuthUser, OAuthProvider } from "./session";
 
 type OAuthProfile = Omit<AuthUser, "userId">;
 
-export function siteUrl(requestUrl?: string) {
+function siteUrl(requestUrl?: string) {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (configuredUrl) return configuredUrl.replace(/\/$/, "");
 
@@ -17,7 +17,7 @@ export function oauthRedirectUrl(returnTo: string, requestUrl?: string) {
   return new URL(safePath, siteUrl(requestUrl));
 }
 
-export function callbackUrl(provider: OAuthProvider, requestUrl: string) {
+function callbackUrl(provider: OAuthProvider, requestUrl: string) {
   const explicit =
     provider === "github" ? process.env.GITHUB_CALLBACK_URL : process.env.GOOGLE_CALLBACK_URL;
   return explicit || `${siteUrl(requestUrl)}/api/auth/${provider}/callback`;

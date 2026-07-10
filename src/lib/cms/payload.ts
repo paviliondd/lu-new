@@ -305,7 +305,7 @@ async function withLocalView(post: Post) {
   return (await withLocalViews([post]))[0];
 }
 
-export async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
+async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
   return cachedJson(`posts:published:${locale}`, 30, async () => {
     const filePosts = await getLocalizedFilePosts(locale);
     const payload = await getPayloadClient();
@@ -334,7 +334,7 @@ export async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<P
 
 export const getCmsPublishedPosts = getPayloadPublishedPosts;
 
-export async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]> {
+async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]> {
   return cachedJson(`series:list:${locale}`, 30, async () => {
     const posts = await getPayloadPublishedPosts(locale);
     const counts = new Map<string, number>();
@@ -371,7 +371,7 @@ export async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]>
 
 export const getCmsSeries = getPayloadSeries;
 
-export async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promise<Post | null> {
+async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promise<Post | null> {
   return cachedJson(`posts:detail:${locale}:${slug}`, 30, async () => {
     const filePost = await getLocalizedFilePost(slug, locale);
     const payload = await getPayloadClient();

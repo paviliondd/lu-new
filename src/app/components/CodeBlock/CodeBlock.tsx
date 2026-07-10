@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { createCopyIcon, copyText } from "./CopyButton";
-import { getCodeFilename, getCodeHeaderLabel, getCodeLanguage } from "./LanguageLabel";
 
 interface CodeBlockProps {
   containerSelector?: string;
@@ -10,7 +9,6 @@ interface CodeBlockProps {
   copyLabel: string;
   copiedLabel: string;
   failedLabel: string;
-  postSlug?: string;
 }
 
 export default function CodeBlock({
@@ -19,7 +17,6 @@ export default function CodeBlock({
   copyLabel,
   copiedLabel,
   failedLabel,
-  postSlug,
 }: CodeBlockProps) {
   useEffect(() => {
     const container = document.querySelector(containerSelector);
@@ -27,21 +24,8 @@ export default function CodeBlock({
 
     const cleanupHandlers: Array<() => void> = [];
     const codeBlocks = Array.from(container.querySelectorAll("pre"));
-    let isAdmin = false;
 
-    fetch("/api/auth/session", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { user?: unknown } | null) => {
-        isAdmin = Boolean(payload?.user);
-        container.querySelectorAll<HTMLElement>(".code-edit-link").forEach((link) => {
-          link.hidden = !isAdmin;
-        });
-      })
-      .catch(() => {
-        isAdmin = false;
-      });
-
-    function createActionIcon(name: "expand" | "download" | "showMore" | "showLess" | "edit") {
+    function createActionIcon(name: "expand" | "close" | "showMore" | "showLess") {
       const ns = "http://www.w3.org/2000/svg";
       const svg = document.createElementNS(ns, "svg");
       svg.setAttribute("viewBox", "0 0 24 24");
@@ -52,14 +36,12 @@ export default function CodeBlock({
       svg.setAttribute("stroke-linejoin", "round");
       svg.classList.add("code-action-button__icon");
 
-      if (name === "download") {
-        svg.innerHTML = '<path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path>';
-      } else if (name === "showMore") {
+      if (name === "showMore") {
         svg.innerHTML = '<path d="m6 9 6 6 6-6"></path>';
       } else if (name === "showLess") {
         svg.innerHTML = '<path d="m18 15-6-6-6 6"></path>';
-      } else if (name === "edit") {
-        svg.innerHTML = '<path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>';
+      } else if (name === "close") {
+        svg.innerHTML = '<path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>';
       } else {
         svg.innerHTML = '<path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path>';
       }
@@ -73,38 +55,6 @@ export default function CodeBlock({
       return withoutFinalNewline ? withoutFinalNewline.split("\n").length : 0;
     }
 
-    function downloadCode(value: string, filename: string) {
-      const blob = new Blob([value], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    function defaultFilename(language: string) {
-      const names: Record<string, string> = {
-        bash: "script.sh",
-        dockerfile: "Dockerfile",
-        hcl: "main.hcl",
-        javascript: "script.js",
-        json: "config.json",
-        nginx: "nginx.conf",
-        python: "script.py",
-        shell: "script.sh",
-        sh: "script.sh",
-        sql: "query.sql",
-        terraform: "main.tf",
-        typescript: "script.ts",
-        yaml: "config.yaml",
-      };
-
-      return names[language] || "code.txt";
-    }
-
     codeBlocks.forEach((preElement) => {
       const codeElement = preElement.querySelector("code");
       if (!(preElement instanceof HTMLElement) || !(codeElement instanceof HTMLElement)) {
@@ -116,11 +66,10 @@ export default function CodeBlock({
       preElement.classList.add("code-block");
 
       const rawCode = codeElement.textContent || "";
-      const language = getCodeLanguage(preElement, codeElement);
-      const filename = getCodeFilename(preElement, codeElement);
-      const label = getCodeHeaderLabel(preElement, codeElement);
       const totalLines = lineCount(rawCode);
       const isLong = totalLines > 30;
+      let backdrop: HTMLDivElement | null = null;
+      let restoreMarker: Comment | null = null;
 
       const shell = document.createElement("div");
       shell.className = "code-shell";
@@ -130,11 +79,6 @@ export default function CodeBlock({
 
       const header = document.createElement("div");
       header.className = "code-shell__header";
-
-      const title = document.createElement("span");
-      title.className = "code-shell__filename";
-      title.textContent = label;
-      title.hidden = !label;
 
       const toolbar = document.createElement("div");
       toolbar.className = "code-shell__toolbar";
@@ -146,22 +90,12 @@ export default function CodeBlock({
       expandButton.setAttribute("title", "Expand code");
       expandButton.appendChild(createActionIcon("expand"));
 
-      const downloadButton = document.createElement("button");
-      downloadButton.type = "button";
-      downloadButton.className = "code-action-button";
-      downloadButton.setAttribute("aria-label", "Download code");
-      downloadButton.setAttribute("title", "Download code");
-      downloadButton.appendChild(createActionIcon("download"));
-
-      const editLink = document.createElement("a");
-      editLink.className = "code-edit-link";
-      editLink.href = postSlug
-        ? `/admin/collections/posts?where[slug][equals]=${encodeURIComponent(postSlug)}`
-        : "/admin/collections/posts";
-      editLink.setAttribute("aria-label", "Edit post");
-      editLink.setAttribute("title", "Edit post");
-      editLink.hidden = !isAdmin;
-      editLink.append(createActionIcon("edit"), document.createTextNode("Edit"));
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.className = "code-action-button code-action-button--close";
+      closeButton.setAttribute("aria-label", "Close expanded code");
+      closeButton.setAttribute("title", "Close expanded code");
+      closeButton.appendChild(createActionIcon("close"));
 
       const copyButton = document.createElement("button");
       copyButton.type = "button";
@@ -189,16 +123,49 @@ export default function CodeBlock({
         }, 2000);
       };
 
-      const handleDownload = () => {
-        downloadCode(rawCode, filename || defaultFilename(language));
+      const closeExpanded = () => {
+        if (!backdrop || !restoreMarker) return;
+        shell.classList.remove("code-shell--expanded-modal");
+        document.documentElement.classList.remove("code-modal-open");
+        restoreMarker.parentNode?.insertBefore(shell, restoreMarker);
+        restoreMarker.remove();
+        restoreMarker = null;
+        backdrop.removeEventListener("click", handleBackdropClick);
+        backdrop.remove();
+        backdrop = null;
+        expandButton.hidden = false;
       };
 
       const handleExpand = () => {
-        shell.classList.toggle("code-shell--fullscreen");
-        const expanded = shell.classList.contains("code-shell--fullscreen");
-        document.documentElement.classList.toggle("code-fullscreen-open", expanded);
-        expandButton.setAttribute("aria-label", expanded ? "Close expanded code" : "Expand code");
-        expandButton.setAttribute("title", expanded ? "Close expanded code" : "Expand code");
+        if (backdrop) {
+          closeExpanded();
+          return;
+        }
+
+        restoreMarker = document.createComment("code-shell-restore");
+        backdrop = document.createElement("div");
+        backdrop.className = "code-modal-backdrop";
+        backdrop.setAttribute("role", "presentation");
+        backdrop.addEventListener("click", handleBackdropClick);
+        shell.parentNode?.insertBefore(restoreMarker, shell);
+        restoreMarker.parentNode?.insertBefore(backdrop, restoreMarker);
+        backdrop.appendChild(shell);
+        shell.classList.add("code-shell--expanded-modal");
+        document.documentElement.classList.add("code-modal-open");
+        expandButton.hidden = true;
+        closeButton.focus();
+      };
+
+      const handleBackdropClick = (event: MouseEvent) => {
+        if (event.target === backdrop) closeExpanded();
+      };
+
+      const handleShellClick = (event: MouseEvent) => {
+        if (backdrop) event.stopPropagation();
+      };
+
+      const handleEsc = (event: KeyboardEvent) => {
+        if (event.key === "Escape") closeExpanded();
       };
 
       const footer = document.createElement("div");
@@ -221,20 +188,25 @@ export default function CodeBlock({
 
       toggleButton.addEventListener("click", handleToggle);
       footer.append(toggleButton);
-      downloadButton.addEventListener("click", handleDownload);
       expandButton.addEventListener("click", handleExpand);
+      closeButton.addEventListener("click", closeExpanded);
+      shell.addEventListener("click", handleShellClick);
+      window.addEventListener("keydown", handleEsc);
       copyButton.addEventListener("click", handleCopy);
       preElement.parentNode?.insertBefore(shell, preElement);
-      toolbar.append(editLink, expandButton, downloadButton, copyButton);
-      header.append(title, toolbar);
+      toolbar.append(expandButton, closeButton, copyButton);
+      header.append(toolbar);
       shell.append(header, preElement, footer);
 
       cleanupHandlers.push(() => {
         toggleButton.removeEventListener("click", handleToggle);
-        downloadButton.removeEventListener("click", handleDownload);
         expandButton.removeEventListener("click", handleExpand);
+        closeButton.removeEventListener("click", closeExpanded);
+        shell.removeEventListener("click", handleShellClick);
+        window.removeEventListener("keydown", handleEsc);
         copyButton.removeEventListener("click", handleCopy);
-        document.documentElement.classList.remove("code-fullscreen-open");
+        closeExpanded();
+        document.documentElement.classList.remove("code-modal-open");
         shell.parentNode?.insertBefore(preElement, shell);
         shell.remove();
         delete preElement.dataset.enhanced;
@@ -244,7 +216,7 @@ export default function CodeBlock({
     return () => {
       cleanupHandlers.forEach((cleanup) => cleanup());
     };
-  }, [containerSelector, contentKey, copiedLabel, copyLabel, failedLabel, postSlug]);
+  }, [containerSelector, contentKey, copiedLabel, copyLabel, failedLabel]);
 
   return null;
 }

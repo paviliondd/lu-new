@@ -31,11 +31,6 @@ export async function getLocalPostViews() {
   }
 }
 
-export async function getLocalPostView(slug: string) {
-  const views = await getLocalPostViews();
-  return Math.max(0, Number(views[slug] || 0));
-}
-
 export async function incrementLocalPostView(slug: string) {
   const views = await getLocalPostViews();
   const nextValue = Math.max(0, Number(views[slug] || 0)) + 1;

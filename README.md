@@ -51,6 +51,23 @@ View count flow:
 
 More detail: [Payload CMS Flow](./docs/PAYLOAD_CMS_FLOW.md).
 
+## Repository Structure
+
+```text
+src/
+  app/                 Next.js App Router routes and route-local components
+  app/components/      Shared UI, article UX, layout, and page components
+  lib/                 CMS adapters, auth, content, search, stores, utilities
+  i18n/                Locale config and metadata helpers
+  migrations/          Payload database migrations
+content/               Local post/data fallback sources
+data/                  Local JSON fallback stores for views, comments, newsletter
+public/                Static assets and uploaded media
+scripts/               Import, sync, backup, restore, and deployment helpers
+deploy/                Nginx, WordPress bridge, Certbot, and deployment assets
+docs/                  Operational and architecture documentation
+```
+
 ## Production
 
 Admin URL:

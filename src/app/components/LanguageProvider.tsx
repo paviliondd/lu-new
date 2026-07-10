@@ -10,7 +10,7 @@ import {
 
 export type Language = Locale;
 
-export const translations = {
+const translations = {
   vi: {
     blog: "Blog",
     series: "Series",

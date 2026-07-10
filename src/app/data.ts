@@ -22,15 +22,15 @@ export interface Series {
   color: string;
 }
 
-export type PostStatus = "draft" | "published";
+type PostStatus = "draft" | "published";
 
-export interface SeoMetadata {
+interface SeoMetadata {
   title: string;
   description: string;
   ogImage: string | null;
 }
 
-export interface InternalLinkingMetadata {
+interface InternalLinkingMetadata {
   hubSlug: string;
   relatedServiceSlugs: string[];
   examDomainSlugs: string[];
@@ -1753,82 +1753,7 @@ export const allPosts: Post[] = [
   }
 ];
 
-export const draftPosts: Post[] = allPosts.filter((post) => post.status === "draft");
-
-export const publishedPosts: Post[] = allPosts.filter((post) => post.status === "published");
+const publishedPosts: Post[] = allPosts.filter((post) => post.status === "published");
 
 // Public frontend compatibility: only published posts are visible on the site.
 export const posts: Post[] = publishedPosts;
-
-export const categories: string[] = [
-  "Compute",
-  "Datastores",
-  "DevOps/CICD",
-  "IaC/Config",
-  "SecOps",
-  "Serverless"
-];
-
-export const tags: string[] = [
-  "APIGateway",
-  "ASG",
-  "AWS",
-  "AppRunner",
-  "AppSync",
-  "Beanstalk",
-  "CLI",
-  "CloudFormation",
-  "CloudWatch",
-  "CodeBuild",
-  "CodeDeploy",
-  "CodePipeline",
-  "Compute",
-  "Coverage Missing",
-  "Coverage Strong",
-  "DOP D1",
-  "DOP D2",
-  "DOP D3",
-  "DOP D4",
-  "DOP D6",
-  "DOP-C02",
-  "DVA D1",
-  "DVA D2",
-  "DVA D3",
-  "DVA D4",
-  "DVA-C02",
-  "Datastores",
-  "DevOps/CICD",
-  "DynamoDB",
-  "EC2",
-  "ECS",
-  "EKS",
-  "ElastiCache",
-  "EventBridge",
-  "Fargate",
-  "IAM",
-  "IaC/Config",
-  "KMS",
-  "Kinesis",
-  "Lambda",
-  "Organizations",
-  "RDS",
-  "RDS Proxy",
-  "S3",
-  "SDK",
-  "SNS",
-  "SQS",
-  "SSM",
-  "SecOps",
-  "Serverless",
-  "StepFunctions",
-  "VPC",
-  "XRay"
-];
-
-export const roadmapImportSummary = {
-  sourceFile: "content/Road-map.html",
-  generatedAt: "2026-06-09T00:00:00+07:00",
-  claimedArticleCount: 44,
-  explicitArticleCount: allPosts.length,
-  missingArticleIds: [18,19,20,21,22,23,24,25,26,27,28,29,30,31,33,34,35,37,38,39,40,41],
-};

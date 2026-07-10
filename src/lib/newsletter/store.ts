@@ -4,9 +4,9 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "node:crypto";
 
-export type NewsletterStatus = "pending" | "confirmed";
+type NewsletterStatus = "pending" | "confirmed";
 
-export interface NewsletterSubscriber {
+interface NewsletterSubscriber {
   id: string;
   email: string;
   status: NewsletterStatus;
@@ -33,7 +33,7 @@ export function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
-export async function getNewsletterSubscribers() {
+async function getNewsletterSubscribers() {
   await ensureStore();
   try {
     const parsed = JSON.parse(await fs.readFile(subscribersFile, "utf8")) as unknown;

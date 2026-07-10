@@ -262,7 +262,6 @@ export default function ArticleClient({
                 copyLabel={t("copyCode")}
                 copiedLabel={t("copiedCode")}
                 failedLabel={t("copyFailed")}
-                postSlug={post.slug}
               />
               <ArticleImageEnhancer
                 assetBase={assetBase}

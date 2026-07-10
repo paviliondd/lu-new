@@ -128,16 +128,23 @@ export default function ArticleImageEnhancer({
         image.alt = image.alt || "LinuxUnity image unavailable";
         image.src = "/images/linuxunity-placeholder.svg";
       };
-      const handleOpen = () => {
+      const handleOpen = (event?: MouseEvent) => {
+        event?.preventDefault();
+        event?.stopPropagation();
         setScale(1);
         setViewer({
           src: image.currentSrc || image.src,
           alt: image.alt || "Article image",
         });
       };
+      const parentAnchor = image.closest("a");
+      const handleAnchorOpen = (event: MouseEvent) => {
+        handleOpen(event);
+      };
 
       image.addEventListener("error", handleError, { once: true });
       image.addEventListener("click", handleOpen);
+      parentAnchor?.addEventListener("click", handleAnchorOpen);
       image.setAttribute("tabindex", "0");
       image.setAttribute("role", "button");
       const handleKeyOpen = (event: KeyboardEvent) => {
@@ -150,6 +157,7 @@ export default function ArticleImageEnhancer({
       cleanupHandlers.push(() => {
         image.removeEventListener("error", handleError);
         image.removeEventListener("click", handleOpen);
+        parentAnchor?.removeEventListener("click", handleAnchorOpen);
         image.removeEventListener("keydown", handleKeyOpen);
       });
     });
@@ -193,8 +201,8 @@ export default function ArticleImageEnhancer({
         <button className="image-lightbox__button" type="button" onClick={() => setScale((value) => Math.max(0.25, value - 0.25))}>
           Zoom -
         </button>
-        <button className="image-lightbox__button" type="button" onClick={() => setViewer(null)}>
-          Close
+        <button className="image-lightbox__button image-lightbox__button--close" type="button" aria-label="Close image viewer" onClick={() => setViewer(null)}>
+          X
         </button>
       </div>
       <div

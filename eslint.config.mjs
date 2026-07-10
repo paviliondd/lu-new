@@ -10,9 +10,14 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     ".venv/**",
+    ".codex/**",
+    "node_modules/**",
     "out/**",
     "build/**",
+    "coverage/**",
+    "deploy/certbot/**",
     "next-env.d.ts",
+    "tsconfig.tsbuildinfo",
   ]),
 ]);
 

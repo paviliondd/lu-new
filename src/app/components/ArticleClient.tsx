@@ -6,7 +6,7 @@ import { ArrowLeft, Calendar, Eye, Clock, Link2, ChevronRight } from "lucide-rea
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import ArticleImageEnhancer from "./ArticleImageEnhancer";
-import CodeBlockEnhancer from "./CodeBlockEnhancer";
+import CodeBlock from "./CodeBlock";
 import PostListRow from "./PostListRow";
 import TableOfContents, { TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
@@ -257,7 +257,7 @@ export default function ArticleClient({
 
             {/* Prose Content Rendering */}
             <div className="article-content prose max-w-none overflow-hidden dark:prose-invert">
-              <CodeBlockEnhancer
+              <CodeBlock
                 contentKey={`${post.slug}-${language}`}
                 copyLabel={t("copyCode")}
                 copiedLabel={t("copiedCode")}

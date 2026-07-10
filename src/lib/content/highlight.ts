@@ -25,18 +25,8 @@ function codeLanguage(className = ""): BundledLanguage {
   return languageAliases[language] || (language as BundledLanguage);
 }
 
-function defaultFileName(language: string) {
-  const names: Record<string, string> = {
-    bash: "terminal.sh",
-    dockerfile: "Dockerfile",
-    hcl: "main.hcl",
-    json: "config.json",
-    terraform: "main.tf",
-    text: "output.txt",
-    typescript: "example.ts",
-    yaml: "config.yaml",
-  };
-  return names[language] || `snippet.${language}`;
+function shouldShowLanguage(language: BundledLanguage) {
+  return String(language).toLowerCase() !== "text";
 }
 
 export async function highlightCodeBlocks(html: string) {
@@ -69,17 +59,15 @@ export async function highlightCodeBlocks(html: string) {
         pre.attr("data-filename") ||
         pre.attr("data-file") ||
         pre.attr("data-title") ||
-        code.attr("data-filename") ||
-        defaultFileName(language);
+        code.attr("data-filename");
 
       highlightedPre.addClass("code-block");
-      highlightedPre.attr("data-filename", fileName);
-      highlightedPre.attr("data-language", language.toUpperCase());
+      if (fileName) highlightedPre.attr("data-filename", fileName);
+      if (shouldShowLanguage(language)) highlightedPre.attr("data-language", language.toUpperCase());
       pre.replaceWith(highlightedPre);
     } catch {
       pre.addClass("code-block");
-      pre.attr("data-filename", defaultFileName(language));
-      pre.attr("data-language", language.toUpperCase());
+      if (shouldShowLanguage(language)) pre.attr("data-language", language.toUpperCase());
     }
   }
 

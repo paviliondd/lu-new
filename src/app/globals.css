@@ -435,3 +435,43 @@ iframe {
   border-left-color: #f87171;
   color: #fecaca;
 }
+
+.richtext-block {
+  margin: 1.5rem 0;
+}
+
+.richtext-block figcaption,
+.richtext-block > strong {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: #4b5563;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.richtext-block--note,
+.richtext-block--tip,
+.richtext-block--warning {
+  border-left: 3px solid #9ca3af;
+  background: #f7f7f8;
+  padding: 0.9rem 1rem;
+}
+
+.richtext-block--tip {
+  border-left-color: #38946b;
+}
+
+.richtext-block--warning {
+  border-left-color: #b7791f;
+}
+
+.dark .richtext-block figcaption,
+.dark .richtext-block > strong {
+  color: #c9d1d9;
+}
+
+.dark .richtext-block--note,
+.dark .richtext-block--tip,
+.dark .richtext-block--warning {
+  background: #1e1e1e;
+}

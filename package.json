@@ -9,6 +9,7 @@
     "lint": "eslint",
     "payload": "payload",
     "payload:generate-types": "payload generate:types",
+    "payload:migrate-richtext": "tsx scripts/migrate-payload-richtext.mjs",
     "payload:sync-series": "node scripts/sync-payload-series.mjs",
     "wordpress:import": "node scripts/import-wordpress-rest.mjs",
     "xml:normalize-images": "node scripts/normalize-xml-images.mjs"
@@ -16,6 +17,7 @@
   "dependencies": {
     "@payloadcms/db-postgres": "^3.85.2",
     "@payloadcms/next": "^3.85.2",
+    "@payloadcms/richtext-lexical": "^3.85.2",
     "cheerio": "^1.2.0",
     "fast-xml-parser": "^5.8.0",
     "gray-matter": "^4.0.3",

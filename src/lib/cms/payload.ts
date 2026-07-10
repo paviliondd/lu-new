@@ -88,12 +88,76 @@ function mediaUrl(value: unknown): string | null {
   return asString(sized?.url) || asString(doc.url) || null;
 }
 
+function escapeHtml(value: unknown) {
+  return asString(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function isLexicalContent(value: unknown) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "root" in value &&
+      value.root &&
+      typeof value.root === "object"
+  );
+}
+
 async function renderContent(value: unknown) {
   const source = asString(value);
   if (!source) return "";
 
   const html = /^\s*</.test(source) ? source : await marked.parse(source, { gfm: true });
   return sanitizeArticleHtml(html);
+}
+
+async function renderLexicalContent(value: unknown) {
+  if (!isLexicalContent(value)) return "";
+
+  const { convertLexicalToHTML } = await import("@payloadcms/richtext-lexical/html");
+  const html = convertLexicalToHTML({
+    data: value as Parameters<typeof convertLexicalToHTML>[0]["data"],
+    disableContainer: true,
+    converters: ({ defaultConverters }) => ({
+      ...defaultConverters,
+      blocks: {
+        ...(defaultConverters.blocks || {}),
+        fileTree: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
+          const fields = node.fields || {};
+          return `<figure class="richtext-block richtext-block--file-tree"><figcaption>${escapeHtml(
+            fields.title
+          )}</figcaption><pre data-language="TREE"><code>${escapeHtml(fields.tree)}</code></pre></figure>`;
+        },
+        note: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
+          const fields = node.fields || {};
+          const variant = escapeHtml(fields.variant || "note");
+          const title = fields.title ? `<strong>${escapeHtml(fields.title)}</strong>` : "";
+          return `<aside class="richtext-block richtext-block--${variant}">${title}<p>${escapeHtml(
+            fields.body
+          ).replace(/\n{2,}/g, "</p><p>").replace(/\n/g, "<br>")}</p></aside>`;
+        },
+        terminal: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
+          const fields = node.fields || {};
+          return `<figure class="richtext-block richtext-block--terminal"><figcaption>${escapeHtml(
+            fields.title
+          )}</figcaption><pre data-language="BASH"><code class="language-bash">${escapeHtml(
+            fields.commands
+          )}</code></pre></figure>`;
+        },
+      },
+    }),
+  });
+
+  return sanitizeArticleHtml(html);
+}
+
+async function renderPostContent(preferred: unknown, legacy: unknown) {
+  const richTextHtml = await renderLexicalContent(preferred);
+  return richTextHtml || renderContent(legacy);
 }
 
 function estimateReadTime(content: string, locale: Locale) {
@@ -132,8 +196,8 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
   const seo = relationDoc(doc.seo);
   const coverImage = mediaUrl(doc.coverImage);
   const seoImage = mediaUrl(seo?.ogImage) || coverImage;
-  const contentVi = await renderContent(doc.contentVi);
-  const contentEn = await renderContent(doc.contentEn || doc.contentVi);
+  const contentVi = await renderPostContent(doc.contentRichVi, doc.contentVi);
+  const contentEn = await renderPostContent(doc.contentRichEn, doc.contentEn || doc.contentVi);
   const publishedAt = asString(doc.publishedAt) || asString(doc.createdAt) || new Date().toISOString();
   const authorSlug = asString(author?.slug, fallback?.author || "nhatnghia");
   const fallbackAuthor = team[authorSlug] || team.nhatnghia;

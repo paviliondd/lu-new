@@ -5,13 +5,12 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Eye, Clock, Link2, ChevronRight } from "lucide-react";
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
-import ArticleImageEnhancer from "./ArticleImageEnhancer";
-import CodeBlock from "./CodeBlock";
 import PostListRow from "./PostListRow";
 import TableOfContents, { TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
 import AuthorAvatar from "./AuthorAvatar";
 import Comments from "./Comments";
+import RichTextRenderer from "./RichTextRenderer";
 import type { CommentRecord } from "@/lib/comments/types";
 
 interface ArticleClientProps {
@@ -256,20 +255,15 @@ export default function ArticleClient({
             </div>
 
             {/* Prose Content Rendering */}
-            <div className="article-content prose max-w-none overflow-hidden dark:prose-invert">
-              <CodeBlock
-                contentKey={`${post.slug}-${language}`}
-                copyLabel={t("copyCode")}
-                copiedLabel={t("copiedCode")}
-                failedLabel={t("copyFailed")}
-              />
-              <ArticleImageEnhancer
-                assetBase={assetBase}
-                contentKey={`${post.slug}-${language}`}
-                legacyAssetOrigins={legacyAssetOrigins}
-              />
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
-            </div>
+            <RichTextRenderer
+              assetBase={assetBase}
+              content={post.content}
+              contentKey={`${post.slug}-${language}`}
+              copyLabel={t("copyCode")}
+              copiedLabel={t("copiedCode")}
+              failedLabel={t("copyFailed")}
+              legacyAssetOrigins={legacyAssetOrigins}
+            />
 
             {relatedPosts.length > 0 && (
               <section className="pt-10">

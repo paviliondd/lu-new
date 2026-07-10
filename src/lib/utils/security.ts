@@ -25,6 +25,7 @@ const mediaAttributes = [
 const articleWhiteList: IWhiteList = {
   a: [...commonAttributes, "href", "rel", "target"],
   abbr: [...commonAttributes],
+  aside: commonAttributes,
   b: commonAttributes,
   blockquote: [...commonAttributes, "cite"],
   br: [],

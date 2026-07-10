@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { createCopyIcon, copyText } from "./CopyButton";
+import { createDownloadIcon, downloadText } from "./DownloadButton";
 
 interface CodeBlockProps {
   containerSelector?: string;
@@ -55,6 +56,57 @@ export default function CodeBlock({
       return withoutFinalNewline ? withoutFinalNewline.split("\n").length : 0;
     }
 
+    function languageFromClass(className = "") {
+      return className.match(/language-([a-z0-9-]+)/i)?.[1] || "";
+    }
+
+    function normalizeCodeLabel(value: string) {
+      const normalized = value.trim();
+      if (!normalized) return "";
+
+      const hiddenLabels = new Set(["text", "txt", "plain", "plaintext"]);
+      return hiddenLabels.has(normalized.toLowerCase()) ? "" : normalized;
+    }
+
+    function codeMeta(preElement: HTMLElement, codeElement: HTMLElement) {
+      const filename =
+        preElement.dataset.filename ||
+        preElement.dataset.file ||
+        preElement.dataset.title ||
+        codeElement.dataset.filename ||
+        "";
+      const language =
+        preElement.dataset.language ||
+        codeElement.dataset.language ||
+        languageFromClass(codeElement.className) ||
+        languageFromClass(preElement.className);
+
+      return {
+        filename: normalizeCodeLabel(filename),
+        language: normalizeCodeLabel(language),
+      };
+    }
+
+    function filenameForDownload(filename: string, language: string) {
+      if (filename) return filename;
+
+      const extensionByLanguage: Record<string, string> = {
+        bash: "sh",
+        dockerfile: "Dockerfile",
+        javascript: "js",
+        json: "json",
+        python: "py",
+        shell: "sh",
+        sh: "sh",
+        terraform: "tf",
+        typescript: "ts",
+        yaml: "yml",
+      };
+      const key = language.toLowerCase();
+      const extension = extensionByLanguage[key] || "txt";
+      return extension === "Dockerfile" ? "Dockerfile" : `code.${extension}`;
+    }
+
     codeBlocks.forEach((preElement) => {
       const codeElement = preElement.querySelector("code");
       if (!(preElement instanceof HTMLElement) || !(codeElement instanceof HTMLElement)) {
@@ -68,6 +120,8 @@ export default function CodeBlock({
       const rawCode = codeElement.textContent || "";
       const totalLines = lineCount(rawCode);
       const isLong = totalLines > 30;
+      const { filename, language } = codeMeta(preElement, codeElement);
+      const label = filename || language;
       let backdrop: HTMLDivElement | null = null;
       let restoreMarker: Comment | null = null;
 
@@ -79,6 +133,11 @@ export default function CodeBlock({
 
       const header = document.createElement("div");
       header.className = "code-shell__header";
+
+      const labelElement = document.createElement("span");
+      labelElement.className = "code-shell__filename";
+      labelElement.textContent = label;
+      labelElement.hidden = !label;
 
       const toolbar = document.createElement("div");
       toolbar.className = "code-shell__toolbar";
@@ -105,6 +164,13 @@ export default function CodeBlock({
       copyButton.dataset.state = "idle";
       copyButton.appendChild(createCopyIcon("idle"));
 
+      const downloadButton = document.createElement("button");
+      downloadButton.type = "button";
+      downloadButton.className = "code-action-button";
+      downloadButton.setAttribute("aria-label", "Download code");
+      downloadButton.setAttribute("title", "Download code");
+      downloadButton.appendChild(createDownloadIcon());
+
       const handleCopy = async () => {
         if (copyButton.dataset.state === "loading") return;
 
@@ -121,6 +187,10 @@ export default function CodeBlock({
           copyButton.setAttribute("title", copyLabel);
           copyButton.replaceChildren(createCopyIcon("idle"));
         }, 2000);
+      };
+
+      const handleDownload = () => {
+        downloadText(rawCode, filenameForDownload(filename, language));
       };
 
       const closeExpanded = () => {
@@ -193,9 +263,10 @@ export default function CodeBlock({
       shell.addEventListener("click", handleShellClick);
       window.addEventListener("keydown", handleEsc);
       copyButton.addEventListener("click", handleCopy);
+      downloadButton.addEventListener("click", handleDownload);
       preElement.parentNode?.insertBefore(shell, preElement);
-      toolbar.append(expandButton, closeButton, copyButton);
-      header.append(toolbar);
+      toolbar.append(expandButton, closeButton, downloadButton, copyButton);
+      header.append(labelElement, toolbar);
       shell.append(header, preElement, footer);
 
       cleanupHandlers.push(() => {
@@ -205,6 +276,7 @@ export default function CodeBlock({
         shell.removeEventListener("click", handleShellClick);
         window.removeEventListener("keydown", handleEsc);
         copyButton.removeEventListener("click", handleCopy);
+        downloadButton.removeEventListener("click", handleDownload);
         closeExpanded();
         document.documentElement.classList.remove("code-modal-open");
         shell.parentNode?.insertBefore(preElement, shell);

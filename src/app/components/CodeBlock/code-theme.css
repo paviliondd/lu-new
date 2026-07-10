@@ -60,7 +60,7 @@
   display: flex;
   min-height: 2.6rem;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 0.75rem;
   border-bottom: 1px solid #dedee3;
   background: #f6f6f6;
@@ -94,8 +94,7 @@
 }
 
 .code-shell__filename[hidden] {
-  display: block;
-  visibility: hidden;
+  display: none;
 }
 
 .code-copy-button,
@@ -362,7 +361,8 @@
   color: #c9d1d9;
 }
 
-.dark .code-copy-button {
+.dark .code-copy-button,
+.dark .code-action-button {
   color: #c9d1d9;
 }
 

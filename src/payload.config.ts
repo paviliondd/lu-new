@@ -1,7 +1,8 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { buildConfig, type CollectionConfig } from "payload";
+import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
+import { buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -30,6 +31,133 @@ const listField = (name: string, label: string) => ({
   ],
 });
 
+const noteBlock: Block = {
+  slug: "note",
+  labels: {
+    singular: "Note",
+    plural: "Notes",
+  },
+  fields: [
+    {
+      name: "variant",
+      type: "select",
+      defaultValue: "note",
+      options: [
+        { label: "Note", value: "note" },
+        { label: "Warning", value: "warning" },
+        { label: "Tip", value: "tip" },
+      ],
+    },
+    {
+      name: "title",
+      type: "text",
+    },
+    {
+      name: "body",
+      type: "textarea",
+      required: true,
+    },
+  ],
+};
+
+const terminalBlock: Block = {
+  slug: "terminal",
+  labels: {
+    singular: "Terminal",
+    plural: "Terminal blocks",
+  },
+  fields: [
+    { name: "title", type: "text", defaultValue: "Terminal" },
+    { name: "commands", type: "textarea", required: true, admin: { rows: 8 } },
+  ],
+};
+
+const fileTreeBlock: Block = {
+  slug: "fileTree",
+  labels: {
+    singular: "File tree",
+    plural: "File trees",
+  },
+  fields: [
+    { name: "title", type: "text", defaultValue: "Project structure" },
+    { name: "tree", type: "textarea", required: true, admin: { rows: 8 } },
+  ],
+};
+
+const postEditor: RichTextAdapterProvider<
+  SerializedEditorState<SerializedLexicalNode>,
+  unknown,
+  object
+> = async (args) => {
+  const {
+    BlockquoteFeature,
+    BlocksFeature,
+    BoldFeature,
+    CodeBlock,
+    EXPERIMENTAL_TableFeature,
+    FixedToolbarFeature,
+    HeadingFeature,
+    HorizontalRuleFeature,
+    InlineCodeFeature,
+    InlineToolbarFeature,
+    ItalicFeature,
+    LinkFeature,
+    OrderedListFeature,
+    StrikethroughFeature,
+    UnderlineFeature,
+    UnorderedListFeature,
+    UploadFeature,
+    lexicalEditor,
+  } = await import("@payloadcms/richtext-lexical");
+
+  return lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
+      FixedToolbarFeature(),
+      InlineToolbarFeature(),
+      HeadingFeature({ enabledHeadingSizes: ["h1", "h2", "h3", "h4", "h5", "h6"] }),
+      BoldFeature(),
+      ItalicFeature(),
+      UnderlineFeature(),
+      StrikethroughFeature(),
+      InlineCodeFeature(),
+      BlockquoteFeature(),
+      HorizontalRuleFeature(),
+      OrderedListFeature(),
+      UnorderedListFeature(),
+      LinkFeature(),
+      UploadFeature({
+        enabledCollections: ["media"],
+        collections: {
+          media: {
+            fields: [
+              { name: "caption", type: "text", label: "Caption" },
+              { name: "alt", type: "text", label: "Alt text" },
+              { name: "width", type: "number", label: "Display width (%)", min: 20, max: 100 },
+            ],
+          },
+        },
+      }),
+      EXPERIMENTAL_TableFeature(),
+      BlocksFeature({
+        blocks: [
+          CodeBlock({
+            fieldOverrides: {
+              labels: {
+                singular: "Code block",
+                plural: "Code blocks",
+              },
+            },
+          }),
+          terminalBlock,
+          noteBlock,
+          fileTreeBlock,
+        ],
+      }),
+    ],
+  })(args);
+};
+
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -43,13 +171,25 @@ function slugify(value: string) {
 }
 
 function wordCount(value: unknown) {
-  if (typeof value !== "string") return 0;
+  if (typeof value !== "string") {
+    return wordCount(textFromRichText(value));
+  }
   return value
     .replace(/<[^>]+>/g, " ")
     .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
     .trim()
     .split(/\s+/)
     .filter(Boolean).length;
+}
+
+function textFromRichText(value: unknown): string {
+  if (!value || typeof value !== "object") return "";
+
+  const node = value as { children?: unknown[]; root?: unknown; text?: unknown };
+  const ownText = typeof node.text === "string" ? node.text : "";
+  const rootText = textFromRichText(node.root);
+  const childrenText = Array.isArray(node.children) ? node.children.map(textFromRichText).join(" ") : "";
+  return [ownText, rootText, childrenText].filter(Boolean).join(" ");
 }
 
 function readTimeLabel(value: unknown, locale: "vi" | "en") {
@@ -191,6 +331,16 @@ const Posts: CollectionConfig = {
   admin: {
     useAsTitle: "titleVi",
     defaultColumns: ["titleVi", "slug", "status", "publishedAt", "views"],
+    preview: (data) => {
+      const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+      return data?.slug ? `${site}/vi/blog/${data.slug}` : site;
+    },
+    livePreview: {
+      url: ({ data }) => {
+        const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+        return data?.slug ? `${site}/vi/blog/${data.slug}` : site;
+      },
+    },
   },
   access: {
     read: publishedOrAuthenticated,
@@ -205,8 +355,8 @@ const Posts: CollectionConfig = {
     beforeChange: [
       ({ data, originalDoc }) => {
         if (!data) return data;
-        data.readTimeVi = readTimeLabel(data.contentVi, "vi");
-        data.readTimeEn = readTimeLabel(data.contentEn || data.contentVi, "en");
+        data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
+        data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
         if (typeof data.views !== "number") data.views = Number(originalDoc?.views || 0);
         if (isPublished(data) && !data.publishedAt) data.publishedAt = new Date().toISOString();
         return data;
@@ -215,9 +365,11 @@ const Posts: CollectionConfig = {
   },
   fields: [
     {
-      type: "collapsible",
-      label: "Basic Information",
-      fields: [
+      type: "tabs",
+      tabs: [
+        {
+          label: "Post",
+          fields: [
         { name: "titleVi", type: "text", label: "Title VI", required: true },
         { name: "titleEn", type: "text", label: "Title EN" },
         {
@@ -231,42 +383,34 @@ const Posts: CollectionConfig = {
           },
         },
         { name: "coverImage", type: "relationship", label: "Featured Image", relationTo: "media" },
+            { name: "excerptVi", type: "textarea", label: "Short Description VI" },
+            { name: "excerptEn", type: "textarea", label: "Short Description EN" },
+            {
+              name: "contentRichVi",
+              type: "richText",
+              label: "Content Editor VI",
+              editor: postEditor,
+              admin: {
+                description: "WordPress-style rich editor for new Vietnamese posts.",
+              },
+            },
+            {
+              name: "contentRichEn",
+              type: "richText",
+              label: "Content Editor EN",
+              editor: postEditor,
+              admin: {
+                description: "Leave blank to reuse Vietnamese content for English.",
+              },
+            },
         { name: "category", type: "text", defaultValue: "Cloud" },
         { name: "series", type: "relationship", relationTo: "series" },
         listField("tags", "Tags"),
-      ],
-    },
-    {
-      type: "collapsible",
-      label: "Content",
-      fields: [
-        { name: "excerptVi", type: "textarea", label: "Excerpt VI" },
-        { name: "excerptEn", type: "textarea", label: "Excerpt EN" },
-        {
-          name: "contentVi",
-          type: "textarea",
-          label: "Content VI",
-          required: true,
-          admin: {
-            rows: 18,
-            description: "HTML or Markdown. The frontend sanitizes before rendering.",
-          },
+          ],
         },
         {
-          name: "contentEn",
-          type: "textarea",
-          label: "Content EN",
-          admin: {
-            rows: 18,
-            description: "Leave blank to reuse Vietnamese content for English.",
-          },
-        },
-      ],
-    },
-    {
-      type: "collapsible",
-      label: "SEO",
-      fields: [
+          label: "SEO",
+          fields: [
         {
           name: "seo",
           type: "group",
@@ -278,12 +422,11 @@ const Posts: CollectionConfig = {
             { name: "ogImage", type: "relationship", label: "OG Image", relationTo: "media" },
           ],
         },
-      ],
-    },
-    {
-      type: "collapsible",
-      label: "Publishing",
-      fields: [
+          ],
+        },
+        {
+          label: "Publish",
+          fields: [
         {
           name: "status",
           type: "select",
@@ -303,25 +446,59 @@ const Posts: CollectionConfig = {
           },
         },
         { name: "author", type: "relationship", relationTo: "authors" },
+          ],
+        },
+        {
+          label: "Advanced",
+          fields: [
+            {
+              type: "collapsible",
+              label: "Legacy content fallback",
+              admin: {
+                initCollapsed: true,
+              },
+              fields: [
+                {
+                  name: "contentVi",
+                  type: "textarea",
+                  label: "Legacy Content VI",
+                  admin: {
+                    rows: 18,
+                    description: "Markdown/HTML fallback for migrated or older posts.",
+                  },
+                },
+                {
+                  name: "contentEn",
+                  type: "textarea",
+                  label: "Legacy Content EN",
+                  admin: {
+                    rows: 18,
+                    description: "Fallback only. Prefer Content Editor EN for new posts.",
+                  },
+                },
+              ],
+            },
+            { name: "readTimeVi", type: "text", label: "Read time VI", admin: { readOnly: true } },
+            { name: "readTimeEn", type: "text", label: "Read time EN", admin: { readOnly: true } },
+            { name: "views", type: "number", defaultValue: 0, min: 0, admin: { readOnly: true } },
+            { name: "roadmapId", type: "number", admin: { hidden: true } },
+            { name: "roadmapOrder", type: "number", admin: { hidden: true } },
+            { name: "topicSlug", type: "text", admin: { hidden: true } },
+            { name: "clusterSlug", type: "text", admin: { hidden: true } },
+            { name: "gradient", type: "text", defaultValue: "from-slate-600/90 to-cyan-700/90", admin: { hidden: true } },
+            listField("certs", "Certifications"),
+            listField("services", "Services"),
+            listField("examDomains", "Exam domains"),
+            listField("labs", "Labs"),
+            { name: "coverage", type: "text", admin: { hidden: true } },
+            { name: "costNote", type: "textarea", admin: { hidden: true } },
+            { name: "cleanupNote", type: "textarea", admin: { hidden: true } },
+            { name: "editorialNote", type: "textarea", admin: { hidden: true } },
+            { name: "quiz", type: "textarea", admin: { hidden: true } },
+          ],
+        },
       ],
     },
-    { name: "readTimeVi", type: "text", label: "Read time VI", admin: { readOnly: true, position: "sidebar" } },
-    { name: "readTimeEn", type: "text", label: "Read time EN", admin: { readOnly: true, position: "sidebar" } },
-    { name: "views", type: "number", defaultValue: 0, min: 0, admin: { readOnly: true, position: "sidebar" } },
-    { name: "roadmapId", type: "number", admin: { hidden: true } },
-    { name: "roadmapOrder", type: "number", admin: { hidden: true } },
-    { name: "topicSlug", type: "text", admin: { hidden: true } },
-    { name: "clusterSlug", type: "text", admin: { hidden: true } },
-    { name: "gradient", type: "text", defaultValue: "from-slate-600/90 to-cyan-700/90", admin: { hidden: true } },
-    listField("certs", "Certifications"),
-    listField("services", "Services"),
-    listField("examDomains", "Exam domains"),
-    listField("labs", "Labs"),
-    { name: "coverage", type: "text", admin: { hidden: true } },
-    { name: "costNote", type: "textarea", admin: { hidden: true } },
-    { name: "cleanupNote", type: "textarea", admin: { hidden: true } },
-    { name: "editorialNote", type: "textarea", admin: { hidden: true } },
-    { name: "quiz", type: "textarea", admin: { hidden: true } },
   ],
 };
 
@@ -390,6 +567,7 @@ export default buildConfig({
     },
     push: true,
   }),
+  editor: postEditor,
   routes: {
     admin: "/admin",
     api: "/api/payload",

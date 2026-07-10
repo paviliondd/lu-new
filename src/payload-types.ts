@@ -224,6 +224,44 @@ export interface Post {
    */
   slug: string;
   coverImage?: (number | null) | Media;
+  excerptVi?: string | null;
+  excerptEn?: string | null;
+  /**
+   * WordPress-style rich editor for new Vietnamese posts.
+   */
+  contentRichVi?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Leave blank to reuse Vietnamese content for English.
+   */
+  contentRichEn?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   category?: string | null;
   series?: (number | null) | Series;
   tags?:
@@ -232,16 +270,6 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
-  excerptVi?: string | null;
-  excerptEn?: string | null;
-  /**
-   * HTML or Markdown. The frontend sanitizes before rendering.
-   */
-  contentVi: string;
-  /**
-   * Leave blank to reuse Vietnamese content for English.
-   */
-  contentEn?: string | null;
   seo?: {
     titleVi?: string | null;
     titleEn?: string | null;
@@ -255,6 +283,14 @@ export interface Post {
    */
   publishedAt?: string | null;
   author?: (number | null) | Author;
+  /**
+   * Markdown/HTML fallback for migrated or older posts.
+   */
+  contentVi?: string | null;
+  /**
+   * Fallback only. Prefer Content Editor EN for new posts.
+   */
+  contentEn?: string | null;
   readTimeVi?: string | null;
   readTimeEn?: string | null;
   views?: number | null;
@@ -302,7 +338,13 @@ export interface Post {
 export interface Comment {
   id: number;
   status: 'pending' | 'approved' | 'rejected';
+  /**
+   * Display name from OAuth profile.
+   */
   name: string;
+  /**
+   * Email from GitHub/Google OAuth when available.
+   */
   email?: string | null;
   content: string;
   post: number | Post;
@@ -492,6 +534,10 @@ export interface PostsSelect<T extends boolean = true> {
   titleEn?: T;
   slug?: T;
   coverImage?: T;
+  excerptVi?: T;
+  excerptEn?: T;
+  contentRichVi?: T;
+  contentRichEn?: T;
   category?: T;
   series?: T;
   tags?:
@@ -500,10 +546,6 @@ export interface PostsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
-  excerptVi?: T;
-  excerptEn?: T;
-  contentVi?: T;
-  contentEn?: T;
   seo?:
     | T
     | {
@@ -516,6 +558,8 @@ export interface PostsSelect<T extends boolean = true> {
   status?: T;
   publishedAt?: T;
   author?: T;
+  contentVi?: T;
+  contentEn?: T;
   readTimeVi?: T;
   readTimeEn?: T;
   views?: T;

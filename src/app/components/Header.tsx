@@ -57,14 +57,14 @@ export default function Header() {
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden items-center gap-1 rounded-xl border theme-border bg-white/70 p-1 dark:bg-slate-950/35 md:flex">
+          <ul className="hidden items-center overflow-hidden rounded-xl border theme-border bg-white/70 p-1 dark:bg-slate-950/35 md:flex">
             {navLinks.map((link) => {
               const isActive = link.href === activeNavHref;
               return (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition cursor-pointer ${
+                    className={`block rounded-lg px-3.5 py-2 text-sm font-semibold transition cursor-pointer ${
                       isActive
                         ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"

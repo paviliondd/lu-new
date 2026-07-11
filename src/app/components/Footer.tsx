@@ -57,9 +57,6 @@ export default function Footer() {
                 Linux<span className="font-extrabold text-teal-700 dark:text-emerald-300">Unity</span>
               </span>
             </Link>
-            <p className="max-w-xs text-sm leading-6 theme-muted">
-              {t("logoSubtitle")}
-            </p>
             {/* Social Icons */}
             <div className="flex items-center gap-3">
               <a
@@ -104,16 +101,6 @@ export default function Footer() {
               <li>
                 <Link href={localePath("/blog/series")} className="inline-flex min-h-9 items-center theme-muted transition hover:text-teal-700 dark:hover:text-emerald-300">
                   {t("series")}
-                </Link>
-              </li>
-              <li>
-                <Link href={`${localePath("/blog")}?tag=IaC`} className="inline-flex min-h-9 items-center theme-muted transition hover:text-teal-700 dark:hover:text-emerald-300">
-                  Infrastructure as Code
-                </Link>
-              </li>
-              <li>
-                <Link href={`${localePath("/blog")}?tag=Serverless`} className="inline-flex min-h-9 items-center theme-muted transition hover:text-teal-700 dark:hover:text-emerald-300">
-                  Serverless AWS
                 </Link>
               </li>
             </ul>
@@ -174,7 +161,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t theme-border pt-8 text-center text-xs theme-muted">
-          <p>© {new Date().getFullYear()} LinuxUnity. {t("footerText")}</p>
+          <p>© {new Date().getFullYear()} LinuxUnity.</p>
         </div>
       </div>
     </footer>

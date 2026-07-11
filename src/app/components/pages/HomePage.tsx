@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Boxes, GitPullRequest, Layers, Sparkles, Zap } from "lucide-react";
 import type { Post, Series } from "@/app/data";
-import { team } from "@/app/data";
-import PostCard from "@/app/components/PostCard";
 import { useLanguage } from "@/app/components/LanguageProvider";
-import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
 interface HomePageProps {
   initialPosts: Post[];
@@ -15,13 +12,30 @@ interface HomePageProps {
 
 export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
   const { t, language, localePath } = useLanguage();
-  const posts = usePublishedPosts(initialPosts);
-  const recentPosts = [...posts]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 7);
-  const featuredPost = recentPosts[0];
-  const supportingPosts = recentPosts.slice(1, 4);
-  const morePosts = recentPosts.slice(4, 7);
+  void initialPosts;
+
+  const technologyItems = [
+    {
+      label: "AWS",
+      icon: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonaws.svg",
+      hoverClass: "hover:border-[#ff9900]/70 hover:bg-[#ff9900]/[0.08]",
+    },
+    {
+      label: "Ansible",
+      icon: "https://cdn.simpleicons.org/ansible/EE0000",
+      hoverClass: "hover:border-[#ee0000]/70 hover:bg-[#ee0000]/[0.07]",
+    },
+    {
+      label: "Linux",
+      icon: "https://cdn.simpleicons.org/linux/FCC624",
+      hoverClass: "hover:border-[#fcc624]/70 hover:bg-[#fcc624]/[0.08]",
+    },
+    {
+      label: "CI/CD",
+      icon: "https://cdn.simpleicons.org/githubactions/2088FF",
+      hoverClass: "hover:border-[#2088ff]/70 hover:bg-[#2088ff]/[0.08]",
+    },
+  ];
 
   const renderSeriesIcon = (iconName: string) => {
     switch (iconName) {
@@ -61,12 +75,6 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
                 {t("readBlog")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-              <Link
-                href={localePath("/blog/series")}
-                className="inline-flex h-11 w-full items-center justify-center rounded-lg border theme-border bg-white/70 px-6 text-sm font-semibold text-slate-800 transition hover:border-teal-500 hover:bg-white dark:bg-slate-900/50 dark:text-slate-100 dark:hover:border-emerald-400 sm:w-auto"
-              >
-                {t("series")}
-              </Link>
             </div>
           </div>
 
@@ -80,14 +88,20 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                {["AWS", "Kubernetes", "Terraform", "CI/CD"].map((item, index) => (
+                {technologyItems.map((item) => (
                   <div
-                    key={item}
-                    className={`rounded-lg border theme-border p-5 ${
-                      index % 2 === 0 ? "bg-white/55 dark:bg-slate-900/40" : "theme-panel"
-                    }`}
+                    key={item.label}
+                    className={`group flex min-h-16 items-center gap-3 rounded-lg border theme-border bg-white/55 p-4 transition duration-200 dark:bg-slate-900/40 ${item.hoverClass}`}
                   >
-                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{item}</span>
+                    {/* Brand SVGs are intentionally loaded directly to preserve their source form. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.icon}
+                      alt=""
+                      aria-hidden="true"
+                      className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
+                    />
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{item.label}</span>
                   </div>
                 ))}
               </div>
@@ -96,77 +110,8 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-9 flex min-w-0 items-end justify-between gap-6">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-700 dark:text-emerald-300">
-                {t("recentWriting")}
-              </p>
-              <h2 className="mt-3 break-words text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
-                {t("allPosts")}
-              </h2>
-            </div>
-            <Link
-              href={localePath("/blog")}
-              className="hidden items-center gap-2 rounded-lg border theme-border bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-teal-500 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-400 sm:flex"
-            >
-              {t("viewAll")}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {featuredPost ? (
-            <>
-              <div className="grid gap-6 lg:grid-cols-[1.45fr_.75fr]">
-                <PostCard
-                  post={featuredPost}
-                  author={team[featuredPost.author]}
-                  locale={language}
-                  featured
-                />
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-                  {supportingPosts.slice(0, 2).map((post) => (
-                    <PostCard
-                      key={post.slug}
-                      post={post}
-                      author={team[post.author]}
-                      locale={language}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-6 md:grid-cols-3">
-                {[...supportingPosts.slice(2), ...morePosts].slice(0, 3).map((post) => (
-                  <PostCard
-                    key={post.slug}
-                    post={post}
-                    author={team[post.author]}
-                    locale={language}
-                  />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="theme-card rounded-xl border border-dashed p-12 text-center text-sm theme-muted">
-              {t("noPosts")}
-            </div>
-          )}
-        </div>
-      </section>
-
       <section className="theme-surface border-t theme-border py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-10">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-700 dark:text-emerald-300">
-              {t("collections")}
-            </p>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
-              {t("series")}
-            </h2>
-          </div>
-
           <div className="grid gap-6 md:grid-cols-3">
             {seriesItems.map((item) => (
               <Link

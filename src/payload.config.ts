@@ -344,20 +344,28 @@ const Media: CollectionConfig = {
           }
         }
 
-        await req.payload.update({
-          collection: "media",
-          id: doc.id,
-          data: {
-            filename: nextFilename,
-            filenameSlug: desiredSlug,
-            url: `/uploads/${nextFilename}`,
-            sizes: nextSizes,
-          } as Record<string, unknown>,
-          overrideAccess: true,
-          context: {
-            mediaRenameInProgress: true,
-          },
-        });
+        try {
+          await req.payload.update({
+            collection: "media",
+            id: doc.id,
+            data: {
+              filename: nextFilename,
+              filenameSlug: desiredSlug,
+              url: `/uploads/${nextFilename}`,
+              sizes: nextSizes,
+            } as Record<string, unknown>,
+            overrideAccess: true,
+            context: {
+              mediaRenameInProgress: true,
+            },
+          });
+        } catch (error) {
+          req.payload.logger.error(
+            { id: doc.id, filename: nextFilename, error },
+            "Unable to persist normalized media filename"
+          );
+          throw error;
+        }
 
         req.payload.logger.info(
           { id: doc.id, operation, filename: nextFilename },
@@ -376,6 +384,12 @@ const Media: CollectionConfig = {
         description: "Lowercase filename without extension. Leave blank to generate from Alt.",
       },
       index: true,
+      validate: (value: unknown) => {
+        if (!value) return true;
+        return /^[a-z0-9-]+$/.test(String(value))
+          ? true
+          : "Use lowercase letters, numbers, and hyphens only.";
+      },
     },
     {
       name: "alt",

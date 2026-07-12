@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "node .next/standalone/server.js",
     "lint": "eslint",
+    "test": "node --test",
     "payload": "payload",
     "payload:generate-importmap": "payload generate:importmap",
     "payload:generate-types": "payload generate:types",

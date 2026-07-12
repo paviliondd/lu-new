@@ -28,7 +28,7 @@ Usage:
 Options:
   --source <url>           WordPress site URL. Required.
   --status <draft|published>
-                           Payload status for imported posts. Default: draft.
+                           Payload status for imported posts. Default: published.
   --author-slug <slug>     Payload author slug to assign. Default: nhatnghia.
   --series-slug <slug>     Optional Payload series slug to assign all imported posts.
   --limit <number>         Optional max posts to import.
@@ -39,7 +39,7 @@ Options:
 }
 
 const source = getArg("--source").replace(/\/$/, "");
-const payloadStatus = getArg("--status", "draft");
+const payloadStatus = getArg("--status", "published");
 const authorSlug = getArg("--author-slug", "nhatnghia");
 const seriesSlug = getArg("--series-slug");
 const limit = Number(getArg("--limit", "0"));
@@ -103,6 +103,20 @@ function slugify(value) {
 
 function textExcerpt(value = "") {
   return decodeHtml(value).slice(0, 480);
+}
+
+function wordCount(value = "") {
+  return String(value)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+function readTimeLabel(value = "", locale = "vi") {
+  const minutes = Math.max(1, Math.ceil(wordCount(value) / 220));
+  return locale === "vi" ? `${minutes} phút đọc` : `${minutes} min read`;
 }
 
 function absoluteUrl(value) {
@@ -367,11 +381,13 @@ async function upsertPost(client, post, authorId, resolvedSeriesId) {
         "seo_title_vi",
         "seo_description_vi",
         "seo_og_image_id",
+        "read_time_vi",
+        "read_time_en",
         "views",
         "created_at",
         "updated_at"
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $4, $5, $7, 0, now(), now())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $4, $5, $7, $11, $12, 0, now(), now())
       ON CONFLICT ("slug") DO UPDATE SET
         "status" = EXCLUDED."status",
         "published_at" = EXCLUDED."published_at",
@@ -385,6 +401,8 @@ async function upsertPost(client, post, authorId, resolvedSeriesId) {
         "seo_title_vi" = EXCLUDED."seo_title_vi",
         "seo_description_vi" = EXCLUDED."seo_description_vi",
         "seo_og_image_id" = COALESCE(EXCLUDED."seo_og_image_id", "posts"."seo_og_image_id"),
+        "read_time_vi" = EXCLUDED."read_time_vi",
+        "read_time_en" = EXCLUDED."read_time_en",
         "updated_at" = now()
       RETURNING "id"
     `,
@@ -399,6 +417,8 @@ async function upsertPost(client, post, authorId, resolvedSeriesId) {
       category,
       authorId,
       resolvedSeriesId,
+      readTimeLabel(content, "vi"),
+      readTimeLabel(content, "en"),
     ]
   );
 

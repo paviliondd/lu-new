@@ -101,6 +101,22 @@ docker compose build app
 log "Starting production containers"
 docker compose up -d --remove-orphans
 
+log "Waiting for app healthcheck"
+for attempt in $(seq 1 60); do
+  if docker compose exec -T app sh -lc 'wget -qO- http://127.0.0.1:3000/api/health >/dev/null'; then
+    break
+  fi
+
+  if [ "$attempt" -eq 60 ]; then
+    fail "App did not become healthy after 120 seconds."
+  fi
+
+  sleep 2
+done
+
+log "Repairing Payload posts and clearing content cache"
+docker compose exec -T app npm run payload:repair-posts
+
 log "Current service status"
 docker compose ps
 

@@ -369,17 +369,19 @@ async function withLocalView(post: Post) {
   return (await withLocalViews([post]))[0];
 }
 
-async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<Post[]> {
-  return cachedJson(`posts:published:${locale}`, 30, async () => {
+async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 100): Promise<Post[]> {
+  const limit = Math.min(Math.max(Math.floor(requestedLimit) || 1, 1), 100);
+
+  return cachedJson(`posts:published:${locale}:${limit}`, 30, async () => {
     const filePosts = await getLocalizedFilePosts(locale);
     const payload = await getPayloadClient();
-    if (!payload) return withLocalViews(filePosts);
+    if (!payload) return (await withLocalViews(filePosts)).slice(0, limit);
 
     try {
       const result = await payload.find({
         collection: "posts",
         depth: 2,
-        limit: 100,
+        limit,
         sort: "-publishedAt",
         where: {
           status: {
@@ -388,10 +390,10 @@ async function getPayloadPublishedPosts(locale: Locale = "vi"): Promise<Post[]> 
         },
       });
       const payloadPosts = await Promise.all(result.docs.map((doc) => mapPayloadPost(asPayloadDoc(doc), locale)));
-      return withLocalViews(mergePosts(payloadPosts, filePosts));
+      return (await withLocalViews(mergePosts(payloadPosts, filePosts))).slice(0, limit);
     } catch (error) {
       console.error("Unable to fetch Payload published posts", { locale, error });
-      return withLocalViews(filePosts);
+      return (await withLocalViews(filePosts)).slice(0, limit);
     }
   });
 }

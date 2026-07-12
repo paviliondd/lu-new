@@ -3,6 +3,8 @@ import type { MigrateDownArgs, MigrateUpArgs } from "@payloadcms/db-postgres";
 
 export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
+    ALTER TABLE "posts" ALTER COLUMN "content_vi" DROP NOT NULL;
+    ALTER TABLE "posts" ALTER COLUMN "content_en" DROP NOT NULL;
     ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "content_rich_vi" jsonb;
     ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "content_rich_en" jsonb;
   `);

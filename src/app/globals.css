@@ -464,6 +464,62 @@ iframe {
   border-left-color: #b7791f;
 }
 
+.mermaid-shell {
+  display: block;
+  margin: 1.75rem 0;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  border-radius: 0.7rem;
+  background: var(--site-surface);
+}
+
+.mermaid-shell__toolbar {
+  display: flex;
+  min-height: 2.65rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-panel);
+  padding: 0.45rem 0.65rem 0.45rem 1rem;
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.mermaid-shell__toolbar button {
+  min-height: 2rem;
+  border: 1px solid var(--site-border);
+  border-radius: 0.45rem;
+  background: var(--site-surface);
+  padding: 0 0.55rem;
+  color: var(--site-fg);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.mermaid-shell__stage {
+  --mermaid-scale: 1;
+  min-height: 12rem;
+  overflow: auto;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.mermaid-shell__stage svg {
+  max-width: none;
+  transform: scale(var(--mermaid-scale));
+  transform-origin: top left;
+}
+
+.mermaid-shell__stage--failed {
+  white-space: pre;
+  text-align: left;
+  color: var(--site-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
 .dark .richtext-block figcaption,
 .dark .richtext-block > strong {
   color: #c9d1d9;

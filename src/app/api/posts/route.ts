@@ -14,10 +14,19 @@ export async function GET(request: Request) {
 
   const requestedLocale = new URL(request.url).searchParams.get("locale") || defaultLocale;
   const locale = hasLocale(requestedLocale) ? requestedLocale : defaultLocale;
-  const posts = await getCmsPublishedPosts(locale);
-  return Response.json(posts, {
-    headers: {
-      "Cache-Control": "no-store",
+  const requestedLimit = Number(new URL(request.url).searchParams.get("limit") || "100");
+  const posts = await getCmsPublishedPosts(locale, requestedLimit);
+  return Response.json(
+    {
+      docs: posts.map((post) => ({
+        ...post,
+        cover: post.seo.ogImage || post.thumbnail || null,
+      })),
     },
-  });
+    {
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    }
+  );
 }

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowRight, Boxes, GitPullRequest, Layers, Sparkles, Zap } from "lucide-react";
 import type { Post, Series } from "@/app/data";
 import { useLanguage } from "@/app/components/LanguageProvider";
+import RecentWritingSection from "@/app/components/RecentWritingSection";
+import { homepageConfig } from "@/config/homepage";
 
 interface HomePageProps {
   initialPosts: Post[];
@@ -12,30 +14,8 @@ interface HomePageProps {
 
 export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
   const { t, language, localePath } = useLanguage();
-  void initialPosts;
 
-  const technologyItems = [
-    {
-      label: "AWS",
-      icon: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonaws.svg",
-      hoverClass: "hover:border-[#ff9900]/70 hover:bg-[#ff9900]/[0.08]",
-    },
-    {
-      label: "Ansible",
-      icon: "https://cdn.simpleicons.org/ansible/EE0000",
-      hoverClass: "hover:border-[#ee0000]/70 hover:bg-[#ee0000]/[0.07]",
-    },
-    {
-      label: "Linux",
-      icon: "https://cdn.simpleicons.org/linux/FCC624",
-      hoverClass: "hover:border-[#fcc624]/70 hover:bg-[#fcc624]/[0.08]",
-    },
-    {
-      label: "CI/CD",
-      icon: "https://cdn.simpleicons.org/githubactions/2088FF",
-      hoverClass: "hover:border-[#2088ff]/70 hover:bg-[#2088ff]/[0.08]",
-    },
-  ];
+  const technologyItems = homepageConfig.technologies;
 
   const renderSeriesIcon = (iconName: string) => {
     switch (iconName) {
@@ -109,6 +89,8 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
           </div>
         </div>
       </section>
+
+      <RecentWritingSection initialPosts={initialPosts} />
 
       <section className="theme-surface border-t theme-border py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">

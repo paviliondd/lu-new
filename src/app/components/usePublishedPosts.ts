@@ -22,7 +22,8 @@ export function usePublishedPosts(initialPosts: Post[]) {
         });
         if (!response.ok) return;
 
-        const posts = (await response.json()) as Post[];
+        const payload = (await response.json()) as Post[] | { docs?: Post[] };
+        const posts = Array.isArray(payload) ? payload : payload.docs || [];
         if (posts.length === 0 && initialPosts.length > 0) return;
 
         if (isMounted) {

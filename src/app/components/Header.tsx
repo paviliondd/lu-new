@@ -7,6 +7,8 @@ import { Menu, Search, X, Cloud } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 import ThemeToggle from "./ThemeToggle";
 import SearchModal from "./SearchModal";
+import { navigationConfig } from "@/config/navigation";
+import { siteConfig } from "@/config/site";
 
 export default function Header() {
   const pathname = usePathname();
@@ -14,11 +16,10 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { t, localePath, language, setLanguage } = useLanguage();
 
-  const navLinks = [
-    { href: localePath("/blog"), label: t("blog") },
-    { href: localePath("/blog/series"), label: t("series") },
-    { href: localePath("/about"), label: t("about") },
-  ];
+  const navLinks = navigationConfig.main.map((link) => ({
+    href: localePath(link.href),
+    label: t(link.labelKey as Parameters<typeof t>[0]),
+  }));
   const activeNavHref = navLinks
     .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
     .sort((left, right) => right.href.length - left.href.length)[0]?.href;
@@ -52,7 +53,7 @@ export default function Header() {
               <Cloud className="h-5 w-5" />
             </div>
             <span className="truncate text-lg font-bold tracking-tight text-slate-950 dark:text-white">
-              Linux<span className="font-extrabold text-teal-600 dark:text-emerald-300">Unity</span>
+              {siteConfig.name.replace("Unity", "")}<span className="font-extrabold text-teal-600 dark:text-emerald-300">Unity</span>
             </span>
           </Link>
 

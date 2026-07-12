@@ -2,6 +2,7 @@
 
 import ArticleImageEnhancer from "../ArticleImageEnhancer";
 import CodeBlock from "../CodeBlock";
+import MermaidRenderer from "../MermaidRenderer";
 
 interface RichTextRendererProps {
   assetBase?: string;
@@ -30,6 +31,7 @@ export default function RichTextRenderer({
         copiedLabel={copiedLabel}
         failedLabel={failedLabel}
       />
+      <MermaidRenderer contentKey={contentKey} />
       <ArticleImageEnhancer
         assetBase={assetBase}
         contentKey={contentKey}

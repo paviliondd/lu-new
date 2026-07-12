@@ -83,8 +83,16 @@ export default function CodeBlock({
 
       return {
         filename: normalizeCodeLabel(filename),
-        language: normalizeCodeLabel(language),
+        language: normalizeCodeLabel(language).toLowerCase(),
       };
+    }
+
+    function copyButtonContents(state: "idle" | "loading" | "copied" | "failed") {
+      const label = document.createElement("span");
+      label.className = "code-copy-button__label";
+      label.textContent =
+        state === "copied" ? copiedLabel : state === "failed" ? failedLabel : copyLabel;
+      return [createCopyIcon(state), label];
     }
 
     function filenameForDownload(filename: string, language: string) {
@@ -121,6 +129,7 @@ export default function CodeBlock({
       const totalLines = lineCount(rawCode);
       const isLong = totalLines > 30;
       const { filename, language } = codeMeta(preElement, codeElement);
+      if (language === "mermaid" || preElement.dataset.mermaid === "true") return;
       const label = filename || language;
       let backdrop: HTMLDivElement | null = null;
       let restoreMarker: Comment | null = null;
@@ -162,7 +171,7 @@ export default function CodeBlock({
       copyButton.setAttribute("aria-label", copyLabel);
       copyButton.setAttribute("title", copyLabel);
       copyButton.dataset.state = "idle";
-      copyButton.appendChild(createCopyIcon("idle"));
+      copyButton.replaceChildren(...copyButtonContents("idle"));
 
       const downloadButton = document.createElement("button");
       downloadButton.type = "button";
@@ -175,17 +184,17 @@ export default function CodeBlock({
         if (copyButton.dataset.state === "loading") return;
 
         copyButton.dataset.state = "loading";
-        copyButton.replaceChildren(createCopyIcon("loading"));
+        copyButton.replaceChildren(...copyButtonContents("loading"));
         const copied = await copyText(rawCode);
         copyButton.dataset.state = copied ? "copied" : "failed";
         copyButton.setAttribute("aria-label", copied ? copiedLabel : failedLabel);
         copyButton.setAttribute("title", copied ? copiedLabel : failedLabel);
-        copyButton.replaceChildren(createCopyIcon(copied ? "copied" : "failed"));
+        copyButton.replaceChildren(...copyButtonContents(copied ? "copied" : "failed"));
         window.setTimeout(() => {
           copyButton.dataset.state = "idle";
           copyButton.setAttribute("aria-label", copyLabel);
           copyButton.setAttribute("title", copyLabel);
-          copyButton.replaceChildren(createCopyIcon("idle"));
+          copyButton.replaceChildren(...copyButtonContents("idle"));
         }, 2000);
       };
 
@@ -265,7 +274,7 @@ export default function CodeBlock({
       copyButton.addEventListener("click", handleCopy);
       downloadButton.addEventListener("click", handleDownload);
       preElement.parentNode?.insertBefore(shell, preElement);
-      toolbar.append(expandButton, closeButton, downloadButton, copyButton);
+      toolbar.append(copyButton);
       header.append(labelElement, toolbar);
       shell.append(header, preElement, footer);
 

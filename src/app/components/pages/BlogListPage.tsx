@@ -6,6 +6,7 @@ import { SlidersHorizontal } from "lucide-react";
 import type { Post } from "@/app/data";
 import { team } from "@/app/data";
 import PostCard from "@/app/components/PostCard";
+import FeaturedPostsCarousel from "@/app/components/FeaturedPostsCarousel";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
@@ -32,9 +33,11 @@ export default function BlogListPage({
     return posts.filter((post) => post.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()));
   }, [posts, selectedTag]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
+  const featuredPosts = selectedTag ? [] : filteredPosts.slice(0, 3);
+  const listPosts = selectedTag ? filteredPosts : filteredPosts.slice(3);
+  const totalPages = Math.max(1, Math.ceil(listPosts.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
-  const paginatedPosts = filteredPosts.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const paginatedPosts = listPosts.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   const pageHref = (page: number) => {
     const params = new URLSearchParams();
@@ -65,6 +68,8 @@ export default function BlogListPage({
         </div>
       </section>
 
+      {!selectedTag && <FeaturedPostsCarousel posts={featuredPosts} />}
+
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
         {selectedTag && (
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b theme-border pb-5">
@@ -84,7 +89,7 @@ export default function BlogListPage({
               {t("resetFilter")}
             </Link>
           </div>
-        ) : (
+        ) : listPosts.length > 0 ? (
           <>
             <div className="grid min-w-0 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {paginatedPosts.map((post) => (
@@ -151,7 +156,7 @@ export default function BlogListPage({
               </nav>
             )}
           </>
-        )}
+        ) : null}
       </section>
     </div>
   );

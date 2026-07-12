@@ -22,12 +22,19 @@ const languageAliases: Record<string, BundledLanguage> = {
   ts: "typescript",
   tsx: "tsx",
   yml: "yaml",
+  yaml: "yaml",
+  json: "json",
+  bash: "bash",
   aws: "bash",
   awscli: "bash",
 };
 
+function rawLanguage(className = "") {
+  return className.match(/language-([a-z0-9-]+)/i)?.[1]?.toLowerCase() || "text";
+}
+
 function codeLanguage(className = ""): BundledLanguage {
-  const language = className.match(/language-([a-z0-9-]+)/i)?.[1]?.toLowerCase() || "text";
+  const language = rawLanguage(className);
   return languageAliases[language] || (language as BundledLanguage);
 }
 
@@ -48,8 +55,17 @@ export async function highlightCodeBlocks(html: string) {
     const code = pre.find("code").first();
     if (!code.length) continue;
 
-    const language = codeLanguage(code.attr("class"));
+    const originalLanguage = rawLanguage(code.attr("class"));
     const source = code.text();
+
+    if (originalLanguage === "mermaid") {
+      pre.addClass("mermaid-source");
+      pre.attr("data-language", "mermaid");
+      pre.attr("data-mermaid", "true");
+      continue;
+    }
+
+    const language = codeLanguage(code.attr("class"));
 
     try {
       const highlighted = await codeToHtml(source, {
@@ -69,11 +85,11 @@ export async function highlightCodeBlocks(html: string) {
 
       highlightedPre.addClass("code-block");
       if (fileName) highlightedPre.attr("data-filename", fileName);
-      if (shouldShowLanguage(language)) highlightedPre.attr("data-language", language.toUpperCase());
+      if (shouldShowLanguage(language)) highlightedPre.attr("data-language", String(language).toLowerCase());
       pre.replaceWith(highlightedPre);
     } catch {
       pre.addClass("code-block");
-      if (shouldShowLanguage(language)) pre.attr("data-language", language.toUpperCase());
+      if (shouldShowLanguage(language)) pre.attr("data-language", String(language).toLowerCase());
     }
   }
 

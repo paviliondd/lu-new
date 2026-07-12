@@ -94,6 +94,7 @@ const postEditor: RichTextAdapterProvider<
     BlocksFeature,
     BoldFeature,
     CodeBlock,
+    AlignFeature,
     EXPERIMENTAL_TableFeature,
     FixedToolbarFeature,
     HeadingFeature,
@@ -142,6 +143,19 @@ const postEditor: RichTextAdapterProvider<
       BlocksFeature({
         blocks: [
           CodeBlock({
+            defaultLanguage: "bash",
+            languages: {
+              bash: "Bash",
+              javascript: "JavaScript",
+              typescript: "TypeScript",
+              json: "JSON",
+              yaml: "YAML",
+              dockerfile: "Dockerfile",
+              sql: "SQL",
+              python: "Python",
+              terraform: "Terraform",
+              mermaid: "Mermaid",
+            },
             fieldOverrides: {
               labels: {
                 singular: "Code block",
@@ -154,6 +168,7 @@ const postEditor: RichTextAdapterProvider<
           fileTreeBlock,
         ],
       }),
+      AlignFeature(),
     ],
   })(args);
 };
@@ -199,6 +214,11 @@ function readTimeLabel(value: unknown, locale: "vi" | "en") {
 
 function isPublished(data: unknown) {
   return Boolean(data && typeof data === "object" && "status" in data && data.status === "published");
+}
+
+function validateLegacyContent(value: unknown) {
+  if (value === undefined || value === null || typeof value === "string") return true;
+  return "Legacy fallback content must be plain text or HTML.";
 }
 
 const Users: CollectionConfig = {
@@ -287,8 +307,19 @@ const Series: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [
-      ({ data }) => {
+      ({ data, req }) => {
         if (data && !data.slug && data.titleVi) data.slug = slugify(String(data.titleVi));
+        for (const [field, value] of [
+          ["contentVi", data?.contentVi],
+          ["contentEn", data?.contentEn],
+        ] as const) {
+          if (typeof value === "string" && value.length > 40_000) {
+            req.payload.logger.info(
+              { field, length: value.length },
+              "Allowing long legacy fallback content"
+            );
+          }
+        }
         return data;
       },
     ],
@@ -331,6 +362,9 @@ const Posts: CollectionConfig = {
   admin: {
     useAsTitle: "titleVi",
     defaultColumns: ["titleVi", "slug", "status", "publishedAt", "views"],
+    components: {
+      beforeListTable: ["@/app/(payload)/components/BulkPublishPosts"],
+    },
     preview: (data) => {
       const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
       return data?.slug ? `${site}/vi/blog/${data.slug}` : site;
@@ -462,18 +496,20 @@ const Posts: CollectionConfig = {
                   name: "contentVi",
                   type: "textarea",
                   label: "Legacy Content VI",
+                  validate: validateLegacyContent,
                   admin: {
                     rows: 18,
-                    description: "Markdown/HTML fallback for migrated or older posts.",
+                    description: "Optional Markdown/HTML fallback for migrated posts. Long articles are supported.",
                   },
                 },
                 {
                   name: "contentEn",
                   type: "textarea",
                   label: "Legacy Content EN",
+                  validate: validateLegacyContent,
                   admin: {
                     rows: 18,
-                    description: "Fallback only. Prefer Content Editor EN for new posts.",
+                    description: "Optional fallback only. Prefer Content Editor EN for new posts.",
                   },
                 },
               ],

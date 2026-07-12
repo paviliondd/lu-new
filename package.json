@@ -2,6 +2,7 @@
   "name": "linuxunity-blog",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,8 +11,8 @@
     "payload": "payload",
     "payload:generate-importmap": "payload generate:importmap",
     "payload:generate-types": "payload generate:types",
-    "payload:migrate-richtext": "tsx scripts/migrate-payload-richtext.mjs",
-    "content:audit-rendering": "tsx scripts/audit-content-rendering.mjs",
+    "payload:migrate-richtext": "node --import tsx scripts/migrate-payload-richtext.mjs",
+    "content:audit-rendering": "node --import tsx scripts/audit-content-rendering.mjs",
     "payload:sync-series": "node scripts/sync-payload-series.mjs",
     "wordpress:import": "node scripts/import-wordpress-rest.mjs",
     "xml:normalize-images": "node scripts/normalize-xml-images.mjs"

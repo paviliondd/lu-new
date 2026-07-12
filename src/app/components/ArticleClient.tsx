@@ -24,11 +24,11 @@ interface ArticleClientProps {
 }
 
 function formatPostDate(value: string, language: string) {
-  if (!value) return language === "vi" ? "Chua xuat ban" : "Unpublished";
+  if (!value) return language === "vi" ? "Chưa xuất bản" : "Unpublished";
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return language === "vi" ? "Ngay khong hop le" : "Invalid date";
+    return language === "vi" ? "Ngày không hợp lệ" : "Invalid date";
   }
 
   return date.toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {

@@ -225,7 +225,7 @@ function textFromRichText(value: unknown): string {
 
 function readTimeLabel(value: unknown, locale: "vi" | "en") {
   const minutes = Math.max(1, Math.ceil(wordCount(value) / 220));
-  return locale === "vi" ? `${minutes} phut doc` : `${minutes} min read`;
+  return locale === "vi" ? `${minutes} phút đọc` : `${minutes} min read`;
 }
 
 function isPublished(data: unknown) {

@@ -35,8 +35,14 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
+
+      - name: Docker build validation
+        run: docker build --file ./Dockerfile --tag cloud-devops-blog-app:ci .
 
   build-and-push:
     name: Build and Push ECR Image

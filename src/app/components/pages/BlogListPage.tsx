@@ -29,12 +29,16 @@ export default function BlogListPage({
   const currentPage = Math.max(1, initialPage);
 
   const filteredPosts = useMemo(() => {
-    if (!selectedTag) return posts;
-    return posts.filter((post) => post.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()));
+    const sortedPosts = [...posts]
+      .filter((post) => post.status === "published")
+      .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime());
+    if (!selectedTag) return sortedPosts;
+    return sortedPosts.filter((post) => post.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()));
   }, [posts, selectedTag]);
 
   const featuredPosts = selectedTag ? [] : filteredPosts.slice(0, 3);
-  const listPosts = selectedTag ? filteredPosts : filteredPosts.slice(3);
+  const featuredSlugs = new Set(featuredPosts.map((post) => post.slug));
+  const listPosts = selectedTag ? filteredPosts : filteredPosts.filter((post) => !featuredSlugs.has(post.slug));
   const totalPages = Math.max(1, Math.ceil(listPosts.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const paginatedPosts = listPosts.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -103,11 +107,11 @@ export default function BlogListPage({
             </div>
 
             {totalPages > 1 && (
-              <nav className="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Blog pagination">
+              <nav className="mt-10 flex flex-wrap items-center justify-center gap-2 text-sm font-semibold" aria-label="Blog pagination">
                 <Link
                   href={pageHref(Math.max(1, safePage - 1))}
                   aria-disabled={safePage === 1}
-                  className={`rounded-lg border px-3 py-2 text-sm font-bold ${
+                  className={`inline-flex h-10 items-center justify-center rounded-lg border px-3.5 leading-none ${
                     safePage === 1
                       ? "pointer-events-none border-slate-300 bg-slate-200 text-slate-500 dark:border-slate-700 dark:bg-slate-800"
                       : "border-slate-300 text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
@@ -123,7 +127,7 @@ export default function BlogListPage({
                     (index === 1 || Math.abs(index - safePage) <= 1 || index + 1 === totalPages);
                   if (!isVisible) {
                     return previousVisible ? (
-                      <span key={page} className="px-2 text-sm text-slate-500">
+                      <span key={page} className="inline-flex h-10 items-center px-2 text-slate-500">
                         ...
                       </span>
                     ) : null;
@@ -132,7 +136,7 @@ export default function BlogListPage({
                     <Link
                       key={page}
                       href={pageHref(page)}
-                      className={`grid h-9 min-w-9 place-items-center rounded-lg px-3 text-sm font-bold ${
+                      className={`inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-3 leading-none ${
                         page === safePage
                           ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
                           : "border border-slate-300 text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
@@ -145,7 +149,7 @@ export default function BlogListPage({
                 <Link
                   href={pageHref(Math.min(totalPages, safePage + 1))}
                   aria-disabled={safePage === totalPages}
-                  className={`rounded-lg border px-3 py-2 text-sm font-bold ${
+                  className={`inline-flex h-10 items-center justify-center rounded-lg border px-3.5 leading-none ${
                     safePage === totalPages
                       ? "pointer-events-none border-slate-300 bg-slate-200 text-slate-500 dark:border-slate-700 dark:bg-slate-800"
                       : "border-slate-300 text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"

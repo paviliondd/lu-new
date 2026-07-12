@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { createCopyIcon, copyText } from "./CopyButton";
-import { createDownloadIcon, downloadText } from "./DownloadButton";
 
 interface CodeBlockProps {
   containerSelector?: string;
@@ -91,28 +90,8 @@ export default function CodeBlock({
       const label = document.createElement("span");
       label.className = "code-copy-button__label";
       label.textContent =
-        state === "copied" ? copiedLabel : state === "failed" ? failedLabel : copyLabel;
+        state === "copied" ? `✓ ${copiedLabel}` : state === "failed" ? failedLabel : copyLabel;
       return [createCopyIcon(state), label];
-    }
-
-    function filenameForDownload(filename: string, language: string) {
-      if (filename) return filename;
-
-      const extensionByLanguage: Record<string, string> = {
-        bash: "sh",
-        dockerfile: "Dockerfile",
-        javascript: "js",
-        json: "json",
-        python: "py",
-        shell: "sh",
-        sh: "sh",
-        terraform: "tf",
-        typescript: "ts",
-        yaml: "yml",
-      };
-      const key = language.toLowerCase();
-      const extension = extensionByLanguage[key] || "txt";
-      return extension === "Dockerfile" ? "Dockerfile" : `code.${extension}`;
     }
 
     codeBlocks.forEach((preElement) => {
@@ -168,17 +147,10 @@ export default function CodeBlock({
       const copyButton = document.createElement("button");
       copyButton.type = "button";
       copyButton.className = "code-copy-button";
-      copyButton.setAttribute("aria-label", copyLabel);
+      copyButton.setAttribute("aria-label", "Copy code");
       copyButton.setAttribute("title", copyLabel);
       copyButton.dataset.state = "idle";
       copyButton.replaceChildren(...copyButtonContents("idle"));
-
-      const downloadButton = document.createElement("button");
-      downloadButton.type = "button";
-      downloadButton.className = "code-action-button";
-      downloadButton.setAttribute("aria-label", "Download code");
-      downloadButton.setAttribute("title", "Download code");
-      downloadButton.appendChild(createDownloadIcon());
 
       const handleCopy = async () => {
         if (copyButton.dataset.state === "loading") return;
@@ -192,14 +164,10 @@ export default function CodeBlock({
         copyButton.replaceChildren(...copyButtonContents(copied ? "copied" : "failed"));
         window.setTimeout(() => {
           copyButton.dataset.state = "idle";
-          copyButton.setAttribute("aria-label", copyLabel);
+          copyButton.setAttribute("aria-label", "Copy code");
           copyButton.setAttribute("title", copyLabel);
           copyButton.replaceChildren(...copyButtonContents("idle"));
         }, 2000);
-      };
-
-      const handleDownload = () => {
-        downloadText(rawCode, filenameForDownload(filename, language));
       };
 
       const closeExpanded = () => {
@@ -272,9 +240,8 @@ export default function CodeBlock({
       shell.addEventListener("click", handleShellClick);
       window.addEventListener("keydown", handleEsc);
       copyButton.addEventListener("click", handleCopy);
-      downloadButton.addEventListener("click", handleDownload);
       preElement.parentNode?.insertBefore(shell, preElement);
-      toolbar.append(copyButton);
+      toolbar.append(expandButton, closeButton, copyButton);
       header.append(labelElement, toolbar);
       shell.append(header, preElement, footer);
 
@@ -285,7 +252,6 @@ export default function CodeBlock({
         shell.removeEventListener("click", handleShellClick);
         window.removeEventListener("keydown", handleEsc);
         copyButton.removeEventListener("click", handleCopy);
-        downloadButton.removeEventListener("click", handleDownload);
         closeExpanded();
         document.documentElement.classList.remove("code-modal-open");
         shell.parentNode?.insertBefore(preElement, shell);

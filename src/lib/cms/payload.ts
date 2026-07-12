@@ -107,6 +107,18 @@ function isLexicalContent(value: unknown) {
   );
 }
 
+function textFromLexicalContent(value: unknown): string {
+  if (!value || typeof value !== "object") return "";
+
+  const node = value as { children?: unknown[]; root?: unknown; text?: unknown };
+  const ownText = typeof node.text === "string" ? node.text : "";
+  const rootText = textFromLexicalContent(node.root);
+  const childrenText = Array.isArray(node.children)
+    ? node.children.map(textFromLexicalContent).join("\n")
+    : "";
+  return [ownText, rootText, childrenText].filter(Boolean).join("\n");
+}
+
 async function renderContent(value: unknown) {
   const source = asString(value);
   if (!source) return "";
@@ -157,7 +169,14 @@ async function renderLexicalContent(value: unknown) {
 
 async function renderPostContent(preferred: unknown, legacy: unknown) {
   const richTextHtml = await renderLexicalContent(preferred);
-  return richTextHtml || renderContent(legacy);
+  if (richTextHtml) {
+    const richTextPlain = textFromLexicalContent(preferred);
+    if (richTextHtml.includes("```") && !richTextHtml.includes("<pre") && richTextPlain.includes("```")) {
+      return sanitizeArticleHtml(await marked.parse(richTextPlain, { gfm: true }));
+    }
+    return richTextHtml;
+  }
+  return renderContent(legacy);
 }
 
 function estimateReadTime(content: string, locale: Locale) {

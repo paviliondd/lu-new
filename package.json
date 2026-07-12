@@ -11,6 +11,7 @@
     "payload:generate-importmap": "payload generate:importmap",
     "payload:generate-types": "payload generate:types",
     "payload:migrate-richtext": "tsx scripts/migrate-payload-richtext.mjs",
+    "content:audit-rendering": "tsx scripts/audit-content-rendering.mjs",
     "payload:sync-series": "node scripts/sync-payload-series.mjs",
     "wordpress:import": "node scripts/import-wordpress-rest.mjs",
     "xml:normalize-images": "node scripts/normalize-xml-images.mjs"

@@ -10,6 +10,7 @@ import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
 interface RecentWritingSectionProps {
+  excludeSlugs?: string[];
   initialPosts: Post[];
 }
 
@@ -25,11 +26,12 @@ function postTopics(post: Post) {
   return Array.from(new Set([post.category, ...post.tags].filter(Boolean))).slice(0, 2);
 }
 
-export default function RecentWritingSection({ initialPosts }: RecentWritingSectionProps) {
+export default function RecentWritingSection({ excludeSlugs = [], initialPosts }: RecentWritingSectionProps) {
   const { language, localePath, t } = useLanguage();
+  const excluded = new Set(excludeSlugs);
   const posts = usePublishedPosts(initialPosts)
-    .filter((post) => post.status === "published")
-    .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
+    .filter((post) => post.status === "published" && !excluded.has(post.slug))
+    .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime())
     .slice(0, 3);
 
   if (!posts.length) return null;

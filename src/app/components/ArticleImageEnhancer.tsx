@@ -85,7 +85,7 @@ export default function ArticleImageEnhancer({
   contentKey,
   legacyAssetOrigins = [],
 }: ArticleImageEnhancerProps) {
-  const [viewer, setViewer] = useState<{ src: string; alt: string } | null>(null);
+  const [viewer, setViewer] = useState<{ index: number; images: Array<{ src: string; alt: string }> } | null>(null);
   const [scale, setScale] = useState(1);
   const pinchDistance = useRef<number | null>(null);
 
@@ -96,6 +96,8 @@ export default function ArticleImageEnhancer({
     const assetOrigin = getAssetOrigin(assetBase);
     const images = Array.from(container.querySelectorAll("img"));
     const cleanupHandlers: Array<() => void> = [];
+
+    const galleryItems: Array<{ src: string; alt: string }> = [];
 
     images.forEach((image) => {
       if (!(image instanceof HTMLImageElement)) return;
@@ -119,6 +121,11 @@ export default function ArticleImageEnhancer({
         image.setAttribute("srcset", normalizeSrcSet(srcSet, assetOrigin, legacyAssetOrigins));
       }
 
+      const galleryIndex = galleryItems.push({
+        src: image.currentSrc || image.src,
+        alt: image.alt || "Article image",
+      }) - 1;
+
       const handleError = () => {
         if (image.dataset.fallbackApplied === "true") return;
 
@@ -132,10 +139,11 @@ export default function ArticleImageEnhancer({
         event?.preventDefault();
         event?.stopPropagation();
         setScale(1);
-        setViewer({
+        galleryItems[galleryIndex] = {
           src: image.currentSrc || image.src,
           alt: image.alt || "Article image",
-        });
+        };
+        setViewer({ index: galleryIndex, images: galleryItems });
       };
       const parentAnchor = image.closest("a");
       const handleAnchorOpen = (event: MouseEvent) => {
@@ -174,6 +182,18 @@ export default function ArticleImageEnhancer({
       if (event.key === "Escape") setViewer(null);
       if (event.key === "+" || event.key === "=") setScale((value) => Math.min(4, value + 0.2));
       if (event.key === "-") setScale((value) => Math.max(0.25, value - 0.2));
+      if (event.key === "ArrowRight") {
+        setScale(1);
+        setViewer((current) =>
+          current ? { ...current, index: (current.index + 1) % current.images.length } : current
+        );
+      }
+      if (event.key === "ArrowLeft") {
+        setScale(1);
+        setViewer((current) =>
+          current ? { ...current, index: (current.index - 1 + current.images.length) % current.images.length } : current
+        );
+      }
     };
 
     document.body.style.overflow = "hidden";
@@ -185,6 +205,20 @@ export default function ArticleImageEnhancer({
   }, [viewer]);
 
   if (!viewer) return null;
+  const activeImage = viewer.images[viewer.index];
+  const hasMultipleImages = viewer.images.length > 1;
+  const showNext = () => {
+    setScale(1);
+    setViewer((current) =>
+      current ? { ...current, index: (current.index + 1) % current.images.length } : current
+    );
+  };
+  const showPrevious = () => {
+    setScale(1);
+    setViewer((current) =>
+      current ? { ...current, index: (current.index - 1 + current.images.length) % current.images.length } : current
+    );
+  };
 
   return (
     <div
@@ -201,6 +235,16 @@ export default function ArticleImageEnhancer({
         <button className="image-lightbox__button" type="button" onClick={() => setScale((value) => Math.max(0.25, value - 0.25))}>
           Zoom -
         </button>
+        {hasMultipleImages && (
+          <>
+            <button className="image-lightbox__button" type="button" onClick={showPrevious}>
+              Prev
+            </button>
+            <button className="image-lightbox__button" type="button" onClick={showNext}>
+              Next
+            </button>
+          </>
+        )}
         <button className="image-lightbox__button image-lightbox__button--close" type="button" aria-label="Close image viewer" onClick={() => setViewer(null)}>
           X
         </button>
@@ -234,8 +278,8 @@ export default function ArticleImageEnhancer({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="image-lightbox__image"
-          src={viewer.src}
-          alt={viewer.alt}
+          src={activeImage.src}
+          alt={activeImage.alt}
           style={{ transform: `scale(${scale})` }}
           onClick={(event) => event.stopPropagation()}
           draggable={false}

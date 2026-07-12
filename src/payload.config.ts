@@ -1,4 +1,5 @@
 import path from "node:path";
+import { rename } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
@@ -185,6 +186,21 @@ function slugify(value: string) {
     .replace(/-+/g, "-");
 }
 
+function extensionFromFilename(value: unknown) {
+  const extension = path.extname(typeof value === "string" ? value : "");
+  return extension || "";
+}
+
+async function safeRenameFile(from: string, to: string) {
+  if (from === to) return;
+  try {
+    await rename(from, to);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code !== "ENOENT") throw error;
+  }
+}
+
 function wordCount(value: unknown) {
   if (typeof value !== "string") {
     return wordCount(textFromRichText(value));
@@ -254,11 +270,113 @@ const Media: CollectionConfig = {
   access: {
     read: publicRead,
   },
+  admin: {
+    useAsTitle: "alt",
+    defaultColumns: ["alt", "filenameSlug", "filename", "updatedAt"],
+  },
   upload: {
     staticDir: path.resolve(dirname, "../public/uploads"),
+    crop: true,
+    focalPoint: true,
+    imageSizes: [
+      {
+        name: "card",
+        width: 640,
+        height: 400,
+        position: "centre",
+      },
+      {
+        name: "og",
+        width: 1200,
+        height: 630,
+        position: "centre",
+      },
+      {
+        name: "article",
+        width: 1440,
+        withoutEnlargement: true,
+      },
+    ],
     mimeTypes: ["image/*"],
   },
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (!data) return data;
+        if (!data.filenameSlug && data.alt) data.filenameSlug = slugify(String(data.alt));
+        if (data.filenameSlug) data.filenameSlug = slugify(String(data.filenameSlug));
+        return data;
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation, previousDoc, req }) => {
+        if (req.context?.mediaRenameInProgress) return doc;
+        if (!doc || typeof doc !== "object") return doc;
+
+        const currentFilename = typeof doc.filename === "string" ? doc.filename : "";
+        const desiredSlug = slugify(String(doc.filenameSlug || doc.alt || ""));
+        const extension = extensionFromFilename(currentFilename || previousDoc?.filename);
+        if (!desiredSlug || !extension || !currentFilename) return doc;
+
+        const nextFilename = `${desiredSlug}${extension.toLowerCase()}`;
+        if (currentFilename === nextFilename && doc.url === `/uploads/${nextFilename}`) return doc;
+
+        const uploadDir = path.resolve(dirname, "../public/uploads");
+        const currentPath = path.join(uploadDir, currentFilename);
+        const nextPath = path.join(uploadDir, nextFilename);
+        await safeRenameFile(currentPath, nextPath);
+
+        const nextSizes: Record<string, unknown> = {};
+        if (doc.sizes && typeof doc.sizes === "object") {
+          for (const [sizeName, sizeValue] of Object.entries(doc.sizes as Record<string, Record<string, unknown>>)) {
+            if (!sizeValue || typeof sizeValue !== "object") continue;
+            const sizeFilename = typeof sizeValue.filename === "string" ? sizeValue.filename : "";
+            const sizeExtension = extensionFromFilename(sizeFilename) || extension;
+            const nextSizeFilename = `${desiredSlug}-${sizeName}${sizeExtension.toLowerCase()}`;
+            if (sizeFilename) {
+              await safeRenameFile(path.join(uploadDir, sizeFilename), path.join(uploadDir, nextSizeFilename));
+            }
+            nextSizes[sizeName] = {
+              ...sizeValue,
+              filename: nextSizeFilename,
+              url: `/uploads/${nextSizeFilename}`,
+            };
+          }
+        }
+
+        await req.payload.update({
+          collection: "media",
+          id: doc.id,
+          data: {
+            filename: nextFilename,
+            filenameSlug: desiredSlug,
+            url: `/uploads/${nextFilename}`,
+            sizes: nextSizes,
+          } as Record<string, unknown>,
+          overrideAccess: true,
+          context: {
+            mediaRenameInProgress: true,
+          },
+        });
+
+        req.payload.logger.info(
+          { id: doc.id, operation, filename: nextFilename },
+          "Media filename normalized"
+        );
+        return doc;
+      },
+    ],
+  },
   fields: [
+    {
+      name: "filenameSlug",
+      type: "text",
+      label: "SEO filename",
+      admin: {
+        description: "Lowercase filename without extension. Leave blank to generate from Alt.",
+      },
+      index: true,
+    },
     {
       name: "alt",
       type: "text",

@@ -10,7 +10,11 @@ interface RichTextRendererProps {
   contentKey: string;
   copyLabel: string;
   copiedLabel: string;
+  closeExplainLabel: string;
+  explainLabel: string;
   failedLabel: string;
+  showLessLabel: string;
+  showMoreLabel: string;
   legacyAssetOrigins?: string[];
 }
 
@@ -20,7 +24,11 @@ export default function RichTextRenderer({
   contentKey,
   copyLabel,
   copiedLabel,
+  closeExplainLabel,
+  explainLabel,
   failedLabel,
+  showLessLabel,
+  showMoreLabel,
   legacyAssetOrigins,
 }: RichTextRendererProps) {
   return (
@@ -29,7 +37,11 @@ export default function RichTextRenderer({
         contentKey={contentKey}
         copyLabel={copyLabel}
         copiedLabel={copiedLabel}
+        closeExplainLabel={closeExplainLabel}
+        explainLabel={explainLabel}
         failedLabel={failedLabel}
+        showLessLabel={showLessLabel}
+        showMoreLabel={showMoreLabel}
       />
       <MermaidRenderer contentKey={contentKey} />
       <ArticleImageEnhancer

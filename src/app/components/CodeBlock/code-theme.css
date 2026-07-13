@@ -60,7 +60,7 @@
   display: flex;
   min-height: 2.55rem;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 0.75rem;
   border-bottom: 1px solid #dedee3;
   background: #f3f4f6;
@@ -71,7 +71,9 @@
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 0.15rem;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  margin-left: auto;
 }
 
 .code-action-button--close {
@@ -103,10 +105,9 @@
 }
 
 .code-copy-button,
+.code-explain-button,
 .code-action-button,
 .code-edit-link {
-  position: sticky;
-  right: 0;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -134,6 +135,13 @@
   font-weight: 700;
 }
 
+.code-explain-button {
+  gap: 0.4rem;
+  padding: 0 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .code-edit-link {
   width: auto;
   gap: 0.35rem;
@@ -153,6 +161,9 @@
 .code-copy-button[data-state="loading"],
 .code-copy-button[data-state="failed"],
 .code-copy-button[data-state="copied"],
+.code-explain-button:focus-visible,
+.code-explain-button:hover,
+.code-explain-button[aria-expanded="true"],
 .code-action-button:focus-visible,
 .code-action-button:hover,
 .code-edit-link:focus-visible,
@@ -162,6 +173,9 @@
 
 .code-copy-button:hover,
 .code-copy-button:focus-visible,
+.code-explain-button:hover,
+.code-explain-button:focus-visible,
+.code-explain-button[aria-expanded="true"],
 .code-action-button:hover,
 .code-action-button:focus-visible,
 .code-edit-link:hover,
@@ -182,6 +196,7 @@
   outline-offset: 2px;
 }
 
+.code-explain-button:focus-visible,
 .code-action-button:focus-visible,
 .code-edit-link:focus-visible {
   outline: 2px solid #8ab4f8;
@@ -222,6 +237,32 @@
   display: grid;
   border-top: 1px solid #dedee3;
   background: #f6f6f6;
+}
+
+.code-shell__footer[hidden],
+.code-explain-button[hidden] {
+  display: none;
+}
+
+.code-explanation-panel {
+  border-top: 1px solid #dedee3;
+  background: #fbfbfc;
+  padding: 1rem 1.1rem;
+  color: #374151;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.code-explanation-panel[hidden] {
+  display: none;
+}
+
+.code-explanation-panel > :first-child {
+  margin-top: 0;
+}
+
+.code-explanation-panel > :last-child {
+  margin-bottom: 0;
 }
 
 .code-toggle-button {
@@ -268,7 +309,7 @@
 }
 
 .code-shell[data-long="true"][data-expanded="false"]:not(.code-shell--expanded-modal) pre {
-  max-height: calc((0.9rem * 1.6 * 30) + 2.2rem);
+  max-height: calc((0.9rem * 1.6 * 10) + 2.2rem);
 }
 
 .code-shell[data-long="true"][data-expanded="false"]:not(.code-shell--expanded-modal)::after {
@@ -390,12 +431,16 @@
 }
 
 .dark .code-copy-button,
+.dark .code-explain-button,
 .dark .code-action-button {
   color: #c9d1d9;
 }
 
 .dark .code-copy-button:hover,
 .dark .code-copy-button:focus-visible,
+.dark .code-explain-button:hover,
+.dark .code-explain-button:focus-visible,
+.dark .code-explain-button[aria-expanded="true"],
 .dark .code-action-button:hover,
 .dark .code-action-button:focus-visible,
 .dark .code-edit-link:hover,
@@ -409,6 +454,12 @@
   border-color: #3c6e47;
   background: #263b2d;
   color: #b7e4c7;
+}
+
+.dark .code-explanation-panel {
+  border-top-color: #343a46;
+  background: #202124;
+  color: #d1d5db;
 }
 
 .dark .prose pre code {
@@ -464,6 +515,11 @@
   }
 
   .code-copy-button {
+    min-width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .code-explain-button {
     min-width: 2.5rem;
     height: 2.5rem;
   }

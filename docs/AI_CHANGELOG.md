@@ -2,6 +2,33 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-13
+
+Added:
+
+- Added `sharp` as a runtime dependency and passed it into Payload config so Media `imageSizes` can generate thumbnails and resized variants.
+- Added media admin thumbnail fallback logic that uses generated sizes, stored URLs, or Payload file routes.
+- Added localized code block labels for explain and show more/show less controls.
+
+Changed:
+
+- Updated the Media rename hook to preserve the correct public URL model, keep legacy `/uploads/imported` media compatible, avoid wiping empty `sizes`, and check filename conflicts before renaming.
+- Updated code block toolbar layout so action buttons are right-aligned and copy/explain controls keep icon plus text.
+- Changed long code block collapse threshold from 30 lines to 10 lines with localized show more/show less labels.
+
+Fixed:
+
+- Fixed Payload Media thumbnail generation/configuration by enabling `sharp` and explicit admin preview behavior.
+- Fixed Media SEO filename rename flow so duplicate filenames return a clear validation error instead of falling through to an unknown error.
+- Fixed code block expansion UX for long snippets and added a safe explain toggle that only appears when explanation content exists.
+
+Never break:
+
+- Payload CMS media upload, image handling, and SEO filename behavior.
+- WordPress-like editor, rich text editor, code block, copy code button, and SEO rendering.
+- Vietnamese default locale and English locale.
+- Responsive design, dark/light theme, comments, OAuth, and comment approval workflow.
+
 ## 2026-07-12
 
 Added:

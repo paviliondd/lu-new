@@ -273,7 +273,11 @@ export default function ArticleClient({
               contentKey={`${post.slug}-${language}`}
               copyLabel={t("copyCode")}
               copiedLabel={t("copiedCode")}
+              closeExplainLabel={t("closeExplainCode")}
+              explainLabel={t("explainCode")}
               failedLabel={t("copyFailed")}
+              showLessLabel={t("showLessCode")}
+              showMoreLabel={t("showMoreCode")}
               legacyAssetOrigins={legacyAssetOrigins}
             />
 

@@ -15,12 +15,15 @@ Changed:
 - Updated the Media rename hook to preserve the correct public URL model, keep legacy `/uploads/imported` media compatible, avoid wiping empty `sizes`, and check filename conflicts before renaming.
 - Updated code block toolbar layout so action buttons are right-aligned and copy/explain controls keep icon plus text.
 - Changed long code block collapse threshold from 30 lines to 10 lines with localized show more/show less labels.
+- Switched the app Docker build from Alpine/musl to Debian slim/glibc, pinned `sharp` to `0.33.5`, and added npm cache mounts to reduce rebuild time.
+- Set the Compose app build target explicitly to the final runner stage.
 
 Fixed:
 
 - Fixed Payload Media thumbnail generation/configuration by enabling `sharp` and explicit admin preview behavior.
 - Fixed Media SEO filename rename flow so duplicate filenames return a clear validation error instead of falling through to an unknown error.
 - Fixed code block expansion UX for long snippets and added a safe explain toggle that only appears when explanation content exists.
+- Fixed production Docker build failure caused by the `sharp` linuxmusl-x64 binary requiring an unsupported x64-v2 CPU.
 
 Never break:
 

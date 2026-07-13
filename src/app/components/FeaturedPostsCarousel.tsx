@@ -78,7 +78,7 @@ export default function FeaturedPostsCarousel({ posts }: FeaturedPostsCarouselPr
             return (
               <article
                 key={post.slug}
-                className="grid min-h-[30rem] min-w-full lg:grid-cols-[1.08fr_.92fr]"
+                className="grid min-h-[30rem] w-full shrink-0 lg:grid-cols-[1.08fr_.92fr]"
                 aria-hidden={index !== safeActiveIndex}
               >
                 <div className="relative min-h-64 bg-slate-950 lg:min-h-full">

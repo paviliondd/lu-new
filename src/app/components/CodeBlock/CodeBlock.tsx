@@ -10,6 +10,7 @@ interface CodeBlockProps {
   copiedLabel: string;
   failedLabel: string;
   explainLabel: string;
+  noExplanationLabel: string;
   closeExplainLabel: string;
   showMoreLabel: string;
   showLessLabel: string;
@@ -22,6 +23,7 @@ export default function CodeBlock({
   copiedLabel,
   failedLabel,
   explainLabel,
+  noExplanationLabel,
   closeExplainLabel,
   showMoreLabel,
   showLessLabel,
@@ -124,7 +126,7 @@ export default function CodeBlock({
       return [createCopyIcon(state), label];
     }
 
-    codeBlocks.forEach((preElement) => {
+    codeBlocks.forEach((preElement, blockIndex) => {
       const codeElement = preElement.querySelector("code");
       if (!(preElement instanceof HTMLElement) || !(codeElement instanceof HTMLElement)) {
         return;
@@ -140,7 +142,18 @@ export default function CodeBlock({
       const { filename, language } = codeMeta(preElement, codeElement);
       if (language === "mermaid" || preElement.dataset.mermaid === "true") return;
       const label = filename || language;
-      const explanationElement = findExplanation(preElement, codeElement);
+      let explanationElement = findExplanation(preElement, codeElement);
+      const createdExplanation = !explanationElement;
+      if (!explanationElement) {
+        explanationElement = document.createElement("aside");
+        explanationElement.dataset.codeExplanation = "";
+        explanationElement.dataset.empty = "true";
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "code-explanation-panel__empty";
+        emptyMessage.textContent = noExplanationLabel;
+        explanationElement.append(emptyMessage);
+      }
+      explanationElement.id ||= `code-explanation-${blockIndex}`;
       let backdrop: HTMLDivElement | null = null;
       let restoreMarker: Comment | null = null;
 
@@ -179,8 +192,8 @@ export default function CodeBlock({
       explainButton.type = "button";
       explainButton.className = "code-explain-button";
       explainButton.setAttribute("aria-expanded", "false");
+      explainButton.setAttribute("aria-controls", explanationElement.id);
       explainButton.setAttribute("title", explainLabel);
-      explainButton.hidden = !explanationElement;
       explainButton.append(createActionIcon("explain"), document.createTextNode(explainLabel));
 
       const copyButton = document.createElement("button");
@@ -196,7 +209,12 @@ export default function CodeBlock({
 
         copyButton.dataset.state = "loading";
         copyButton.replaceChildren(...copyButtonContents("loading"));
-        const copied = await copyText(rawCode);
+        let copied = false;
+        try {
+          copied = await copyText(rawCode);
+        } catch {
+          copied = false;
+        }
         copyButton.dataset.state = copied ? "copied" : "failed";
         copyButton.setAttribute("aria-label", copied ? copiedLabel : failedLabel);
         copyButton.setAttribute("title", copied ? copiedLabel : failedLabel);
@@ -251,7 +269,6 @@ export default function CodeBlock({
       };
 
       const handleExplainToggle = () => {
-        if (!explanationElement) return;
         const expanded = explainButton.getAttribute("aria-expanded") !== "true";
         explainButton.setAttribute("aria-expanded", String(expanded));
         explainButton.setAttribute("title", expanded ? closeExplainLabel : explainLabel);
@@ -285,11 +302,9 @@ export default function CodeBlock({
         );
       };
 
-      if (explanationElement) {
-        explanationElement.hidden = true;
-        explanationElement.dataset.visible = "false";
-        explanationElement.classList.add("code-explanation-panel");
-      }
+      explanationElement.hidden = true;
+      explanationElement.dataset.visible = "false";
+      explanationElement.classList.add("code-explanation-panel");
 
       toggleButton.addEventListener("click", handleToggle);
       footer.append(toggleButton);
@@ -303,7 +318,7 @@ export default function CodeBlock({
       toolbar.append(expandButton, closeButton, explainButton, copyButton);
       header.append(labelElement, toolbar);
       shell.append(header, preElement);
-      if (explanationElement) shell.append(explanationElement);
+      shell.append(explanationElement);
       shell.append(footer);
 
       cleanupHandlers.push(() => {
@@ -317,10 +332,12 @@ export default function CodeBlock({
         closeExpanded();
         document.documentElement.classList.remove("code-modal-open");
         shell.parentNode?.insertBefore(preElement, shell);
-        if (explanationElement) {
-          explanationElement.hidden = false;
-          delete explanationElement.dataset.visible;
-          explanationElement.classList.remove("code-explanation-panel");
+        explanationElement.hidden = false;
+        delete explanationElement.dataset.visible;
+        explanationElement.classList.remove("code-explanation-panel");
+        if (createdExplanation) {
+          explanationElement.remove();
+        } else {
           shell.parentNode?.insertBefore(explanationElement, shell);
         }
         shell.remove();
@@ -331,7 +348,7 @@ export default function CodeBlock({
     return () => {
       cleanupHandlers.forEach((cleanup) => cleanup());
     };
-  }, [closeExplainLabel, containerSelector, contentKey, copiedLabel, copyLabel, explainLabel, failedLabel, showLessLabel, showMoreLabel]);
+  }, [closeExplainLabel, containerSelector, contentKey, copiedLabel, copyLabel, explainLabel, failedLabel, noExplanationLabel, showLessLabel, showMoreLabel]);
 
   return null;
 }

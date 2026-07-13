@@ -275,6 +275,7 @@ export default function ArticleClient({
               copiedLabel={t("copiedCode")}
               closeExplainLabel={t("closeExplainCode")}
               explainLabel={t("explainCode")}
+              noExplanationLabel={t("noCodeExplanation")}
               failedLabel={t("copyFailed")}
               showLessLabel={t("showLessCode")}
               showMoreLabel={t("showMoreCode")}

@@ -58,7 +58,7 @@
   position: relative;
   z-index: 1;
   display: flex;
-  min-height: 2.55rem;
+  min-height: 3.25rem;
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -114,7 +114,8 @@
   justify-content: center;
   min-width: 2.5rem;
   width: auto;
-  height: 2.15rem;
+  min-height: 2.75rem;
+  height: 2.75rem;
   border: 1px solid transparent;
   border-radius: 0.45rem;
   background: transparent;
@@ -180,9 +181,9 @@
 .code-action-button:focus-visible,
 .code-edit-link:hover,
 .code-edit-link:focus-visible {
-  border-color: #c8c8ce;
-  background: #ececef;
-  color: #24292f;
+  border-color: #99d5d8;
+  background: #e8f7f7;
+  color: #0f5f65;
 }
 
 .code-copy-button[data-state="copied"] {
@@ -265,6 +266,11 @@
   margin-bottom: 0;
 }
 
+.code-explanation-panel__empty {
+  color: #6b7280;
+  font-style: italic;
+}
+
 .code-toggle-button {
   display: inline-flex;
   min-height: 2.65rem;
@@ -284,8 +290,8 @@
 
 .code-toggle-button:hover,
 .code-toggle-button:focus-visible {
-  background: #ececef;
-  color: #24292f;
+  background: #e8f7f7;
+  color: #0f5f65;
 }
 
 .code-toggle-button:focus-visible {
@@ -445,9 +451,9 @@
 .dark .code-action-button:focus-visible,
 .dark .code-edit-link:hover,
 .dark .code-edit-link:focus-visible {
-  border-color: #4d4d4d;
-  background: #303030;
-  color: #f2f2f2;
+  border-color: #246b78;
+  background: #163941;
+  color: #b8f4f5;
 }
 
 .dark .code-copy-button[data-state="copied"] {
@@ -460,6 +466,10 @@
   border-top-color: #343a46;
   background: #202124;
   color: #d1d5db;
+}
+
+.dark .code-explanation-panel__empty {
+  color: #94a3b8;
 }
 
 .dark .prose pre code {
@@ -490,8 +500,8 @@
 
 .dark .code-toggle-button:hover,
 .dark .code-toggle-button:focus-visible {
-  background: #303030;
-  color: #f2f2f2;
+  background: #163941;
+  color: #b8f4f5;
 }
 
 @media (max-width: 640px) {
@@ -515,18 +525,15 @@
   }
 
   .code-copy-button {
-    min-width: 2.5rem;
-    height: 2.5rem;
+    min-width: 2.75rem;
   }
 
   .code-explain-button {
-    min-width: 2.5rem;
-    height: 2.5rem;
+    min-width: 2.75rem;
   }
 
   .code-action-button {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
   }
 
   .code-edit-link {

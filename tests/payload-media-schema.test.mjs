@@ -17,6 +17,8 @@ test("Payload media schema fields stay covered by migrations and generated types
   assert.match(config, /sharp,/);
   assert.match(config, /adminThumbnail:\s*mediaAdminThumbnail/);
   assert.match(config, /displayPreview:\s*true/);
+  assert.match(config, /normalizeLegacyMediaSizes/);
+  assert.match(config, /uploads\/imported/);
   assert.match(config, /\/api\/payload\/media\/file\//);
   assert.doesNotMatch(config, /doc\.url === `\/uploads\//);
   assert.match(migrationIndex, /20260712_160000_add_media_filename_slug_and_sizes/);

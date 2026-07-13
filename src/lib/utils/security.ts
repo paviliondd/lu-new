@@ -6,6 +6,7 @@ import {
   type IFilterXSSOptions,
   type IWhiteList,
 } from "xss";
+import { load } from "cheerio";
 
 const commonAttributes = ["id", "class", "title", "role", "aria-label", "aria-hidden"];
 const tableCellAttributes = ["colspan", "rowspan", "scope", "align", "valign"];
@@ -140,5 +141,10 @@ const articleXssOptions: IFilterXSSOptions = {
 const articleXssFilter = new FilterXSS(articleXssOptions);
 
 export function sanitizeArticleHtml(html: string): string {
-  return articleXssFilter.process(html);
+  const sanitizedHtml = articleXssFilter.process(html);
+  if (!sanitizedHtml.includes("ez-toc-container")) return sanitizedHtml;
+
+  const $ = load(sanitizedHtml, null, false);
+  $("#ez-toc-container, .ez-toc-container").remove();
+  return $.html();
 }

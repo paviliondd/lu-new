@@ -19,8 +19,11 @@ Changed:
 - Changed long code block collapse threshold from 30 lines to 10 lines with localized show more/show less labels.
 - Switched the app Docker build from Alpine/musl to Debian slim/glibc, pinned `sharp` to `0.33.5`, and added npm cache mounts to reduce rebuild time.
 - Set the Compose app build target explicitly to the final runner stage.
+<<<<<<< HEAD
 - Changed Media filename updates to reuse the active Payload request/transaction and roll storage renames back if persistence fails.
 - Changed featured carousel slides to explicit full-width, non-shrinking items so the global `min-width: 0` reset cannot collapse them.
+=======
+>>>>>>> codex/stabilize-ai-workflow
 
 Fixed:
 
@@ -28,12 +31,15 @@ Fixed:
 - Fixed Media SEO filename rename flow so duplicate filenames return a clear validation error instead of falling through to an unknown error.
 - Fixed code block expansion UX for long snippets and added a safe explain toggle that only appears when explanation content exists.
 - Fixed production Docker build failure caused by the `sharp` linuxmusl-x64 binary requiring an unsupported x64-v2 CPU.
+<<<<<<< HEAD
 - Fixed legacy Media edit/crop previews by serving missing Payload file requests from `public/uploads/imported` with path traversal protection.
 - Fixed legacy empty image-size metadata causing Card/Article/OG MIME type validation errors when saving Alt or SEO filename.
 - Fixed Media rename path resolution, collision/error reporting, and imported-file URL preservation.
 - Fixed Copy code getting stuck in a loading state when the Clipboard API never settles by adding a bounded fallback.
 - Fixed Explain code so code and explanation remain visible together and the button toggles both labels and panel state.
 - Removed imported WordPress Easy Table of Contents blocks from article bodies while preserving the right sidebar TOC.
+=======
+>>>>>>> codex/stabilize-ai-workflow
 
 Never break:
 

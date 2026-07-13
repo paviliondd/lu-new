@@ -24,6 +24,7 @@ Fixed:
 
 - Documented missing workflow guardrails that could allow regression.
 - Added Payload media schema migration coverage for `filenameSlug` and `sizes`, which are required by the Media admin list and post media relationship expansion.
+- Added a follow-up migration for Payload Postgres image size columns (`sizes_card_*`, `sizes_og_*`, and `sizes_article_*`) used by the upload adapter.
 - Added media filename normalization error logging and filename slug validation.
 - Added a regression test that checks media config, migration registration, migration columns, and generated Payload types stay aligned.
 

@@ -48,35 +48,43 @@ function mediaContentType(mediaFilename: string) {
   } as Record<string, string>)[extension] || "application/octet-stream";
 }
 
-async function legacyImportedMediaResponse(mediaFilename: string) {
-  const filePath = path.join(process.cwd(), "public", "uploads", "imported", mediaFilename);
+async function mediaFileStats(filePath: string) {
   try {
     const fileStats = await stat(filePath);
-    if (!fileStats.isFile()) return null;
-
-    const stream = Readable.toWeb(createReadStream(filePath)) as ReadableStream<Uint8Array>;
-    return new Response(stream, {
-      headers: {
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "Content-Length": String(fileStats.size),
-        "Content-Type": mediaContentType(mediaFilename),
-      },
-    });
+    return fileStats.isFile() ? fileStats : null;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
   }
 }
 
+async function legacyImportedMediaResponse(mediaFilename: string) {
+  const filePath = path.join(process.cwd(), "public", "uploads", "imported", mediaFilename);
+  const fileStats = await mediaFileStats(filePath);
+  if (!fileStats) return null;
+
+  const stream = Readable.toWeb(createReadStream(filePath)) as ReadableStream<Uint8Array>;
+  return new Response(stream, {
+    headers: {
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Content-Length": String(fileStats.size),
+      "Content-Type": mediaContentType(mediaFilename),
+    },
+  });
+}
+
 export const DELETE = REST_DELETE(config);
 export async function GET(...args: Parameters<typeof payloadGET>) {
-  const payloadResponse = await payloadGET(...args);
-  if (payloadResponse.status !== 404) return payloadResponse;
-
   const mediaFilename = requestedMediaFilename(args[0]);
-  if (!mediaFilename) return payloadResponse;
+  if (mediaFilename) {
+    const rootPath = path.join(process.cwd(), "public", "uploads", mediaFilename);
+    if (!(await mediaFileStats(rootPath))) {
+      const importedResponse = await legacyImportedMediaResponse(mediaFilename);
+      if (importedResponse) return importedResponse;
+    }
+  }
 
-  return (await legacyImportedMediaResponse(mediaFilename)) || payloadResponse;
+  return payloadGET(...args);
 }
 export const OPTIONS = REST_OPTIONS(config);
 export const PATCH = REST_PATCH(config);

@@ -33,9 +33,11 @@ test("legacy media fallback and rename guards stay wired", async () => {
   assert.match(config, /normalizeLegacyMediaSizes\(data\)/);
   assert.match(config, /resolveMediaDiskFile\(uploadDir, currentFilename/);
   assert.match(config, /req,\s*context:\s*\{\s*mediaRenameInProgress:\s*true/);
-  assert.match(config, /Unable to rename media file/);
+  assert.match(config, /Không thể đổi tên tệp media/);
+  assert.match(config, /afterRead:[\s\S]*hydrateLegacyMediaDocument/);
   assert.match(config, /renamedFiles\.reverse\(\)/);
-  assert.match(route, /payloadResponse\.status !== 404/);
+  assert.match(route, /if \(!\(await mediaFileStats\(rootPath\)\)\)/);
+  assert.match(route, /if \(importedResponse\) return importedResponse/);
   assert.match(route, /"uploads", "imported", mediaFilename/);
   assert.match(route, /path\.posix\.basename/);
   assert.match(route, /path\.win32\.basename/);
@@ -53,6 +55,8 @@ test("code block controls and carousel regression fixes stay present", async () 
   assert.match(codeBlock, /const isLong = totalLines > 10/);
   assert.match(codeBlock, /aria-controls/);
   assert.match(codeBlock, /noExplanationLabel/);
+  assert.match(codeBlock, /return \[createCopyIcon\(state\)\]/);
+  assert.doesNotMatch(codeBlock, /code-copy-button__label/);
   assert.match(copyButton, /clipboardTimeoutMs/);
   assert.match(copyButton, /Promise\.race/);
   assert.match(renderer, /noExplanationLabel=\{noExplanationLabel\}/);

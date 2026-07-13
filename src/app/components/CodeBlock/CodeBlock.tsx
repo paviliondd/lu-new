@@ -119,11 +119,7 @@ export default function CodeBlock({
     }
 
     function copyButtonContents(state: "idle" | "loading" | "copied" | "failed") {
-      const label = document.createElement("span");
-      label.className = "code-copy-button__label";
-      label.textContent =
-        state === "copied" ? `✓ ${copiedLabel}` : state === "failed" ? failedLabel : copyLabel;
-      return [createCopyIcon(state), label];
+      return [createCopyIcon(state)];
     }
 
     codeBlocks.forEach((preElement, blockIndex) => {

@@ -2,6 +2,34 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-14
+
+Added:
+
+- Added regression coverage for the homepage query limits and carousel removal, icon-only Copy control, observer-based TOC behavior, Media volume ownership initialization, and Sharp WebAssembly fallback.
+- Added a one-shot Compose `media-permissions` service so the non-root app user can safely write to the existing `payload_media` volume.
+- Added read-only legacy Media detail hydration so Payload Admin can resolve imported files and derive missing preview dimensions without a schema change, migration, or database backfill.
+
+Changed:
+
+- Removed the hero carousel from the homepage render tree while preserving the shared carousel used on the blog page.
+- Limited homepage Payload queries to six newest published posts and three newest series, and added the Collections/Series heading with localized view-all links.
+- Changed code block Copy controls to icon-only output while preserving Clipboard API behavior, accessible labels/tooltips, and the two-second success state.
+- Replaced the TOC window scroll listener with IntersectionObserver scroll-spy behavior, a sticky viewport-bounded scroll container, and nearest-item auto-scroll.
+- Upgraded Sharp to `0.34.5` and installed its WASM package in Docker dependency stages as a fallback for x64-v1 hosts.
+
+Fixed:
+
+- Fixed legacy imported Media file requests being converted into Payload 500 responses by resolving the imported file before invoking the Payload file handler.
+- Fixed Media Save failures caused by unwritable Docker volume ownership and improved duplicate, validation, missing-file, and rename errors in Vietnamese.
+- Fixed Payload Image Editor previews with missing legacy width/height metadata while leaving all existing Media records unchanged.
+
+Never break:
+
+- Existing Payload records, collection schemas, migrations, and Media relationships.
+- Vietnamese default routing and optional English `/en` routing.
+- Shared blog cards, carousel usage outside the homepage, Lexical rendering, and code block copy behavior.
+
 ## 2026-07-13
 
 Added:
@@ -19,11 +47,8 @@ Changed:
 - Changed long code block collapse threshold from 30 lines to 10 lines with localized show more/show less labels.
 - Switched the app Docker build from Alpine/musl to Debian slim/glibc, pinned `sharp` to `0.33.5`, and added npm cache mounts to reduce rebuild time.
 - Set the Compose app build target explicitly to the final runner stage.
-<<<<<<< HEAD
 - Changed Media filename updates to reuse the active Payload request/transaction and roll storage renames back if persistence fails.
 - Changed featured carousel slides to explicit full-width, non-shrinking items so the global `min-width: 0` reset cannot collapse them.
-=======
->>>>>>> codex/stabilize-ai-workflow
 
 Fixed:
 
@@ -31,15 +56,12 @@ Fixed:
 - Fixed Media SEO filename rename flow so duplicate filenames return a clear validation error instead of falling through to an unknown error.
 - Fixed code block expansion UX for long snippets and added a safe explain toggle that only appears when explanation content exists.
 - Fixed production Docker build failure caused by the `sharp` linuxmusl-x64 binary requiring an unsupported x64-v2 CPU.
-<<<<<<< HEAD
 - Fixed legacy Media edit/crop previews by serving missing Payload file requests from `public/uploads/imported` with path traversal protection.
 - Fixed legacy empty image-size metadata causing Card/Article/OG MIME type validation errors when saving Alt or SEO filename.
 - Fixed Media rename path resolution, collision/error reporting, and imported-file URL preservation.
 - Fixed Copy code getting stuck in a loading state when the Clipboard API never settles by adding a bounded fallback.
 - Fixed Explain code so code and explanation remain visible together and the button toggles both labels and panel state.
 - Removed imported WordPress Easy Table of Contents blocks from article bodies while preserving the right sidebar TOC.
-=======
->>>>>>> codex/stabilize-ai-workflow
 
 Never break:
 

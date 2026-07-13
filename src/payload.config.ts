@@ -3,7 +3,8 @@ import { rename } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
-import { buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
+import { APIError, buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
+import sharp from "sharp";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -177,6 +178,7 @@ const postEditor: RichTextAdapterProvider<
 function slugify(value: string) {
   return value
     .toLowerCase()
+    .replace(/\u0111/g, "d")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
@@ -186,9 +188,51 @@ function slugify(value: string) {
     .replace(/-+/g, "-");
 }
 
+function mediaFileURL(filename: string) {
+  return `/api/payload/media/file/${encodeURIComponent(filename)}`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function mediaAdminThumbnail({ doc }: { doc: Record<string, unknown> }) {
+  const sizes = isRecord(doc.sizes) ? doc.sizes : {};
+  for (const sizeName of ["card", "article", "og"]) {
+    const size = isRecord(sizes[sizeName]) ? sizes[sizeName] : null;
+    if (typeof size?.url === "string" && size.url) return size.url;
+    if (typeof size?.filename === "string" && size.filename) return mediaFileURL(size.filename);
+  }
+
+  if (typeof doc.url === "string" && doc.url) return doc.url;
+  if (typeof doc.filename === "string" && doc.filename) return mediaFileURL(doc.filename);
+
+  return null;
+}
+
 function extensionFromFilename(value: unknown) {
   const extension = path.extname(typeof value === "string" ? value : "");
   return extension || "";
+}
+
+function mediaURLForRenamedFile(currentURL: unknown, nextFilename: string) {
+  if (typeof currentURL === "string" && currentURL.startsWith("/uploads/imported/")) {
+    return `/uploads/imported/${nextFilename}`;
+  }
+
+  if (typeof currentURL === "string" && currentURL.startsWith("/uploads/")) {
+    return `/uploads/${nextFilename}`;
+  }
+
+  return mediaFileURL(nextFilename);
+}
+
+function mediaDiskPath(uploadDir: string, filename: string, url: unknown) {
+  if (typeof url === "string" && url.startsWith("/uploads/imported/")) {
+    return path.join(uploadDir, "imported", filename);
+  }
+
+  return path.join(uploadDir, filename);
 }
 
 async function safeRenameFile(from: string, to: string) {
@@ -276,6 +320,8 @@ const Media: CollectionConfig = {
   },
   upload: {
     staticDir: path.resolve(dirname, "../public/uploads"),
+    adminThumbnail: mediaAdminThumbnail,
+    displayPreview: true,
     crop: true,
     focalPoint: true,
     imageSizes: [
@@ -319,41 +365,72 @@ const Media: CollectionConfig = {
         if (!desiredSlug || !extension || !currentFilename) return doc;
 
         const nextFilename = `${desiredSlug}${extension.toLowerCase()}`;
-        if (currentFilename === nextFilename && doc.url === `/uploads/${nextFilename}`) return doc;
+        const nextURL = mediaURLForRenamedFile(doc.url, nextFilename);
+        if (currentFilename === nextFilename && doc.filenameSlug === desiredSlug && doc.url === nextURL) return doc;
+
+        if (currentFilename !== nextFilename) {
+          const existing = await req.payload.find({
+            collection: "media",
+            limit: 1,
+            overrideAccess: true,
+            where: {
+              and: [
+                { filename: { equals: nextFilename } },
+                { id: { not_equals: doc.id } },
+              ],
+            },
+          });
+
+          if (existing.totalDocs > 0) {
+            throw new APIError(
+              `A media file named "${nextFilename}" already exists. Choose a different SEO filename.`,
+              409,
+              null,
+              true
+            );
+          }
+        }
 
         const uploadDir = path.resolve(dirname, "../public/uploads");
-        const currentPath = path.join(uploadDir, currentFilename);
-        const nextPath = path.join(uploadDir, nextFilename);
+        const currentPath = mediaDiskPath(uploadDir, currentFilename, doc.url);
+        const nextPath = mediaDiskPath(uploadDir, nextFilename, doc.url);
         await safeRenameFile(currentPath, nextPath);
 
-        const nextSizes: Record<string, unknown> = {};
+        let nextSizes: Record<string, unknown> | null = null;
         if (doc.sizes && typeof doc.sizes === "object") {
+          nextSizes = {};
           for (const [sizeName, sizeValue] of Object.entries(doc.sizes as Record<string, Record<string, unknown>>)) {
             if (!sizeValue || typeof sizeValue !== "object") continue;
             const sizeFilename = typeof sizeValue.filename === "string" ? sizeValue.filename : "";
             const sizeExtension = extensionFromFilename(sizeFilename) || extension;
             const nextSizeFilename = `${desiredSlug}-${sizeName}${sizeExtension.toLowerCase()}`;
+            const nextSizeURL = mediaURLForRenamedFile(sizeValue.url, nextSizeFilename);
             if (sizeFilename) {
-              await safeRenameFile(path.join(uploadDir, sizeFilename), path.join(uploadDir, nextSizeFilename));
+              await safeRenameFile(
+                mediaDiskPath(uploadDir, sizeFilename, sizeValue.url),
+                mediaDiskPath(uploadDir, nextSizeFilename, sizeValue.url)
+              );
             }
             nextSizes[sizeName] = {
               ...sizeValue,
               filename: nextSizeFilename,
-              url: `/uploads/${nextSizeFilename}`,
+              url: nextSizeURL,
             };
           }
         }
 
         try {
+          const updateData: Record<string, unknown> = {
+            filename: nextFilename,
+            filenameSlug: desiredSlug,
+            url: nextURL,
+          };
+          if (nextSizes) updateData.sizes = nextSizes;
+
           await req.payload.update({
             collection: "media",
             id: doc.id,
-            data: {
-              filename: nextFilename,
-              filenameSlug: desiredSlug,
-              url: `/uploads/${nextFilename}`,
-              sizes: nextSizes,
-            } as Record<string, unknown>,
+            data: updateData,
             overrideAccess: true,
             context: {
               mediaRenameInProgress: true,
@@ -743,6 +820,7 @@ export default buildConfig({
     graphQLPlayground: "/api/graphql-playground",
   },
   secret: process.env.PAYLOAD_SECRET || "development-payload-secret-change-me",
+  sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },

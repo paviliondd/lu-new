@@ -9,6 +9,10 @@ interface CodeBlockProps {
   copyLabel: string;
   copiedLabel: string;
   failedLabel: string;
+  explainLabel: string;
+  closeExplainLabel: string;
+  showMoreLabel: string;
+  showLessLabel: string;
 }
 
 export default function CodeBlock({
@@ -17,6 +21,10 @@ export default function CodeBlock({
   copyLabel,
   copiedLabel,
   failedLabel,
+  explainLabel,
+  closeExplainLabel,
+  showMoreLabel,
+  showLessLabel,
 }: CodeBlockProps) {
   useEffect(() => {
     const container = document.querySelector(containerSelector);
@@ -25,7 +33,7 @@ export default function CodeBlock({
     const cleanupHandlers: Array<() => void> = [];
     const codeBlocks = Array.from(container.querySelectorAll("pre"));
 
-    function createActionIcon(name: "expand" | "close" | "showMore" | "showLess") {
+    function createActionIcon(name: "expand" | "close" | "showMore" | "showLess" | "explain") {
       const ns = "http://www.w3.org/2000/svg";
       const svg = document.createElementNS(ns, "svg");
       svg.setAttribute("viewBox", "0 0 24 24");
@@ -42,6 +50,8 @@ export default function CodeBlock({
         svg.innerHTML = '<path d="m18 15-6-6-6 6"></path>';
       } else if (name === "close") {
         svg.innerHTML = '<path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>';
+      } else if (name === "explain") {
+        svg.innerHTML = '<path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path>';
       } else {
         svg.innerHTML = '<path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path>';
       }
@@ -86,6 +96,26 @@ export default function CodeBlock({
       };
     }
 
+    function findExplanation(preElement: HTMLElement, codeElement: HTMLElement) {
+      const explanationId = preElement.dataset.explanationId || codeElement.dataset.explanationId || "";
+      if (explanationId) {
+        const target = document.getElementById(explanationId);
+        if (target instanceof HTMLElement) return target;
+      }
+
+      const nextElement = preElement.nextElementSibling;
+      if (
+        nextElement instanceof HTMLElement &&
+        (nextElement.matches("[data-code-explanation]") ||
+          nextElement.classList.contains("code-explanation") ||
+          nextElement.classList.contains("code-block-explanation"))
+      ) {
+        return nextElement;
+      }
+
+      return null;
+    }
+
     function copyButtonContents(state: "idle" | "loading" | "copied" | "failed") {
       const label = document.createElement("span");
       label.className = "code-copy-button__label";
@@ -106,10 +136,11 @@ export default function CodeBlock({
 
       const rawCode = codeElement.textContent || "";
       const totalLines = lineCount(rawCode);
-      const isLong = totalLines > 30;
+      const isLong = totalLines > 10;
       const { filename, language } = codeMeta(preElement, codeElement);
       if (language === "mermaid" || preElement.dataset.mermaid === "true") return;
       const label = filename || language;
+      const explanationElement = findExplanation(preElement, codeElement);
       let backdrop: HTMLDivElement | null = null;
       let restoreMarker: Comment | null = null;
 
@@ -143,6 +174,14 @@ export default function CodeBlock({
       closeButton.setAttribute("aria-label", "Close expanded code");
       closeButton.setAttribute("title", "Close expanded code");
       closeButton.appendChild(createActionIcon("close"));
+
+      const explainButton = document.createElement("button");
+      explainButton.type = "button";
+      explainButton.className = "code-explain-button";
+      explainButton.setAttribute("aria-expanded", "false");
+      explainButton.setAttribute("title", explainLabel);
+      explainButton.hidden = !explanationElement;
+      explainButton.append(createActionIcon("explain"), document.createTextNode(explainLabel));
 
       const copyButton = document.createElement("button");
       copyButton.type = "button";
@@ -211,6 +250,19 @@ export default function CodeBlock({
         if (backdrop) event.stopPropagation();
       };
 
+      const handleExplainToggle = () => {
+        if (!explanationElement) return;
+        const expanded = explainButton.getAttribute("aria-expanded") !== "true";
+        explainButton.setAttribute("aria-expanded", String(expanded));
+        explainButton.setAttribute("title", expanded ? closeExplainLabel : explainLabel);
+        explanationElement.hidden = !expanded;
+        explanationElement.dataset.visible = String(expanded);
+        explainButton.replaceChildren(
+          createActionIcon("explain"),
+          document.createTextNode(expanded ? closeExplainLabel : explainLabel)
+        );
+      };
+
       const handleEsc = (event: KeyboardEvent) => {
         if (event.key === "Escape") closeExpanded();
       };
@@ -222,39 +274,55 @@ export default function CodeBlock({
       const toggleButton = document.createElement("button");
       toggleButton.type = "button";
       toggleButton.className = "code-toggle-button";
-      toggleButton.append(createActionIcon("showMore"), document.createTextNode(`Show more lines (${totalLines})`));
+      toggleButton.append(createActionIcon("showMore"), document.createTextNode(`${showMoreLabel} (${totalLines})`));
 
       const handleToggle = () => {
         const expanded = shell.dataset.expanded !== "true";
         shell.dataset.expanded = String(expanded);
         toggleButton.replaceChildren(
           createActionIcon(expanded ? "showLess" : "showMore"),
-          document.createTextNode(expanded ? "Show less" : `Show more lines (${totalLines})`)
+          document.createTextNode(expanded ? showLessLabel : `${showMoreLabel} (${totalLines})`)
         );
       };
+
+      if (explanationElement) {
+        explanationElement.hidden = true;
+        explanationElement.dataset.visible = "false";
+        explanationElement.classList.add("code-explanation-panel");
+      }
 
       toggleButton.addEventListener("click", handleToggle);
       footer.append(toggleButton);
       expandButton.addEventListener("click", handleExpand);
       closeButton.addEventListener("click", closeExpanded);
+      explainButton.addEventListener("click", handleExplainToggle);
       shell.addEventListener("click", handleShellClick);
       window.addEventListener("keydown", handleEsc);
       copyButton.addEventListener("click", handleCopy);
       preElement.parentNode?.insertBefore(shell, preElement);
-      toolbar.append(expandButton, closeButton, copyButton);
+      toolbar.append(expandButton, closeButton, explainButton, copyButton);
       header.append(labelElement, toolbar);
-      shell.append(header, preElement, footer);
+      shell.append(header, preElement);
+      if (explanationElement) shell.append(explanationElement);
+      shell.append(footer);
 
       cleanupHandlers.push(() => {
         toggleButton.removeEventListener("click", handleToggle);
         expandButton.removeEventListener("click", handleExpand);
         closeButton.removeEventListener("click", closeExpanded);
+        explainButton.removeEventListener("click", handleExplainToggle);
         shell.removeEventListener("click", handleShellClick);
         window.removeEventListener("keydown", handleEsc);
         copyButton.removeEventListener("click", handleCopy);
         closeExpanded();
         document.documentElement.classList.remove("code-modal-open");
         shell.parentNode?.insertBefore(preElement, shell);
+        if (explanationElement) {
+          explanationElement.hidden = false;
+          delete explanationElement.dataset.visible;
+          explanationElement.classList.remove("code-explanation-panel");
+          shell.parentNode?.insertBefore(explanationElement, shell);
+        }
         shell.remove();
         delete preElement.dataset.enhanced;
       });
@@ -263,7 +331,7 @@ export default function CodeBlock({
     return () => {
       cleanupHandlers.forEach((cleanup) => cleanup());
     };
-  }, [containerSelector, contentKey, copiedLabel, copyLabel, failedLabel]);
+  }, [closeExplainLabel, containerSelector, contentKey, copiedLabel, copyLabel, explainLabel, failedLabel, showLessLabel, showMoreLabel]);
 
   return null;
 }

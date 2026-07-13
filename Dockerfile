@@ -1,38 +1,41 @@
-FROM node:24-alpine AS deps
-WORKDIR /app
+# syntax=docker/dockerfile:1.7
 
-RUN apk add --no-cache libc6-compat
-COPY package.json package-lock.json ./
-RUN npm ci
-
-FROM node:24-alpine AS deps-prod
-WORKDIR /app
-
-RUN apk add --no-cache libc6-compat
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-
-FROM node:24-alpine AS builder
+FROM node:24-bookworm-slim AS base
 WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN apk add --no-cache libc6-compat
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+FROM base AS deps
+
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --include=optional
+
+FROM base AS deps-prod
+
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --include=optional
+
+FROM base AS builder
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM node:24-alpine AS runner
-WORKDIR /app
+FROM base AS runner
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-RUN apk add --no-cache libc6-compat \
-  && addgroup -S nextjs \
-  && adduser -S nextjs -G nextjs
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends wget \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd --system --gid 1001 nextjs \
+  && useradd --system --uid 1001 --gid nextjs --home-dir /app --shell /usr/sbin/nologin nextjs
 
 COPY --from=builder --chown=nextjs:nextjs /app/public ./public
 COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./

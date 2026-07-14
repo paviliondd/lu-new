@@ -15,7 +15,8 @@ Changed:
 
 - Changed production ECR publishing to tag each verified image as `latest`, `production`, and the immutable Git commit SHA.
 - Changed VPS production deployment to pull the exact commit-tagged ECR image and start it with `--no-build`, while preserving source builds as the manual fallback.
-- Changed Docker dependency stages to remove Sharp's incompatible native `linux-x64` packages after installing the official WASM runtime, and fail fast unless Emscripten is actually selected.
+- Changed Docker dependency stages to pin the x64-v1-compatible Sharp `0.33.5`, remove Next's nested `0.34.5`, and fail fast unless Payload and Next resolve the same native package.
+- Changed the production SSH step to synchronize `origin/main` before invoking the deploy script, preventing the running script from replacing itself mid-deployment.
 - Removed the hero carousel from the homepage render tree while preserving the shared carousel used on the blog page.
 - Limited homepage Payload queries to six newest published posts and three newest series, and added the Collections/Series heading with localized view-all links.
 - Changed code block Copy controls to icon-only output while preserving Clipboard API behavior, accessible labels/tooltips, and the two-second success state.
@@ -23,7 +24,8 @@ Changed:
 
 Fixed:
 
-- Fixed production builds and Next image optimization failing because Sharp's native `linux-x64` binary requires an x86-64 v2 CPU.
+- Fixed production builds and Next image optimization failing because Sharp `0.34.5` requires x86-64 v2 while its WASM fallback also requires unsupported WebAssembly SIMD on the VPS.
+- Fixed the first deployment after a deploy-script update continuing with stale local-build logic after resetting its own working tree.
 - Fixed ECR deployments rebuilding the application on the VPS instead of running the already verified image pushed by CI.
 - Fixed legacy imported Media file requests being converted into Payload 500 responses by resolving the imported file before invoking the Payload file handler.
 - Fixed Media Save failures caused by unwritable Docker volume ownership and improved duplicate, validation, missing-file, and rename errors in Vietnamese.

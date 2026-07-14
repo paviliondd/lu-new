@@ -34,7 +34,7 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
   assert.doesNotMatch(toc, /addEventListener\("scroll"/);
 });
 
-test("media deployment initializes volume ownership and forces Sharp WASM on x64-v1 hosts", async () => {
+test("media deployment initializes volume ownership and shares x64-v1 Sharp with Next", async () => {
   const [compose, dockerfile, packageJson] = await Promise.all([
     readFile("docker-compose.yml", "utf8"),
     readFile("Dockerfile", "utf8"),
@@ -44,16 +44,13 @@ test("media deployment initializes volume ownership and forces Sharp WASM on x64
   assert.match(compose, /media-permissions:[\s\S]*user: "0:0"/);
   assert.match(compose, /chown -R 1001:1001 \/app\/public\/uploads/);
   assert.match(compose, /condition: service_completed_successfully/);
+  assert.doesNotMatch(dockerfile, /sharp-wasm32|versions\.emscripten/);
   assert.equal(
-    (dockerfile.match(/@img\/sharp-wasm32@0\.34\.5/g) || []).length,
+    (dockerfile.match(/rm -rf node_modules\/next\/node_modules\/sharp/g) || []).length,
     2,
   );
-  assert.equal(
-    (dockerfile.match(/rm -rf node_modules\/@img\/sharp-linux-x64 node_modules\/@img\/sharp-libvips-linux-x64/g) || []).length,
-    2,
-  );
-  assert.equal((dockerfile.match(/sharp\.versions\.emscripten/g) || []).length, 2);
+  assert.equal((dockerfile.match(/Next and Payload must share Sharp 0\.33\.5/g) || []).length, 2);
   const parsedPackage = JSON.parse(packageJson);
   const dependencies = parsedPackage.dependencies;
-  assert.equal(dependencies.sharp, "0.34.5");
+  assert.equal(dependencies.sharp, "0.33.5");
 });

@@ -6,20 +6,25 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
+- Added regression coverage for immutable ECR tagging and registry deployments that must not rebuild on the VPS.
 - Added regression coverage for the homepage query limits and carousel removal, icon-only Copy control, observer-based TOC behavior, Media volume ownership initialization, and Sharp WebAssembly fallback.
 - Added a one-shot Compose `media-permissions` service so the non-root app user can safely write to the existing `payload_media` volume.
 - Added read-only legacy Media detail hydration so Payload Admin can resolve imported files and derive missing preview dimensions without a schema change, migration, or database backfill.
 
 Changed:
 
+- Changed production ECR publishing to tag each verified image as `latest`, `production`, and the immutable Git commit SHA.
+- Changed VPS production deployment to pull the exact commit-tagged ECR image and start it with `--no-build`, while preserving source builds as the manual fallback.
+- Changed Docker dependency stages to remove Sharp's incompatible native `linux-x64` packages after installing the official WASM runtime, and fail fast unless Emscripten is actually selected.
 - Removed the hero carousel from the homepage render tree while preserving the shared carousel used on the blog page.
 - Limited homepage Payload queries to six newest published posts and three newest series, and added the Collections/Series heading with localized view-all links.
 - Changed code block Copy controls to icon-only output while preserving Clipboard API behavior, accessible labels/tooltips, and the two-second success state.
 - Replaced the TOC window scroll listener with IntersectionObserver scroll-spy behavior, a sticky viewport-bounded scroll container, and nearest-item auto-scroll.
-- Upgraded Sharp to `0.34.5` and installed its WASM package in Docker dependency stages as a fallback for x64-v1 hosts.
 
 Fixed:
 
+- Fixed production builds and Next image optimization failing because Sharp's native `linux-x64` binary requires an x86-64 v2 CPU.
+- Fixed ECR deployments rebuilding the application on the VPS instead of running the already verified image pushed by CI.
 - Fixed legacy imported Media file requests being converted into Payload 500 responses by resolving the imported file before invoking the Payload file handler.
 - Fixed Media Save failures caused by unwritable Docker volume ownership and improved duplicate, validation, missing-file, and rename errors in Vietnamese.
 - Fixed Payload Image Editor previews with missing legacy width/height metadata while leaving all existing Media records unchanged.

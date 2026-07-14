@@ -2,6 +2,7 @@
 set -euo pipefail
 
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
+DEPLOY_IMAGE_SOURCE="${DEPLOY_IMAGE_SOURCE:-build}"
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -95,11 +96,27 @@ docker compose config >/dev/null
 log "Pulling external images"
 docker compose pull --ignore-buildable
 
-log "Building app image"
-docker compose build app
+case "${DEPLOY_IMAGE_SOURCE}" in
+  registry)
+    [ -n "${APP_IMAGE:-}" ] || fail "APP_IMAGE is required when DEPLOY_IMAGE_SOURCE=registry."
+    log "Pulling application image ${APP_IMAGE}"
+    docker compose pull app
+    ;;
+  build)
+    log "Building app image from the checked-out source"
+    docker compose build app
+    ;;
+  *)
+    fail "DEPLOY_IMAGE_SOURCE must be either 'registry' or 'build'."
+    ;;
+esac
 
 log "Starting production containers"
-docker compose up -d --remove-orphans
+if [ "${DEPLOY_IMAGE_SOURCE}" = "registry" ]; then
+  docker compose up -d --remove-orphans --no-build
+else
+  docker compose up -d --remove-orphans
+fi
 
 log "Waiting for app healthcheck"
 for attempt in $(seq 1 60); do

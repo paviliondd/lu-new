@@ -103,7 +103,7 @@ export default function ArticleClient({
 
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-[1480px] px-4 sm:px-6">
         {/* Breadcrumb */}
         <div className="mb-7 flex min-w-0 items-center gap-1 overflow-hidden text-xs theme-muted">
           <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("home")}</Link>
@@ -116,7 +116,7 @@ export default function ArticleClient({
         </div>
 
         {/* 3-Column Layout */}
-        <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,740px)_16.5rem] lg:justify-center lg:gap-10">
+        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,900px)_16.5rem] xl:justify-center 2xl:grid-cols-[minmax(0,1100px)_16.5rem] 2xl:gap-10">
           
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
@@ -204,9 +204,9 @@ export default function ArticleClient({
           </div>
 
           {/* Center Column: Main Content */}
-          <div className="order-1 min-w-0 space-y-8">
+          <div className="order-1 mx-auto min-w-0 w-full max-w-[1100px] space-y-8">
             {/* Header info */}
-            <div className="space-y-5">
+            <div className="mx-auto w-full max-w-[900px] space-y-5">
               <h1 className="break-words text-3xl font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                 {post.title}
               </h1>
@@ -279,11 +279,13 @@ export default function ArticleClient({
               failedLabel={t("copyFailed")}
               showLessLabel={t("showLessCode")}
               showMoreLabel={t("showMoreCode")}
+              expandLabel={t("expandCode")}
+              closeExpandedLabel={t("closeExpandedCode")}
               legacyAssetOrigins={legacyAssetOrigins}
             />
 
             {relatedPosts.length > 0 && (
-              <section className="pt-10">
+              <section className="mx-auto w-full max-w-[900px] pt-10">
                 <div className="mb-4 flex items-center justify-between border-b theme-border pb-3">
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
                     {t("relatedPosts")}
@@ -310,7 +312,9 @@ export default function ArticleClient({
               </section>
             )}
 
-            <Comments postSlug={post.slug} initialComments={initialComments} />
+            <div className="mx-auto w-full max-w-[900px]">
+              <Comments postSlug={post.slug} initialComments={initialComments} />
+            </div>
           </div>
 
           <TableOfContents

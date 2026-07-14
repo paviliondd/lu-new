@@ -48,25 +48,35 @@ export function createCopyIcon(state: CopyIconState) {
   svg.setAttribute("stroke-width", "2");
   svg.setAttribute("stroke-linecap", "round");
   svg.setAttribute("stroke-linejoin", "round");
+  svg.setAttribute("aria-hidden", "true");
   svg.classList.add("code-copy-button__icon");
 
+  const appendPath = (pathData: string) => {
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("d", pathData);
+    svg.appendChild(path);
+  };
+
   if (state === "copied") {
-    svg.innerHTML = '<path d="M20 6 9 17l-5-5"></path>';
+    appendPath("M20 6 9 17l-5-5");
     return svg;
   }
 
   if (state === "failed") {
-    svg.innerHTML = '<path d="M12 8v4"></path><path d="M12 16h.01"></path><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path>';
+    appendPath("M12 8v4");
+    appendPath("M12 16h.01");
+    appendPath("M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z");
     return svg;
   }
 
   if (state === "loading") {
     svg.setAttribute("stroke-dasharray", "8 4");
     svg.classList.add("code-copy-button__icon--spin");
-    svg.innerHTML = '<path d="M21 12a9 9 0 1 1-3-6.7"></path>';
+    appendPath("M21 12a9 9 0 1 1-3-6.7");
     return svg;
   }
 
-  svg.innerHTML = '<path d="M20 2H10a2 2 0 0 0-2 2v10"></path><path d="M4 8h10a2 2 0 0 1 2 2v10H6a2 2 0 0 1-2-2Z"></path>';
+  appendPath("M20 2H10a2 2 0 0 0-2 2v10");
+  appendPath("M4 8h10a2 2 0 0 1 2 2v10H6a2 2 0 0 1-2-2Z");
   return svg;
 }

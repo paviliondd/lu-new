@@ -6,6 +6,9 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
+- Added reusable code syntax helpers for language aliases, safe JSON formatting, and metadata normalization.
+- Added non-copyable line numbers, filename and language metadata, localized fullscreen controls, and an accessible native fullscreen dialog for code blocks.
+- Added regression tests for language aliases, JSON formatting, invalid JSON preservation, and code labels.
 - Added regression coverage for immutable ECR tagging and registry deployments that must not rebuild on the VPS.
 - Added regression coverage for the homepage query limits and carousel removal, icon-only Copy control, observer-based TOC behavior, Media volume ownership initialization, and Sharp WebAssembly fallback.
 - Added a one-shot Compose `media-permissions` service so the non-root app user can safely write to the existing `payload_media` volume.
@@ -13,6 +16,10 @@ Added:
 
 Changed:
 
+- Redesigned article typography around an 18px body, 1.75 line height, a 900px article column, and a 72-character reading measure.
+- Allowed article images, tables, diagrams, and code blocks to expand up to 1100px without causing mobile overflow.
+- Updated code highlighting to use Shiki with GitHub Light and VS Code Dark Plus themes, with plaintext fallback for unsupported languages.
+- Refactored code block controls into focused copy, expand, syntax, and interaction modules while preserving sanitized HTML rendering for Payload and legacy Markdown content.
 - Changed production ECR publishing to tag each verified image as `latest`, `production`, and the immutable Git commit SHA.
 - Changed VPS production deployment to pull the exact commit-tagged ECR image and start it with `--no-build`, while preserving source builds as the manual fallback.
 - Changed Docker dependency stages to pin the x64-v1-compatible Sharp `0.33.5`, remove Next's nested `0.34.5`, and fail fast unless Payload and Next resolve the same native package.
@@ -24,6 +31,9 @@ Changed:
 
 Fixed:
 
+- Fixed inconsistent article widths across desktop and tablet breakpoints.
+- Fixed code copy status icons, long-code expansion animation, fullscreen focus restoration, and localized expand/close labels.
+- Fixed rich-text figure layout so terminal, file-tree, code, and image blocks remain vertically structured.
 - Fixed production builds and Next image optimization failing because Sharp `0.34.5` requires x86-64 v2 while its WASM fallback also requires unsupported WebAssembly SIMD on the VPS.
 - Fixed the first deployment after a deploy-script update continuing with stale local-build logic after resetting its own working tree.
 - Fixed ECR deployments rebuilding the application on the VPS instead of running the already verified image pushed by CI.
@@ -33,6 +43,9 @@ Fixed:
 
 Never break:
 
+- Payload CMS editor, collections, database schema, APIs, and rich-text content output.
+- Legacy Markdown/local content fallback and existing article code blocks.
+- Vietnamese default locale, English locale, responsive design, dark/light theme, comments, OAuth, and SEO rendering.
 - Existing Payload records, collection schemas, migrations, and Media relationships.
 - Vietnamese default routing and optional English `/en` routing.
 - Shared blog cards, carousel usage outside the homepage, Lexical rendering, and code block copy behavior.

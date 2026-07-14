@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { createCopyIcon, copyText } from "./CopyButton";
+import { createActionIcon } from "./ExpandButton";
+import { languageFromClass, normalizeCodeLabel } from "./syntax";
 
 interface CodeBlockProps {
   containerSelector?: string;
@@ -14,6 +16,83 @@ interface CodeBlockProps {
   closeExplainLabel: string;
   showMoreLabel: string;
   showLessLabel: string;
+  expandLabel: string;
+  closeExpandedLabel: string;
+}
+
+function lineCount(value: string) {
+  const normalized = value.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const withoutFinalNewline = normalized.endsWith("\n") ? normalized.slice(0, -1) : normalized;
+  return withoutFinalNewline ? withoutFinalNewline.split("\n").length : 0;
+}
+
+function ensureLineNumbers(preElement: HTMLElement, codeElement: HTMLElement, source: string) {
+  const highlightedLines = Array.from(codeElement.querySelectorAll(":scope > .line"));
+  if (highlightedLines.length) {
+    highlightedLines.forEach((line, index) => line.setAttribute("data-line", String(index + 1)));
+    preElement.dataset.lineNumbers = "true";
+    return;
+  }
+
+  const normalized = source.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const hasFinalNewline = normalized.endsWith("\n");
+  const lines = (hasFinalNewline ? normalized.slice(0, -1) : normalized).split("\n");
+  const fragment = document.createDocumentFragment();
+
+  lines.forEach((line, index) => {
+    const lineElement = document.createElement("span");
+    lineElement.className = "line";
+    lineElement.dataset.line = String(index + 1);
+    lineElement.textContent = line;
+    fragment.append(lineElement);
+    if (index < lines.length - 1 || hasFinalNewline) fragment.append("\n");
+  });
+
+  codeElement.replaceChildren(fragment);
+  preElement.dataset.lineNumbers = "true";
+}
+
+function codeMeta(preElement: HTMLElement, codeElement: HTMLElement) {
+  const figure = preElement.closest("figure");
+  const caption = figure?.querySelector(":scope > figcaption");
+  const captionText = caption?.textContent?.replace(/\s+/g, " ").trim() || "";
+  const filename =
+    preElement.dataset.filename ||
+    preElement.dataset.file ||
+    preElement.dataset.title ||
+    codeElement.dataset.filename ||
+    captionText;
+  const language =
+    preElement.dataset.language ||
+    codeElement.dataset.language ||
+    languageFromClass(codeElement.className) ||
+    languageFromClass(preElement.className);
+
+  return {
+    caption: caption instanceof HTMLElement ? caption : null,
+    filename: normalizeCodeLabel(filename),
+    language: normalizeCodeLabel(language).toLowerCase(),
+  };
+}
+
+function findExplanation(preElement: HTMLElement, codeElement: HTMLElement) {
+  const explanationId = preElement.dataset.explanationId || codeElement.dataset.explanationId || "";
+  if (explanationId) {
+    const target = document.getElementById(explanationId);
+    if (target instanceof HTMLElement) return target;
+  }
+
+  const nextElement = preElement.nextElementSibling;
+  if (
+    nextElement instanceof HTMLElement &&
+    (nextElement.matches("[data-code-explanation]") ||
+      nextElement.classList.contains("code-explanation") ||
+      nextElement.classList.contains("code-block-explanation"))
+  ) {
+    return nextElement;
+  }
+
+  return null;
 }
 
 export default function CodeBlock({
@@ -27,6 +106,8 @@ export default function CodeBlock({
   closeExplainLabel,
   showMoreLabel,
   showLessLabel,
+  expandLabel,
+  closeExpandedLabel,
 }: CodeBlockProps) {
   useEffect(() => {
     const container = document.querySelector(containerSelector);
@@ -35,109 +116,25 @@ export default function CodeBlock({
     const cleanupHandlers: Array<() => void> = [];
     const codeBlocks = Array.from(container.querySelectorAll("pre"));
 
-    function createActionIcon(name: "expand" | "close" | "showMore" | "showLess" | "explain") {
-      const ns = "http://www.w3.org/2000/svg";
-      const svg = document.createElementNS(ns, "svg");
-      svg.setAttribute("viewBox", "0 0 24 24");
-      svg.setAttribute("fill", "none");
-      svg.setAttribute("stroke", "currentColor");
-      svg.setAttribute("stroke-width", "2");
-      svg.setAttribute("stroke-linecap", "round");
-      svg.setAttribute("stroke-linejoin", "round");
-      svg.classList.add("code-action-button__icon");
-
-      if (name === "showMore") {
-        svg.innerHTML = '<path d="m6 9 6 6 6-6"></path>';
-      } else if (name === "showLess") {
-        svg.innerHTML = '<path d="m18 15-6-6-6 6"></path>';
-      } else if (name === "close") {
-        svg.innerHTML = '<path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>';
-      } else if (name === "explain") {
-        svg.innerHTML = '<path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path>';
-      } else {
-        svg.innerHTML = '<path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path>';
-      }
-
-      return svg;
-    }
-
-    function lineCount(value: string) {
-      const normalized = value.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-      const withoutFinalNewline = normalized.endsWith("\n") ? normalized.slice(0, -1) : normalized;
-      return withoutFinalNewline ? withoutFinalNewline.split("\n").length : 0;
-    }
-
-    function languageFromClass(className = "") {
-      return className.match(/language-([a-z0-9-]+)/i)?.[1] || "";
-    }
-
-    function normalizeCodeLabel(value: string) {
-      const normalized = value.trim();
-      if (!normalized) return "";
-
-      const hiddenLabels = new Set(["text", "txt", "plain", "plaintext"]);
-      return hiddenLabels.has(normalized.toLowerCase()) ? "" : normalized;
-    }
-
-    function codeMeta(preElement: HTMLElement, codeElement: HTMLElement) {
-      const filename =
-        preElement.dataset.filename ||
-        preElement.dataset.file ||
-        preElement.dataset.title ||
-        codeElement.dataset.filename ||
-        "";
-      const language =
-        preElement.dataset.language ||
-        codeElement.dataset.language ||
-        languageFromClass(codeElement.className) ||
-        languageFromClass(preElement.className);
-
-      return {
-        filename: normalizeCodeLabel(filename),
-        language: normalizeCodeLabel(language).toLowerCase(),
-      };
-    }
-
-    function findExplanation(preElement: HTMLElement, codeElement: HTMLElement) {
-      const explanationId = preElement.dataset.explanationId || codeElement.dataset.explanationId || "";
-      if (explanationId) {
-        const target = document.getElementById(explanationId);
-        if (target instanceof HTMLElement) return target;
-      }
-
-      const nextElement = preElement.nextElementSibling;
-      if (
-        nextElement instanceof HTMLElement &&
-        (nextElement.matches("[data-code-explanation]") ||
-          nextElement.classList.contains("code-explanation") ||
-          nextElement.classList.contains("code-block-explanation"))
-      ) {
-        return nextElement;
-      }
-
-      return null;
-    }
-
     function copyButtonContents(state: "idle" | "loading" | "copied" | "failed") {
       return [createCopyIcon(state)];
     }
 
     codeBlocks.forEach((preElement, blockIndex) => {
       const codeElement = preElement.querySelector("code");
-      if (!(preElement instanceof HTMLElement) || !(codeElement instanceof HTMLElement)) {
-        return;
-      }
+      if (!(preElement instanceof HTMLElement) || !(codeElement instanceof HTMLElement)) return;
 
+      const metadata = codeMeta(preElement, codeElement);
+      if (metadata.language === "mermaid" || preElement.dataset.mermaid === "true") return;
       if (preElement.dataset.enhanced === "true") return;
+
       preElement.dataset.enhanced = "true";
       preElement.classList.add("code-block");
 
       const rawCode = codeElement.textContent || "";
+      ensureLineNumbers(preElement, codeElement, rawCode);
       const totalLines = lineCount(rawCode);
       const isLong = totalLines > 10;
-      const { filename, language } = codeMeta(preElement, codeElement);
-      if (language === "mermaid" || preElement.dataset.mermaid === "true") return;
-      const label = filename || language;
       let explanationElement = findExplanation(preElement, codeElement);
       const createdExplanation = !explanationElement;
       if (!explanationElement) {
@@ -150,8 +147,12 @@ export default function CodeBlock({
         explanationElement.append(emptyMessage);
       }
       explanationElement.id ||= `code-explanation-${blockIndex}`;
-      let backdrop: HTMLDivElement | null = null;
+      let explanationMarker: Comment | null = null;
+      let dialog: HTMLDialogElement | null = null;
       let restoreMarker: Comment | null = null;
+      let focusedBeforeDialog: HTMLElement | null = null;
+      let copyResetTimer: number | null = null;
+      let heightFrame: number | null = null;
 
       const shell = document.createElement("div");
       shell.className = "code-shell";
@@ -162,10 +163,27 @@ export default function CodeBlock({
       const header = document.createElement("div");
       header.className = "code-shell__header";
 
-      const labelElement = document.createElement("span");
-      labelElement.className = "code-shell__filename";
-      labelElement.textContent = label;
-      labelElement.hidden = !label;
+      const identity = document.createElement("div");
+      identity.className = "code-shell__identity";
+      identity.hidden = !metadata.filename && !metadata.language;
+
+      if (metadata.filename) {
+        const filenameElement = document.createElement("span");
+        filenameElement.className = "code-shell__filename";
+        filenameElement.append(createActionIcon("file"), document.createTextNode(metadata.filename));
+        identity.append(filenameElement);
+      }
+
+      if (metadata.language) {
+        const languageElement = document.createElement("span");
+        languageElement.className = "code-shell__language";
+        languageElement.textContent = metadata.language;
+        identity.append(languageElement);
+      }
+
+      if (metadata.caption && metadata.filename) {
+        metadata.caption.classList.add("code-source-caption");
+      }
 
       const toolbar = document.createElement("div");
       toolbar.className = "code-shell__toolbar";
@@ -173,15 +191,15 @@ export default function CodeBlock({
       const expandButton = document.createElement("button");
       expandButton.type = "button";
       expandButton.className = "code-action-button";
-      expandButton.setAttribute("aria-label", "Expand code");
-      expandButton.setAttribute("title", "Expand code");
+      expandButton.setAttribute("aria-label", expandLabel);
+      expandButton.setAttribute("title", expandLabel);
       expandButton.appendChild(createActionIcon("expand"));
 
       const closeButton = document.createElement("button");
       closeButton.type = "button";
       closeButton.className = "code-action-button code-action-button--close";
-      closeButton.setAttribute("aria-label", "Close expanded code");
-      closeButton.setAttribute("title", "Close expanded code");
+      closeButton.setAttribute("aria-label", closeExpandedLabel);
+      closeButton.setAttribute("title", closeExpandedLabel);
       closeButton.appendChild(createActionIcon("close"));
 
       const explainButton = document.createElement("button");
@@ -195,7 +213,7 @@ export default function CodeBlock({
       const copyButton = document.createElement("button");
       copyButton.type = "button";
       copyButton.className = "code-copy-button";
-      copyButton.setAttribute("aria-label", "Copy code");
+      copyButton.setAttribute("aria-label", copyLabel);
       copyButton.setAttribute("title", copyLabel);
       copyButton.dataset.state = "idle";
       copyButton.replaceChildren(...copyButtonContents("idle"));
@@ -215,53 +233,65 @@ export default function CodeBlock({
         copyButton.setAttribute("aria-label", copied ? copiedLabel : failedLabel);
         copyButton.setAttribute("title", copied ? copiedLabel : failedLabel);
         copyButton.replaceChildren(...copyButtonContents(copied ? "copied" : "failed"));
-        window.setTimeout(() => {
+        if (copyResetTimer) window.clearTimeout(copyResetTimer);
+        copyResetTimer = window.setTimeout(() => {
           copyButton.dataset.state = "idle";
-          copyButton.setAttribute("aria-label", "Copy code");
+          copyButton.setAttribute("aria-label", copyLabel);
           copyButton.setAttribute("title", copyLabel);
           copyButton.replaceChildren(...copyButtonContents("idle"));
         }, 2000);
       };
 
-      const closeExpanded = () => {
-        if (!backdrop || !restoreMarker) return;
+      const restoreExpanded = () => {
+        if (!dialog || !restoreMarker) return;
+        const currentDialog = dialog;
         shell.classList.remove("code-shell--expanded-modal");
         document.documentElement.classList.remove("code-modal-open");
         restoreMarker.parentNode?.insertBefore(shell, restoreMarker);
         restoreMarker.remove();
         restoreMarker = null;
-        backdrop.removeEventListener("click", handleBackdropClick);
-        backdrop.remove();
-        backdrop = null;
+        currentDialog.removeEventListener("click", handleDialogClick);
+        currentDialog.removeEventListener("close", restoreExpanded);
+        currentDialog.remove();
+        dialog = null;
         expandButton.hidden = false;
+        focusedBeforeDialog?.focus();
+        focusedBeforeDialog = null;
+      };
+
+      const closeExpanded = () => {
+        if (!dialog) return;
+        if (dialog.open) dialog.close();
+        restoreExpanded();
+      };
+
+      const handleDialogClick = (event: MouseEvent) => {
+        if (event.target === dialog) closeExpanded();
       };
 
       const handleExpand = () => {
-        if (backdrop) {
-          closeExpanded();
-          return;
-        }
+        if (dialog) return;
 
+        focusedBeforeDialog = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         restoreMarker = document.createComment("code-shell-restore");
-        backdrop = document.createElement("div");
-        backdrop.className = "code-modal-backdrop";
-        backdrop.setAttribute("role", "presentation");
-        backdrop.addEventListener("click", handleBackdropClick);
+        dialog = document.createElement("dialog");
+        dialog.className = "code-modal";
+        dialog.setAttribute("aria-label", metadata.filename || metadata.language || expandLabel);
+        dialog.addEventListener("click", handleDialogClick);
+        dialog.addEventListener("close", restoreExpanded);
         shell.parentNode?.insertBefore(restoreMarker, shell);
-        restoreMarker.parentNode?.insertBefore(backdrop, restoreMarker);
-        backdrop.appendChild(shell);
+        restoreMarker.parentNode?.insertBefore(dialog, restoreMarker);
+        dialog.appendChild(shell);
         shell.classList.add("code-shell--expanded-modal");
         document.documentElement.classList.add("code-modal-open");
         expandButton.hidden = true;
-        closeButton.focus();
-      };
 
-      const handleBackdropClick = (event: MouseEvent) => {
-        if (event.target === backdrop) closeExpanded();
-      };
-
-      const handleShellClick = (event: MouseEvent) => {
-        if (backdrop) event.stopPropagation();
+        try {
+          dialog.showModal();
+          closeButton.focus();
+        } catch {
+          restoreExpanded();
+        }
       };
 
       const handleExplainToggle = () => {
@@ -276,10 +306,6 @@ export default function CodeBlock({
         );
       };
 
-      const handleEsc = (event: KeyboardEvent) => {
-        if (event.key === "Escape") closeExpanded();
-      };
-
       const footer = document.createElement("div");
       footer.className = "code-shell__footer";
       footer.hidden = !isLong;
@@ -287,44 +313,56 @@ export default function CodeBlock({
       const toggleButton = document.createElement("button");
       toggleButton.type = "button";
       toggleButton.className = "code-toggle-button";
-      toggleButton.append(createActionIcon("showMore"), document.createTextNode(`${showMoreLabel} (${totalLines})`));
+      toggleButton.setAttribute("aria-expanded", "false");
+      toggleButton.append(
+        createActionIcon("showMore"),
+        document.createTextNode(`${showMoreLabel} (${totalLines})`)
+      );
+
+      const updateExpandedHeight = () => {
+        preElement.style.setProperty("--code-expanded-height", `${preElement.scrollHeight}px`);
+      };
 
       const handleToggle = () => {
         const expanded = shell.dataset.expanded !== "true";
+        updateExpandedHeight();
         shell.dataset.expanded = String(expanded);
+        toggleButton.setAttribute("aria-expanded", String(expanded));
         toggleButton.replaceChildren(
-          createActionIcon(expanded ? "showLess" : "showMore"),
+          createActionIcon(expanded ? "collapse" : "showMore"),
           document.createTextNode(expanded ? showLessLabel : `${showMoreLabel} (${totalLines})`)
         );
       };
 
+      if (!createdExplanation) {
+        explanationMarker = document.createComment("code-explanation-restore");
+        explanationElement.parentNode?.insertBefore(explanationMarker, explanationElement);
+      }
       explanationElement.hidden = true;
       explanationElement.dataset.visible = "false";
       explanationElement.classList.add("code-explanation-panel");
 
       toggleButton.addEventListener("click", handleToggle);
-      footer.append(toggleButton);
       expandButton.addEventListener("click", handleExpand);
       closeButton.addEventListener("click", closeExpanded);
       explainButton.addEventListener("click", handleExplainToggle);
-      shell.addEventListener("click", handleShellClick);
-      window.addEventListener("keydown", handleEsc);
       copyButton.addEventListener("click", handleCopy);
       preElement.parentNode?.insertBefore(shell, preElement);
-      toolbar.append(expandButton, closeButton, explainButton, copyButton);
-      header.append(labelElement, toolbar);
+      toolbar.append(expandButton, explainButton, copyButton, closeButton);
+      header.append(identity, toolbar);
       shell.append(header, preElement);
       shell.append(explanationElement);
       shell.append(footer);
+      heightFrame = window.requestAnimationFrame(updateExpandedHeight);
 
       cleanupHandlers.push(() => {
         toggleButton.removeEventListener("click", handleToggle);
         expandButton.removeEventListener("click", handleExpand);
         closeButton.removeEventListener("click", closeExpanded);
         explainButton.removeEventListener("click", handleExplainToggle);
-        shell.removeEventListener("click", handleShellClick);
-        window.removeEventListener("keydown", handleEsc);
         copyButton.removeEventListener("click", handleCopy);
+        if (copyResetTimer) window.clearTimeout(copyResetTimer);
+        if (heightFrame) window.cancelAnimationFrame(heightFrame);
         closeExpanded();
         document.documentElement.classList.remove("code-modal-open");
         shell.parentNode?.insertBefore(preElement, shell);
@@ -333,18 +371,34 @@ export default function CodeBlock({
         explanationElement.classList.remove("code-explanation-panel");
         if (createdExplanation) {
           explanationElement.remove();
-        } else {
-          shell.parentNode?.insertBefore(explanationElement, shell);
+        } else if (explanationMarker) {
+          explanationMarker.parentNode?.insertBefore(explanationElement, explanationMarker);
+          explanationMarker.remove();
         }
+        metadata.caption?.classList.remove("code-source-caption");
         shell.remove();
         delete preElement.dataset.enhanced;
+        preElement.style.removeProperty("--code-expanded-height");
       });
     });
 
     return () => {
       cleanupHandlers.forEach((cleanup) => cleanup());
     };
-  }, [closeExplainLabel, containerSelector, contentKey, copiedLabel, copyLabel, explainLabel, failedLabel, noExplanationLabel, showLessLabel, showMoreLabel]);
+  }, [
+    closeExpandedLabel,
+    closeExplainLabel,
+    containerSelector,
+    contentKey,
+    copiedLabel,
+    copyLabel,
+    expandLabel,
+    explainLabel,
+    failedLabel,
+    noExplanationLabel,
+    showLessLabel,
+    showMoreLabel,
+  ]);
 
   return null;
 }

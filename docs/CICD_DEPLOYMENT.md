@@ -48,10 +48,13 @@ The VPS deploy uses the commit SHA tag, pulls it from ECR, and starts Compose wi
 `--no-build`. This guarantees that the deployed container matches the verified CI
 commit and prevents the older VPS CPU from rebuilding Sharp locally.
 
-The Docker dependency stages install Sharp's official WASM runtime, remove the
-incompatible native `linux-x64` binary, and fail the image build unless Emscripten is
-actually selected. This keeps Payload media processing and Next image optimization
-compatible with the VPS x86-64 v1 CPU.
+The Docker dependency stages pin Sharp `0.33.5`, remove Next's nested Sharp `0.34.5`,
+and fail the image build unless Payload and Next resolve the same compatible native
+package. Sharp WASM is not used because the VPS CPU does not provide WebAssembly SIMD.
+
+The SSH step synchronizes `origin/main` before invoking `scripts/deploy.sh`. This
+prevents a running copy of the old deploy script from resetting and replacing itself
+halfway through its own execution.
 
 Manual source builds remain available by leaving `DEPLOY_IMAGE_SOURCE` unset (the
 default is `build`). Registry deployments must set:

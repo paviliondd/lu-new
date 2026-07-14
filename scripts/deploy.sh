@@ -3,6 +3,7 @@ set -euo pipefail
 
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
 DEPLOY_IMAGE_SOURCE="${DEPLOY_IMAGE_SOURCE:-build}"
+DEPLOY_SKIP_GIT_SYNC="${DEPLOY_SKIP_GIT_SYNC:-false}"
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -70,11 +71,15 @@ command -v git >/dev/null 2>&1 || fail "git is not installed."
 command -v docker >/dev/null 2>&1 || fail "docker is not installed."
 docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is not available."
 
-log "Fetching origin/${DEPLOY_BRANCH}"
-git fetch origin "${DEPLOY_BRANCH}"
+if [ "${DEPLOY_SKIP_GIT_SYNC}" = "true" ]; then
+  log "Using checkout synchronized by the deployment caller"
+else
+  log "Fetching origin/${DEPLOY_BRANCH}"
+  git fetch origin "${DEPLOY_BRANCH}"
 
-log "Resetting code to origin/${DEPLOY_BRANCH}"
-git reset --hard "origin/${DEPLOY_BRANCH}"
+  log "Resetting code to origin/${DEPLOY_BRANCH}"
+  git reset --hard "origin/${DEPLOY_BRANCH}"
+fi
 
 load_env_file ".env"
 sanitize_var APP_IMAGE

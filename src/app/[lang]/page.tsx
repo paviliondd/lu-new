@@ -30,6 +30,6 @@ export async function generateMetadata({
 export default async function HomeRoute({ params }: HomeRouteProps) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  const [posts, seriesItems] = await Promise.all([getCmsPublishedPosts(lang, 9), getCmsSeries(lang)]);
+  const [posts, seriesItems] = await Promise.all([getCmsPublishedPosts(lang, 6), getCmsSeries(lang, 3)]);
   return <HomePage initialPosts={posts} seriesItems={seriesItems} />;
 }

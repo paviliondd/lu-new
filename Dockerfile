@@ -12,12 +12,18 @@ RUN apt-get update \
 FROM base AS deps
 
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --include=optional
+RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
+  && npm install --no-save --package-lock=false --force @img/sharp-wasm32@0.34.5 \
+  && rm -rf node_modules/@img/sharp-linux-x64 node_modules/@img/sharp-libvips-linux-x64 \
+  && node -e "const sharp = require('sharp'); if (!sharp.versions.emscripten) throw new Error('Sharp WASM runtime was not selected')"
 
 FROM base AS deps-prod
 
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --include=optional
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --include=optional \
+  && npm install --omit=dev --no-save --package-lock=false --force @img/sharp-wasm32@0.34.5 \
+  && rm -rf node_modules/@img/sharp-linux-x64 node_modules/@img/sharp-libvips-linux-x64 \
+  && node -e "const sharp = require('sharp'); if (!sharp.versions.emscripten) throw new Error('Sharp WASM runtime was not selected')"
 
 FROM base AS builder
 

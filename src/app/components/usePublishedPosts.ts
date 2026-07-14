@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Post } from "../data";
 import { useLanguage } from "./LanguageProvider";
 
-export function usePublishedPosts(initialPosts: Post[]) {
+export function usePublishedPosts(initialPosts: Post[], requestedLimit?: number) {
   const { language } = useLanguage();
   const [loadedPosts, setLoadedPosts] = useState<{
     language: typeof language;
@@ -17,7 +17,8 @@ export function usePublishedPosts(initialPosts: Post[]) {
 
     async function loadPosts() {
       try {
-        const response = await fetch(`/api/posts?locale=${language}`, {
+        const limitParam = requestedLimit ? `&limit=${requestedLimit}` : "";
+        const response = await fetch(`/api/posts?locale=${language}${limitParam}`, {
           signal: controller.signal,
         });
         if (!response.ok) return;
@@ -40,7 +41,7 @@ export function usePublishedPosts(initialPosts: Post[]) {
       isMounted = false;
       controller.abort();
     };
-  }, [initialPosts, language]);
+  }, [initialPosts, language, requestedLimit]);
 
   return loadedPosts?.language === language ? loadedPosts.posts : initialPosts;
 }

@@ -46,6 +46,8 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
     depends_on:
+      media-permissions:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
@@ -62,6 +64,14 @@ services:
       - "3000"
     networks:
       - internal
+
+  media-permissions:
+    image: ${APP_IMAGE:-cloud-devops-blog-app:production}
+    user: "0:0"
+    command: ["sh", "-lc", "chown -R 1001:1001 /app/public/uploads"]
+    restart: "no"
+    volumes:
+      - payload_media:/app/public/uploads
 
   uptime-kuma:
     image: louislam/uptime-kuma:1.23.16

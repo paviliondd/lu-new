@@ -8,6 +8,7 @@ import sharp from "sharp";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const mediaDimensionsCache = new Map<string, { height: number; width: number }>();
 
 const publicRead = () => true;
 const authenticated = ({ req: { user } }: { req: { user?: unknown } }) => Boolean(user);
@@ -295,7 +296,7 @@ async function resolveMediaDiskFile(uploadDir: string, mediaFilename: string, ur
   }
 
   throw new APIError(
-    `Media file "${mediaFilename}" was not found in uploads or uploads/imported.`,
+    `Không tìm thấy tệp media "${mediaFilename}" trong uploads hoặc uploads/imported.`,
     404,
     null,
     true
@@ -306,11 +307,42 @@ function mediaURLForStorage(nextFilename: string, imported: boolean) {
   return imported ? `/uploads/imported/${nextFilename}` : mediaFileURL(nextFilename);
 }
 
+async function hydrateLegacyMediaDocument(doc: Record<string, unknown>) {
+  const mediaFilename = typeof doc.filename === "string" ? doc.filename : "";
+  if (!mediaFilename) return doc;
+
+  const uploadDir = path.resolve(dirname, "../public/uploads");
+  const mediaFile = await resolveMediaDiskFile(uploadDir, mediaFilename, [
+    doc.url,
+    doc.thumbnailURL,
+  ]);
+  const mediaURL = mediaURLForStorage(mediaFilename, mediaFile.imported);
+  const hydratedDoc: Record<string, unknown> = {
+    ...doc,
+    url: mediaURL,
+    thumbnailURL: mediaURL,
+  };
+
+  const hasDimensions = Number(doc.width) > 0 && Number(doc.height) > 0;
+  if (hasDimensions) return hydratedDoc;
+
+  let dimensions = mediaDimensionsCache.get(mediaFile.filePath);
+  if (!dimensions) {
+    const metadata = await sharp(mediaFile.filePath).metadata();
+    if (metadata.width && metadata.height) {
+      dimensions = { width: metadata.width, height: metadata.height };
+      mediaDimensionsCache.set(mediaFile.filePath, dimensions);
+    }
+  }
+
+  return dimensions ? { ...hydratedDoc, ...dimensions } : hydratedDoc;
+}
+
 async function renameMediaFile(from: string, to: string) {
   if (from === to) return;
   if (await fileExists(to)) {
     throw new APIError(
-      `A file named "${path.basename(to)}" already exists in media storage.`,
+      `Tệp media "${path.basename(to)}" đã tồn tại. Vui lòng chọn SEO filename khác.`,
       409,
       null,
       true
@@ -322,7 +354,7 @@ async function renameMediaFile(from: string, to: string) {
   } catch (error) {
     const reason = (error as NodeJS.ErrnoException).code || "storage error";
     throw new APIError(
-      `Unable to rename media file "${path.basename(from)}" (${reason}).`,
+      `Không thể đổi tên tệp media "${path.basename(from)}" (${reason}). Vui lòng kiểm tra quyền thư mục uploads.`,
       500,
       null,
       true
@@ -431,6 +463,21 @@ const Media: CollectionConfig = {
     mimeTypes: ["image/*"],
   },
   hooks: {
+    afterRead: [
+      async ({ doc, findMany, req }) => {
+        if (findMany || !isRecord(doc)) return doc;
+
+        try {
+          return await hydrateLegacyMediaDocument(doc);
+        } catch (error) {
+          req.payload.logger.warn(
+            { id: doc.id, filename: doc.filename, error },
+            "Unable to hydrate legacy media preview metadata",
+          );
+          return doc;
+        }
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data;
@@ -468,7 +515,7 @@ const Media: CollectionConfig = {
 
           if (existing.totalDocs > 0) {
             throw new APIError(
-              `A media file named "${nextFilename}" already exists. Choose a different SEO filename.`,
+              `Tệp media "${nextFilename}" đã tồn tại. Vui lòng chọn SEO filename khác.`,
               409,
               null,
               true
@@ -569,7 +616,7 @@ const Media: CollectionConfig = {
         if (!value) return true;
         return /^[a-z0-9-]+$/.test(String(value))
           ? true
-          : "Use lowercase letters, numbers, and hyphens only.";
+          : "Chỉ dùng chữ thường không dấu, số và dấu gạch ngang.";
       },
     },
     {

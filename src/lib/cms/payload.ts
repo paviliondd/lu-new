@@ -138,6 +138,19 @@ async function renderLexicalContent(value: unknown) {
       ...defaultConverters,
       blocks: {
         ...(defaultConverters.blocks || {}),
+        Code: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
+          const fields = node.fields || {};
+          const language = escapeHtml(fields.language || "text").toLowerCase();
+          const explanation = escapeHtml(fields.explanation).trim();
+          const explanationPanel = explanation
+            ? `<aside data-code-explanation><p>${explanation
+                .replace(/\n{2,}/g, "</p><p>")
+                .replace(/\n/g, "<br>")}</p></aside>`
+            : "";
+          return `<pre data-language="${language}"><code class="language-${language}">${escapeHtml(
+            fields.code
+          )}</code></pre>${explanationPanel}`;
+        },
         fileTree: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
           const fields = node.fields || {};
           return `<figure class="richtext-block richtext-block--file-tree"><figcaption>${escapeHtml(
@@ -419,8 +432,13 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
 
 export const getCmsPublishedPosts = getPayloadPublishedPosts;
 
-async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]> {
-  return cachedJson(`series:list:${locale}`, 30, async () => {
+async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number): Promise<Series[]> {
+  const limit = requestedLimit === undefined
+    ? 100
+    : Math.min(Math.max(Math.floor(requestedLimit) || 1, 1), 100);
+  const cacheScope = requestedLimit === undefined ? "all" : String(limit);
+
+  return cachedJson(`series:list:${locale}:${cacheScope}`, 30, async () => {
     const posts = await getPayloadPublishedPosts(locale);
     const counts = new Map<string, number>();
     for (const post of posts) {
@@ -433,23 +451,33 @@ async function getPayloadSeries(locale: Locale = "vi"): Promise<Series[]> {
       partsCount: counts.get(item.slug) || item.partsCount,
     }));
     const payload = await getPayloadClient();
-    if (!payload) return fallback;
+    if (!payload) return requestedLimit === undefined ? fallback : fallback.slice(0, limit);
 
     try {
       const result = await payload.find({
         collection: "series",
         depth: 0,
-        limit: 100,
-        sort: "titleVi",
+        limit,
+        sort: requestedLimit === undefined ? "titleVi" : "-createdAt",
       });
       const payloadSeries = result.docs.map((doc) => mapPayloadSeries(asPayloadDoc(doc)));
-      return mergeSeries(payloadSeries, fallback).map((item) => ({
+      const withFallback = requestedLimit === undefined
+        ? mergeSeries(payloadSeries, fallback)
+        : [
+            ...payloadSeries.map((item) => ({
+              ...(fallback.find((fallbackItem) => fallbackItem.slug === item.slug) || item),
+              ...item,
+            })),
+            ...fallback.filter((item) => !payloadSeries.some((payloadItem) => payloadItem.slug === item.slug)),
+          ];
+      const localizedSeries = withFallback.map((item) => ({
         ...item,
         partsCount: counts.get(item.slug) || item.partsCount,
       }));
+      return requestedLimit === undefined ? localizedSeries : localizedSeries.slice(0, limit);
     } catch (error) {
       console.error("Unable to fetch Payload series", { locale, error });
-      return fallback;
+      return requestedLimit === undefined ? fallback : fallback.slice(0, limit);
     }
   });
 }

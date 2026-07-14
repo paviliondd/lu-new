@@ -44,7 +44,7 @@
   position: relative;
   z-index: 2;
   display: flex;
-  min-height: 3rem;
+  min-height: 3.25rem;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
@@ -114,19 +114,27 @@
 .code-edit-link {
   display: inline-flex;
   flex: 0 0 auto;
-  min-width: 2.25rem;
-  height: 2.15rem;
   align-items: center;
   justify-content: center;
+  min-width: 2.5rem;
+  width: auto;
+  min-height: 2.75rem;
+  height: 2.75rem;
   border: 1px solid transparent;
   border-radius: 0.55rem;
   background: transparent;
   color: #57606a;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
     background-color 150ms ease,
-    color 150ms ease;
+    border-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.code-copy-button {
+  width: 2.75rem;
+  padding: 0;
 }
 
 .code-copy-button,
@@ -158,9 +166,9 @@
 .code-action-button:focus-visible,
 .code-edit-link:hover,
 .code-edit-link:focus-visible {
-  border-color: #c6cdd5;
-  background: #e4e9ee;
-  color: #1f2328;
+  border-color: #99d5d8;
+  background: #e8f7f7;
+  color: #0f5f65;
 }
 
 .code-copy-button[data-state="copied"] {
@@ -192,10 +200,6 @@
 .code-action-button__icon {
   width: 1rem;
   height: 1rem;
-}
-
-.code-copy-button__label {
-  white-space: nowrap;
 }
 
 .code-copy-button__icon--spin {
@@ -267,6 +271,11 @@
 
 .code-explanation-panel > :last-child {
   margin-bottom: 0;
+}
+
+.code-explanation-panel__empty {
+  color: #6b7280;
+  font-style: italic;
 }
 
 .prose pre code {
@@ -439,9 +448,9 @@
 .dark .code-edit-link:focus-visible,
 .dark .code-toggle-button:hover,
 .dark .code-toggle-button:focus-visible {
-  border-color: #4d5664;
-  background: #333337;
-  color: #ffffff;
+  border-color: #246b78;
+  background: #163941;
+  color: #b8f4f5;
 }
 
 .dark .code-copy-button[data-state="copied"] {
@@ -460,6 +469,10 @@
   border-color: #343a46;
   background: #202124;
   color: #d1d5db;
+}
+
+.dark .code-explanation-panel__empty {
+  color: #94a3b8;
 }
 
 .dark .prose pre code {
@@ -508,16 +521,27 @@
   .code-copy-button,
   .code-explain-button,
   .code-action-button {
-    min-width: 2.35rem;
-    height: 2.35rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
   }
 
   .code-copy-button {
-    padding-inline: 0.5rem;
+    width: 2.75rem;
+    padding: 0;
   }
 
   .code-explain-button {
-    width: 2.35rem;
+    min-width: 2.75rem;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .code-action-button {
+    width: 2.75rem;
+  }
+
+  .code-edit-link {
+    width: 2rem;
     padding: 0;
     font-size: 0;
   }

@@ -10,7 +10,6 @@ import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
 interface RecentWritingSectionProps {
-  excludeSlugs?: string[];
   initialPosts: Post[];
 }
 
@@ -26,13 +25,12 @@ function postTopics(post: Post) {
   return Array.from(new Set([post.category, ...post.tags].filter(Boolean))).slice(0, 2);
 }
 
-export default function RecentWritingSection({ excludeSlugs = [], initialPosts }: RecentWritingSectionProps) {
+export default function RecentWritingSection({ initialPosts }: RecentWritingSectionProps) {
   const { language, localePath, t } = useLanguage();
-  const excluded = new Set(excludeSlugs);
-  const posts = usePublishedPosts(initialPosts)
-    .filter((post) => post.status === "published" && !excluded.has(post.slug))
+  const posts = usePublishedPosts(initialPosts, 6)
+    .filter((post) => post.status === "published")
     .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime())
-    .slice(0, 3);
+    .slice(0, 6);
 
   if (!posts.length) return null;
 
@@ -58,7 +56,7 @@ export default function RecentWritingSection({ excludeSlugs = [], initialPosts }
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {posts.map((post, index) => {
             const author = team[post.author];
             const displayAuthor = getAuthorDisplay(author, post);

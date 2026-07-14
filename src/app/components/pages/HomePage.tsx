@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowRight, Boxes, GitPullRequest, Layers, Sparkles, Zap } from "lucide-react";
 import type { Post, Series } from "@/app/data";
 import { useLanguage } from "@/app/components/LanguageProvider";
-import FeaturedPostsCarousel from "@/app/components/FeaturedPostsCarousel";
 import RecentWritingSection from "@/app/components/RecentWritingSection";
 import { homepageConfig } from "@/config/homepage";
 
@@ -17,11 +16,6 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
   const { t, language, localePath } = useLanguage();
 
   const technologyItems = homepageConfig.technologies;
-  const sortedPosts = [...initialPosts]
-    .filter((post) => post.status === "published")
-    .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime());
-  const featuredPosts = sortedPosts.slice(0, 3);
-
   const renderSeriesIcon = (iconName: string) => {
     switch (iconName) {
       case "zap":
@@ -95,15 +89,25 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
         </div>
       </section>
 
-      <FeaturedPostsCarousel posts={featuredPosts} />
-
-      <RecentWritingSection
-        excludeSlugs={featuredPosts.map((post) => post.slug)}
-        initialPosts={initialPosts}
-      />
+      <RecentWritingSection initialPosts={initialPosts} />
 
       <section className="theme-surface border-t theme-border py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-8 flex items-end justify-between gap-4 border-b theme-border pb-4">
+            <div>
+              <span className="block text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
+                Collections
+              </span>
+              <h2 className="mt-1 text-3xl font-bold text-slate-950 dark:text-white">Series</h2>
+            </div>
+            <Link
+              href={localePath("/blog/series")}
+              className="inline-flex items-center gap-1 text-sm font-bold text-teal-700 transition-colors hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200"
+            >
+              {t("viewAll")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
           <div className="grid gap-6 md:grid-cols-3">
             {seriesItems.map((item) => (
               <Link

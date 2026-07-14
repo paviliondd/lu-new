@@ -33,6 +33,37 @@ GOOGLE_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/google/callback
 The OAuth callback must always redirect using `NEXT_PUBLIC_SITE_URL` as the public base,
 never the container host name or internal Docker address.
 
+## ECR image flow
+
+The production workflow builds the application once on GitHub Actions and pushes the
+same image with three tags:
+
+- `latest`: newest verified production build.
+- `production`: stable mutable production tag.
+- the full Git commit SHA: immutable deployment tag.
+
+Production jobs run only for the `main` branch, including manual workflow dispatches.
+
+The VPS deploy uses the commit SHA tag, pulls it from ECR, and starts Compose with
+`--no-build`. This guarantees that the deployed container matches the verified CI
+commit and prevents the older VPS CPU from rebuilding Sharp locally.
+
+The Docker dependency stages pin Sharp `0.33.5`, remove Next's nested Sharp `0.34.5`,
+and fail the image build unless Payload and Next resolve the same compatible native
+package. Sharp WASM is not used because the VPS CPU does not provide WebAssembly SIMD.
+
+The SSH step synchronizes `origin/main` before invoking `scripts/deploy.sh`. This
+prevents a running copy of the old deploy script from resetting and replacing itself
+halfway through its own execution.
+
+Manual source builds remain available by leaving `DEPLOY_IMAGE_SOURCE` unset (the
+default is `build`). Registry deployments must set:
+
+```bash
+APP_IMAGE=ACCOUNT.dkr.ecr.REGION.amazonaws.com/REPOSITORY:COMMIT_SHA
+DEPLOY_IMAGE_SOURCE=registry
+```
+
 Admin URL:
 
 ```text

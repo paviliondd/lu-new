@@ -1,5 +1,5 @@
 import path from "node:path";
-import { rename } from "node:fs/promises";
+import { access, rename } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
@@ -8,6 +8,7 @@ import sharp from "sharp";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const mediaDimensionsCache = new Map<string, { height: number; width: number }>();
 
 const publicRead = () => true;
 const authenticated = ({ req: { user } }: { req: { user?: unknown } }) => Boolean(user);
@@ -113,6 +114,37 @@ const postEditor: RichTextAdapterProvider<
     lexicalEditor,
   } = await import("@payloadcms/richtext-lexical");
 
+  const codeBlock = CodeBlock({
+    defaultLanguage: "bash",
+    languages: {
+      bash: "Bash",
+      javascript: "JavaScript",
+      typescript: "TypeScript",
+      json: "JSON",
+      yaml: "YAML",
+      dockerfile: "Dockerfile",
+      sql: "SQL",
+      python: "Python",
+      terraform: "Terraform",
+      mermaid: "Mermaid",
+    },
+    fieldOverrides: {
+      labels: {
+        singular: "Code block",
+        plural: "Code blocks",
+      },
+    },
+  });
+  codeBlock.fields.push({
+    name: "explanation",
+    type: "textarea",
+    label: "Code explanation",
+    admin: {
+      description: "Optional explanation shown below the code block on the frontend.",
+      rows: 6,
+    },
+  });
+
   return lexicalEditor({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures,
@@ -144,27 +176,7 @@ const postEditor: RichTextAdapterProvider<
       EXPERIMENTAL_TableFeature(),
       BlocksFeature({
         blocks: [
-          CodeBlock({
-            defaultLanguage: "bash",
-            languages: {
-              bash: "Bash",
-              javascript: "JavaScript",
-              typescript: "TypeScript",
-              json: "JSON",
-              yaml: "YAML",
-              dockerfile: "Dockerfile",
-              sql: "SQL",
-              python: "Python",
-              terraform: "Terraform",
-              mermaid: "Mermaid",
-            },
-            fieldOverrides: {
-              labels: {
-                singular: "Code block",
-                plural: "Code blocks",
-              },
-            },
-          }),
+          codeBlock,
           terminalBlock,
           noteBlock,
           fileTreeBlock,
@@ -197,6 +209,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function mediaAdminThumbnail({ doc }: { doc: Record<string, unknown> }) {
+  if (typeof doc.url === "string" && doc.url) return doc.url;
+
   const sizes = isRecord(doc.sizes) ? doc.sizes : {};
   for (const sizeName of ["card", "article", "og"]) {
     const size = isRecord(sizes[sizeName]) ? sizes[sizeName] : null;
@@ -204,7 +218,6 @@ function mediaAdminThumbnail({ doc }: { doc: Record<string, unknown> }) {
     if (typeof size?.filename === "string" && size.filename) return mediaFileURL(size.filename);
   }
 
-  if (typeof doc.url === "string" && doc.url) return doc.url;
   if (typeof doc.filename === "string" && doc.filename) return mediaFileURL(doc.filename);
 
   return null;
@@ -215,33 +228,137 @@ function extensionFromFilename(value: unknown) {
   return extension || "";
 }
 
-function mediaURLForRenamedFile(currentURL: unknown, nextFilename: string) {
-  if (typeof currentURL === "string" && currentURL.startsWith("/uploads/imported/")) {
-    return `/uploads/imported/${nextFilename}`;
-  }
-
-  if (typeof currentURL === "string" && currentURL.startsWith("/uploads/")) {
-    return `/uploads/${nextFilename}`;
-  }
-
-  return mediaFileURL(nextFilename);
+function mimeTypeFromFilename(value: string) {
+  const extension = path.extname(value).toLowerCase();
+  return ({
+    ".avif": "image/avif",
+    ".gif": "image/gif",
+    ".jpeg": "image/jpeg",
+    ".jpg": "image/jpeg",
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".webp": "image/webp",
+  } as Record<string, string>)[extension] || "";
 }
 
-function mediaDiskPath(uploadDir: string, filename: string, url: unknown) {
-  if (typeof url === "string" && url.startsWith("/uploads/imported/")) {
-    return path.join(uploadDir, "imported", filename);
+function normalizeLegacyMediaSizes(data: Record<string, unknown>) {
+  if (!("sizes" in data)) return;
+  if (!isRecord(data.sizes)) {
+    delete data.sizes;
+    return;
   }
 
-  return path.join(uploadDir, filename);
+  const normalizedSizes: Record<string, unknown> = {};
+  for (const [sizeName, sizeValue] of Object.entries(data.sizes)) {
+    if (!isRecord(sizeValue)) continue;
+    const sizeFilename = typeof sizeValue.filename === "string" ? sizeValue.filename.trim() : "";
+    if (!sizeFilename) continue;
+
+    const inheritedMimeType = typeof data.mimeType === "string" ? data.mimeType : "";
+    normalizedSizes[sizeName] = {
+      ...sizeValue,
+      filename: sizeFilename,
+      mimeType:
+        (typeof sizeValue.mimeType === "string" && sizeValue.mimeType) ||
+        inheritedMimeType ||
+        mimeTypeFromFilename(sizeFilename),
+      url:
+        (typeof sizeValue.url === "string" && sizeValue.url) ||
+        mediaFileURL(sizeFilename),
+    };
+  }
+
+  if (Object.keys(normalizedSizes).length > 0) data.sizes = normalizedSizes;
+  else delete data.sizes;
 }
 
-async function safeRenameFile(from: string, to: string) {
+async function fileExists(filePath: string) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveMediaDiskFile(uploadDir: string, mediaFilename: string, urlHints: unknown[] = []) {
+  const rootPath = path.join(uploadDir, mediaFilename);
+  const importedPath = path.join(uploadDir, "imported", mediaFilename);
+  const importedFirst = urlHints.some(
+    (value) => typeof value === "string" && value.startsWith("/uploads/imported/")
+  );
+  const candidates = importedFirst
+    ? [{ filePath: importedPath, imported: true }, { filePath: rootPath, imported: false }]
+    : [{ filePath: rootPath, imported: false }, { filePath: importedPath, imported: true }];
+
+  for (const candidate of candidates) {
+    if (await fileExists(candidate.filePath)) return candidate;
+  }
+
+  throw new APIError(
+    `Không tìm thấy tệp media "${mediaFilename}" trong uploads hoặc uploads/imported.`,
+    404,
+    null,
+    true
+  );
+}
+
+function mediaURLForStorage(nextFilename: string, imported: boolean) {
+  return imported ? `/uploads/imported/${nextFilename}` : mediaFileURL(nextFilename);
+}
+
+async function hydrateLegacyMediaDocument(doc: Record<string, unknown>) {
+  const mediaFilename = typeof doc.filename === "string" ? doc.filename : "";
+  if (!mediaFilename) return doc;
+
+  const uploadDir = path.resolve(dirname, "../public/uploads");
+  const mediaFile = await resolveMediaDiskFile(uploadDir, mediaFilename, [
+    doc.url,
+    doc.thumbnailURL,
+  ]);
+  const mediaURL = mediaURLForStorage(mediaFilename, mediaFile.imported);
+  const hydratedDoc: Record<string, unknown> = {
+    ...doc,
+    url: mediaURL,
+    thumbnailURL: mediaURL,
+  };
+
+  const hasDimensions = Number(doc.width) > 0 && Number(doc.height) > 0;
+  if (hasDimensions) return hydratedDoc;
+
+  let dimensions = mediaDimensionsCache.get(mediaFile.filePath);
+  if (!dimensions) {
+    const metadata = await sharp(mediaFile.filePath).metadata();
+    if (metadata.width && metadata.height) {
+      dimensions = { width: metadata.width, height: metadata.height };
+      mediaDimensionsCache.set(mediaFile.filePath, dimensions);
+    }
+  }
+
+  return dimensions ? { ...hydratedDoc, ...dimensions } : hydratedDoc;
+}
+
+async function renameMediaFile(from: string, to: string) {
   if (from === to) return;
+  if (await fileExists(to)) {
+    throw new APIError(
+      `Tệp media "${path.basename(to)}" đã tồn tại. Vui lòng chọn SEO filename khác.`,
+      409,
+      null,
+      true
+    );
+  }
+
   try {
     await rename(from, to);
   } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    if (code !== "ENOENT") throw error;
+    const reason = (error as NodeJS.ErrnoException).code || "storage error";
+    throw new APIError(
+      `Không thể đổi tên tệp media "${path.basename(from)}" (${reason}). Vui lòng kiểm tra quyền thư mục uploads.`,
+      500,
+      null,
+      true
+    );
   }
 }
 
@@ -346,9 +463,25 @@ const Media: CollectionConfig = {
     mimeTypes: ["image/*"],
   },
   hooks: {
+    afterRead: [
+      async ({ doc, findMany, req }) => {
+        if (findMany || !isRecord(doc)) return doc;
+
+        try {
+          return await hydrateLegacyMediaDocument(doc);
+        } catch (error) {
+          req.payload.logger.warn(
+            { id: doc.id, filename: doc.filename, error },
+            "Unable to hydrate legacy media preview metadata",
+          );
+          return doc;
+        }
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data;
+        normalizeLegacyMediaSizes(data);
         if (!data.filenameSlug && data.alt) data.filenameSlug = slugify(String(data.alt));
         if (data.filenameSlug) data.filenameSlug = slugify(String(data.filenameSlug));
         return data;
@@ -365,8 +498,7 @@ const Media: CollectionConfig = {
         if (!desiredSlug || !extension || !currentFilename) return doc;
 
         const nextFilename = `${desiredSlug}${extension.toLowerCase()}`;
-        const nextURL = mediaURLForRenamedFile(doc.url, nextFilename);
-        if (currentFilename === nextFilename && doc.filenameSlug === desiredSlug && doc.url === nextURL) return doc;
+        if (currentFilename === nextFilename && doc.filenameSlug === desiredSlug) return doc;
 
         if (currentFilename !== nextFilename) {
           const existing = await req.payload.find({
@@ -383,7 +515,7 @@ const Media: CollectionConfig = {
 
           if (existing.totalDocs > 0) {
             throw new APIError(
-              `A media file named "${nextFilename}" already exists. Choose a different SEO filename.`,
+              `Tệp media "${nextFilename}" đã tồn tại. Vui lòng chọn SEO filename khác.`,
               409,
               null,
               true
@@ -392,63 +524,82 @@ const Media: CollectionConfig = {
         }
 
         const uploadDir = path.resolve(dirname, "../public/uploads");
-        const currentPath = mediaDiskPath(uploadDir, currentFilename, doc.url);
-        const nextPath = mediaDiskPath(uploadDir, nextFilename, doc.url);
-        await safeRenameFile(currentPath, nextPath);
-
-        let nextSizes: Record<string, unknown> | null = null;
-        if (doc.sizes && typeof doc.sizes === "object") {
-          nextSizes = {};
-          for (const [sizeName, sizeValue] of Object.entries(doc.sizes as Record<string, Record<string, unknown>>)) {
-            if (!sizeValue || typeof sizeValue !== "object") continue;
-            const sizeFilename = typeof sizeValue.filename === "string" ? sizeValue.filename : "";
-            const sizeExtension = extensionFromFilename(sizeFilename) || extension;
-            const nextSizeFilename = `${desiredSlug}-${sizeName}${sizeExtension.toLowerCase()}`;
-            const nextSizeURL = mediaURLForRenamedFile(sizeValue.url, nextSizeFilename);
-            if (sizeFilename) {
-              await safeRenameFile(
-                mediaDiskPath(uploadDir, sizeFilename, sizeValue.url),
-                mediaDiskPath(uploadDir, nextSizeFilename, sizeValue.url)
-              );
-            }
-            nextSizes[sizeName] = {
-              ...sizeValue,
-              filename: nextSizeFilename,
-              url: nextSizeURL,
-            };
-          }
-        }
-
+        const renamedFiles: Array<{ from: string; to: string }> = [];
         try {
+          const currentFile = await resolveMediaDiskFile(uploadDir, currentFilename, [
+            doc.url,
+            doc.thumbnailURL,
+            previousDoc?.url,
+            previousDoc?.thumbnailURL,
+          ]);
+          const nextPath = path.join(path.dirname(currentFile.filePath), nextFilename);
+          await renameMediaFile(currentFile.filePath, nextPath);
+          renamedFiles.push({ from: currentFile.filePath, to: nextPath });
+
+          const nextSizes: Record<string, unknown> = {};
+          if (isRecord(doc.sizes)) {
+            for (const [sizeName, sizeValue] of Object.entries(doc.sizes)) {
+              if (!isRecord(sizeValue)) continue;
+              const sizeFilename = typeof sizeValue.filename === "string" ? sizeValue.filename : "";
+              if (!sizeFilename) continue;
+
+              const sizeExtension = extensionFromFilename(sizeFilename) || extension;
+              const nextSizeFilename = `${desiredSlug}-${sizeName}${sizeExtension.toLowerCase()}`;
+              const currentSizeFile = await resolveMediaDiskFile(uploadDir, sizeFilename, [
+                sizeValue.url,
+                doc.thumbnailURL,
+              ]);
+              const nextSizePath = path.join(path.dirname(currentSizeFile.filePath), nextSizeFilename);
+              await renameMediaFile(currentSizeFile.filePath, nextSizePath);
+              renamedFiles.push({ from: currentSizeFile.filePath, to: nextSizePath });
+              nextSizes[sizeName] = {
+                ...sizeValue,
+                filename: nextSizeFilename,
+                url: mediaURLForStorage(nextSizeFilename, currentSizeFile.imported),
+              };
+            }
+          }
+
           const updateData: Record<string, unknown> = {
             filename: nextFilename,
             filenameSlug: desiredSlug,
-            url: nextURL,
+            url: mediaURLForStorage(nextFilename, currentFile.imported),
           };
-          if (nextSizes) updateData.sizes = nextSizes;
+          if (Object.keys(nextSizes).length > 0) updateData.sizes = nextSizes;
 
-          await req.payload.update({
+          const normalizedDoc = await req.payload.update({
             collection: "media",
             id: doc.id,
             data: updateData,
             overrideAccess: true,
+            req,
             context: {
               mediaRenameInProgress: true,
             },
           });
+
+          req.payload.logger.info(
+            { id: doc.id, operation, filename: nextFilename },
+            "Media filename normalized"
+          );
+          return normalizedDoc;
         } catch (error) {
+          for (const operation of renamedFiles.reverse()) {
+            try {
+              await rename(operation.to, operation.from);
+            } catch (rollbackError) {
+              req.payload.logger.error(
+                { id: doc.id, operation, rollbackError },
+                "Unable to roll back media filename after update failure"
+              );
+            }
+          }
           req.payload.logger.error(
             { id: doc.id, filename: nextFilename, error },
             "Unable to persist normalized media filename"
           );
           throw error;
         }
-
-        req.payload.logger.info(
-          { id: doc.id, operation, filename: nextFilename },
-          "Media filename normalized"
-        );
-        return doc;
       },
     ],
   },
@@ -465,7 +616,7 @@ const Media: CollectionConfig = {
         if (!value) return true;
         return /^[a-z0-9-]+$/.test(String(value))
           ? true
-          : "Use lowercase letters, numbers, and hyphens only.";
+          : "Chỉ dùng chữ thường không dấu, số và dấu gạch ngang.";
       },
     },
     {

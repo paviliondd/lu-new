@@ -12,6 +12,7 @@ interface RichTextRendererProps {
   copiedLabel: string;
   closeExplainLabel: string;
   explainLabel: string;
+  noExplanationLabel: string;
   failedLabel: string;
   showLessLabel: string;
   showMoreLabel: string;
@@ -28,6 +29,7 @@ export default function RichTextRenderer({
   copiedLabel,
   closeExplainLabel,
   explainLabel,
+  noExplanationLabel,
   failedLabel,
   showLessLabel,
   showMoreLabel,
@@ -43,6 +45,7 @@ export default function RichTextRenderer({
         copiedLabel={copiedLabel}
         closeExplainLabel={closeExplainLabel}
         explainLabel={explainLabel}
+        noExplanationLabel={noExplanationLabel}
         failedLabel={failedLabel}
         showLessLabel={showLessLabel}
         showMoreLabel={showMoreLabel}

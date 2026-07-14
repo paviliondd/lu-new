@@ -12,12 +12,16 @@ RUN apt-get update \
 FROM base AS deps
 
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --include=optional
+RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
+  && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
+  && node -e "const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = require('sharp/package.json').version; const nested = nextRequire('sharp/package.json').version; if (direct !== '0.33.5' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.33.5')"
 
 FROM base AS deps-prod
 
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --include=optional
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --include=optional \
+  && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
+  && node -e "const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = require('sharp/package.json').version; const nested = nextRequire('sharp/package.json').version; if (direct !== '0.33.5' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.33.5')"
 
 FROM base AS builder
 

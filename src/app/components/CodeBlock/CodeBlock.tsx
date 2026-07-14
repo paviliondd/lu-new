@@ -12,6 +12,7 @@ interface CodeBlockProps {
   copiedLabel: string;
   failedLabel: string;
   explainLabel: string;
+  noExplanationLabel: string;
   closeExplainLabel: string;
   showMoreLabel: string;
   showLessLabel: string;
@@ -101,6 +102,7 @@ export default function CodeBlock({
   copiedLabel,
   failedLabel,
   explainLabel,
+  noExplanationLabel,
   closeExplainLabel,
   showMoreLabel,
   showLessLabel,
@@ -114,14 +116,11 @@ export default function CodeBlock({
     const cleanupHandlers: Array<() => void> = [];
     const codeBlocks = Array.from(container.querySelectorAll("pre"));
 
-    const copyButtonContents = (state: "idle" | "loading" | "copied" | "failed") => {
-      const label = document.createElement("span");
-      label.className = "code-copy-button__label";
-      label.textContent = state === "copied" ? copiedLabel : state === "failed" ? failedLabel : copyLabel;
-      return [createCopyIcon(state), label];
-    };
+    function copyButtonContents(state: "idle" | "loading" | "copied" | "failed") {
+      return [createCopyIcon(state)];
+    }
 
-    codeBlocks.forEach((preElement) => {
+    codeBlocks.forEach((preElement, blockIndex) => {
       const codeElement = preElement.querySelector("code");
       if (!(preElement instanceof HTMLElement) || !(codeElement instanceof HTMLElement)) return;
 
@@ -135,8 +134,19 @@ export default function CodeBlock({
       const rawCode = codeElement.textContent || "";
       ensureLineNumbers(preElement, codeElement, rawCode);
       const totalLines = lineCount(rawCode);
-      const isLong = totalLines > 16;
-      const explanationElement = findExplanation(preElement, codeElement);
+      const isLong = totalLines > 10;
+      let explanationElement = findExplanation(preElement, codeElement);
+      const createdExplanation = !explanationElement;
+      if (!explanationElement) {
+        explanationElement = document.createElement("aside");
+        explanationElement.dataset.codeExplanation = "";
+        explanationElement.dataset.empty = "true";
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "code-explanation-panel__empty";
+        emptyMessage.textContent = noExplanationLabel;
+        explanationElement.append(emptyMessage);
+      }
+      explanationElement.id ||= `code-explanation-${blockIndex}`;
       let explanationMarker: Comment | null = null;
       let dialog: HTMLDialogElement | null = null;
       let restoreMarker: Comment | null = null;
@@ -196,8 +206,8 @@ export default function CodeBlock({
       explainButton.type = "button";
       explainButton.className = "code-explain-button";
       explainButton.setAttribute("aria-expanded", "false");
+      explainButton.setAttribute("aria-controls", explanationElement.id);
       explainButton.setAttribute("title", explainLabel);
-      explainButton.hidden = !explanationElement;
       explainButton.append(createActionIcon("explain"), document.createTextNode(explainLabel));
 
       const copyButton = document.createElement("button");
@@ -213,7 +223,12 @@ export default function CodeBlock({
 
         copyButton.dataset.state = "loading";
         copyButton.replaceChildren(...copyButtonContents("loading"));
-        const copied = await copyText(rawCode);
+        let copied = false;
+        try {
+          copied = await copyText(rawCode);
+        } catch {
+          copied = false;
+        }
         copyButton.dataset.state = copied ? "copied" : "failed";
         copyButton.setAttribute("aria-label", copied ? copiedLabel : failedLabel);
         copyButton.setAttribute("title", copied ? copiedLabel : failedLabel);
@@ -280,7 +295,6 @@ export default function CodeBlock({
       };
 
       const handleExplainToggle = () => {
-        if (!explanationElement) return;
         const expanded = explainButton.getAttribute("aria-expanded") !== "true";
         explainButton.setAttribute("aria-expanded", String(expanded));
         explainButton.setAttribute("title", expanded ? closeExplainLabel : explainLabel);
@@ -320,13 +334,13 @@ export default function CodeBlock({
         );
       };
 
-      if (explanationElement) {
+      if (!createdExplanation) {
         explanationMarker = document.createComment("code-explanation-restore");
         explanationElement.parentNode?.insertBefore(explanationMarker, explanationElement);
-        explanationElement.hidden = true;
-        explanationElement.dataset.visible = "false";
-        explanationElement.classList.add("code-explanation-panel");
       }
+      explanationElement.hidden = true;
+      explanationElement.dataset.visible = "false";
+      explanationElement.classList.add("code-explanation-panel");
 
       toggleButton.addEventListener("click", handleToggle);
       expandButton.addEventListener("click", handleExpand);
@@ -337,7 +351,7 @@ export default function CodeBlock({
       toolbar.append(expandButton, explainButton, copyButton, closeButton);
       header.append(identity, toolbar);
       shell.append(header, preElement);
-      if (explanationElement) shell.append(explanationElement);
+      shell.append(explanationElement);
       shell.append(footer);
       heightFrame = window.requestAnimationFrame(updateExpandedHeight);
 
@@ -352,10 +366,12 @@ export default function CodeBlock({
         closeExpanded();
         document.documentElement.classList.remove("code-modal-open");
         shell.parentNode?.insertBefore(preElement, shell);
-        if (explanationElement && explanationMarker) {
-          explanationElement.hidden = false;
-          delete explanationElement.dataset.visible;
-          explanationElement.classList.remove("code-explanation-panel");
+        explanationElement.hidden = false;
+        delete explanationElement.dataset.visible;
+        explanationElement.classList.remove("code-explanation-panel");
+        if (createdExplanation) {
+          explanationElement.remove();
+        } else if (explanationMarker) {
           explanationMarker.parentNode?.insertBefore(explanationElement, explanationMarker);
           explanationMarker.remove();
         }
@@ -379,6 +395,7 @@ export default function CodeBlock({
     expandLabel,
     explainLabel,
     failedLabel,
+    noExplanationLabel,
     showLessLabel,
     showMoreLabel,
   ]);

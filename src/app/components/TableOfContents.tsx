@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { List } from "lucide-react";
 
 export interface TocHeading {
@@ -36,6 +36,7 @@ export default function TableOfContents({
 }: TableOfContentsProps) {
   const [tocHeadings, setTocHeadings] = useState<TocHeading[]>(headings);
   const [activeId, setActiveId] = useState("");
+  const linkRefs = useRef(new Map<string, HTMLAnchorElement>());
 
   useEffect(() => {
     const contentElement = document.querySelector(contentSelector);
@@ -44,7 +45,9 @@ export default function TableOfContents({
     }
 
     const seenIds = new Set<string>();
-    const headingElements = Array.from(contentElement.querySelectorAll("h2, h3"));
+    const headingElements = Array.from(
+      contentElement.querySelectorAll<HTMLElement>("h2, h3"),
+    );
     const headingList = headingElements
       .map((element, index) => {
         const text = element.textContent?.trim() || "";
@@ -73,16 +76,12 @@ export default function TableOfContents({
       setTocHeadings(headingList.length ? headingList : headings);
     });
 
-    let ticking = false;
-
     const updateActiveHeading = () => {
-      const readingLine = window.scrollY + 160;
+      const readingLine = 160;
       let currentId = headingElements[0]?.id ?? "";
 
       headingElements.forEach((heading) => {
-        const absoluteTop =
-          (heading as HTMLElement).getBoundingClientRect().top + window.scrollY;
-        if (absoluteTop <= readingLine) {
+        if (heading.getBoundingClientRect().top <= readingLine) {
           currentId = heading.id;
         }
       });
@@ -98,28 +97,35 @@ export default function TableOfContents({
       setActiveId(currentId);
     };
 
-    const handleScroll = () => {
-      if (ticking) return;
-
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        updateActiveHeading();
-        ticking = false;
-      });
-    };
-
+    const observer = new IntersectionObserver(updateActiveHeading, {
+      rootMargin: "-160px 0px -50% 0px",
+      threshold: [0, 1],
+    });
+    headingElements.forEach((heading) => observer.observe(heading));
     updateActiveHeading();
-    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.cancelAnimationFrame(updateFrame);
-      window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
     };
   }, [contentSelector, headings]);
 
+  useEffect(() => {
+    if (!activeId) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      linkRefs.current.get(activeId)?.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeId]);
+
   return (
     <aside className="order-3 hidden w-64 xl:block">
-      <div className="sticky top-24 rounded-xl border theme-border bg-white/70 p-4 backdrop-blur dark:bg-slate-900/45">
+      <div className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-xl border theme-border bg-white/70 p-4 backdrop-blur dark:bg-slate-900/45">
         <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
           <List className="h-4 w-4 text-teal-700 dark:text-emerald-300" />
           {title}
@@ -132,6 +138,10 @@ export default function TableOfContents({
             {tocHeadings.map((heading) => (
               <li key={heading.id}>
                 <a
+                  ref={(element) => {
+                    if (element) linkRefs.current.set(heading.id, element);
+                    else linkRefs.current.delete(heading.id);
+                  }}
                   href={`#${heading.id}`}
                   aria-current={activeId === heading.id ? "location" : undefined}
                   onClick={(event) => {

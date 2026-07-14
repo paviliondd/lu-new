@@ -2,29 +2,40 @@
 
 type CopyIconState = "idle" | "loading" | "copied" | "failed";
 
+const clipboardTimeoutMs = 800;
+
 export async function copyText(value: string) {
+  let timeoutId: number | undefined;
   try {
     if (window.isSecureContext && navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-      return true;
+      const clipboardResult = await Promise.race([
+        navigator.clipboard.writeText(value).then(() => true),
+        new Promise<false>((resolve) => {
+          timeoutId = window.setTimeout(() => resolve(false), clipboardTimeoutMs);
+        }),
+      ]);
+      if (clipboardResult) return true;
     }
   } catch {
     // Fall through to the textarea fallback below.
+  } finally {
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
   }
 
+  let textarea: HTMLTextAreaElement | null = null;
   try {
-    const textarea = document.createElement("textarea");
+    textarea = document.createElement("textarea");
     textarea.value = value;
     textarea.setAttribute("readonly", "");
     textarea.style.position = "fixed";
     textarea.style.opacity = "0";
     document.body.appendChild(textarea);
     textarea.select();
-    const copied = document.execCommand("copy");
-    textarea.remove();
-    return copied;
+    return document.execCommand("copy");
   } catch {
     return false;
+  } finally {
+    textarea?.remove();
   }
 }
 

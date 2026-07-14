@@ -18,6 +18,7 @@ env:
 jobs:
   verify:
     name: Verify
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -112,6 +113,7 @@ jobs:
         run: |
           docker buildx build \
             --file ./Dockerfile \
+            --tag "${IMAGE}:latest" \
             --tag "${IMAGE}:production" \
             --tag "${IMAGE}:${GITHUB_SHA}" \
             --push \
@@ -133,11 +135,16 @@ jobs:
           script: |
             set -e
             cd "${{ secrets.APP_DIR }}"
+            git fetch origin main
+            git reset --hard origin/main
             export AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}"
             export AWS_ECR_REGISTRY="${{ secrets.AWS_ECR_REGISTRY }}"
             export AWS_ECR_REPOSITORY="${{ secrets.AWS_ECR_REPOSITORY }}"
             export AWS_DEFAULT_REGION="$(printf '%s' "$AWS_DEFAULT_REGION" | tr -d '\r\n')"
             export AWS_ECR_REGISTRY="$(printf '%s' "$AWS_ECR_REGISTRY" | tr -d '\r\n' | sed 's#/*$##')"
             export AWS_ECR_REPOSITORY="$(printf '%s' "$AWS_ECR_REPOSITORY" | tr -d '\r\n' | sed 's#^/*##; s#/*$##')"
-            export APP_IMAGE="${AWS_ECR_REGISTRY}/${AWS_ECR_REPOSITORY}:production"
+            export APP_IMAGE="${AWS_ECR_REGISTRY}/${AWS_ECR_REPOSITORY}:${{ github.sha }}"
+            export DEPLOY_IMAGE_SOURCE="registry"
+            export DEPLOY_BRANCH="main"
+            export DEPLOY_SKIP_GIT_SYNC="true"
             bash scripts/deploy.sh

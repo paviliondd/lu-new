@@ -15,6 +15,8 @@ interface RichTextRendererProps {
   failedLabel: string;
   showLessLabel: string;
   showMoreLabel: string;
+  expandLabel: string;
+  closeExpandedLabel: string;
   legacyAssetOrigins?: string[];
 }
 
@@ -29,10 +31,12 @@ export default function RichTextRenderer({
   failedLabel,
   showLessLabel,
   showMoreLabel,
+  expandLabel,
+  closeExpandedLabel,
   legacyAssetOrigins,
 }: RichTextRendererProps) {
   return (
-    <div className="article-content prose max-w-none overflow-hidden dark:prose-invert">
+    <div className="article-content article-content--reading prose mx-auto w-full max-w-[900px] dark:prose-invert">
       <CodeBlock
         contentKey={contentKey}
         copyLabel={copyLabel}
@@ -42,6 +46,8 @@ export default function RichTextRenderer({
         failedLabel={failedLabel}
         showLessLabel={showLessLabel}
         showMoreLabel={showMoreLabel}
+        expandLabel={expandLabel}
+        closeExpandedLabel={closeExpandedLabel}
       />
       <MermaidRenderer contentKey={contentKey} />
       <ArticleImageEnhancer
@@ -49,7 +55,7 @@ export default function RichTextRenderer({
         contentKey={contentKey}
         legacyAssetOrigins={legacyAssetOrigins}
       />
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div className="article-content__body" dangerouslySetInnerHTML={{ __html: content }} />
     </div>
   );
 }

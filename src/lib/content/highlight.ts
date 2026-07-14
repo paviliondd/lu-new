@@ -1,46 +1,13 @@
 import "server-only";
 
 import { load } from "cheerio";
-import { codeToHtml, type BundledLanguage } from "shiki";
-
-const languageAliases: Record<string, BundledLanguage> = {
-  console: "bash",
-  docker: "dockerfile",
-  dockerfile: "dockerfile",
-  hcl: "hcl",
-  html: "html",
-  js: "javascript",
-  jsx: "jsx",
-  nginx: "nginx",
-  py: "python",
-  python: "python",
-  shell: "bash",
-  sh: "bash",
-  sql: "sql",
-  terraform: "terraform",
-  tf: "terraform",
-  ts: "typescript",
-  tsx: "tsx",
-  yml: "yaml",
-  yaml: "yaml",
-  json: "json",
-  bash: "bash",
-  aws: "bash",
-  awscli: "bash",
-};
-
-function rawLanguage(className = "") {
-  return className.match(/language-([a-z0-9-]+)/i)?.[1]?.toLowerCase() || "text";
-}
-
-function codeLanguage(className = ""): BundledLanguage {
-  const language = rawLanguage(className);
-  return languageAliases[language] || (language as BundledLanguage);
-}
-
-function shouldShowLanguage(language: BundledLanguage) {
-  return String(language).toLowerCase() !== "text";
-}
+import { codeToHtml } from "shiki";
+import {
+  formatCodeSource,
+  languageFromClass,
+  normalizeLanguage,
+  shouldShowLanguage,
+} from "@/app/components/CodeBlock/syntax";
 
 export async function highlightCodeBlocks(html: string) {
   if (!html || !html.includes("<pre")) return html;
@@ -50,13 +17,17 @@ export async function highlightCodeBlocks(html: string) {
 
   for (const block of blocks) {
     const pre = $(block);
-    if (pre.hasClass("shiki")) continue;
-
     const code = pre.find("code").first();
     if (!code.length) continue;
 
-    const originalLanguage = rawLanguage(code.attr("class"));
-    const source = code.text();
+    const originalLanguage = (
+      languageFromClass(code.attr("class")) ||
+      code.attr("data-language") ||
+      pre.attr("data-language") ||
+      languageFromClass(pre.attr("class")) ||
+      "text"
+    ).toLowerCase();
+    const source = formatCodeSource(code.text(), originalLanguage);
 
     if (originalLanguage === "mermaid") {
       pre.addClass("mermaid-source");
@@ -65,16 +36,27 @@ export async function highlightCodeBlocks(html: string) {
       continue;
     }
 
-    const language = codeLanguage(code.attr("class"));
+    const language = normalizeLanguage(originalLanguage);
 
     try {
-      const highlighted = await codeToHtml(source, {
-        lang: language,
-        themes: {
-          light: "github-light",
-          dark: "github-dark",
-        },
-      });
+      let highlighted: string;
+      try {
+        highlighted = await codeToHtml(source, {
+          lang: language,
+          themes: {
+            light: "github-light",
+            dark: "dark-plus",
+          },
+        });
+      } catch {
+        highlighted = await codeToHtml(source, {
+          lang: "text",
+          themes: {
+            light: "github-light",
+            dark: "dark-plus",
+          },
+        });
+      }
       const fragment = load(highlighted, null, false);
       const highlightedPre = fragment("pre");
       const fileName =
@@ -84,6 +66,10 @@ export async function highlightCodeBlocks(html: string) {
         code.attr("data-filename");
 
       highlightedPre.addClass("code-block");
+      highlightedPre.attr("data-line-numbers", "true");
+      highlightedPre.find(".line").each((index, line) => {
+        fragment(line).attr("data-line", String(index + 1));
+      });
       if (fileName) highlightedPre.attr("data-filename", fileName);
       if (shouldShowLanguage(language)) highlightedPre.attr("data-language", String(language).toLowerCase());
       pre.replaceWith(highlightedPre);

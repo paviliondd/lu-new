@@ -2,6 +2,33 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-14
+
+Added:
+
+- Added reusable code syntax helpers for language aliases, safe JSON formatting, and metadata normalization.
+- Added non-copyable line numbers, filename and language metadata, localized fullscreen controls, and an accessible native fullscreen dialog for code blocks.
+- Added regression tests for language aliases, JSON formatting, invalid JSON preservation, and code labels.
+
+Changed:
+
+- Redesigned article typography around an 18px body, 1.75 line height, a 900px article column, and a 72-character reading measure.
+- Allowed article images, tables, diagrams, and code blocks to expand up to 1100px without causing mobile overflow.
+- Updated code highlighting to use Shiki with GitHub Light and VS Code Dark Plus themes, with plaintext fallback for unsupported languages.
+- Refactored code block controls into focused copy, expand, syntax, and interaction modules while preserving sanitized HTML rendering for Payload and legacy Markdown content.
+
+Fixed:
+
+- Fixed inconsistent article widths across desktop and tablet breakpoints.
+- Fixed code copy status icons, long-code expansion animation, fullscreen focus restoration, and localized expand/close labels.
+- Fixed rich-text figure layout so terminal, file-tree, code, and image blocks remain vertically structured.
+
+Never break:
+
+- Payload CMS editor, collections, database schema, APIs, and rich-text content output.
+- Legacy Markdown/local content fallback and existing article code blocks.
+- Vietnamese default locale, English locale, responsive design, dark/light theme, comments, OAuth, and SEO rendering.
+
 ## 2026-07-13
 
 Added:

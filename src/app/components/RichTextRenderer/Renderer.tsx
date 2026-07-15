@@ -109,7 +109,7 @@ export default function RichTextRenderer({
   };
 
   return (
-    <div className="article-content article-content--reading prose mx-auto w-full max-w-[1100px] dark:prose-invert">
+    <div className="article-content article-content--reading prose mx-auto w-full max-w-[820px] dark:prose-invert">
       <MermaidRenderer contentKey={contentKey} />
       <ArticleImageEnhancer
         assetBase={assetBase}

@@ -68,7 +68,10 @@ export default function CodeBlock({
       data-expanded={expanded}
       aria-label={filename || language || "Code"}
     >
-      <header className="code-card__header">
+      <header
+        className="code-card__header"
+        data-compact={!filename && !language ? "true" : undefined}
+      >
         <div className="code-card__identity">
           {filename && (
             <span className="code-card__filename" title={filename}>

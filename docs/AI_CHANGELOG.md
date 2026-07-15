@@ -7,7 +7,7 @@ Every Codex code or workflow change must update this file.
 Added:
 
 - Added server-rendered React code blocks with stable filename/language metadata, non-copyable line numbers, inline long-code expansion, and exact-source downloads when a filename is available.
-- Added an accessible copy control using the requested `⧉` symbol, visible processing/success/error labels, Clipboard API fallback, focus restoration, and screen-reader live status.
+- Added an accessible icon-only copy control with visible processing/success/error icons, Clipboard API fallback, focus restoration, tooltip text, and screen-reader live status.
 - Added per-media article fit (`cover` or `contain`) and focal-point support, including a migration that keeps existing media on `cover` and sets the `ansible-inventory` hero to `contain`.
 - Added a mobile table-of-contents disclosure and regression tests for exact code copying, clipboard fallback, download sanitization, initial server markup, media schema coverage, and double-escaped excerpts.
 
@@ -17,18 +17,21 @@ Changed:
 - Updated article layout to separate reading, title/metadata, and media/code widths; balanced long titles; constrained prose to 72 characters; and improved mobile typography and metadata wrapping.
 - Changed article heroes to a stable 2:1 container with accurate responsive sizes, preload behavior, configurable object fit, focal positioning, and descriptive media alt text when available.
 - Normalized CMS excerpts before rendering so encoded ellipses and ampersands display as readable text without `dangerouslySetInnerHTML`.
+- Reduced the article and blog-list desktop containers, compacted the code toolbar, and kept 44px mobile touch targets for code actions.
+- Kept featured-post autoplay while changing the row below it to show the next three distinct posts instead of repeating the three active slides.
 
 Fixed:
 
-- Aligned the article title, hero, nested CMS headings, media, tables, Mermaid diagrams, and code blocks to the same 72ch reading column as paragraph content, removing the unintended desktop width breakout.
+- Aligned the article title, hero, nested CMS headings, media, tables, Mermaid diagrams, and code blocks to the same fixed 46rem reading column, avoiding font-relative `ch` expansion on large headings.
+- Removed the duplicated featured-post thumbnail controls from the blog page and excluded the three following cards from the paginated post grid.
 
 Removed:
 
-- Removed the effect-driven code wrapper/modal enhancer, icon-only copy output, clipboard timeout race, and obsolete expand-button module.
+- Removed the effect-driven code wrapper/modal enhancer, clipboard timeout race, and obsolete expand-button module.
 
 Validated:
 
-- Passed `npm run lint`, `npm test` (23 tests), `npx tsc --noEmit`, and `npm run build` on Next.js 16.2.7.
+- Passed `npm run lint`, `npm test` (24 tests), `npx tsc --noEmit`, and `npm run build` on Next.js 16.2.7.
 
 Never break:
 

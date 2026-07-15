@@ -27,11 +27,9 @@
 }
 
 .article-content__body > .code-card {
-  position: relative;
-  left: 50%;
-  width: var(--article-wide-width, 100%);
-  max-width: 1100px;
-  transform: translateX(-50%);
+  width: min(100%, var(--article-wide-width, 100%));
+  max-width: var(--article-column-width);
+  margin-inline: auto;
 }
 
 .article-content__body > figure .code-card {
@@ -43,13 +41,18 @@
   position: relative;
   z-index: 2;
   display: flex;
-  min-height: 3.25rem;
+  min-height: 2.75rem;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.5rem;
   border-bottom: 1px solid #d0d7de;
   background: #eef1f4;
-  padding: 0.35rem 0.55rem 0.35rem 1rem;
+  padding: 0.125rem 0.3rem 0.125rem 0.75rem;
+}
+
+.code-card__header[data-compact="true"] {
+  justify-content: flex-end;
+  padding-left: 0.3rem;
 }
 
 .code-card__identity {
@@ -100,13 +103,14 @@
 .code-card__actions {
   display: flex;
   flex: 0 0 auto;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-end;
   gap: 0.4rem;
   margin-left: auto;
 }
 
 .code-copy-control {
+  position: relative;
   display: grid;
   justify-items: end;
   gap: 0.35rem;
@@ -116,7 +120,7 @@
 .code-download-button,
 .code-card__toggle {
   display: inline-flex;
-  min-height: 2.75rem;
+  min-height: 2.5rem;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
@@ -137,8 +141,11 @@
 }
 
 .code-copy-button {
-  min-width: 8.8rem;
-  padding: 0 0.75rem;
+  position: relative;
+  display: grid;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  padding: 0;
 }
 
 .code-download-button {
@@ -177,20 +184,37 @@
   outline-offset: 2px;
 }
 
-.code-copy-button__symbol {
-  display: inline-grid;
-  width: 1.1rem;
-  place-items: center;
-  font-family: var(--font-mono);
-  font-size: 1.05rem;
-  font-weight: 800;
+.code-copy-button::after {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 6;
+  border: 1px solid #343a46;
+  border-radius: 0.45rem;
+  background: #161b22;
+  padding: 0.35rem 0.5rem;
+  color: #f8fafc;
+  content: attr(data-tooltip);
+  font-size: 0.68rem;
+  font-weight: 650;
   line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.2rem);
+  transition: opacity 120ms ease, transform 120ms ease;
+  white-space: nowrap;
+}
+
+.code-copy-button:hover::after,
+.code-copy-button:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .code-copy-button__icon,
 .code-action-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 1.05rem;
+  height: 1.05rem;
   flex: 0 0 auto;
 }
 
@@ -199,7 +223,16 @@
 }
 
 .code-copy-control__error {
-  max-width: 21rem;
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 5;
+  width: max-content;
+  max-width: min(21rem, calc(100vw - 3rem));
+  border: 1px solid #f0a8a8;
+  border-radius: 0.5rem;
+  background: #ffebe9;
+  padding: 0.45rem 0.55rem;
   color: #a40e26;
   font-size: 0.72rem;
   font-weight: 600;
@@ -411,6 +444,8 @@
 }
 
 .dark .code-copy-control__error {
+  border-color: #da3633;
+  background: #4c1b1f;
   color: #ffb4b0;
 }
 
@@ -453,12 +488,15 @@
   }
 
   .code-card__header {
-    flex-wrap: wrap;
-    gap: 0.45rem 0.75rem;
-    padding: 0.55rem 0.65rem;
+    gap: 0.4rem;
+    padding: 0.25rem 0.35rem;
   }
 
-  .code-card__identity {
+  .code-card__header:not([data-compact="true"]) {
+    flex-wrap: wrap;
+  }
+
+  .code-card__header:not([data-compact="true"]) .code-card__identity {
     width: 100%;
   }
 
@@ -471,15 +509,10 @@
     display: none;
   }
 
-  .code-card__actions {
+  .code-card__header:not([data-compact="true"]) .code-card__actions {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: flex-end;
     margin-left: 0;
-  }
-
-  .code-copy-control {
-    order: -1;
-    justify-items: start;
   }
 
   .code-copy-button,
@@ -488,12 +521,12 @@
   }
 
   .code-copy-button {
-    min-width: 8.5rem;
+    width: 2.75rem;
+    min-width: 2.75rem;
   }
 
   .code-copy-control__error {
-    grid-column: 1 / -1;
-    max-width: min(20rem, calc(100vw - 3.5rem));
+    max-width: min(20rem, calc(100vw - 2.5rem));
     text-align: left;
   }
 

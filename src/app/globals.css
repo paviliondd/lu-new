@@ -23,6 +23,7 @@
 }
 
 html {
+  --article-column-width: 46rem;
   --site-bg: #f7f8fb;
   --site-surface: #ffffff;
   --site-panel: #f1f5f9;
@@ -162,15 +163,16 @@ iframe {
 }
 
 .article-content {
-  --article-reading-width: 72ch;
-  --article-wide-width: min(100%, var(--article-reading-width));
+  --article-reading-width: var(--article-column-width);
+  --article-wide-width: min(100%, var(--article-column-width));
   font-size: 1.125rem;
   letter-spacing: 0.004em;
   line-height: 1.75;
 }
 
 .article-reading-frame {
-  width: min(100%, 72ch);
+  width: 100%;
+  max-width: var(--article-column-width);
   margin-inline: auto;
   font-size: 1.125rem;
 }
@@ -302,7 +304,7 @@ iframe {
 }
 .article-content figure {
   display: block;
-  max-width: 1100px;
+  max-width: var(--article-column-width);
   margin: 2rem auto 2.5rem;
   overflow: visible;
   text-align: center;
@@ -312,11 +314,15 @@ iframe {
 .article-content__body > img,
 .article-content__body > p:has(> img:only-child),
 .article-content__body > p:has(> a:only-child > img:only-child) {
-  position: relative;
-  left: 50%;
   width: var(--article-wide-width);
-  max-width: 1100px;
-  transform: translateX(-50%);
+  max-width: var(--article-column-width);
+  margin-inline: auto;
+}
+
+.article-content__body :where(figure, table, .mermaid-shell) {
+  width: min(100%, var(--article-column-width));
+  max-width: var(--article-column-width);
+  margin-inline: auto;
 }
 
 .article-content figcaption {

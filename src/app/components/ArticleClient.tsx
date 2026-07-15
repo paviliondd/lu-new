@@ -100,7 +100,7 @@ export default function ArticleClient({
 
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
-      <div className="mx-auto max-w-[1480px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         {/* Breadcrumb */}
         <div className="mb-7 flex min-w-0 items-center gap-1 overflow-hidden text-xs theme-muted">
           <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("home")}</Link>
@@ -113,7 +113,7 @@ export default function ArticleClient({
         </div>
 
         {/* 3-Column Layout */}
-        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,980px)_16.5rem] xl:justify-center 2xl:grid-cols-[minmax(0,1100px)_16.5rem] 2xl:gap-10">
+        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,820px)_15rem] xl:justify-center">
           
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
@@ -201,7 +201,7 @@ export default function ArticleClient({
           </div>
 
           {/* Center Column: Main Content */}
-          <div className="order-1 mx-auto min-w-0 w-full max-w-[1100px] space-y-8">
+          <div className="order-1 mx-auto min-w-0 w-full max-w-[820px] space-y-8">
             {/* Header info */}
             <header className="article-reading-frame space-y-5">
               <h1 className="article-title break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">
@@ -248,7 +248,7 @@ export default function ArticleClient({
                   alt={post.heroImage?.alt || post.title}
                   fill
                   preload
-                  sizes="(min-width: 768px) 800px, calc(100vw - 32px)"
+                  sizes="(min-width: 768px) 736px, calc(100vw - 32px)"
                   className={post.heroImage?.fit === "contain" ? "object-contain" : "object-cover"}
                   style={{
                     objectPosition: post.heroImage?.focalPoint
@@ -262,7 +262,7 @@ export default function ArticleClient({
                   alt=""
                   fill
                   preload
-                  sizes="(min-width: 768px) 800px, calc(100vw - 32px)"
+                  sizes="(min-width: 768px) 736px, calc(100vw - 32px)"
                   className="object-contain opacity-90"
                 />
               )}
@@ -278,7 +278,7 @@ export default function ArticleClient({
             {children}
 
             {relatedPosts.length > 0 && (
-              <section className="mx-auto w-full max-w-[960px] pt-10">
+              <section className="article-reading-frame pt-10">
                 <div className="mb-4 flex items-center justify-between border-b theme-border pb-3">
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
                     {t("relatedPosts")}
@@ -305,7 +305,7 @@ export default function ArticleClient({
               </section>
             )}
 
-            <div className="mx-auto w-full max-w-[960px]">
+            <div className="article-reading-frame">
               <Comments postSlug={post.slug} initialComments={initialComments} />
             </div>
           </div>

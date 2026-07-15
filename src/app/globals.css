@@ -163,10 +163,16 @@ iframe {
 
 .article-content {
   --article-reading-width: 72ch;
-  --article-wide-width: min(1100px, calc(100vw - 2rem));
+  --article-wide-width: min(100%, var(--article-reading-width));
   font-size: 1.125rem;
   letter-spacing: 0.004em;
   line-height: 1.75;
+}
+
+.article-reading-frame {
+  width: min(100%, 72ch);
+  margin-inline: auto;
+  font-size: 1.125rem;
 }
 
 .article-title {
@@ -186,6 +192,12 @@ iframe {
   width: min(100%, var(--article-reading-width));
   margin-right: auto;
   margin-left: auto;
+}
+
+/* Payload and legacy HTML may wrap headings, so do not rely on direct-child selectors. */
+.article-content__body :where(h1, h2, h3, h4) {
+  width: min(100%, var(--article-reading-width));
+  margin-inline: auto;
 }
 
 .article-content--reading.prose h1,
@@ -377,18 +389,6 @@ iframe {
   cursor: zoom-in;
 }
 
-@media (min-width: 640px) {
-  .article-content--reading {
-    --article-wide-width: min(1100px, calc(100vw - 3rem));
-  }
-}
-
-@media (min-width: 1280px) and (max-width: 1535px) {
-  .article-content--reading {
-    --article-wide-width: min(980px, calc(100vw - 3rem));
-  }
-}
-
 .image-lightbox {
   position: fixed;
   inset: 0;
@@ -453,6 +453,10 @@ iframe {
 }
 
 @media (max-width: 640px) {
+  .article-reading-frame {
+    font-size: 1.0625rem;
+  }
+
   .article-content {
     font-size: 1.0625rem;
     line-height: 1.72;

@@ -18,13 +18,17 @@ Changed:
 - Changed article heroes to a stable 2:1 container with accurate responsive sizes, preload behavior, configurable object fit, focal positioning, and descriptive media alt text when available.
 - Normalized CMS excerpts before rendering so encoded ellipses and ampersands display as readable text without `dangerouslySetInnerHTML`.
 
+Fixed:
+
+- Aligned the article title, hero, nested CMS headings, media, tables, Mermaid diagrams, and code blocks to the same 72ch reading column as paragraph content, removing the unintended desktop width breakout.
+
 Removed:
 
 - Removed the effect-driven code wrapper/modal enhancer, icon-only copy output, clipboard timeout race, and obsolete expand-button module.
 
 Validated:
 
-- Passed `npm run lint`, `npm test` (22 tests), `npx tsc --noEmit`, and `npm run build` on Next.js 16.2.7.
+- Passed `npm run lint`, `npm test` (23 tests), `npx tsc --noEmit`, and `npm run build` on Next.js 16.2.7.
 
 Never break:
 

@@ -73,3 +73,22 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.match(carousel, /w-full shrink-0/);
   assert.doesNotMatch(carousel, /min-w-full/);
 });
+
+test("article title, hero, headings, media, and code share the reading column", async () => {
+  const [articleClient, globalStyles] = await Promise.all([
+    readFile("src/app/components/ArticleClient.tsx", "utf8"),
+    readFile("src/app/globals.css", "utf8"),
+  ]);
+
+  assert.match(articleClient, /<header className="article-reading-frame/);
+  assert.match(articleClient, /className="article-reading-frame relative aspect-\[2\/1\]/);
+  assert.match(globalStyles, /\.article-reading-frame\s*\{[\s\S]*width: min\(100%, 72ch\)/);
+  assert.match(
+    globalStyles,
+    /--article-wide-width: min\(100%, var\(--article-reading-width\)\)/,
+  );
+  assert.match(
+    globalStyles,
+    /\.article-content__body :where\(h1, h2, h3, h4\)[\s\S]*margin-inline: auto/,
+  );
+});

@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Eye, Clock, Link2, ChevronRight } from "lucide-react";
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import PostListRow from "./PostListRow";
-import TableOfContents, { TocHeading } from "./TableOfContents";
+import TableOfContents, { MobileTableOfContents, TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
 import AuthorAvatar from "./AuthorAvatar";
 import Comments from "./Comments";
-import RichTextRenderer from "./RichTextRenderer";
 import type { CommentRecord } from "@/lib/comments/types";
 
 interface ArticleClientProps {
@@ -19,8 +18,7 @@ interface ArticleClientProps {
   headings: TocHeading[];
   relatedPosts: Post[];
   initialComments?: CommentRecord[];
-  assetBase?: string;
-  legacyAssetOrigins?: string[];
+  children: ReactNode;
 }
 
 function formatPostDate(value: string, language: string) {
@@ -48,8 +46,7 @@ export default function ArticleClient({
   headings,
   relatedPosts,
   initialComments = [],
-  assetBase,
-  legacyAssetOrigins,
+  children,
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
   const [copied, setCopied] = useState(false);
@@ -116,7 +113,7 @@ export default function ArticleClient({
         </div>
 
         {/* 3-Column Layout */}
-        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,900px)_16.5rem] xl:justify-center 2xl:grid-cols-[minmax(0,1100px)_16.5rem] 2xl:gap-10">
+        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,980px)_16.5rem] xl:justify-center 2xl:grid-cols-[minmax(0,1100px)_16.5rem] 2xl:gap-10">
           
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
@@ -206,11 +203,11 @@ export default function ArticleClient({
           {/* Center Column: Main Content */}
           <div className="order-1 mx-auto min-w-0 w-full max-w-[1100px] space-y-8">
             {/* Header info */}
-            <div className="mx-auto w-full max-w-[900px] space-y-5">
-              <h1 className="break-words text-3xl font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+            <header className="mx-auto w-full max-w-[960px] space-y-5">
+              <h1 className="article-title max-w-[960px] break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">
                 {post.title}
               </h1>
-              <p className="theme-muted text-base font-medium leading-8 sm:text-lg">
+              <p className="theme-muted max-w-[70ch] text-[1.0625rem] font-medium leading-[1.65] sm:text-lg">
                 {post.description}
               </p>
               
@@ -219,10 +216,10 @@ export default function ArticleClient({
                 <div className="flex min-w-0 items-center gap-3">
                   <AuthorAvatar author={author} post={post} className="h-10 w-10" />
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-950 dark:text-white">
+                    <p className="text-sm font-bold text-slate-950 dark:text-white">
                       {post.authorName || author.name}
                     </p>
-                    <p className="truncate text-xs theme-muted">
+                    <p className="text-xs theme-muted">
                       {language === "en" ? author.role_en || author.role : author.role}
                     </p>
                   </div>
@@ -242,50 +239,46 @@ export default function ArticleClient({
                   </span>
                 </div>
               </div>
-            </div>
+            </header>
 
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border theme-border bg-slate-100 shadow-inner dark:bg-slate-900 sm:aspect-[21/9]">
-              {post.seo.ogImage ? (
+            <div className="relative aspect-[2/1] w-full overflow-hidden rounded-2xl border theme-border bg-slate-100 shadow-sm dark:bg-slate-900">
+              {post.heroImage?.src || post.seo.ogImage ? (
                 <CustomImage
-                  src={post.seo.ogImage}
-                  alt={post.title}
+                  src={post.heroImage?.src || post.seo.ogImage}
+                  alt={post.heroImage?.alt || post.title}
                   fill
-                  sizes="(min-width: 1024px) 980px, 100vw"
-                  className="object-cover"
-                  fetchPriority="high"
+                  preload
+                  sizes="(min-width: 1536px) 1100px, (min-width: 1280px) 980px, calc(100vw - 48px)"
+                  className={post.heroImage?.fit === "contain" ? "object-contain" : "object-cover"}
+                  style={{
+                    objectPosition: post.heroImage?.focalPoint
+                      ? `${post.heroImage.focalPoint.x}% ${post.heroImage.focalPoint.y}%`
+                      : "50% 50%",
+                  }}
                 />
               ) : (
                 <CustomImage
                   src="/images/linuxunity-placeholder.svg"
-                  alt={post.title}
+                  alt=""
                   fill
-                  sizes="(min-width: 1024px) 980px, 100vw"
-                  className="object-cover opacity-90"
-                  fetchPriority="high"
+                  preload
+                  sizes="(min-width: 1536px) 1100px, (min-width: 1280px) 980px, calc(100vw - 48px)"
+                  className="object-contain opacity-90"
                 />
               )}
             </div>
 
-            {/* Prose Content Rendering */}
-            <RichTextRenderer
-              assetBase={assetBase}
-              content={post.content}
-              contentKey={`${post.slug}-${language}`}
-              copyLabel={t("copyCode")}
-              copiedLabel={t("copiedCode")}
-              closeExplainLabel={t("closeExplainCode")}
-              explainLabel={t("explainCode")}
-              noExplanationLabel={t("noCodeExplanation")}
-              failedLabel={t("copyFailed")}
-              showLessLabel={t("showLessCode")}
-              showMoreLabel={t("showMoreCode")}
-              expandLabel={t("expandCode")}
-              closeExpandedLabel={t("closeExpandedCode")}
-              legacyAssetOrigins={legacyAssetOrigins}
+            <MobileTableOfContents
+              headings={headings}
+              title={t("toc")}
+              emptyLabel={t("noToc")}
             />
 
+            {/* Sanitized rich text is parsed on the server and passed through this client shell. */}
+            {children}
+
             {relatedPosts.length > 0 && (
-              <section className="mx-auto w-full max-w-[900px] pt-10">
+              <section className="mx-auto w-full max-w-[960px] pt-10">
                 <div className="mb-4 flex items-center justify-between border-b theme-border pb-3">
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
                     {t("relatedPosts")}
@@ -312,7 +305,7 @@ export default function ArticleClient({
               </section>
             )}
 
-            <div className="mx-auto w-full max-w-[900px]">
+            <div className="mx-auto w-full max-w-[960px]">
               <Comments postSlug={post.slug} initialComments={initialComments} />
             </div>
           </div>

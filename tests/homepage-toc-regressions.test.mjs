@@ -31,6 +31,8 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
   assert.match(toc, /block: "nearest"/);
   assert.match(toc, /behavior: "smooth"/);
   assert.match(toc, /sticky top-24 max-h-\[calc\(100vh-6rem\)\] overflow-y-auto/);
+  assert.match(toc, /MobileTableOfContents/);
+  assert.match(toc, /xl:hidden/);
   assert.doesNotMatch(toc, /addEventListener\("scroll"/);
 });
 

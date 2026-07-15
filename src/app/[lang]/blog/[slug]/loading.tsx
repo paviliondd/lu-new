@@ -15,7 +15,7 @@ export default function ArticleLoading() {
             </div>
           </div>
 
-          <div className="aspect-[21/9] w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
+          <div className="aspect-[2/1] w-full animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-800" />
 
           <div className="space-y-3">
             <div className="h-4 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />

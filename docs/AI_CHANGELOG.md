@@ -2,6 +2,34 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-15
+
+Added:
+
+- Added server-rendered React code blocks with stable filename/language metadata, non-copyable line numbers, inline long-code expansion, and exact-source downloads when a filename is available.
+- Added an accessible copy control using the requested `⧉` symbol, visible processing/success/error labels, Clipboard API fallback, focus restoration, and screen-reader live status.
+- Added per-media article fit (`cover` or `contain`) and focal-point support, including a migration that keeps existing media on `cover` and sets the `ansible-inventory` hero to `contain`.
+- Added a mobile table-of-contents disclosure and regression tests for exact code copying, clipboard fallback, download sanitization, initial server markup, media schema coverage, and double-escaped excerpts.
+
+Changed:
+
+- Replaced post-hydration `<pre>` DOM enhancement with sanitized server-side HTML parsing that renders code toolbars in the initial React tree.
+- Updated article layout to separate reading, title/metadata, and media/code widths; balanced long titles; constrained prose to 72 characters; and improved mobile typography and metadata wrapping.
+- Changed article heroes to a stable 2:1 container with accurate responsive sizes, preload behavior, configurable object fit, focal positioning, and descriptive media alt text when available.
+- Normalized CMS excerpts before rendering so encoded ellipses and ampersands display as readable text without `dangerouslySetInnerHTML`.
+
+Removed:
+
+- Removed the effect-driven code wrapper/modal enhancer, icon-only copy output, clipboard timeout race, and obsolete expand-button module.
+
+Validated:
+
+- Passed `npm run lint`, `npm test` (22 tests), `npx tsc --noEmit`, and `npm run build` on Next.js 16.2.7.
+
+Never break:
+
+- Sanitized Payload and legacy fallback article rendering, bilingual routing, table of contents, Mermaid diagrams, image lightbox, comments, related posts, dark/light themes, and keyboard accessibility.
+
 ## 2026-07-14
 
 Added:

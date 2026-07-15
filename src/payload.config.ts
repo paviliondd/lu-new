@@ -136,6 +136,14 @@ const postEditor: RichTextAdapterProvider<
     },
   });
   codeBlock.fields.push({
+    name: "filename",
+    type: "text",
+    label: "Filename",
+    admin: {
+      description: "Optional filename shown in the toolbar and used for code download.",
+    },
+  });
+  codeBlock.fields.push({
     name: "explanation",
     type: "textarea",
     label: "Code explanation",
@@ -617,6 +625,19 @@ const Media: CollectionConfig = {
         return /^[a-z0-9-]+$/.test(String(value))
           ? true
           : "Chỉ dùng chữ thường không dấu, số và dấu gạch ngang.";
+      },
+    },
+    {
+      name: "fit",
+      type: "select",
+      label: "Article image fit",
+      defaultValue: "cover",
+      options: [
+        { label: "Cover (photos and decorative images)", value: "cover" },
+        { label: "Contain (diagrams, screenshots, logos, text)", value: "contain" },
+      ],
+      admin: {
+        description: "Controls how this media fills the article hero. Existing media defaults to cover.",
       },
     },
     {

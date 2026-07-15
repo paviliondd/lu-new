@@ -5,9 +5,10 @@ import config from "@payload-config";
 import { marked } from "marked";
 import { getPayload, type Where } from "payload";
 import { FilterXSS } from "xss";
-import { allPosts, series as fileSeries, team, type Post, type Series } from "@/app/data";
+import { allPosts, series as fileSeries, team, type HeroMedia, type Post, type Series } from "@/app/data";
 import { localizePost, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
+import { normalizeExcerpt } from "@/lib/content/excerpt";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 import { cachedJson } from "@/lib/server/redis-cache";
 import { getLocalPostViews } from "@/lib/views/store";
@@ -88,6 +89,25 @@ function mediaUrl(value: unknown): string | null {
   return asString(sized?.url) || asString(doc.url) || null;
 }
 
+function mediaDetails(value: unknown): HeroMedia | null {
+  const doc = relationDoc(value);
+  const src = mediaUrl(value);
+  if (!doc || !src) return null;
+
+  const focalX = asNumber(doc.focalX, Number.NaN);
+  const focalY = asNumber(doc.focalY, Number.NaN);
+
+  return {
+    src,
+    alt: asString(doc.alt),
+    fit: doc.fit === "contain" ? "contain" : "cover",
+    focalPoint:
+      Number.isFinite(focalX) && Number.isFinite(focalY)
+        ? { x: focalX, y: focalY }
+        : undefined,
+  };
+}
+
 function escapeHtml(value: unknown) {
   return asString(value)
     .replace(/&/g, "&amp;")
@@ -141,13 +161,14 @@ async function renderLexicalContent(value: unknown) {
         Code: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
           const fields = node.fields || {};
           const language = escapeHtml(fields.language || "text").toLowerCase();
+          const filename = escapeHtml(fields.filename).trim();
           const explanation = escapeHtml(fields.explanation).trim();
           const explanationPanel = explanation
             ? `<aside data-code-explanation><p>${explanation
                 .replace(/\n{2,}/g, "</p><p>")
                 .replace(/\n/g, "<br>")}</p></aside>`
             : "";
-          return `<pre data-language="${language}"><code class="language-${language}">${escapeHtml(
+          return `<pre data-language="${language}"${filename ? ` data-filename="${filename}"` : ""}><code class="language-${language}">${escapeHtml(
             fields.code
           )}</code></pre>${explanationPanel}`;
         },
@@ -228,6 +249,7 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
   const seo = relationDoc(doc.seo);
   const coverImage = mediaUrl(doc.coverImage);
   const seoImage = mediaUrl(seo?.ogImage) || coverImage;
+  const heroImage = mediaDetails(seo?.ogImage) || mediaDetails(doc.coverImage);
   const contentVi = await renderPostContent(doc.contentRichVi, doc.contentVi);
   const contentEn = await renderPostContent(doc.contentRichEn, doc.contentEn || doc.contentVi);
   const publishedAt = asString(doc.publishedAt) || asString(doc.createdAt) || new Date().toISOString();
@@ -235,8 +257,8 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
   const fallbackAuthor = team[authorSlug] || team.nhatnghia;
   const titleVi = asString(doc.titleVi, fallback?.title || slug);
   const titleEn = asString(doc.titleEn, titleVi);
-  const descriptionVi = asString(doc.excerptVi, fallback?.description || "");
-  const descriptionEn = asString(doc.excerptEn, descriptionVi);
+  const descriptionVi = normalizeExcerpt(doc.excerptVi, fallback?.description || "");
+  const descriptionEn = normalizeExcerpt(doc.excerptEn, descriptionVi);
   const seoTitleVi = asString(seo?.titleVi, titleVi);
   const seoTitleEn = asString(seo?.titleEn, titleEn);
   const seoDescriptionVi = asString(seo?.descriptionVi, descriptionVi);
@@ -282,6 +304,7 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
         description: seoDescriptionVi,
         ogImage: seoImage,
       },
+      heroImage,
       internalLinking: {
         hubSlug: "",
         relatedServiceSlugs: [],
@@ -320,6 +343,15 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
         }
       : null,
     thumbnail: seoImage || coverImage || fallback?.seo.ogImage || null,
+    heroImage:
+      heroImage ||
+      (fallback?.seo.ogImage
+        ? {
+            src: fallback.seo.ogImage,
+            alt: "",
+            fit: "cover",
+          }
+        : null),
     comments: [],
     commentCount: 0,
     topicSlug: asString(doc.topicSlug, fallback?.topicSlug || ""),

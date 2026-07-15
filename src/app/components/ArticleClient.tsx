@@ -203,8 +203,8 @@ export default function ArticleClient({
           {/* Center Column: Main Content */}
           <div className="order-1 mx-auto min-w-0 w-full max-w-[1100px] space-y-8">
             {/* Header info */}
-            <header className="mx-auto w-full max-w-[960px] space-y-5">
-              <h1 className="article-title max-w-[960px] break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">
+            <header className="article-reading-frame space-y-5">
+              <h1 className="article-title break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">
                 {post.title}
               </h1>
               <p className="theme-muted max-w-[70ch] text-[1.0625rem] font-medium leading-[1.65] sm:text-lg">
@@ -241,14 +241,14 @@ export default function ArticleClient({
               </div>
             </header>
 
-            <div className="relative aspect-[2/1] w-full overflow-hidden rounded-2xl border theme-border bg-slate-100 shadow-sm dark:bg-slate-900">
+            <div className="article-reading-frame relative aspect-[2/1] overflow-hidden rounded-2xl border theme-border bg-slate-100 shadow-sm dark:bg-slate-900">
               {post.heroImage?.src || post.seo.ogImage ? (
                 <CustomImage
                   src={post.heroImage?.src || post.seo.ogImage}
                   alt={post.heroImage?.alt || post.title}
                   fill
                   preload
-                  sizes="(min-width: 1536px) 1100px, (min-width: 1280px) 980px, calc(100vw - 48px)"
+                  sizes="(min-width: 768px) 800px, calc(100vw - 32px)"
                   className={post.heroImage?.fit === "contain" ? "object-contain" : "object-cover"}
                   style={{
                     objectPosition: post.heroImage?.focalPoint
@@ -262,7 +262,7 @@ export default function ArticleClient({
                   alt=""
                   fill
                   preload
-                  sizes="(min-width: 1536px) 1100px, (min-width: 1280px) 980px, calc(100vw - 48px)"
+                  sizes="(min-width: 768px) 800px, calc(100vw - 32px)"
                   className="object-contain opacity-90"
                 />
               )}

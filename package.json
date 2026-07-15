@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "node .next/standalone/server.js",
     "lint": "eslint",
-    "test": "node --test",
+    "test": "node --import tsx --test",
     "payload": "payload",
     "payload:generate-importmap": "payload generate:importmap",
     "payload:generate-types": "payload generate:types",
@@ -26,6 +26,7 @@
     "cheerio": "^1.2.0",
     "fast-xml-parser": "^5.8.0",
     "gray-matter": "^4.0.3",
+    "html-react-parser": "^6.1.4",
     "lucide-react": "^1.17.0",
     "marked": "^18.0.5",
     "mermaid": "^11.16.0",
@@ -46,7 +47,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "happy-dom": "^20.10.6",
     "tailwindcss": "^4",
+    "tsx": "4.22.4",
     "typescript": "^5"
   }
 }

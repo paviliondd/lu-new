@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { List } from "lucide-react";
+import { ChevronDown, List } from "lucide-react";
 
 export interface TocHeading {
   id: string;
@@ -14,6 +14,38 @@ interface TableOfContentsProps {
   contentSelector?: string;
   emptyLabel: string;
   title: string;
+}
+
+export function MobileTableOfContents({ headings, emptyLabel, title }: TableOfContentsProps) {
+  return (
+    <details className="theme-card group rounded-xl border xl:hidden">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-bold text-slate-950 marker:content-none dark:text-slate-100">
+        <List className="h-4 w-4 text-teal-700 dark:text-emerald-300" aria-hidden="true" />
+        <span>{title}</span>
+        <ChevronDown className="ml-auto h-4 w-4 theme-muted transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <div className="border-t theme-border px-4 py-3">
+        {headings.length === 0 ? (
+          <p className="text-xs text-gray-400">{emptyLabel}</p>
+        ) : (
+          <ul className="space-y-2 border-l theme-border pl-4 text-sm">
+            {headings.map((heading) => (
+              <li key={heading.id}>
+                <a
+                  href={`#${heading.id}`}
+                  className={`block leading-6 text-slate-600 underline-offset-4 hover:text-teal-700 hover:underline focus-visible:rounded-sm dark:text-slate-300 dark:hover:text-emerald-300 ${
+                    heading.level === 3 ? "pl-3" : ""
+                  }`}
+                >
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </details>
+  );
 }
 
 function slugifyHeading(text: string, index: number) {

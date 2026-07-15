@@ -1,82 +1,102 @@
 "use client";
 
-type CopyIconState = "idle" | "loading" | "copied" | "failed";
+import { useEffect, useId, useRef, useState } from "react";
+import { Check, LoaderCircle, TriangleAlert } from "lucide-react";
+import { copyText } from "./copyText";
 
-const clipboardTimeoutMs = 800;
+export type CopyState = "idle" | "copying" | "success" | "error";
 
-export async function copyText(value: string) {
-  let timeoutId: number | undefined;
+export interface CopyButtonLabels {
+  idle: string;
+  copying: string;
+  success: string;
+  error: string;
+  errorHelp: string;
+}
+
+interface CopyCodeButtonProps {
+  code: string;
+  labels: CopyButtonLabels;
+  copy?: (value: string) => boolean | Promise<boolean>;
+  resetDelayMs?: number;
+}
+
+export async function resolveCopyState(
+  copy: (value: string) => boolean | Promise<boolean>,
+  code: string,
+): Promise<"success" | "error"> {
   try {
-    if (window.isSecureContext && navigator.clipboard?.writeText) {
-      const clipboardResult = await Promise.race([
-        navigator.clipboard.writeText(value).then(() => true),
-        new Promise<false>((resolve) => {
-          timeoutId = window.setTimeout(() => resolve(false), clipboardTimeoutMs);
-        }),
-      ]);
-      if (clipboardResult) return true;
-    }
+    return (await copy(code)) ? "success" : "error";
   } catch {
-    // Fall through to the textarea fallback below.
-  } finally {
-    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-  }
-
-  let textarea: HTMLTextAreaElement | null = null;
-  try {
-    textarea = document.createElement("textarea");
-    textarea.value = value;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.opacity = "0";
-    document.body.appendChild(textarea);
-    textarea.select();
-    return document.execCommand("copy");
-  } catch {
-    return false;
-  } finally {
-    textarea?.remove();
+    return "error";
   }
 }
 
-export function createCopyIcon(state: CopyIconState) {
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("fill", "none");
-  svg.setAttribute("stroke", "currentColor");
-  svg.setAttribute("stroke-width", "2");
-  svg.setAttribute("stroke-linecap", "round");
-  svg.setAttribute("stroke-linejoin", "round");
-  svg.setAttribute("aria-hidden", "true");
-  svg.classList.add("code-copy-button__icon");
+export default function CopyCodeButton({
+  code,
+  labels,
+  copy = copyText,
+  resetDelayMs = 2000,
+}: CopyCodeButtonProps) {
+  const [state, setState] = useState<CopyState>("idle");
+  const statusId = useId();
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copyingRef = useRef(false);
 
-  const appendPath = (pathData: string) => {
-    const path = document.createElementNS(ns, "path");
-    path.setAttribute("d", pathData);
-    svg.appendChild(path);
+  useEffect(
+    () => () => {
+      if (resetTimer.current) clearTimeout(resetTimer.current);
+    },
+    [],
+  );
+
+  const label = labels[state];
+  const handleCopy = async () => {
+    if (copyingRef.current) return;
+
+    copyingRef.current = true;
+    setState("copying");
+    const nextState = await resolveCopyState(copy, code);
+    copyingRef.current = false;
+    setState(nextState);
+
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => setState("idle"), resetDelayMs);
   };
 
-  if (state === "copied") {
-    appendPath("M20 6 9 17l-5-5");
-    return svg;
-  }
+  return (
+    <div className="code-copy-control">
+      <button
+        type="button"
+        className="code-copy-button"
+        data-state={state}
+        aria-label={label}
+        aria-describedby={statusId}
+        disabled={state === "copying"}
+        onClick={handleCopy}
+      >
+        {state === "idle" && (
+          <span className="code-copy-button__symbol" aria-hidden="true">
+            ⧉
+          </span>
+        )}
+        {state === "copying" && (
+          <LoaderCircle className="code-copy-button__icon code-copy-button__icon--spin" aria-hidden="true" />
+        )}
+        {state === "success" && <Check className="code-copy-button__icon" aria-hidden="true" />}
+        {state === "error" && <TriangleAlert className="code-copy-button__icon" aria-hidden="true" />}
+        <span className="code-copy-button__label">{label}</span>
+      </button>
 
-  if (state === "failed") {
-    appendPath("M12 8v4");
-    appendPath("M12 16h.01");
-    appendPath("M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z");
-    return svg;
-  }
+      <span id={statusId} className="sr-only" role="status" aria-live="polite">
+        {state === "idle" ? "" : label}
+      </span>
 
-  if (state === "loading") {
-    svg.setAttribute("stroke-dasharray", "8 4");
-    svg.classList.add("code-copy-button__icon--spin");
-    appendPath("M21 12a9 9 0 1 1-3-6.7");
-    return svg;
-  }
-
-  appendPath("M20 2H10a2 2 0 0 0-2 2v10");
-  appendPath("M4 8h10a2 2 0 0 1 2 2v10H6a2 2 0 0 1-2-2Z");
-  return svg;
+      {state === "error" && (
+        <span className="code-copy-control__error" role="note">
+          {labels.errorHelp}
+        </span>
+      )}
+    </div>
+  );
 }

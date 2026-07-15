@@ -43,25 +43,33 @@ test("legacy media fallback and rename guards stay wired", async () => {
   assert.match(route, /path\.win32\.basename/);
 });
 
-test("code block controls and carousel regression fixes stay present", async () => {
-  const [codeBlock, copyButton, renderer, payloadCms, carousel] = await Promise.all([
+test("code blocks render as stable React components with accessible copy and download", async () => {
+  const [codeBlock, copyButton, copyUtility, downloadButton, renderer, payloadCms, carousel] = await Promise.all([
     readFile("src/app/components/CodeBlock/CodeBlock.tsx", "utf8"),
     readFile("src/app/components/CodeBlock/CopyButton.tsx", "utf8"),
+    readFile("src/app/components/CodeBlock/copyText.ts", "utf8"),
+    readFile("src/app/components/CodeBlock/DownloadButton.tsx", "utf8"),
     readFile("src/app/components/RichTextRenderer/Renderer.tsx", "utf8"),
     readFile("src/lib/cms/payload.ts", "utf8"),
     readFile("src/app/components/FeaturedPostsCarousel.tsx", "utf8"),
   ]);
 
-  assert.match(codeBlock, /const isLong = totalLines > 10/);
-  assert.match(codeBlock, /aria-controls/);
-  assert.match(codeBlock, /noExplanationLabel/);
-  assert.match(codeBlock, /return \[createCopyIcon\(state\)\]/);
-  assert.doesNotMatch(codeBlock, /code-copy-button__label/);
-  assert.match(copyButton, /clipboardTimeoutMs/);
-  assert.match(copyButton, /Promise\.race/);
-  assert.match(renderer, /noExplanationLabel=\{noExplanationLabel\}/);
+  assert.match(codeBlock, /const isLong = totalLines > 20/);
+  assert.match(codeBlock, /<CopyCodeButton code=\{code\}/);
+  assert.match(codeBlock, /<DownloadCodeButton code=\{code\}/);
+  assert.doesNotMatch(codeBlock, /useEffect|querySelectorAll|createElement|showModal/);
+  assert.match(copyButton, /⧉/);
+  assert.match(copyButton, /aria-live="polite"/);
+  assert.match(copyButton, /disabled=\{state === "copying"\}/);
+  assert.match(copyButton, /clearTimeout\(resetTimer\.current\)/);
+  assert.doesNotMatch(copyUtility, /Promise\.race|clipboardTimeout/);
+  assert.match(copyUtility, /document\.execCommand\("copy"\)/);
+  assert.match(downloadButton, /sanitizeFilename/);
+  assert.match(renderer, /from "html-react-parser"/);
+  assert.match(renderer, /<CodeBlock/);
   assert.match(payloadCms, /Code:\s*\(\{ node \}/);
   assert.match(payloadCms, /data-code-explanation/);
+  assert.match(payloadCms, /data-filename/);
   assert.match(carousel, /w-full shrink-0/);
   assert.doesNotMatch(carousel, /min-w-full/);
 });

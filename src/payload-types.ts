@@ -164,6 +164,10 @@ export interface Media {
    * Lowercase filename without extension. Leave blank to generate from Alt.
    */
   filenameSlug?: string | null;
+  /**
+   * Controls how this media fills the article hero. Existing media defaults to cover.
+   */
+  fit?: ('cover' | 'contain') | null;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -510,6 +514,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   filenameSlug?: T;
+  fit?: T;
   alt?: T;
   updatedAt?: T;
   createdAt?: T;

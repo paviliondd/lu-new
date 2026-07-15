@@ -30,6 +30,18 @@ interface SeoMetadata {
   ogImage: string | null;
 }
 
+export type MediaFit = "cover" | "contain";
+
+export interface HeroMedia {
+  src: string;
+  alt: string;
+  fit: MediaFit;
+  focalPoint?: {
+    x: number;
+    y: number;
+  };
+}
+
 interface InternalLinkingMetadata {
   hubSlug: string;
   relatedServiceSlugs: string[];
@@ -67,6 +79,7 @@ export interface Post {
     title_en?: string;
   } | null;
   thumbnail?: string | null;
+  heroImage?: HeroMedia | null;
   comments?: unknown[];
   commentCount?: number;
   topicSlug: string;

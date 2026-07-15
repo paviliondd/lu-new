@@ -169,6 +169,14 @@ iframe {
   line-height: 1.75;
 }
 
+.article-title {
+  max-width: 60rem;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
 .article-content__body {
   width: 100%;
 }
@@ -377,7 +385,7 @@ iframe {
 
 @media (min-width: 1280px) and (max-width: 1535px) {
   .article-content--reading {
-    --article-wide-width: min(900px, calc(100vw - 3rem));
+    --article-wide-width: min(980px, calc(100vw - 3rem));
   }
 }
 
@@ -445,6 +453,11 @@ iframe {
 }
 
 @media (max-width: 640px) {
+  .article-content {
+    font-size: 1.0625rem;
+    line-height: 1.72;
+  }
+
   .prose ul,
   .prose ol {
     padding-left: 1.1rem;

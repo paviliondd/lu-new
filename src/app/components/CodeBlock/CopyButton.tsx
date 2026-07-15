@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Check, LoaderCircle, TriangleAlert } from "lucide-react";
+import { Check, Copy, LoaderCircle, TriangleAlert } from "lucide-react";
 import { copyText } from "./copyText";
 
 export type CopyState = "idle" | "copying" | "success" | "error";
@@ -70,22 +70,18 @@ export default function CopyCodeButton({
         type="button"
         className="code-copy-button"
         data-state={state}
+        data-tooltip={label}
         aria-label={label}
         aria-describedby={statusId}
         disabled={state === "copying"}
         onClick={handleCopy}
       >
-        {state === "idle" && (
-          <span className="code-copy-button__symbol" aria-hidden="true">
-            ⧉
-          </span>
-        )}
+        {state === "idle" && <Copy className="code-copy-button__icon" aria-hidden="true" />}
         {state === "copying" && (
           <LoaderCircle className="code-copy-button__icon code-copy-button__icon--spin" aria-hidden="true" />
         )}
         {state === "success" && <Check className="code-copy-button__icon" aria-hidden="true" />}
         {state === "error" && <TriangleAlert className="code-copy-button__icon" aria-hidden="true" />}
-        <span className="code-copy-button__label">{label}</span>
       </button>
 
       <span id={statusId} className="sr-only" role="status" aria-live="polite">

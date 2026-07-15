@@ -58,7 +58,9 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.match(codeBlock, /<CopyCodeButton code=\{code\}/);
   assert.match(codeBlock, /<DownloadCodeButton code=\{code\}/);
   assert.doesNotMatch(codeBlock, /useEffect|querySelectorAll|createElement|showModal/);
-  assert.match(copyButton, /⧉/);
+  assert.match(copyButton, /import \{ Check, Copy, LoaderCircle, TriangleAlert \}/);
+  assert.match(copyButton, /<Copy className="code-copy-button__icon"/);
+  assert.doesNotMatch(copyButton, /code-copy-button__symbol|code-copy-button__label|⧉/);
   assert.match(copyButton, /aria-live="polite"/);
   assert.match(copyButton, /disabled=\{state === "copying"\}/);
   assert.match(copyButton, /clearTimeout\(resetTimer\.current\)/);
@@ -82,13 +84,32 @@ test("article title, hero, headings, media, and code share the reading column", 
 
   assert.match(articleClient, /<header className="article-reading-frame/);
   assert.match(articleClient, /className="article-reading-frame relative aspect-\[2\/1\]/);
-  assert.match(globalStyles, /\.article-reading-frame\s*\{[\s\S]*width: min\(100%, 72ch\)/);
+  assert.match(globalStyles, /--article-column-width: 46rem/);
+  assert.match(globalStyles, /\.article-reading-frame\s*\{[\s\S]*max-width: var\(--article-column-width\)/);
   assert.match(
     globalStyles,
-    /--article-wide-width: min\(100%, var\(--article-reading-width\)\)/,
+    /--article-wide-width: min\(100%, var\(--article-column-width\)\)/,
   );
   assert.match(
     globalStyles,
     /\.article-content__body :where\(h1, h2, h3, h4\)[\s\S]*margin-inline: auto/,
   );
+  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,820px\)_15rem\]/);
+  assert.doesNotMatch(articleClient, /980px|1100px|1480px/);
+});
+
+test("featured carousel keeps autoplay and shows distinct following posts below", async () => {
+  const [blogList, carousel] = await Promise.all([
+    readFile("src/app/components/pages/BlogListPage.tsx", "utf8"),
+    readFile("src/app/components/FeaturedPostsCarousel.tsx", "utf8"),
+  ]);
+
+  assert.match(blogList, /const featuredPosts = selectedTag \? \[\] : filteredPosts\.slice\(0, 3\)/);
+  assert.match(blogList, /const followingPosts = selectedTag \? \[\] : filteredPosts\.slice\(3, 6\)/);
+  assert.match(blogList, /<FeaturedPostsCarousel posts=\{featuredPosts\} followingPosts=\{followingPosts\}/);
+  assert.match(carousel, /followingPosts: Post\[\]/);
+  assert.match(carousel, /followingPosts\.map\(\(post\) =>/);
+  assert.match(carousel, /window\.setInterval/);
+  assert.match(carousel, /5500/);
+  assert.doesNotMatch(carousel, /onClick=\{\(\) => selectSlide\(index\)\}[\s\S]*aria-pressed/);
 });

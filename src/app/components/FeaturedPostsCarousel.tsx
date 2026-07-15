@@ -11,6 +11,7 @@ import { useLanguage } from "@/app/components/LanguageProvider";
 
 interface FeaturedPostsCarouselProps {
   posts: Post[];
+  followingPosts: Post[];
 }
 
 function formatDate(value: string, locale: "vi" | "en") {
@@ -21,7 +22,10 @@ function formatDate(value: string, locale: "vi" | "en") {
   });
 }
 
-export default function FeaturedPostsCarousel({ posts }: FeaturedPostsCarouselProps) {
+export default function FeaturedPostsCarousel({
+  posts,
+  followingPosts,
+}: FeaturedPostsCarouselProps) {
   const { language, localePath } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -60,7 +64,7 @@ export default function FeaturedPostsCarousel({ posts }: FeaturedPostsCarouselPr
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 sm:pt-14">
+    <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">
       <div
         className="group relative overflow-hidden rounded-xl border theme-border bg-slate-900 shadow-sm"
         onMouseEnter={() => setIsHovered(true)}
@@ -78,7 +82,7 @@ export default function FeaturedPostsCarousel({ posts }: FeaturedPostsCarouselPr
             return (
               <article
                 key={post.slug}
-                className="grid min-h-[30rem] w-full shrink-0 lg:grid-cols-[1.08fr_.92fr]"
+                className="grid min-h-[26rem] w-full shrink-0 lg:grid-cols-[1.05fr_.95fr]"
                 aria-hidden={index !== safeActiveIndex}
               >
                 <div className="relative min-h-64 bg-slate-950 lg:min-h-full">
@@ -161,31 +165,38 @@ export default function FeaturedPostsCarousel({ posts }: FeaturedPostsCarouselPr
         )}
       </div>
 
-      {featuredPosts.length > 1 && (
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          {featuredPosts.map((post, index) => {
+      {followingPosts.length > 0 && (
+        <div className="featured-following-grid mt-4 grid gap-3 sm:grid-cols-3">
+          {followingPosts.map((post) => {
             const thumbnail = post.seo.ogImage || post.thumbnail;
             return (
-              <button
+              <Link
                 key={post.slug}
-                type="button"
-                onClick={() => selectSlide(index)}
-                aria-label={`Show ${post.title}`}
-                aria-pressed={index === activeIndex}
-                className={`relative aspect-[16/8] overflow-hidden rounded-lg border text-left transition ${
-                  index === safeActiveIndex
-                    ? "border-teal-500 ring-1 ring-teal-500 dark:border-emerald-400 dark:ring-emerald-400"
-                    : "theme-border opacity-70 hover:opacity-100"
-                }`}
+                href={localePath(`/blog/${post.slug}`)}
+                className="theme-card group/next relative aspect-[16/9] overflow-hidden rounded-lg border transition hover:-translate-y-0.5 hover:border-teal-500 dark:hover:border-emerald-400"
+                aria-label={post.title}
               >
                 {thumbnail ? (
-                  <CustomImage src={thumbnail} alt="" fill sizes="(min-width: 768px) 20vw, 30vw" className="object-cover" />
+                  <CustomImage
+                    src={thumbnail}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 24rem, (min-width: 640px) 33vw, 100vw"
+                    className="object-cover transition duration-300 group-hover/next:scale-[1.03]"
+                  />
                 ) : (
-                  <span className="flex h-full items-center justify-center bg-slate-800 px-3 text-center text-xs font-bold text-white">
+                  <span className="absolute inset-0 bg-slate-800" />
+                )}
+                <span className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/25 to-transparent" />
+                <span className="absolute inset-x-0 bottom-0 p-4 text-left">
+                  <span className="line-clamp-2 text-sm font-bold leading-5 text-white">
                     {post.title}
                   </span>
-                )}
-              </button>
+                  <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-teal-200">
+                    Read <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                </span>
+              </Link>
             );
           })}
         </div>

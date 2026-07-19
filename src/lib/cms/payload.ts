@@ -9,6 +9,7 @@ import { allPosts, series as fileSeries, team, type HeroMedia, type Post, type S
 import { localizePost, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { normalizeExcerpt } from "@/lib/content/excerpt";
+import { preferredMediaURL as mediaUrl } from "@/lib/cms/media-url";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 import { cachedJson } from "@/lib/server/redis-cache";
 import { getLocalPostViews } from "@/lib/views/store";
@@ -78,15 +79,6 @@ function arrayValues(value: unknown): string[] {
 
 function relationDoc(value: unknown): PayloadDoc | null {
   return value && typeof value === "object" ? (value as PayloadDoc) : null;
-}
-
-function mediaUrl(value: unknown): string | null {
-  const doc = relationDoc(value);
-  if (!doc) return null;
-
-  const sizes = relationDoc(doc.sizes);
-  const sized = relationDoc(sizes?.og) || relationDoc(sizes?.card);
-  return asString(sized?.url) || asString(doc.url) || null;
 }
 
 function mediaDetails(value: unknown): HeroMedia | null {

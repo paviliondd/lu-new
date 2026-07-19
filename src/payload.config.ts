@@ -5,6 +5,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
 import { APIError, buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
 import sharp from "sharp";
+import { legacyImportedMediaURL } from "@/lib/cms/media-url";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -217,6 +218,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function mediaAdminThumbnail({ doc }: { doc: Record<string, unknown> }) {
+  const legacyURL = legacyImportedMediaURL(doc);
+  if (legacyURL) return legacyURL;
   if (typeof doc.url === "string" && doc.url) return doc.url;
 
   const sizes = isRecord(doc.sizes) ? doc.sizes : {};
@@ -313,6 +316,17 @@ async function resolveMediaDiskFile(uploadDir: string, mediaFilename: string, ur
 
 function mediaURLForStorage(nextFilename: string, imported: boolean) {
   return imported ? `/uploads/imported/${nextFilename}` : mediaFileURL(nextFilename);
+}
+
+function normalizeLegacyMediaDocumentURL(doc: Record<string, unknown>) {
+  const legacyURL = legacyImportedMediaURL(doc);
+  return legacyURL
+    ? {
+        ...doc,
+        url: legacyURL,
+        thumbnailURL: legacyURL,
+      }
+    : doc;
 }
 
 async function hydrateLegacyMediaDocument(doc: Record<string, unknown>) {
@@ -473,16 +487,19 @@ const Media: CollectionConfig = {
   hooks: {
     afterRead: [
       async ({ doc, findMany, req }) => {
-        if (findMany || !isRecord(doc)) return doc;
+        if (!isRecord(doc)) return doc;
+
+        const normalizedDoc = normalizeLegacyMediaDocumentURL(doc);
+        if (findMany) return normalizedDoc;
 
         try {
-          return await hydrateLegacyMediaDocument(doc);
+          return await hydrateLegacyMediaDocument(normalizedDoc);
         } catch (error) {
           req.payload.logger.warn(
             { id: doc.id, filename: doc.filename, error },
             "Unable to hydrate legacy media preview metadata",
           );
-          return doc;
+          return normalizedDoc;
         }
       },
     ],

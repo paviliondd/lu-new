@@ -25,9 +25,10 @@ test("legacy WordPress table of contents is removed while article headings remai
 });
 
 test("legacy media fallback and rename guards stay wired", async () => {
-  const [config, route] = await Promise.all([
+  const [config, route, payloadCms] = await Promise.all([
     readFile("src/payload.config.ts", "utf8"),
     readFile("src/app/(payload)/api/payload/[[...slug]]/route.ts", "utf8"),
+    readFile("src/lib/cms/payload.ts", "utf8"),
   ]);
 
   assert.match(config, /normalizeLegacyMediaSizes\(data\)/);
@@ -35,12 +36,42 @@ test("legacy media fallback and rename guards stay wired", async () => {
   assert.match(config, /req,\s*context:\s*\{\s*mediaRenameInProgress:\s*true/);
   assert.match(config, /Không thể đổi tên tệp media/);
   assert.match(config, /afterRead:[\s\S]*hydrateLegacyMediaDocument/);
+  assert.match(config, /normalizeLegacyMediaDocumentURL\(doc\)/);
+  assert.match(config, /if \(findMany\) return normalizedDoc/);
   assert.match(config, /renamedFiles\.reverse\(\)/);
   assert.match(route, /if \(!\(await mediaFileStats\(rootPath\)\)\)/);
   assert.match(route, /if \(importedResponse\) return importedResponse/);
   assert.match(route, /"uploads", "imported", mediaFilename/);
   assert.match(route, /path\.posix\.basename/);
   assert.match(route, /path\.win32\.basename/);
+  assert.match(route, /return Response\.redirect\(redirectURL, 307\)/);
+  assert.match(payloadCms, /preferredMediaURL as mediaUrl/);
+});
+
+test("legacy imported media URLs take priority without changing native media URLs", async () => {
+  const { preferredMediaURL } = await import("../src/lib/cms/media-url.ts");
+
+  assert.equal(
+    preferredMediaURL({
+      url: "/api/payload/media/file/legacy.png",
+      thumbnailURL: "/uploads/imported/legacy.png",
+    }),
+    "/uploads/imported/legacy.png",
+  );
+  assert.equal(
+    preferredMediaURL({
+      url: "/api/payload/media/file/native.png",
+      thumbnailURL: "/api/payload/media/file/native.png",
+    }),
+    "/api/payload/media/file/native.png",
+  );
+  assert.equal(
+    preferredMediaURL({
+      url: "/api/payload/media/file/native.png",
+      sizes: { og: { url: "/api/payload/media/file/native-og.png" } },
+    }),
+    "/api/payload/media/file/native-og.png",
+  );
 });
 
 test("code blocks render as stable React components with accessible copy and download", async () => {

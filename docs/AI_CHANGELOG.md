@@ -2,6 +2,22 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-19
+
+Fixed:
+
+- Restored legacy WordPress media rendering by preferring persisted `/uploads/imported/` URLs over Payload's generated file endpoint in media relationships, admin thumbnails, and frontend post mapping.
+- Added a redirect fallback for legacy file requests when the Payload root upload is absent, while preserving native Payload media URLs.
+
+Validated:
+
+- Added regression coverage for legacy imported, native, and generated-size media URL selection.
+- Passed `npm run lint`, `npm test` (25 tests), and `npm run build` on Next.js 16.2.7.
+
+Never break:
+
+- Native Payload uploads, generated image sizes, legacy imported media, and Next.js image optimization.
+
 ## 2026-07-15
 
 Added:

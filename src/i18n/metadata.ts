@@ -3,7 +3,7 @@ import type { Locale } from "./config";
 import { localePath } from "./config";
 
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://tesst.linuxunity.com"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://test.linuxunity.com"
 ).replace(/\/$/, "");
 
 export function localizedAlternates(locale: Locale, pathname = "/"): Metadata["alternates"] {
@@ -12,6 +12,7 @@ export function localizedAlternates(locale: Locale, pathname = "/"): Metadata["a
     canonical,
     languages: {
       vi: localePath("vi", pathname),
+      en: localePath("en", pathname),
       "x-default": localePath("vi", pathname),
     },
   };

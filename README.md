@@ -33,15 +33,21 @@ DATABASE_URL=postgres://payload:change-this-payload-db-password@localhost:5432/p
 
 ## Content Flow
 
-Editors manage content at `/admin`.
+Editors manage content at `/admin` using a WordPress Gutenberg-like block editor:
+
+- Block-based Lexical editor supporting rich text, headings, lists, checklists, quotes, images, tables, code blocks, terminal blocks, note callouts, file tree blocks, subscript/superscript, and text alignment.
+- WordPress-style right sidebar layout for Status & Publication date, Categories, Series, Tags, Featured Image, Excerpt, and Author.
+- Built-in automatic draft autosaving (every 2 seconds) and complete revision version history.
+- Mandatory publish validation enforcing title and category before publishing.
 
 The public site reads from Payload first, maps Payload documents into the existing frontend `Post` shape, and falls back to local MDX files if Payload is unavailable in development.
 
 Language flow:
 
-- `/vi` reads `titleVi`, `excerptVi`, and `contentVi`.
+- `/` and `/vi` read `titleVi`, `excerptVi`, and `contentVi`.
 - `/en` reads `titleEn`, `excerptEn`, and `contentEn`.
 - Missing English content falls back to Vietnamese content.
+- `sitemap.xml` generates localized alternates for both `vi` and `en` locales.
 
 View count flow:
 

@@ -97,18 +97,22 @@ const postEditor: RichTextAdapterProvider<
     BlockquoteFeature,
     BlocksFeature,
     BoldFeature,
+    ChecklistFeature,
     CodeBlock,
     AlignFeature,
     EXPERIMENTAL_TableFeature,
     FixedToolbarFeature,
     HeadingFeature,
     HorizontalRuleFeature,
+    IndentFeature,
     InlineCodeFeature,
     InlineToolbarFeature,
     ItalicFeature,
     LinkFeature,
     OrderedListFeature,
     StrikethroughFeature,
+    SubscriptFeature,
+    SuperscriptFeature,
     UnderlineFeature,
     UnorderedListFeature,
     UploadFeature,
@@ -164,11 +168,15 @@ const postEditor: RichTextAdapterProvider<
       ItalicFeature(),
       UnderlineFeature(),
       StrikethroughFeature(),
+      SubscriptFeature(),
+      SuperscriptFeature(),
       InlineCodeFeature(),
       BlockquoteFeature(),
       HorizontalRuleFeature(),
       OrderedListFeature(),
       UnorderedListFeature(),
+      ChecklistFeature(),
+      IndentFeature(),
       LinkFeature(),
       UploadFeature({
         enabledCollections: ["media"],
@@ -774,6 +782,13 @@ const Posts: CollectionConfig = {
       },
     },
   },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 2000,
+      },
+    },
+  },
   access: {
     read: publishedOrAuthenticated,
   },
@@ -787,6 +802,14 @@ const Posts: CollectionConfig = {
     beforeChange: [
       ({ data, originalDoc }) => {
         if (!data) return data;
+        if (isPublished(data)) {
+          if (!data.titleVi || typeof data.titleVi !== "string" || !data.titleVi.trim()) {
+            throw new APIError("Bắt buộc phải nhập tiêu đề bài viết (Title VI) khi Publish.", 400, null, true);
+          }
+          if (!data.category || typeof data.category !== "string" || !data.category.trim()) {
+            throw new APIError("Bắt buộc phải chọn danh mục (Category) khi Publish.", 400, null, true);
+          }
+        }
         data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
         data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
         if (typeof data.views !== "number") data.views = Number(originalDoc?.views || 0);
@@ -797,87 +820,143 @@ const Posts: CollectionConfig = {
   },
   fields: [
     {
+      name: "status",
+      type: "select",
+      required: true,
+      defaultValue: "draft",
+      options: [
+        { label: "Draft", value: "draft" },
+        { label: "Published", value: "published" },
+      ],
+      admin: {
+        position: "sidebar",
+        description: "Post publication status (WordPress-style Publish box).",
+      },
+    },
+    {
+      name: "publishedAt",
+      type: "date",
+      admin: {
+        position: "sidebar",
+        date: { pickerAppearance: "dayAndTime" },
+        description: "Publication date & time.",
+      },
+    },
+    {
+      name: "author",
+      type: "relationship",
+      relationTo: "authors",
+      admin: {
+        position: "sidebar",
+        description: "Article author.",
+      },
+    },
+    {
+      name: "coverImage",
+      type: "relationship",
+      label: "Featured Image",
+      relationTo: "media",
+      admin: {
+        position: "sidebar",
+        description: "WordPress-style Featured Image.",
+      },
+    },
+    {
+      name: "category",
+      type: "text",
+      defaultValue: "Cloud",
+      admin: {
+        position: "sidebar",
+        description: "Article category.",
+      },
+    },
+    {
+      name: "series",
+      type: "relationship",
+      relationTo: "series",
+      admin: {
+        position: "sidebar",
+        description: "Assign article to a Series.",
+      },
+    },
+    {
+      ...listField("tags", "Tags"),
+      admin: {
+        position: "sidebar",
+        description: "Article tags.",
+      },
+    },
+    {
+      name: "excerptVi",
+      type: "textarea",
+      label: "Excerpt (Short Description VI)",
+      admin: {
+        position: "sidebar",
+        rows: 3,
+        description: "WordPress-style excerpt shown in article cards.",
+      },
+    },
+    {
+      name: "excerptEn",
+      type: "textarea",
+      label: "Excerpt EN",
+      admin: {
+        position: "sidebar",
+        rows: 3,
+      },
+    },
+    {
       type: "tabs",
       tabs: [
         {
-          label: "Post",
+          label: "Content",
           fields: [
-        { name: "titleVi", type: "text", label: "Title VI", required: true },
-        { name: "titleEn", type: "text", label: "Title EN" },
-        {
-          name: "slug",
-          type: "text",
-          required: true,
-          unique: true,
-          index: true,
-          admin: {
-            description: "Generated from Title VI when left blank.",
-          },
-        },
-        { name: "coverImage", type: "relationship", label: "Featured Image", relationTo: "media" },
-            { name: "excerptVi", type: "textarea", label: "Short Description VI" },
-            { name: "excerptEn", type: "textarea", label: "Short Description EN" },
+            { name: "titleVi", type: "text", label: "Title VI", required: true },
+            { name: "titleEn", type: "text", label: "Title EN" },
+            {
+              name: "slug",
+              type: "text",
+              required: true,
+              unique: true,
+              index: true,
+              admin: {
+                description: "Generated from Title VI when left blank.",
+              },
+            },
             {
               name: "contentRichVi",
               type: "richText",
-              label: "Content Editor VI",
+              label: "Content Editor VI (WordPress Gutenberg-style)",
               editor: postEditor,
               admin: {
-                description: "WordPress-style rich editor for new Vietnamese posts.",
+                description: "WordPress Gutenberg-style block editor for Vietnamese content.",
               },
             },
             {
               name: "contentRichEn",
               type: "richText",
-              label: "Content Editor EN",
+              label: "Content Editor EN (Gutenberg-style)",
               editor: postEditor,
               admin: {
-                description: "Leave blank to reuse Vietnamese content for English.",
+                description: "Optional English content block editor.",
               },
             },
-        { name: "category", type: "text", defaultValue: "Cloud" },
-        { name: "series", type: "relationship", relationTo: "series" },
-        listField("tags", "Tags"),
           ],
         },
         {
           label: "SEO",
           fields: [
-        {
-          name: "seo",
-          type: "group",
-          fields: [
-            { name: "titleVi", type: "text", label: "Meta title VI" },
-            { name: "titleEn", type: "text", label: "Meta title EN" },
-            { name: "descriptionVi", type: "textarea", label: "Meta description VI" },
-            { name: "descriptionEn", type: "textarea", label: "Meta description EN" },
-            { name: "ogImage", type: "relationship", label: "OG Image", relationTo: "media" },
-          ],
-        },
-          ],
-        },
-        {
-          label: "Publish",
-          fields: [
-        {
-          name: "status",
-          type: "select",
-          required: true,
-          defaultValue: "draft",
-          options: [
-            { label: "Draft", value: "draft" },
-            { label: "Published", value: "published" },
-          ],
-        },
-        {
-          name: "publishedAt",
-          type: "date",
-          admin: {
-            date: { pickerAppearance: "dayAndTime" },
-            description: "Generated on publish when left blank.",
-          },
-        },
-        { name: "author", type: "relationship", relationTo: "authors" },
+            {
+              name: "seo",
+              type: "group",
+              fields: [
+                { name: "titleVi", type: "text", label: "Meta title VI" },
+                { name: "titleEn", type: "text", label: "Meta title EN" },
+                { name: "descriptionVi", type: "textarea", label: "Meta description VI" },
+                { name: "descriptionEn", type: "textarea", label: "Meta description EN" },
+                { name: "ogImage", type: "relationship", label: "OG Image", relationTo: "media" },
+              ],
+            },
           ],
         },
         {

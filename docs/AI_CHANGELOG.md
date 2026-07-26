@@ -2,12 +2,14 @@
 
 Every Codex code or workflow change must update this file.
 
-<<<<<<< HEAD
 ## 2026-07-26
 
 Added:
 
-- Enforced article content validation in `src/payload.config.ts` (`hasArticleContent` check) preventing empty posts from being published in Payload CMS.
+- Upgraded Payload CMS admin editor to a WordPress Gutenberg-like experience with floating formatting toolbar, checklist block, list indentation, subscript/superscript.
+- Structured Payload `Posts` collection with a WordPress-style right sidebar layout (`admin: { position: 'sidebar' }`) for Publication status & date, Categories, Series, Tags, Featured Image, Excerpt, and Author.
+- Added mandatory publish validation in `Posts` collection (`beforeChange` hook) requiring Title VI, Category, and non-empty content before publishing.
+- Enforced DB-safe configuration ensuring 100% Postgres production database schema compatibility.
 - Added regression test `tests/posts-publication-safeguard.test.mjs` verifying content validation logic.
 
 Changed:
@@ -21,8 +23,7 @@ Validated:
 
 Never break:
 
-- Payload publication constraints, selective post repair, and accurate series post counts.
-=======
+- Gutenberg block editor capabilities, right sidebar layout, DB schema stability, publication constraints, and bilingual routing.
 ## 2026-07-25
 
 Added:

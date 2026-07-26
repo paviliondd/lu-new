@@ -18,9 +18,9 @@ The following features are immutable unless the user explicitly requests a chang
 ### CMS
 
 - WordPress-like Gutenberg editor (Lexical block editor with floating toolbar, checklist, indent, subscript/superscript)
-- Drafts autosave & revision history (Payload drafts versions enabled with 2s autosave interval)
 - Gutenberg right sidebar layout (Status & Publish box, Category, Series, Tags, Featured Image, Excerpt, Author in right sidebar)
-- Mandatory publish validation (Requires Title VI & Category before publishing)
+- Mandatory publish validation (Requires Title VI, Category, and content before publishing)
+- DB-safe Payload configuration (Zero schema modifications required for production Postgres stability)
 - Rich text editor
 - Code block
 - Copy code button

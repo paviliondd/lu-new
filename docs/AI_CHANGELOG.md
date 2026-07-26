@@ -6,7 +6,9 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
-- Added Topic Filter Bar on `/blog` page (`BlogListPage.tsx`) displaying dynamic topic pills (AWS, Ansible, Linux, CI/CD, Cloud...) and filtering posts via URL query param `?topic=...`.
+- Added Topic Filter Bar on `/blog` page (`BlogListPage.tsx`) displaying dynamic topic pills (AWS, Ansible, Linux, CI/CD, Cloud...) with English "Topic:" label, keeping the Featured slide carousel persistently visible at top while filtering post cards below.
+- Added explicit "Featured" section header and badge in `FeaturedPostsCarousel.tsx`.
+- Fixed AWS logo SVG URL using `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonaws.svg` with `dark:invert` contrast enhancement in Dark mode.
 - Renamed Category field in Payload CMS admin `Posts` collection to `Topic (Chủ đề)` (`admin.description` & `label`) while preserving DB field name for 100% DB schema safety.
 - Added Draft Preview feature (`getCmsPostBySlug(slug, locale, allowDraft)`) enabling admin editors to preview draft posts live on the frontend via `?preview=true` with a prominent "DRAFT PREVIEW" notification banner.
 - Set default initial theme preference for first-time visitors to Light mode in `ThemeScript.tsx` and `ThemeToggle.tsx`.

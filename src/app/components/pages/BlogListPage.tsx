@@ -41,10 +41,17 @@ export default function BlogListPage({
     return Array.from(topicSet).sort();
   }, [posts]);
 
-  const filteredPosts = useMemo(() => {
-    let sortedPosts = [...posts]
+  const allPublishedPosts = useMemo(() => {
+    return [...posts]
       .filter((post) => post.status === "published")
       .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime());
+  }, [posts]);
+
+  const featuredPosts = useMemo(() => allPublishedPosts.slice(0, 3), [allPublishedPosts]);
+  const followingPosts = useMemo(() => allPublishedPosts.slice(3, 6), [allPublishedPosts]);
+
+  const filteredPosts = useMemo(() => {
+    let sortedPosts = allPublishedPosts;
     if (selectedTopic) {
       sortedPosts = sortedPosts.filter(
         (post) => post.category && post.category.toLowerCase() === selectedTopic.toLowerCase()
@@ -56,15 +63,13 @@ export default function BlogListPage({
       );
     }
     return sortedPosts;
-  }, [posts, selectedTag, selectedTopic]);
+  }, [allPublishedPosts, selectedTag, selectedTopic]);
 
   const isFiltered = Boolean(selectedTag || selectedTopic);
-  const featuredPosts = isFiltered ? [] : filteredPosts.slice(0, 3);
-  const followingPosts = isFiltered ? [] : filteredPosts.slice(3, 6);
   const reservedSlugs = new Set(
     [...featuredPosts, ...followingPosts].map((post) => post.slug),
   );
-  const listPosts = isFiltered
+  const listPosts = selectedTag || selectedTopic
     ? filteredPosts
     : filteredPosts.filter((post) => !reservedSlugs.has(post.slug));
   const totalPages = Math.max(1, Math.ceil(listPosts.length / pageSize));
@@ -103,7 +108,8 @@ export default function BlogListPage({
         </div>
       </section>
 
-      {!isFiltered && <FeaturedPostsCarousel posts={featuredPosts} followingPosts={followingPosts} />}
+      {/* Featured Slide Carousel - Always visible */}
+      <FeaturedPostsCarousel posts={featuredPosts} followingPosts={followingPosts} />
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
         {/* Topic Filter Bar */}
@@ -111,7 +117,7 @@ export default function BlogListPage({
           <div className="mb-8 overflow-x-auto pb-2 scrollbar-none">
             <div className="flex items-center gap-2 text-xs font-semibold">
               <span className="shrink-0 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider pr-1">
-                {language === "vi" ? "Chủ đề:" : "Topic:"}
+                Topic:
               </span>
               <Link
                 href={pageHrefWithFilters(1, selectedTag, "")}
@@ -121,7 +127,7 @@ export default function BlogListPage({
                     : "border theme-border bg-white text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400"
                 }`}
               >
-                {language === "vi" ? "Tất cả" : "All"}
+                All
               </Link>
               {availableTopics.map((topic) => {
                 const isActive = selectedTopic.toLowerCase() === topic.toLowerCase();

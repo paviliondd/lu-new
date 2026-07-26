@@ -22,7 +22,7 @@ function applyTheme(preference: ThemePreference) {
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<ThemePreference | null>(null);
-  const currentTheme = theme || "system";
+  const currentTheme = theme || "light";
 
   useEffect(() => {
     const readStoredTheme = (): ThemePreference => {
@@ -34,7 +34,7 @@ export default function ThemeToggle() {
       if (documentTheme === "dark" || documentTheme === "light" || documentTheme === "system") {
         return documentTheme;
       }
-      return "system";
+      return "light";
     };
 
     const initialTheme = readStoredTheme();

@@ -14,6 +14,7 @@ interface BlogListPageProps {
   initialPosts: Post[];
   initialPage?: number;
   initialTag?: string;
+  initialTopic?: string;
 }
 
 const pageSize = 9;
@@ -22,39 +23,64 @@ export default function BlogListPage({
   initialPosts,
   initialPage = 1,
   initialTag = "",
+  initialTopic = "",
 }: BlogListPageProps) {
   const { t, language, localePath } = useLanguage();
   const posts = usePublishedPosts(initialPosts);
   const selectedTag = initialTag;
+  const selectedTopic = initialTopic;
   const currentPage = Math.max(1, initialPage);
 
+  const availableTopics = useMemo(() => {
+    const topicSet = new Set<string>();
+    posts.forEach((post) => {
+      if (post.category && post.category.trim()) {
+        topicSet.add(post.category.trim());
+      }
+    });
+    return Array.from(topicSet).sort();
+  }, [posts]);
+
   const filteredPosts = useMemo(() => {
-    const sortedPosts = [...posts]
+    let sortedPosts = [...posts]
       .filter((post) => post.status === "published")
       .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime());
-    if (!selectedTag) return sortedPosts;
-    return sortedPosts.filter((post) => post.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()));
-  }, [posts, selectedTag]);
+    if (selectedTopic) {
+      sortedPosts = sortedPosts.filter(
+        (post) => post.category && post.category.toLowerCase() === selectedTopic.toLowerCase()
+      );
+    }
+    if (selectedTag) {
+      sortedPosts = sortedPosts.filter((post) =>
+        post.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
+      );
+    }
+    return sortedPosts;
+  }, [posts, selectedTag, selectedTopic]);
 
-  const featuredPosts = selectedTag ? [] : filteredPosts.slice(0, 3);
-  const followingPosts = selectedTag ? [] : filteredPosts.slice(3, 6);
+  const isFiltered = Boolean(selectedTag || selectedTopic);
+  const featuredPosts = isFiltered ? [] : filteredPosts.slice(0, 3);
+  const followingPosts = isFiltered ? [] : filteredPosts.slice(3, 6);
   const reservedSlugs = new Set(
     [...featuredPosts, ...followingPosts].map((post) => post.slug),
   );
-  const listPosts = selectedTag
+  const listPosts = isFiltered
     ? filteredPosts
     : filteredPosts.filter((post) => !reservedSlugs.has(post.slug));
   const totalPages = Math.max(1, Math.ceil(listPosts.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const paginatedPosts = listPosts.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  const pageHref = (page: number) => {
+  const pageHrefWithFilters = (page: number, tag = selectedTag, topic = selectedTopic) => {
     const params = new URLSearchParams();
-    if (selectedTag) params.set("tag", selectedTag);
+    if (topic) params.set("topic", topic);
+    if (tag) params.set("tag", tag);
     if (page > 1) params.set("page", String(page));
     const query = params.toString();
     return query ? `${localePath("/blog")}?${query}` : localePath("/blog");
   };
+
+  const pageHref = (page: number) => pageHrefWithFilters(page);
 
   return (
     <div className="theme-page min-h-screen overflow-x-clip">
@@ -77,14 +103,61 @@ export default function BlogListPage({
         </div>
       </section>
 
-      {!selectedTag && <FeaturedPostsCarousel posts={featuredPosts} followingPosts={followingPosts} />}
+      {!isFiltered && <FeaturedPostsCarousel posts={featuredPosts} followingPosts={followingPosts} />}
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-        {selectedTag && (
+        {/* Topic Filter Bar */}
+        {availableTopics.length > 0 && (
+          <div className="mb-8 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <span className="shrink-0 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider pr-1">
+                {language === "vi" ? "Chủ đề:" : "Topic:"}
+              </span>
+              <Link
+                href={pageHrefWithFilters(1, selectedTag, "")}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 transition ${
+                  !selectedTopic
+                    ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950 font-bold shadow-sm"
+                    : "border theme-border bg-white text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400"
+                }`}
+              >
+                {language === "vi" ? "Tất cả" : "All"}
+              </Link>
+              {availableTopics.map((topic) => {
+                const isActive = selectedTopic.toLowerCase() === topic.toLowerCase();
+                return (
+                  <Link
+                    key={topic}
+                    href={pageHrefWithFilters(1, selectedTag, topic)}
+                    className={`shrink-0 rounded-full px-3.5 py-1.5 transition ${
+                      isActive
+                        ? "bg-teal-700 text-white dark:bg-emerald-400 dark:text-slate-950 font-bold shadow-sm"
+                        : "border theme-border bg-white text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400"
+                    }`}
+                  >
+                    {topic}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {isFiltered && (
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b theme-border pb-5">
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {selectedTag}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs uppercase font-bold text-slate-400">{language === "vi" ? "Đang lọc theo:" : "Filtered by:"}</span>
+              {selectedTopic && (
+                <span className="rounded-full bg-teal-100 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Topic: {selectedTopic}
+                </span>
+              )}
+              {selectedTag && (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                  Tag: {selectedTag}
+                </span>
+              )}
+            </div>
             <Link href={localePath("/blog")} className="text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
               {t("resetFilter")}
             </Link>

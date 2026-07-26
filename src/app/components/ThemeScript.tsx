@@ -4,7 +4,7 @@ export default function ThemeScript() {
   const code = `
     (function() {
       try {
-        const preference = localStorage.getItem('theme') || 'system';
+        const preference = localStorage.getItem('theme') || 'light';
         const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const resolvedTheme = preference === 'system' ? (systemDark ? 'dark' : 'light') : preference;
         document.documentElement.dataset.theme = preference;

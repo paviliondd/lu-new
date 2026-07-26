@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 interface BlogRouteProps {
   params: Promise<{ lang: string }>;
-  searchParams?: Promise<{ page?: string; tag?: string }>;
+  searchParams?: Promise<{ page?: string; tag?: string; topic?: string }>;
 }
 
 export async function generateMetadata({
@@ -38,6 +38,7 @@ export default async function BlogRoute({ params, searchParams }: BlogRouteProps
       initialPosts={posts}
       initialPage={Math.max(1, Number(query?.page || 1))}
       initialTag={query?.tag || ""}
+      initialTopic={query?.topic || ""}
     />
   );
 }

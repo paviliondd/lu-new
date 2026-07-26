@@ -508,30 +508,39 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
 
 export const getCmsSeries = getPayloadSeries;
 
-async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promise<Post | null> {
-  return cachedJson(`posts:detail:${locale}:${slug}`, 30, async () => {
+async function getPayloadPostBySlug(
+  slug: string,
+  locale: Locale = "vi",
+  allowDraft = false
+): Promise<Post | null> {
+  const fetchPost = async () => {
     const filePost = await getLocalizedFilePost(slug, locale);
     const payload = await getPayloadClient();
     if (!payload) return filePost ? withLocalView(filePost) : null;
 
     try {
+      const whereConditions: Where[] = [
+        {
+          slug: {
+            equals: slug,
+          },
+        },
+      ];
+      if (!allowDraft) {
+        whereConditions.push({
+          status: {
+            equals: "published",
+          },
+        });
+      }
+
       const result = await payload.find({
         collection: "posts",
         depth: 2,
         limit: 1,
+        overrideAccess: allowDraft,
         where: {
-          and: [
-            {
-              slug: {
-                equals: slug,
-              },
-            },
-            {
-              status: {
-                equals: "published",
-              },
-            },
-          ],
+          and: whereConditions,
         },
       });
 
@@ -542,7 +551,10 @@ async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promis
       console.error("Unable to resolve Payload post by slug", { slug, locale, error });
       return filePost ? withLocalView(filePost) : null;
     }
-  });
+  };
+
+  if (allowDraft) return fetchPost();
+  return cachedJson(`posts:detail:${locale}:${slug}`, 30, fetchPost);
 }
 
 export const getCmsPostBySlug = getPayloadPostBySlug;

@@ -34,29 +34,32 @@ Status: Production
 
 Components:
 
-- Payload Lexical editor
+- Payload Lexical editor (WordPress Gutenberg-like block editor)
 - Upload feature
 - Code block feature
 - Custom terminal, note, and file tree blocks
 - Frontend rich text renderer
 - Code block enhancer
+- Drafts autosave (2s interval) & revision history
+- Gutenberg right sidebar layout (Status, Category, Series, Tags, Featured Image, Excerpt, Author)
 
 Requirement:
 
-- WordPress-style editing
-- Toolbar
-- Headings and inline formatting
-- Code block
-- Copy button
-- Image upload
-- Tables
+- WordPress-style Gutenberg block editing
+- Floating toolbar & inline formatting (Bold, Italic, Link, Strikethrough, Underline, Subscript/Superscript, Inline Code)
+- Gutenberg blocks: Paragraph, Heading, List, Checklist, Quote, Image, Code block, Table, Separator, Custom blocks (Terminal, Note, FileTree)
+- Right sidebar document controls
+- Draft autosave & version revision history
+- Mandatory publish validation (Title VI & Category)
+- Copy code button on frontend
 
 Regression:
 
-- Create article
+- Create article in `/admin`
+- Edit with Gutenberg floating toolbar and right sidebar controls
+- Verify 2s draft autosave
 - Add heading, bold text, image, code block, terminal block, note, and file tree
-- Save
-- Publish
+- Publish (verifying mandatory title & category validation)
 - Reload frontend
 - Copy code
 

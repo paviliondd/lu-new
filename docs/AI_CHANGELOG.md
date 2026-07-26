@@ -2,6 +2,7 @@
 
 Every Codex code or workflow change must update this file.
 
+<<<<<<< HEAD
 ## 2026-07-26
 
 Added:
@@ -21,6 +22,31 @@ Validated:
 Never break:
 
 - Payload publication constraints, selective post repair, and accurate series post counts.
+=======
+## 2026-07-25
+
+Added:
+
+- Upgraded Payload CMS admin editor to a WordPress Gutenberg-like experience with floating formatting toolbar, checklist block, list indentation, subscript/superscript, draft autosaving (2s interval), and complete revision version history.
+- Structured Payload `Posts` collection with a WordPress-style right sidebar layout (`admin: { position: 'sidebar' }`) for Publication status & date, Categories, Series, Tags, Featured Image, Excerpt, and Author.
+- Added mandatory publish validation in `Posts` collection (`beforeChange` hook) requiring Title VI and Category before publishing.
+- Updated `sitemap.xml` and `localizedAlternates` to generate complete localized paths and hreflang links for both `vi` and `en` locales.
+
+Fixed:
+
+- Resolved infinite HTTP 307 redirect loop in `LegacyBlogPostRoute` (`src/app/blog/[slug]/page.tsx`) by directly rendering the default locale post when requested at `/blog/[slug]`.
+- Fixed fallback domain typo in `src/i18n/metadata.ts`.
+
+Validated:
+
+- Passed `npm run lint`, `npm test` (25 unit tests), and `npm run build`.
+- Updated `AGENTS.md`, `README.md`, `docs/FEATURES.md`, and `docs/AI_CHANGELOG.md`.
+
+Never break:
+
+- Gutenberg block editor capabilities, draft autosave, right sidebar layout, bilingual routing, sitemap alternates, and legacy fallback model.
+
+>>>>>>> origin/main
 
 ## 2026-07-19
 

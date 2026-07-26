@@ -790,13 +790,6 @@ const Posts: CollectionConfig = {
       },
     },
   },
-  versions: {
-    drafts: {
-      autosave: {
-        interval: 2000,
-      },
-    },
-  },
   access: {
     read: publishedOrAuthenticated,
   },

@@ -22,6 +22,7 @@ export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>;
+  searchParams?: Promise<{ preview?: string }>;
 }
 
 function slugifyHeading(text: string, index: number) {
@@ -104,11 +105,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params, searchParams }: Props) {
   const { lang, slug } = await params;
   if (!hasLocale(lang)) notFound();
 
-  const post = await getCmsPostBySlug(slug, lang);
+  const query = await searchParams;
+  const isPreview = query?.preview === "true";
+  const post = await getCmsPostBySlug(slug, lang, isPreview);
   
   if (!post) {
     notFound();

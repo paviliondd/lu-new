@@ -2,7 +2,7 @@ export const homepageConfig = {
   technologies: [
     {
       label: "AWS",
-      icon: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonaws.svg",
+      icon: "https://cdn.simpleicons.org/amazonaws/FF9900",
       hoverClass: "hover:border-[#ff9900]/70 hover:bg-[#ff9900]/[0.08]",
     },
     {

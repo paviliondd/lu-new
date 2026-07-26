@@ -6,11 +6,14 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
+- Added Topic Filter Bar on `/blog` page (`BlogListPage.tsx`) displaying dynamic topic pills (AWS, Ansible, Linux, CI/CD, Cloud...) and filtering posts via URL query param `?topic=...`.
+- Renamed Category field in Payload CMS admin `Posts` collection to `Topic (Chủ đề)` (`admin.description` & `label`) while preserving DB field name for 100% DB schema safety.
+- Added Draft Preview feature (`getCmsPostBySlug(slug, locale, allowDraft)`) enabling admin editors to preview draft posts live on the frontend via `?preview=true` with a prominent "DRAFT PREVIEW" notification banner.
+- Set default initial theme preference for first-time visitors to Light mode in `ThemeScript.tsx` and `ThemeToggle.tsx`.
+- Optimized tech brand logos (AWS orange `#FF9900`, Ansible, Linux, CI/CD) and CSS filter brightness in Dark mode.
 - Upgraded Payload CMS admin editor to a WordPress Gutenberg-like experience with floating formatting toolbar, checklist block, list indentation, subscript/superscript.
-- Structured Payload `Posts` collection with a WordPress-style right sidebar layout (`admin: { position: 'sidebar' }`) for Publication status & date, Categories, Series, Tags, Featured Image, Excerpt, and Author.
-- Added mandatory publish validation in `Posts` collection (`beforeChange` hook) requiring Title VI, Category, and non-empty content before publishing.
-- Enforced DB-safe configuration ensuring 100% Postgres production database schema compatibility.
-- Added regression test `tests/posts-publication-safeguard.test.mjs` verifying content validation logic.
+- Structured Payload `Posts` collection with a WordPress-style right sidebar layout (`admin: { position: 'sidebar' }`) for Publication status & date, Topic, Series, Tags, Featured Image, Excerpt, and Author.
+- Added mandatory publish validation in `Posts` collection (`beforeChange` hook) requiring Title VI, Topic, and non-empty content before publishing.
 
 Changed:
 
@@ -23,7 +26,7 @@ Validated:
 
 Never break:
 
-- Gutenberg block editor capabilities, right sidebar layout, DB schema stability, publication constraints, and bilingual routing.
+- Topic filter bar, Draft preview mode, default light theme, Gutenberg block editor capabilities, right sidebar layout, DB schema stability, publication constraints, and bilingual routing.
 ## 2026-07-25
 
 Added:

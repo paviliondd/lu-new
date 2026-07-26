@@ -78,7 +78,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
                       src={item.icon}
                       alt=""
                       aria-hidden="true"
-                      className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
+                      className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 dark:brightness-125 dark:drop-shadow-sm"
                     />
                     <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{item.label}</span>
                   </div>

@@ -101,6 +101,19 @@ export default function ArticleClient({
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+        {/* Draft Preview Banner */}
+        {post.status === "draft" && (
+          <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
+            <div className="flex items-center gap-2.5 text-sm font-bold">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+              <span>{language === "vi" ? "BẢN NHÁP — BẠN ĐANG XEM TRƯỚC BÀI VIẾT" : "DRAFT — PREVIEW MODE"}</span>
+            </div>
+            <span className="text-xs font-semibold opacity-80">
+              {language === "vi" ? "Chưa xuất bản công khai" : "Not published yet"}
+            </span>
+          </div>
+        )}
+
         {/* Breadcrumb */}
         <div className="mb-7 flex min-w-0 items-center gap-1 overflow-hidden text-xs theme-muted">
           <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("home")}</Link>

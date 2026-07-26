@@ -810,7 +810,6 @@ const Posts: CollectionConfig = {
     beforeChange: [
       ({ data, originalDoc }) => {
         if (!data) return data;
-<<<<<<< HEAD
         if (isPublished(data) && !hasArticleContent(data)) {
           throw new APIError(
             "Bài viết phải có nội dung (contentRichVi/contentVi/contentRichEn/contentEn) mới được phép xuất bản (published).",
@@ -818,7 +817,7 @@ const Posts: CollectionConfig = {
             null,
             true,
           );
-=======
+}
         if (isPublished(data)) {
           if (!data.titleVi || typeof data.titleVi !== "string" || !data.titleVi.trim()) {
             throw new APIError("Bắt buộc phải nhập tiêu đề bài viết (Title VI) khi Publish.", 400, null, true);
@@ -826,7 +825,7 @@ const Posts: CollectionConfig = {
           if (!data.category || typeof data.category !== "string" || !data.category.trim()) {
             throw new APIError("Bắt buộc phải chọn danh mục (Category) khi Publish.", 400, null, true);
           }
->>>>>>> origin/main
+
         }
         data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
         data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");

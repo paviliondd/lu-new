@@ -415,6 +415,14 @@ function isPublished(data: unknown) {
   return Boolean(data && typeof data === "object" && "status" in data && data.status === "published");
 }
 
+export function hasArticleContent(data: unknown): boolean {
+  if (!data || typeof data !== "object") return false;
+  const doc = data as Record<string, unknown>;
+  const viText = textFromRichText(doc.contentRichVi) || (typeof doc.contentVi === "string" ? doc.contentVi : "");
+  const enText = textFromRichText(doc.contentRichEn) || (typeof doc.contentEn === "string" ? doc.contentEn : "");
+  return wordCount(viText) > 0 || wordCount(enText) > 0;
+}
+
 function validateLegacyContent(value: unknown) {
   if (value === undefined || value === null || typeof value === "string") return true;
   return "Legacy fallback content must be plain text or HTML.";
@@ -787,6 +795,14 @@ const Posts: CollectionConfig = {
     beforeChange: [
       ({ data, originalDoc }) => {
         if (!data) return data;
+        if (isPublished(data) && !hasArticleContent(data)) {
+          throw new APIError(
+            "Bài viết phải có nội dung (contentRichVi/contentVi/contentRichEn/contentEn) mới được phép xuất bản (published).",
+            400,
+            null,
+            true,
+          );
+        }
         data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
         data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
         if (typeof data.views !== "number") data.views = Number(originalDoc?.views || 0);

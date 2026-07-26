@@ -472,7 +472,7 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
 
     const fallback = fileSeries.map((item) => ({
       ...item,
-      partsCount: counts.get(item.slug) || item.partsCount,
+      partsCount: counts.get(item.slug) ?? 0,
     }));
     const payload = await getPayloadClient();
     if (!payload) return requestedLimit === undefined ? fallback : fallback.slice(0, limit);
@@ -496,7 +496,7 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
           ];
       const localizedSeries = withFallback.map((item) => ({
         ...item,
-        partsCount: counts.get(item.slug) || item.partsCount,
+        partsCount: counts.get(item.slug) ?? 0,
       }));
       return requestedLimit === undefined ? localizedSeries : localizedSeries.slice(0, limit);
     } catch (error) {

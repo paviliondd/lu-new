@@ -174,17 +174,24 @@ async function repairPosts(client) {
     SELECT id, content_vi, content_en
     FROM posts
     WHERE
-      status <> 'published'
-      OR published_at IS NULL
-      OR read_time_vi IS NULL
-      OR read_time_en IS NULL
-      OR read_time_vi = 'Draft'
-      OR read_time_en = 'Draft'
+      (
+        status <> 'published'
+        OR published_at IS NULL
+        OR read_time_vi IS NULL
+        OR read_time_en IS NULL
+        OR read_time_vi = 'Draft'
+        OR read_time_en = 'Draft'
+      )
+      AND coalesce(nullif(trim(content_vi), ''), nullif(trim(content_en), '')) IS NOT NULL
   `);
 
+  let repaired = 0;
   for (const row of result.rows) {
     const viContent = row.content_vi || row.content_en || "";
     const enContent = row.content_en || row.content_vi || "";
+    if (wordCount(viContent) === 0 && wordCount(enContent) === 0) {
+      continue;
+    }
     await client.query(
       `
         UPDATE posts
@@ -198,9 +205,10 @@ async function repairPosts(client) {
       `,
       [row.id, readTimeLabel(viContent, "vi"), readTimeLabel(enContent, "en")]
     );
+    repaired++;
   }
 
-  return result.rowCount || 0;
+  return repaired;
 }
 
 async function main() {

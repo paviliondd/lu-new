@@ -2,6 +2,26 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-26
+
+Added:
+
+- Enforced article content validation in `src/payload.config.ts` (`hasArticleContent` check) preventing empty posts from being published in Payload CMS.
+- Added regression test `tests/posts-publication-safeguard.test.mjs` verifying content validation logic.
+
+Changed:
+
+- Updated `scripts/repair-payload-posts.mjs` so it selectively publishes posts with valid content and preserves empty drafts.
+- Updated `getCmsSeries` in `src/lib/cms/payload.ts` to compute `partsCount` from actual published post count (`counts.get(item.slug) ?? 0`) rather than falling back to static metadata.
+
+Validated:
+
+- Passed `npm run lint`, `npm test` (26 tests), and `npm run build`.
+
+Never break:
+
+- Payload publication constraints, selective post repair, and accurate series post counts.
+
 ## 2026-07-19
 
 Fixed:

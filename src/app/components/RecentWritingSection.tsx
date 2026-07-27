@@ -9,6 +9,8 @@ import CustomImage from "@/app/components/CustomImage";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 
+import { formatTopicLabel } from "@/lib/utils/formatTopic";
+
 interface RecentWritingSectionProps {
   initialPosts: Post[];
 }
@@ -95,7 +97,7 @@ export default function RecentWritingSection({ initialPosts }: RecentWritingSect
                           key={topic}
                           className="rounded-full bg-slate-950/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm"
                         >
-                          {topic}
+                          {formatTopicLabel(topic)}
                         </span>
                       ))}
                     </div>

@@ -2,13 +2,13 @@
 
 import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Eye, Clock, Link2, ChevronRight } from "lucide-react";
+import { ArrowLeft, Calendar, Eye, Clock, Link2 } from "lucide-react";
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import PostListRow from "./PostListRow";
 import TableOfContents, { MobileTableOfContents, TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
-import AuthorAvatar from "./AuthorAvatar";
+import AuthorAvatar, { getAuthorDisplay } from "./AuthorAvatar";
 import Comments from "./Comments";
 import type { CommentRecord } from "@/lib/comments/types";
 
@@ -49,6 +49,7 @@ export default function ArticleClient({
   children,
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
+  const displayAuthor = getAuthorDisplay(author, post);
   const [copied, setCopied] = useState(false);
   const [views, setViews] = useState(post.views || 0);
 
@@ -113,17 +114,6 @@ export default function ArticleClient({
             </span>
           </div>
         )}
-
-        {/* Breadcrumb */}
-        <div className="mb-7 flex min-w-0 items-center gap-1 overflow-hidden text-xs theme-muted">
-          <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("home")}</Link>
-          <ChevronRight className="h-3 w-3 shrink-0" />
-          <Link href={localePath("/blog")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("blog")}</Link>
-          <ChevronRight className="h-3 w-3 shrink-0" />
-          <span className="truncate text-gray-900 dark:text-gray-100 font-medium max-w-[52vw] sm:max-w-xs">
-            {post.title}
-          </span>
-        </div>
 
         {/* 3-Column Layout */}
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,820px)_15rem] xl:justify-center">
@@ -289,6 +279,50 @@ export default function ArticleClient({
 
             {/* Sanitized rich text is parsed on the server and passed through this client shell. */}
             {children}
+
+            {/* Author Info Card at End of Post */}
+            <div className="article-reading-frame mt-10 rounded-xl border theme-border theme-card p-6">
+              <div className="flex items-start gap-4">
+                <AuthorAvatar author={author} post={post} className="h-12 w-12 shrink-0 border theme-border" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <h3 className="text-base font-bold text-slate-950 dark:text-white">
+                      {displayAuthor.name}
+                    </h3>
+                    <span className="text-xs font-semibold text-teal-700 dark:text-emerald-300">
+                      {language === "en" ? author.role_en || author.role : author.role}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed theme-muted">
+                    {language === "en" ? author.description_en || author.description : author.description}
+                  </p>
+                  {(author.github || author.linkedin) && (
+                    <div className="mt-4 flex items-center gap-3">
+                      {author.github && (
+                        <a
+                          href={author.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-slate-600 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
+                        >
+                          GitHub →
+                        </a>
+                      )}
+                      {author.linkedin && (
+                        <a
+                          href={author.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-teal-700 transition hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200"
+                        >
+                          LinkedIn →
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
             {relatedPosts.length > 0 && (
               <section className="article-reading-frame pt-10">

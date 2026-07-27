@@ -41,13 +41,13 @@
   position: relative;
   z-index: 2;
   display: flex;
-  min-height: 2.75rem;
+  min-height: 2.25rem;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   border-bottom: 1px solid #d0d7de;
   background: #eef1f4;
-  padding: 0.125rem 0.3rem 0.125rem 0.75rem;
+  padding: 0.1rem 0.3rem 0.1rem 0.75rem;
 }
 
 .code-card__header[data-compact="true"] {
@@ -60,6 +60,33 @@
   min-width: 0;
   align-items: center;
   gap: 0.6rem;
+}
+
+.code-card__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: 0.2rem;
+}
+
+.code-card__dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  display: inline-block;
+  opacity: 0.9;
+}
+
+.code-card__dot--red {
+  background-color: #ff5f56;
+}
+
+.code-card__dot--yellow {
+  background-color: #ffbd2e;
+}
+
+.code-card__dot--green {
+  background-color: #27c93f;
 }
 
 .code-card__identity:empty {
@@ -91,7 +118,7 @@
   border: 1px solid #d0d7de;
   border-radius: 999px;
   background: #fff;
-  padding: 0.2rem 0.5rem;
+  padding: 0.15rem 0.45rem;
   color: #57606a;
   font-size: 0.68rem;
   font-weight: 750;

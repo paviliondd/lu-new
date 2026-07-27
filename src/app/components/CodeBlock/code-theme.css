@@ -41,40 +41,41 @@
   position: relative;
   z-index: 2;
   display: flex;
-  min-height: 2.25rem;
+  min-height: 2.35rem;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   border-bottom: 1px solid #d0d7de;
   background: #eef1f4;
-  padding: 0.1rem 0.3rem 0.1rem 0.75rem;
+  padding: 0.25rem 0.75rem;
 }
 
 .code-card__header[data-compact="true"] {
-  justify-content: flex-end;
-  padding-left: 0.3rem;
+  justify-content: space-between;
 }
 
 .code-card__identity {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
 }
 
 .code-card__dots {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.45rem;
   margin-right: 0.2rem;
+  flex-shrink: 0;
 }
 
 .code-card__dot {
-  width: 0.65rem;
-  height: 0.65rem;
+  width: 0.72rem;
+  height: 0.72rem;
   border-radius: 999px;
   display: inline-block;
-  opacity: 0.9;
+  opacity: 0.95;
+  flex-shrink: 0;
 }
 
 .code-card__dot--red {

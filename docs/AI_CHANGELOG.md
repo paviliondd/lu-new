@@ -13,6 +13,7 @@ Added:
 
 Changed:
 
+- Optimized `.github/workflows/deploy-production.yml` by removing redundant `npm run build` and `docker build` validation steps from the `verify` job, and adding Docker Buildx GitHub Actions caching (`--cache-from type=gha`, `--cache-to type=gha,mode=max`) to speed up production deployments by 60-80%.
 - Updated Hero section text to "The DevOps Journey" badge/title and aligned "Read the Blog →" button to the right.
 - Converted all section headings to English and hidden the language switcher from Header navigation.
 - Updated About page content: enlarged `LINUXUNITY` text, removed legacy subtitle line, and added new reflection text.

@@ -2,6 +2,27 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-27
+
+Added:
+
+- Added `formatTopicLabel` utility (`src/lib/utils/formatTopic.ts`) to format Topic strings with a capitalized first letter and lowercased subsequent words (sentence case e.g. "Linux tips", "Service mesh"), while preserving tech acronyms (AWS, CI/CD, K8S, DNS, IP, SRE, etc.).
+- Added unit tests `tests/format-topic-label.test.mjs` verifying topic formatting rules and acronym preservation.
+
+Changed:
+
+- Updated `BlogListPage.tsx` topic filter pills, tag badges, reset filter link, and pagination links with `scroll={false}` to preserve page scroll position during filtering instead of auto-scrolling to top.
+- Positioned "Read →" links at the bottom right corner (`justify-end`, `ml-auto`) across both main and secondary featured cards in `FeaturedPostsCarousel.tsx`.
+- Improved featured cards visual aspect ratio (`aspect-[16/10]`, `min-h-[11.5rem]`) and dark gradient contrast (`from-slate-950/95 via-slate-950/70 to-slate-950/20`) for optimal text legibility.
+
+Validated:
+
+- Passed `npm run lint` and `npm test`.
+
+Never break:
+
+- Topic filter scroll position preservation, topic sentence-casing, and Read link bottom-right alignment.
+
 ## 2026-07-26
 
 Added:

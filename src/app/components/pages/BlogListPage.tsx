@@ -9,6 +9,7 @@ import PostCard from "@/app/components/PostCard";
 import FeaturedPostsCarousel from "@/app/components/FeaturedPostsCarousel";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
+import { formatTopicLabel } from "@/lib/utils/formatTopic";
 
 interface BlogListPageProps {
   initialPosts: Post[];
@@ -121,6 +122,7 @@ export default function BlogListPage({
               </span>
               <Link
                 href={pageHrefWithFilters(1, selectedTag, "")}
+                scroll={false}
                 className={`shrink-0 rounded-full px-3.5 py-1.5 transition ${
                   !selectedTopic
                     ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950 font-bold shadow-sm"
@@ -135,13 +137,14 @@ export default function BlogListPage({
                   <Link
                     key={topic}
                     href={pageHrefWithFilters(1, selectedTag, topic)}
+                    scroll={false}
                     className={`shrink-0 rounded-full px-3.5 py-1.5 transition ${
                       isActive
                         ? "bg-teal-700 text-white dark:bg-emerald-400 dark:text-slate-950 font-bold shadow-sm"
                         : "border theme-border bg-white text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400"
                     }`}
                   >
-                    {topic}
+                    {formatTopicLabel(topic)}
                   </Link>
                 );
               })}
@@ -155,7 +158,7 @@ export default function BlogListPage({
               <span className="text-xs uppercase font-bold text-slate-400">{language === "vi" ? "Đang lọc theo:" : "Filtered by:"}</span>
               {selectedTopic && (
                 <span className="rounded-full bg-teal-100 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300">
-                  Topic: {selectedTopic}
+                  Topic: {formatTopicLabel(selectedTopic)}
                 </span>
               )}
               {selectedTag && (
@@ -164,7 +167,7 @@ export default function BlogListPage({
                 </span>
               )}
             </div>
-            <Link href={localePath("/blog")} className="text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
+            <Link href={localePath("/blog")} scroll={false} className="text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
               {t("resetFilter")}
             </Link>
           </div>
@@ -173,7 +176,7 @@ export default function BlogListPage({
         {filteredPosts.length === 0 ? (
           <div className="theme-card rounded-xl border border-dashed py-20 text-center">
             <p className="text-sm theme-muted">{t("noPosts")}</p>
-            <Link href={localePath("/blog")} className="mt-4 inline-block text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
+            <Link href={localePath("/blog")} scroll={false} className="mt-4 inline-block text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
               {t("resetFilter")}
             </Link>
           </div>
@@ -194,6 +197,7 @@ export default function BlogListPage({
               <nav className="mt-10 flex flex-wrap items-center justify-center gap-2 text-sm font-semibold" aria-label="Blog pagination">
                 <Link
                   href={pageHref(Math.max(1, safePage - 1))}
+                  scroll={false}
                   aria-disabled={safePage === 1}
                   className={`inline-flex h-10 items-center justify-center rounded-lg border px-3.5 leading-none ${
                     safePage === 1
@@ -220,6 +224,7 @@ export default function BlogListPage({
                     <Link
                       key={page}
                       href={pageHref(page)}
+                      scroll={false}
                       className={`inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-3 leading-none ${
                         page === safePage
                           ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
@@ -232,6 +237,7 @@ export default function BlogListPage({
                 })}
                 <Link
                   href={pageHref(Math.min(totalPages, safePage + 1))}
+                  scroll={false}
                   aria-disabled={safePage === totalPages}
                   className={`inline-flex h-10 items-center justify-center rounded-lg border px-3.5 leading-none ${
                     safePage === totalPages

@@ -106,33 +106,37 @@ export default function FeaturedPostsCarousel({
                     </div>
                   )}
                 </div>
-                <div className="flex min-w-0 flex-col justify-center bg-slate-800 p-6 text-white sm:p-9 lg:p-11">
-                  <span className="mb-3 inline-flex self-start rounded-full bg-teal-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-teal-300 backdrop-blur-md">
-                    Featured
-                  </span>
-                  <h1 className="text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">{post.title}</h1>
-                  <p className="mt-5 line-clamp-3 text-sm leading-7 text-slate-300 sm:text-base">{post.description}</p>
-                  <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-slate-300">
-                    <span className="inline-flex items-center gap-2 font-semibold text-white">
-                      <AuthorAvatar author={postAuthor} post={post} className="h-8 w-8 border-white/15 bg-slate-700 text-white" />
-                      {postDisplayAuthor.name}
+                <div className="flex min-w-0 flex-col justify-between bg-slate-800 p-6 text-white sm:p-9 lg:p-11">
+                  <div>
+                    <span className="mb-3 inline-flex self-start rounded-full bg-teal-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-teal-300 backdrop-blur-md">
+                      Featured
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="h-4 w-4" />
-                      {formatDate(post.date, language)}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="h-4 w-4" />
-                      {post.readTime}
-                    </span>
+                    <h1 className="text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">{post.title}</h1>
+                    <p className="mt-5 line-clamp-3 text-sm leading-7 text-slate-300 sm:text-base">{post.description}</p>
                   </div>
-                  <Link
-                    href={localePath(`/blog/${post.slug}`)}
-                    className="mt-8 inline-flex w-fit items-center gap-2 text-sm font-bold text-teal-200 transition hover:text-white"
-                  >
-                    Read
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-slate-300">
+                      <span className="inline-flex items-center gap-2 font-semibold text-white">
+                        <AuthorAvatar author={postAuthor} post={post} className="h-8 w-8 border-white/15 bg-slate-700 text-white" />
+                        {postDisplayAuthor.name}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4" />
+                        {formatDate(post.date, language)}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" />
+                        {post.readTime}
+                      </span>
+                    </div>
+                    <Link
+                      href={localePath(`/blog/${post.slug}`)}
+                      className="ml-auto inline-flex items-center gap-2 text-sm font-bold text-teal-200 transition hover:text-white"
+                    >
+                      Read
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
               </article>
             );
@@ -174,14 +178,14 @@ export default function FeaturedPostsCarousel({
       </div>
 
       {followingPosts.length > 0 && (
-        <div className="featured-following-grid mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="featured-following-grid mt-4 grid gap-4 sm:grid-cols-3">
           {followingPosts.map((post) => {
             const thumbnail = post.seo.ogImage || post.thumbnail;
             return (
               <Link
                 key={post.slug}
                 href={localePath(`/blog/${post.slug}`)}
-                className="theme-card group/next relative aspect-[16/9] overflow-hidden rounded-lg border transition hover:-translate-y-0.5 hover:border-teal-500 dark:hover:border-emerald-400"
+                className="theme-card group/next relative aspect-[16/10] min-h-[11.5rem] overflow-hidden rounded-xl border transition hover:-translate-y-0.5 hover:border-teal-500 dark:hover:border-emerald-400"
                 aria-label={post.title}
               >
                 {thumbnail ? (
@@ -195,13 +199,15 @@ export default function FeaturedPostsCarousel({
                 ) : (
                   <span className="absolute inset-0 bg-slate-800" />
                 )}
-                <span className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/25 to-transparent" />
-                <span className="absolute inset-x-0 bottom-0 p-4 text-left">
-                  <span className="line-clamp-2 text-sm font-bold leading-5 text-white">
+                <span className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-slate-950/20" />
+                <span className="absolute inset-0 flex flex-col justify-between p-4.5 text-left">
+                  <span className="line-clamp-2 text-sm font-bold leading-snug text-white drop-shadow-sm">
                     {post.title}
                   </span>
-                  <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-teal-200">
-                    Read <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="mt-2 flex items-center justify-end">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-200 transition group-hover/next:text-white">
+                      Read <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </span>
                   </span>
                 </span>
               </Link>

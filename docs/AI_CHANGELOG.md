@@ -6,6 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
+- Added 3D metallic penguin logo assets (`public/images/linuxunity-logo.png`, `public/images/logo-icon.png`, `public/favicon.ico`) with outer background padding removed. Replaced `<Cloud>` icons in `Header.tsx`, `Footer.tsx`, and `AboutPage.tsx`.
 - Added `formatTopicLabel` utility (`src/lib/utils/formatTopic.ts`) to format Topic strings with a capitalized first letter and lowercased subsequent words (sentence case e.g. "Linux tips", "Service mesh"), while preserving tech acronyms (AWS, CI/CD, K8S, DNS, IP, SRE, etc.).
 - Added unit tests `tests/format-topic-label.test.mjs` verifying topic formatting rules and acronym preservation.
 - Added macOS-style 3 colored dots (red, yellow, green) and uppercase language badge (`BASH`, `TEXT`, `PYTHON`, etc.) to code block headers.

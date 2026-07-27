@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, Search, X, Cloud } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 import ThemeToggle from "./ThemeToggle";
 import SearchModal from "./SearchModal";
@@ -49,8 +50,8 @@ export default function Header() {
         <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           {/* Logo */}
           <Link href={localePath("/")} className="group flex min-w-0 items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border theme-border bg-white text-teal-700 shadow-sm transition duration-200 group-hover:border-teal-500 group-hover:text-teal-800 dark:bg-slate-900 dark:text-emerald-300">
-              <Cloud className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border theme-border bg-white p-1 text-teal-700 shadow-sm transition duration-200 group-hover:border-teal-500 dark:bg-slate-900">
+              <Image src="/images/logo-icon.png" alt="LinuxUnity Logo" width={28} height={28} className="object-contain" />
             </div>
             <span className="truncate text-lg font-bold tracking-tight text-slate-950 dark:text-white">
               {siteConfig.name.replace("Unity", "")}<span className="font-extrabold text-teal-600 dark:text-emerald-300">Unity</span>

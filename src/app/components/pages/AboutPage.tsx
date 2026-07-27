@@ -43,7 +43,7 @@ export default function AboutPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* Title area */}
         <div className="mb-12 max-w-3xl">
-          <p className="text-lg font-extrabold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300 sm:text-xl">
+          <p className="text-base font-bold tracking-wider text-teal-700 dark:text-emerald-300 sm:text-lg">
             LinuxUnity
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-6xl">

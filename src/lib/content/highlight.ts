@@ -66,7 +66,7 @@ export async function highlightCodeBlocks(html: string) {
         code.attr("data-filename");
 
       highlightedPre.addClass("code-block");
-      highlightedPre.attr("data-line-numbers", "true");
+      highlightedPre.attr("data-line-numbers", "false");
       highlightedPre.find(".line").each((index, line) => {
         fragment(line).attr("data-line", String(index + 1));
       });

@@ -41,13 +41,13 @@
   position: relative;
   z-index: 2;
   display: flex;
-  min-height: 2.35rem;
+  min-height: 2.2rem;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   border-bottom: 1px solid #d0d7de;
   background: #eef1f4;
-  padding: 0.25rem 0.75rem;
+  padding: 0.2rem 0.85rem;
 }
 
 .code-card__header[data-compact="true"] {
@@ -65,7 +65,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  margin-right: 0.2rem;
+  margin-right: 0.25rem;
   flex-shrink: 0;
 }
 
@@ -74,7 +74,7 @@
   height: 0.72rem;
   border-radius: 999px;
   display: inline-block;
-  opacity: 0.95;
+  opacity: 1;
   flex-shrink: 0;
 }
 

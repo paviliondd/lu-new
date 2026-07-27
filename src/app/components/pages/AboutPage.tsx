@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Cloud, Code, Shield, Cpu, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/app/components/LanguageProvider";
 
@@ -70,8 +71,8 @@ export default function AboutPage() {
             {/* Mission Illustration (Decorative Gradient Block) */}
             <div className="theme-card relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border p-8 text-center sm:aspect-[4/3] md:aspect-square">
               <div className="space-y-2">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border theme-border bg-white text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
-                  <Cloud className="h-7 w-7" />
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border theme-border bg-white p-1 text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
+                  <Image src="/images/logo-icon.png" alt="LinuxUnity Logo" width={38} height={38} className="object-contain" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-950 dark:text-white">{t("exploreBuildShare")}</h3>
                 <p className="mx-auto max-w-xs text-sm leading-6 theme-muted">

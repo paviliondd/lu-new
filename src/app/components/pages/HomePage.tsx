@@ -39,14 +39,11 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
             </span>
             <h1 className="mt-7 max-w-4xl break-words text-4xl font-extrabold leading-[1.05] tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
               {t("heroTitlePart1")}
-              <span className="block text-teal-700 dark:text-emerald-300">
-                {t("heroTitlePart2")}
-              </span>
             </h1>
             <p className="theme-muted mt-6 max-w-2xl text-base leading-8 sm:text-lg">
               {t("heroDesc")}
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-end">
               <Link
                 href={localePath("/blog")}
                 className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-slate-950 px-6 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 sm:w-auto"

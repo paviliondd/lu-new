@@ -42,7 +42,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
             <p className="theme-muted mt-6 max-w-2xl text-base leading-8 sm:text-lg">
               {t("heroDesc")}
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-start">
               <Link
                 href={localePath("/blog")}
                 className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-slate-700/60 bg-[#111a29] px-6 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#1a2638] dark:border-slate-800 dark:bg-[#111a29] dark:text-white dark:hover:bg-[#1a2638] sm:w-auto"

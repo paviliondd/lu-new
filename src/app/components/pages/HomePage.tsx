@@ -30,7 +30,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
     <div className="theme-page min-h-screen overflow-x-clip">
       <section className="theme-surface relative isolate overflow-hidden border-b theme-border">
         <div className="theme-hero absolute inset-0 -z-10" />
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_1.1fr] lg:py-20">
+        <div className="mx-auto grid max-w-7xl items-end gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_1.1fr] lg:py-20">
           <div className="min-w-0">
             <span className="inline-flex max-w-full items-center gap-2 rounded-full border theme-border bg-white/70 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-teal-700 shadow-sm dark:bg-slate-900/70 dark:text-emerald-300 sm:px-4 sm:text-xs sm:tracking-[0.18em]">
               <Sparkles className="h-3.5 w-3.5" />
@@ -45,7 +45,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-start">
               <Link
                 href={localePath("/blog")}
-                className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-slate-950 px-6 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 sm:w-auto"
+                className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-slate-700/60 bg-[#111a29] px-6 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#1a2638] dark:border-slate-800 dark:bg-[#111a29] dark:text-white dark:hover:bg-[#1a2638] sm:w-auto"
               >
                 {t("readBlog")}
                 <ArrowRight className="ml-2 h-4 w-4" />

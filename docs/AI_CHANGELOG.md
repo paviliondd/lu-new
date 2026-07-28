@@ -6,7 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
-- Created interactive animated `CicdWorkflow.tsx` component (`commit` → `build`/`test`/`unit` → `scan` → `deploy`) with Navy panel styling (`#111a29`), SVG Bézier curve paths, stroke drawing state transitions, status indicator pulsing dot, `prefers-reduced-motion` support, and Page Visibility API tab handling.
+- Created interactive animated `CicdWorkflow.tsx` component (`commit` → `lint`/`unit`/`build` → `scan` → `deploy`) with pure SVG coordinate rendering for 0 text overlap, stark white border (`border-2 border-white`) in light mode, `build` job duration > 5s, celebration blinking lights, 15s pause cycle, `prefers-reduced-motion` support, and Page Visibility API tab handling.
 
 Changed:
 

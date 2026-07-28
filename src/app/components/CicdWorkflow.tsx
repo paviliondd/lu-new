@@ -6,9 +6,9 @@ export type JobStatus = "pending" | "running" | "success" | "failed";
 
 export type WorkflowJob =
   | "commit"
-  | "build"
-  | "test"
+  | "lint"
   | "unit"
+  | "build"
   | "scan"
   | "deploy";
 
@@ -18,9 +18,9 @@ interface CicdWorkflowProps {
 
 const INITIAL_JOBS: Record<WorkflowJob, JobStatus> = {
   commit: "pending",
-  build: "pending",
-  test: "pending",
+  lint: "pending",
   unit: "pending",
+  build: "pending",
   scan: "pending",
   deploy: "pending",
 };
@@ -37,9 +37,9 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return {
         commit: "success",
-        build: "success",
-        test: "success",
+        lint: "success",
         unit: "success",
+        build: "success",
         scan: "success",
         deploy: "success",
       };
@@ -57,16 +57,10 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
       ? "passed"
       : "pending"
   );
+  const [isBlinking, setIsBlinking] = useState<boolean>(false);
   const [fadingOut, setFadingOut] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const pathRefCommitBuild = useRef<SVGPathElement>(null);
-  const pathRefCommitTest = useRef<SVGPathElement>(null);
-  const pathRefCommitUnit = useRef<SVGPathElement>(null);
-  const pathRefBuildScan = useRef<SVGPathElement>(null);
-  const pathRefTestScan = useRef<SVGPathElement>(null);
-  const pathRefUnitScan = useRef<SVGPathElement>(null);
-  const pathRefScanDeploy = useRef<SVGPathElement>(null);
 
   // Listen to prefers-reduced-motion changes dynamically
   useEffect(() => {
@@ -77,9 +71,9 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
       if (e.matches) {
         setJobs({
           commit: "success",
-          build: "success",
-          test: "success",
+          lint: "success",
           unit: "success",
+          build: "success",
           scan: "success",
           deploy: "success",
         });
@@ -115,85 +109,97 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
     const runTimeline = () => {
       clearAllTimeouts();
       setFadingOut(false);
+      setIsBlinking(false);
 
       // 0.0s: Reset all workflow jobs
       setJobs(INITIAL_JOBS);
       setHeaderState("running");
       setHeaderStatus("● running");
 
-      // 0.4s: commit begins
+      // 1.0s: commit begins
       schedule(() => {
         setJobs((prev) => ({ ...prev, commit: "running" }));
-      }, 400);
-
-      // 1.0s: commit ✓
-      schedule(() => {
-        setJobs((prev) => ({ ...prev, commit: "success" }));
       }, 1000);
 
-      // 1.3s: build, test, unit start concurrently
+      // 3.5s: commit ✓ (took 2.5s)
+      schedule(() => {
+        setJobs((prev) => ({ ...prev, commit: "success" }));
+      }, 3500);
+
+      // 4.5s: lint and unit start concurrently (Quality Verification Stage)
       schedule(() => {
         setJobs((prev) => ({
           ...prev,
-          build: "running",
-          test: "running",
+          lint: "running",
           unit: "running",
         }));
-      }, 1300);
+      }, 4500);
 
-      // 2.2s: build ✓
+      // 8.5s: lint ✓ (took 4.0s - finishes fast)
       schedule(() => {
-        setJobs((prev) => ({ ...prev, build: "success" }));
-      }, 2200);
+        setJobs((prev) => ({ ...prev, lint: "success" }));
+      }, 8500);
 
-      // 2.8s: test ✓
-      schedule(() => {
-        setJobs((prev) => ({ ...prev, test: "success" }));
-      }, 2800);
-
-      // 3.5s: unit ✓
+      // 11.5s: unit ✓ (took 7.0s - finishes fast)
       schedule(() => {
         setJobs((prev) => ({ ...prev, unit: "success" }));
-      }, 3500);
+      }, 11500);
 
-      // 4.5s: scan begins
+      // 12.2s: Both lint & unit passed -> build begins (Packaging Stage)
+      schedule(() => {
+        setJobs((prev) => ({ ...prev, build: "running" }));
+      }, 12200);
+
+      // 19.5s: build ✓ (took 7.3s: > 5s rule)
+      schedule(() => {
+        setJobs((prev) => ({ ...prev, build: "success" }));
+      }, 19500);
+
+      // 20.2s: scan begins (Container Image Vulnerability Scan Stage)
       schedule(() => {
         setHeaderState("scanning");
         setHeaderStatus("● scanning");
         setJobs((prev) => ({ ...prev, scan: "running" }));
-      }, 4500);
+      }, 20200);
 
-      // 5.5s: scan ✓
+      // 23.5s: scan ✓ (took 3.3s)
       schedule(() => {
         setJobs((prev) => ({ ...prev, scan: "success" }));
-      }, 5500);
+      }, 23500);
 
-      // 6.4s: deploy begins
+      // 24.2s: deploy begins (Deployment Stage)
       schedule(() => {
         setHeaderState("deploying");
         setHeaderStatus("● deploying");
         setJobs((prev) => ({ ...prev, deploy: "running" }));
-      }, 6400);
+      }, 24200);
 
-      // 7.8s: deploy ✓
+      // 27.5s: deploy ✓ (took 3.3s: ~27.5s total active workflow duration)
       schedule(() => {
         setJobs((prev) => ({ ...prev, deploy: "success" }));
-      }, 7800);
+      }, 27500);
 
-      // 8.0s: Header -> ✓ passed
+      // 27.8s: Header -> ✓ passed
       schedule(() => {
         setHeaderState("passed");
         setHeaderStatus("✓ passed");
-      }, 8000);
+        setIsBlinking(true);
+      }, 27800);
 
-      // 10.0s: Fade out slightly and restart loop
+      // Stop celebration blinking after 3.2s
+      schedule(() => {
+        setIsBlinking(false);
+      }, 31000);
+
+      // 45.5s: Fade out slightly before restart (15s pause cycle after completion)
       schedule(() => {
         setFadingOut(true);
-      }, 10000);
+      }, 45500);
 
+      // 46.0s: Restart new loop
       schedule(() => {
         runTimeline();
-      }, 10600);
+      }, 46000);
     };
 
     // Page Visibility API handler
@@ -215,12 +221,13 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
     };
   }, [reducedMotion]);
 
+  // Helper function to resolve path stroke color
   const getPathColor = (fromJob: WorkflowJob, toJob: WorkflowJob) => {
     const fromStatus = jobs[fromJob];
     const toStatus = jobs[toJob];
 
     if (toStatus === "success") {
-      return "#50e3b3"; // mint
+      return "#50e3b3"; // mint green
     }
     if (fromStatus === "success" || toStatus === "running") {
       return "#f59e0b"; // running orange
@@ -232,44 +239,29 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
     const fromStatus = jobs[fromJob];
     const toStatus = jobs[toJob];
     if (fromStatus === "pending" && toStatus === "pending") {
-      return 0.4;
+      return 0.35;
     }
     return 1;
   };
 
-  const renderJobSymbol = (status: JobStatus) => {
-    if (status === "success") {
-      return <span className="ml-1 text-[#50e3b3]">✓</span>;
-    }
-    if (status === "running") {
-      return (
-        <span
-          className="ml-1.5 inline-block h-2 w-2 rounded-full bg-[#f59e0b]"
-          style={{
-            animation: "running-pulse 900ms ease-in-out infinite",
-          }}
-        />
-      );
-    }
-    if (status === "failed") {
-      return <span className="ml-1 text-[#f87171]">×</span>;
-    }
-    return null;
+  const getJobTextColor = (status: JobStatus) => {
+    if (status === "success") return "#50e3b3";
+    if (status === "running") return "#ffffff";
+    if (status === "failed") return "#f87171";
+    return "#64748b";
   };
 
-  const getJobTextColor = (status: JobStatus) => {
-    if (status === "success") return "text-[#50e3b3]";
-    if (status === "running") return "text-white font-medium";
-    if (status === "failed") return "text-[#f87171]";
-    return "text-[#64748b] opacity-60";
+  const getJobTextOpacity = (status: JobStatus) => {
+    if (status === "pending") return 0.45;
+    return 1;
   };
 
   return (
     <div
       ref={containerRef}
       aria-label="Live CI/CD Workflow Pipeline"
-      className={`relative w-full rounded-xl border border-[#27364a] bg-[#111a29] p-4 text-xs font-mono text-[#e5e7eb] shadow-xl transition-opacity duration-500 sm:p-5 ${
-        fadingOut ? "opacity-75" : "opacity-100"
+      className={`relative w-full rounded-xl border border-slate-700/60 bg-[#111a29] p-4 text-xs font-mono text-[#e5e7eb] shadow-xl shadow-slate-950/20 backdrop-blur-xl transition-all duration-700 dark:border-slate-800 dark:bg-[#111a29] sm:p-5 ${
+        fadingOut ? "opacity-60 scale-[0.99]" : "opacity-100 scale-100"
       } ${className}`}
     >
       <style jsx global>{`
@@ -277,27 +269,44 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
           0%,
           100% {
             opacity: 0.55;
-            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.35);
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
           }
           50% {
             opacity: 1;
             box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
           }
         }
+        @keyframes blink-success {
+          0%,
+          100% {
+            opacity: 1;
+            filter: drop-shadow(0 0 6px rgba(80, 227, 179, 0.8));
+          }
+          50% {
+            opacity: 0.45;
+            filter: drop-shadow(0 0 1px rgba(80, 227, 179, 0.2));
+          }
+        }
       `}</style>
 
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#27364a]/60 pb-3">
-        <span className="text-slate-400 font-mono tracking-tight text-[11px] sm:text-xs">
+      <div className="flex items-center justify-between border-b border-slate-700/60 pb-3 dark:border-slate-800/80">
+        <span className="font-mono text-[11px] sm:text-xs tracking-tight text-slate-400">
           workflow / main · #1842
         </span>
-        <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-mono">
+        <div className="flex items-center gap-1.5 font-mono text-[11px] sm:text-xs">
           {headerState === "passed" ? (
-            <span className="text-[#50e3b3] font-semibold">{headerStatus}</span>
+            <span
+              className={`font-semibold text-[#50e3b3] ${
+                isBlinking ? "animate-[blink-success_1s_ease-in-out_infinite]" : ""
+              }`}
+            >
+              {headerStatus}
+            </span>
           ) : headerState === "pending" ? (
             <span className="text-[#64748b] opacity-60">● pending</span>
           ) : (
-            <span className="flex items-center gap-1.5 text-[#f59e0b] font-medium">
+            <span className="flex items-center gap-1.5 font-medium text-[#f59e0b]">
               <span
                 className="inline-block h-2 w-2 rounded-full bg-[#f59e0b]"
                 style={{ animation: "running-pulse 900ms ease-in-out infinite" }}
@@ -308,231 +317,300 @@ export default function CicdWorkflow({ className = "" }: CicdWorkflowProps) {
         </div>
       </div>
 
-      {/* Diagram Canvas */}
-      <div className="relative my-4 h-48 w-full select-none sm:h-52">
-        {/* SVG Bezier Connector Paths */}
+      {/* Diagram Canvas: Standard Industry Pipeline (commit -> [lint, unit] -> build -> scan -> deploy) */}
+      <div className="relative my-3 h-52 w-full select-none sm:h-56">
         <svg
-          className="absolute inset-0 h-full w-full overflow-visible"
-          viewBox="0 0 520 200"
+          className="h-full w-full overflow-visible"
+          viewBox="0 0 580 220"
           preserveAspectRatio="xMidYMid meet"
         >
-          <defs>
-            <marker
-              id="arrow-pending"
-              viewBox="0 0 10 10"
-              refX="7"
-              refY="5"
-              markerWidth="5"
-              markerHeight="5"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b" opacity="0.5" />
-            </marker>
-            <marker
-              id="arrow-running"
-              viewBox="0 0 10 10"
-              refX="7"
-              refY="5"
-              markerWidth="5"
-              markerHeight="5"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f59e0b" />
-            </marker>
-            <marker
-              id="arrow-success"
-              viewBox="0 0 10 10"
-              refX="7"
-              refY="5"
-              markerWidth="5"
-              markerHeight="5"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#50e3b3" />
-            </marker>
-          </defs>
-
-          {/* commit -> build */}
+          {/* Hand-drawn SVG Bézier curves without arrowheads & with standard industry flow */}
+          {/* commit -> lint (top branch) */}
           <path
-            ref={pathRefCommitBuild}
-            d="M 104 98 C 136 92, 150 48, 185 48"
+            d="M 115 106 C 142 98, 160 63, 178 65"
             fill="none"
-            stroke={getPathColor("commit", "build")}
-            strokeWidth="1.75"
+            stroke={getPathColor("commit", "lint")}
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
-            opacity={getPathOpacity("commit", "build")}
-            markerEnd={`url(#arrow-${
-              jobs.build === "success"
-                ? "success"
-                : jobs.commit === "success" || jobs.build === "running"
-                ? "running"
-                : "pending"
-            })`}
-            className="transition-colors duration-300"
+            opacity={getPathOpacity("commit", "lint")}
+            style={{ transition: "stroke 1200ms ease-in-out, opacity 1200ms ease-in-out" }}
           />
 
-          {/* commit -> test */}
+          {/* commit -> unit (bottom branch) */}
           <path
-            ref={pathRefCommitTest}
-            d="M 104 100 C 132 98, 158 102, 185 100"
-            fill="none"
-            stroke={getPathColor("commit", "test")}
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity={getPathOpacity("commit", "test")}
-            markerEnd={`url(#arrow-${
-              jobs.test === "success"
-                ? "success"
-                : jobs.commit === "success" || jobs.test === "running"
-                ? "running"
-                : "pending"
-            })`}
-            className="transition-colors duration-300"
-          />
-
-          {/* commit -> unit */}
-          <path
-            ref={pathRefCommitUnit}
-            d="M 104 104 C 136 110, 150 152, 185 152"
+            d="M 115 114 C 142 122, 160 157, 178 155"
             fill="none"
             stroke={getPathColor("commit", "unit")}
-            strokeWidth="1.75"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             opacity={getPathOpacity("commit", "unit")}
-            markerEnd={`url(#arrow-${
-              jobs.unit === "success"
-                ? "success"
-                : jobs.commit === "success" || jobs.unit === "running"
-                ? "running"
-                : "pending"
-            })`}
-            className="transition-colors duration-300"
+            style={{ transition: "stroke 1200ms ease-in-out, opacity 1200ms ease-in-out" }}
+          />
+
+          {/* lint -> build */}
+          <path
+            d="M 245 65 C 265 67, 282 102, 298 106"
+            fill="none"
+            stroke={getPathColor("lint", "build")}
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={getPathOpacity("lint", "build")}
+            style={{ transition: "stroke 1200ms ease-in-out, opacity 1200ms ease-in-out" }}
+          />
+
+          {/* unit -> build */}
+          <path
+            d="M 245 155 C 265 153, 282 118, 298 114"
+            fill="none"
+            stroke={getPathColor("unit", "build")}
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={getPathOpacity("unit", "build")}
+            style={{ transition: "stroke 1200ms ease-in-out, opacity 1200ms ease-in-out" }}
           />
 
           {/* build -> scan */}
           <path
-            ref={pathRefBuildScan}
-            d="M 252 48 C 288 48, 308 94, 342 98"
+            d="M 372 110 C 385 108, 398 112, 408 110"
             fill="none"
             stroke={getPathColor("build", "scan")}
-            strokeWidth="1.75"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             opacity={getPathOpacity("build", "scan")}
-            markerEnd={`url(#arrow-${
-              jobs.scan === "success"
-                ? "success"
-                : jobs.build === "success" || jobs.scan === "running"
-                ? "running"
-                : "pending"
-            })`}
-            className="transition-colors duration-300"
-          />
-
-          {/* test -> scan */}
-          <path
-            ref={pathRefTestScan}
-            d="M 245 100 C 275 102, 312 98, 342 100"
-            fill="none"
-            stroke={getPathColor("test", "scan")}
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity={getPathOpacity("test", "scan")}
-            markerEnd={`url(#arrow-${
-              jobs.scan === "success"
-                ? "success"
-                : jobs.test === "success" || jobs.scan === "running"
-                ? "running"
-                : "pending"
-            })`}
-            className="transition-colors duration-300"
-          />
-
-          {/* unit -> scan */}
-          <path
-            ref={pathRefUnitScan}
-            d="M 245 152 C 288 152, 308 106, 342 102"
-            fill="none"
-            stroke={getPathColor("unit", "scan")}
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity={getPathOpacity("unit", "scan")}
-            markerEnd={`url(#arrow-${
-              jobs.scan === "success"
-                ? "success"
-                : jobs.unit === "success" || jobs.scan === "running"
-                ? "running"
-                : "pending"
-            })`}
-            className="transition-colors duration-300"
+            style={{ transition: "stroke 1200ms ease-in-out, opacity 1200ms ease-in-out" }}
           />
 
           {/* scan -> deploy */}
           <path
-            ref={pathRefScanDeploy}
-            d="M 400 100 C 418 98, 432 102, 448 100"
+            d="M 478 110 C 490 108, 500 112, 508 110"
             fill="none"
             stroke={getPathColor("scan", "deploy")}
-            strokeWidth="1.75"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             opacity={getPathOpacity("scan", "deploy")}
-            markerEnd={`url(#arrow-${
-              jobs.deploy === "success"
-                ? "success"
-                : jobs.scan === "success" || jobs.deploy === "running"
-                ? "running"
-                : "pending"
-            })`}
-            className="transition-colors duration-300"
+            style={{ transition: "stroke 1200ms ease-in-out, opacity 1200ms ease-in-out" }}
           />
-        </svg>
 
-        {/* Nodes overlay positioned in coordination with SVG ViewBox 520x200 */}
-        <div className="absolute inset-0 flex items-center justify-between text-xs font-mono pointer-events-none">
           {/* Node 1: commit */}
-          <div className="absolute left-[5%] top-[46%] -translate-y-1/2 flex items-center gap-0.5">
-            <span className={getJobTextColor(jobs.commit)}>commit</span>
-            {renderJobSymbol(jobs.commit)}
-          </div>
+          <g transform="translate(30, 114)">
+            <text
+              fontFamily="monospace"
+              fontSize="13"
+              fontWeight="600"
+              fill={getJobTextColor(jobs.commit)}
+              opacity={getJobTextOpacity(jobs.commit)}
+            >
+              commit
+            </text>
+            {jobs.commit === "success" && (
+              <text
+                x="57"
+                y="0"
+                fontFamily="monospace"
+                fontSize="13"
+                fontWeight="bold"
+                fill="#50e3b3"
+                className={isBlinking ? "animate-[blink-success_1s_ease-in-out_infinite]" : ""}
+              >
+                ✓
+              </text>
+            )}
+            {jobs.commit === "running" && (
+              <circle
+                cx="61"
+                cy="-4"
+                r="3.5"
+                fill="#f59e0b"
+                style={{ animation: "running-pulse 900ms ease-in-out infinite" }}
+              />
+            )}
+          </g>
 
-          {/* Node 2: build, test, unit stacked vertically */}
-          <div className="absolute left-[36%] top-0 bottom-0 flex flex-col justify-around">
-            <div className="flex items-center gap-0.5">
-              <span className={getJobTextColor(jobs.build)}>build</span>
-              {renderJobSymbol(jobs.build)}
-            </div>
-            <div className="flex items-center gap-0.5">
-              <span className={getJobTextColor(jobs.test)}>test</span>
-              {renderJobSymbol(jobs.test)}
-            </div>
-            <div className="flex items-center gap-0.5">
-              <span className={getJobTextColor(jobs.unit)}>unit</span>
-              {renderJobSymbol(jobs.unit)}
-            </div>
-          </div>
+          {/* Node 2: lint (Top branch) */}
+          <g transform="translate(185, 69)">
+            <text
+              fontFamily="monospace"
+              fontSize="13"
+              fontWeight="600"
+              fill={getJobTextColor(jobs.lint)}
+              opacity={getJobTextOpacity(jobs.lint)}
+            >
+              lint
+            </text>
+            {jobs.lint === "success" && (
+              <text
+                x="37"
+                y="0"
+                fontFamily="monospace"
+                fontSize="13"
+                fontWeight="bold"
+                fill="#50e3b3"
+                className={isBlinking ? "animate-[blink-success_1s_ease-in-out_infinite]" : ""}
+              >
+                ✓
+              </text>
+            )}
+            {jobs.lint === "running" && (
+              <circle
+                cx="41"
+                cy="-4"
+                r="3.5"
+                fill="#f59e0b"
+                style={{ animation: "running-pulse 900ms ease-in-out infinite" }}
+              />
+            )}
+          </g>
 
-          {/* Node 3: scan */}
-          <div className="absolute left-[67%] top-[46%] -translate-y-1/2 flex items-center gap-0.5">
-            <span className={getJobTextColor(jobs.scan)}>scan</span>
-            {renderJobSymbol(jobs.scan)}
-          </div>
+          {/* Node 3: unit (Bottom branch) */}
+          <g transform="translate(185, 159)">
+            <text
+              fontFamily="monospace"
+              fontSize="13"
+              fontWeight="600"
+              fill={getJobTextColor(jobs.unit)}
+              opacity={getJobTextOpacity(jobs.unit)}
+            >
+              unit
+            </text>
+            {jobs.unit === "success" && (
+              <text
+                x="37"
+                y="0"
+                fontFamily="monospace"
+                fontSize="13"
+                fontWeight="bold"
+                fill="#50e3b3"
+                className={isBlinking ? "animate-[blink-success_1s_ease-in-out_infinite]" : ""}
+              >
+                ✓
+              </text>
+            )}
+            {jobs.unit === "running" && (
+              <circle
+                cx="41"
+                cy="-4"
+                r="3.5"
+                fill="#f59e0b"
+                style={{ animation: "running-pulse 900ms ease-in-out infinite" }}
+              />
+            )}
+          </g>
 
-          {/* Node 4: deploy */}
-          <div className="absolute right-[3%] top-[46%] -translate-y-1/2 flex items-center gap-0.5">
-            <span className={getJobTextColor(jobs.deploy)}>deploy</span>
-            {renderJobSymbol(jobs.deploy)}
-          </div>
-        </div>
+          {/* Node 4: build (Converged center) */}
+          <g transform="translate(305, 114)">
+            <text
+              fontFamily="monospace"
+              fontSize="13"
+              fontWeight="600"
+              fill={getJobTextColor(jobs.build)}
+              opacity={getJobTextOpacity(jobs.build)}
+            >
+              build
+            </text>
+            {jobs.build === "success" && (
+              <text
+                x="47"
+                y="0"
+                fontFamily="monospace"
+                fontSize="13"
+                fontWeight="bold"
+                fill="#50e3b3"
+                className={isBlinking ? "animate-[blink-success_1s_ease-in-out_infinite]" : ""}
+              >
+                ✓
+              </text>
+            )}
+            {jobs.build === "running" && (
+              <circle
+                cx="51"
+                cy="-4"
+                r="3.5"
+                fill="#f59e0b"
+                style={{ animation: "running-pulse 900ms ease-in-out infinite" }}
+              />
+            )}
+          </g>
+
+          {/* Node 5: scan */}
+          <g transform="translate(415, 114)">
+            <text
+              fontFamily="monospace"
+              fontSize="13"
+              fontWeight="600"
+              fill={getJobTextColor(jobs.scan)}
+              opacity={getJobTextOpacity(jobs.scan)}
+            >
+              scan
+            </text>
+            {jobs.scan === "success" && (
+              <text
+                x="37"
+                y="0"
+                fontFamily="monospace"
+                fontSize="13"
+                fontWeight="bold"
+                fill="#50e3b3"
+                className={isBlinking ? "animate-[blink-success_1s_ease-in-out_infinite]" : ""}
+              >
+                ✓
+              </text>
+            )}
+            {jobs.scan === "running" && (
+              <circle
+                cx="41"
+                cy="-4"
+                r="3.5"
+                fill="#f59e0b"
+                style={{ animation: "running-pulse 900ms ease-in-out infinite" }}
+              />
+            )}
+          </g>
+
+          {/* Node 6: deploy */}
+          <g transform="translate(515, 114)">
+            <text
+              fontFamily="monospace"
+              fontSize="13"
+              fontWeight="600"
+              fill={getJobTextColor(jobs.deploy)}
+              opacity={getJobTextOpacity(jobs.deploy)}
+            >
+              deploy
+            </text>
+            {jobs.deploy === "success" && (
+              <text
+                x="56"
+                y="0"
+                fontFamily="monospace"
+                fontSize="13"
+                fontWeight="bold"
+                fill="#50e3b3"
+                className={isBlinking ? "animate-[blink-success_1s_ease-in-out_infinite]" : ""}
+              >
+                ✓
+              </text>
+            )}
+            {jobs.deploy === "running" && (
+              <circle
+                cx="59"
+                cy="-4"
+                r="3.5"
+                fill="#f59e0b"
+                style={{ animation: "running-pulse 900ms ease-in-out infinite" }}
+              />
+            )}
+          </g>
+        </svg>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-[#27364a]/60 pt-3 text-[11px] sm:text-xs font-mono text-[#64748b]">
+      <div className="flex items-center justify-between border-t border-slate-700/60 pt-3 font-mono text-[11px] sm:text-xs text-[#64748b] dark:border-slate-800/80">
         <span>sha 7f3a91c · elapsed 01:31 · production</span>
       </div>
     </div>

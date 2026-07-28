@@ -84,12 +84,11 @@ export default function Header() {
             <button
               type="button"
               onClick={openSearch}
-              className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-lg border theme-border bg-white px-3 text-sm font-semibold text-slate-600 transition hover:border-teal-500 hover:bg-slate-50 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="grid h-10 w-10 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
               aria-label={t("search")}
               title={t("search")}
             >
               <Search className="h-4 w-4" />
-              <span className="hidden text-[11px] text-slate-400 lg:inline">Ctrl K</span>
             </button>
 
             <ThemeToggle />

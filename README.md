@@ -79,7 +79,7 @@ docs/                  Operational and architecture documentation
 Admin URL:
 
 ```text
-https://tesst.linuxunity.com/admin
+https://linuxunity.com/admin
 ```
 
 Deploy guide:

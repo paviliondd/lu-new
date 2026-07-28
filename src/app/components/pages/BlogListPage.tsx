@@ -92,20 +92,11 @@ export default function BlogListPage({
     <div className="theme-page min-h-screen overflow-x-clip">
       <section className="theme-surface relative overflow-hidden border-b theme-border">
         <div className="theme-hero absolute inset-0" />
-        <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="relative mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
           <span className="inline-flex max-w-full items-center gap-2 rounded-full border theme-border bg-white/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-teal-700 shadow-sm dark:bg-slate-900/70 dark:text-emerald-300 sm:text-xs sm:tracking-[0.18em]">
             <SlidersHorizontal className="h-3.5 w-3.5" />
             {t("studyPath")}
           </span>
-          <h1 className="mt-6 max-w-4xl break-words text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
-            {t("blogTitlePart1")}
-            <span className="block text-teal-700 dark:text-emerald-300">
-              {t("blogTitlePart2")}
-            </span>
-          </h1>
-          <p className="theme-muted mt-5 max-w-2xl text-base leading-7">
-            {t("blogDescription")}
-          </p>
         </div>
       </section>
 

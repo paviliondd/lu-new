@@ -2,6 +2,22 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-28
+
+Added:
+
+- Created interactive animated `CicdWorkflow.tsx` component (`commit` → `lint`/`unit`/`build` → `scan` → `deploy`) with pure SVG coordinate rendering for 0 text overlap, stark white border (`border-2 border-white`) in light mode, `build` job duration > 5s, celebration blinking lights, 15s pause cycle, `prefers-reduced-motion` support, and Page Visibility API tab handling.
+
+Changed:
+
+- Replaced the technology grid on the right side of the Hero section in `HomePage.tsx` with `<CicdWorkflow />`.
+- Updated hero slogan in `LanguageProvider.tsx` to: `"LinuxUnity is an ongoing journey of learning, creating, and growing—one step at a time."`.
+- Replaced all domain references from `tesst.linuxunity.com` and `test.linuxunity.com` to `linuxunity.com` across configuration (`.env.example`, `image-hosts.json`, `metadata.ts`), scripts (`diagnose-host.sh`, `30-render-site-conf.sh`), and documentation (`README.md`, `deploy/README.md`, `docs/CICD_DEPLOYMENT.md`).
+
+Validated:
+
+- Passed `npm run lint` (0 errors, 0 warnings), `npm test` (2 tests), and `npm run build`.
+
 ## 2026-07-27
 
 Added:

@@ -8,9 +8,10 @@ import { useLanguage } from "./LanguageProvider";
 import PostListRow from "./PostListRow";
 import TableOfContents, { MobileTableOfContents, TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
-import AuthorAvatar, { getAuthorDisplay } from "./AuthorAvatar";
+import AuthorAvatar from "./AuthorAvatar";
 import Comments from "./Comments";
 import type { CommentRecord } from "@/lib/comments/types";
+import { formatTopicLabel } from "@/lib/utils/formatTopic";
 
 interface ArticleClientProps {
   post: Post;
@@ -49,7 +50,6 @@ export default function ArticleClient({
   children,
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
-  const displayAuthor = getAuthorDisplay(author, post);
   const [copied, setCopied] = useState(false);
   const [views, setViews] = useState(post.views || 0);
 
@@ -280,62 +280,27 @@ export default function ArticleClient({
             {/* Sanitized rich text is parsed on the server and passed through this client shell. */}
             {children}
 
-            {/* Author Info Card at End of Post */}
-            <div className="article-reading-frame mt-10 rounded-xl border theme-border theme-card p-6">
-              <div className="flex items-start gap-4">
-                <AuthorAvatar author={author} post={post} className="h-12 w-12 shrink-0 border theme-border" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <h3 className="text-base font-bold text-slate-950 dark:text-white">
-                      {displayAuthor.name}
-                    </h3>
-                    <span className="text-xs font-semibold text-teal-700 dark:text-emerald-300">
-                      {language === "en" ? author.role_en || author.role : author.role}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed theme-muted">
-                    {language === "en" ? author.description_en || author.description : author.description}
-                  </p>
-                  {(author.github || author.linkedin) && (
-                    <div className="mt-4 flex items-center gap-3">
-                      {author.github && (
-                        <a
-                          href={author.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-bold text-slate-600 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
-                        >
-                          GitHub →
-                        </a>
-                      )}
-                      {author.linkedin && (
-                        <a
-                          href={author.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-bold text-teal-700 transition hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200"
-                        >
-                          LinkedIn →
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
             {relatedPosts.length > 0 && (
               <section className="article-reading-frame pt-10">
-                <div className="mb-4 flex items-center justify-between border-b theme-border pb-3">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b theme-border pb-3">
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-                    {t("relatedPosts")}
+                    {`More in ${formatTopicLabel(post.category || "DevOps")}`}
                   </h2>
-                  <Link
-                    href={localePath("/blog")}
-                    className="text-sm font-semibold text-teal-700 transition hover:text-teal-800 dark:text-emerald-300 dark:hover:text-emerald-200"
-                  >
-                    {t("viewAll")}
-                  </Link>
+                  <div className="flex items-center gap-4 text-sm font-semibold">
+                    <Link
+                      href={localePath("/blog")}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                      {language === "vi" ? "Tất cả bài viết" : "Back to all posts"}
+                    </Link>
+                    <Link
+                      href={localePath("/blog")}
+                      className="text-sm font-semibold text-teal-700 transition hover:text-teal-800 dark:text-emerald-300 dark:hover:text-emerald-200"
+                    >
+                      {t("viewAll")}
+                    </Link>
+                  </div>
                 </div>
                 <div>
                   {relatedPosts.map((relatedPost, index) => (

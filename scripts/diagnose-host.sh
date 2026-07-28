@@ -2,7 +2,7 @@
 set -eu
 
 COMPOSE="${COMPOSE:-docker compose}"
-DOMAIN="${SITE_DOMAIN:-tesst.linuxunity.com}"
+DOMAIN="${SITE_DOMAIN:-linuxunity.com}"
 KUMA_DOMAIN="${KUMA_DOMAIN:-kuma.linuxunity.com}"
 
 section() {

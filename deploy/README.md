@@ -4,8 +4,8 @@ This deployment runs:
 
 - Nginx reverse proxy.
 - Next.js frontend and Payload CMS in the same app container.
-- Payload admin at `https://tesst.linuxunity.com/admin`.
-- Payload REST API at `https://tesst.linuxunity.com/api/payload`.
+- Payload admin at `https://linuxunity.com/admin`.
+- Payload REST API at `https://linuxunity.com/api/payload`.
 - Postgres for CMS data.
 - A persistent Docker volume for uploaded media at `/app/public/uploads`.
 - Uptime Kuma at `https://kuma.linuxunity.com`.
@@ -36,16 +36,16 @@ Configure comment OAuth before testing GitHub or Google login:
 ```bash
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
-GITHUB_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/github/callback
+GITHUB_CALLBACK_URL=https://linuxunity.com/api/auth/github/callback
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
-GOOGLE_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/google/callback
+GOOGLE_CALLBACK_URL=https://linuxunity.com/api/auth/google/callback
 ```
 
 Create provider apps with these callback URLs:
 
-- GitHub: `https://tesst.linuxunity.com/api/auth/github/callback`
-- Google: `https://tesst.linuxunity.com/api/auth/google/callback`
+- GitHub: `https://linuxunity.com/api/auth/github/callback`
+- Google: `https://linuxunity.com/api/auth/google/callback`
 
 After changing `.env`, recreate the app container so it receives the new values:
 
@@ -86,7 +86,7 @@ proxy can resolve a new app container IP after restarts.
 Open:
 
 ```text
-https://tesst.linuxunity.com/admin
+https://linuxunity.com/admin
 ```
 
 On the first visit, Payload shows the first-user setup screen. Create the admin
@@ -115,11 +115,11 @@ Issue certificates:
 docker compose --profile tools run --rm certbot certonly \
   --webroot \
   --webroot-path /var/www/certbot \
-  --email admin@tesst.linuxunity.com \
+  --email admin@linuxunity.com \
   --agree-tos \
   --no-eff-email \
-  -d tesst.linuxunity.com \
-  -d www.tesst.linuxunity.com
+  -d linuxunity.com \
+  -d www.linuxunity.com
 ```
 
 Restart Nginx:

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Boxes, GitPullRequest, Layers, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, GitPullRequest, Layers, Sparkles, Zap } from "lucide-react";
 import type { Post, Series } from "@/app/data";
 import { useLanguage } from "@/app/components/LanguageProvider";
+import CicdWorkflow from "@/app/components/CicdWorkflow";
 import RecentWritingSection from "@/app/components/RecentWritingSection";
-import { homepageConfig } from "@/config/homepage";
 
 interface HomePageProps {
   initialPosts: Post[];
@@ -15,7 +15,6 @@ interface HomePageProps {
 export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
   const { t, language, localePath } = useLanguage();
 
-  const technologyItems = homepageConfig.technologies;
   const renderSeriesIcon = (iconName: string) => {
     switch (iconName) {
       case "zap":
@@ -31,7 +30,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
     <div className="theme-page min-h-screen overflow-x-clip">
       <section className="theme-surface relative isolate overflow-hidden border-b theme-border">
         <div className="theme-hero absolute inset-0 -z-10" />
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_1.1fr] lg:py-20">
           <div className="min-w-0">
             <span className="inline-flex max-w-full items-center gap-2 rounded-full border theme-border bg-white/70 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-teal-700 shadow-sm dark:bg-slate-900/70 dark:text-emerald-300 sm:px-4 sm:text-xs sm:tracking-[0.18em]">
               <Sparkles className="h-3.5 w-3.5" />
@@ -43,7 +42,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
             <p className="theme-muted mt-6 max-w-2xl text-base leading-8 sm:text-lg">
               {t("heroDesc")}
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-start">
               <Link
                 href={localePath("/blog")}
                 className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-slate-950 px-6 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 sm:w-auto"
@@ -54,36 +53,8 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
             </div>
           </div>
 
-          <div className="relative hidden lg:block">
-            <div className="theme-card relative grid gap-4 rounded-xl border p-5 backdrop-blur-xl">
-              <div className="theme-panel flex items-center gap-3 rounded-lg border theme-border p-4">
-                <Boxes className="h-5 w-5 text-teal-700 dark:text-emerald-300" />
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Cloud native</p>
-                  <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">Architecture, automation, security</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {technologyItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className={`group flex min-h-16 items-center gap-3 rounded-lg border theme-border bg-white/55 p-4 transition duration-200 dark:bg-slate-900/40 ${item.hoverClass}`}
-                  >
-                    {/* Brand SVGs are intentionally loaded directly to preserve their source form. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.icon}
-                      alt=""
-                      aria-hidden="true"
-                      className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                        item.label === "AWS" ? "dark:invert dark:brightness-150" : "dark:brightness-125 dark:drop-shadow-sm"
-                      }`}
-                    />
-                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="relative mt-4 lg:mt-0">
+            <CicdWorkflow />
           </div>
         </div>
       </section>

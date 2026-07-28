@@ -15,7 +15,7 @@ test("homepage fetches only six posts and three series without rendering the car
   assert.match(route, /getCmsSeries\(lang, 3\)/);
   assert.doesNotMatch(homepage, /FeaturedPostsCarousel/);
   assert.match(homepage, /localePath\("\/blog\/series"\)/);
-  assert.match(homepage, />\s*Collections\s*</);
+  assert.match(homepage, /collectionsLabel|Collections/);
   assert.match(recent, /usePublishedPosts\(initialPosts, 6\)/);
   assert.match(recent, /\.slice\(0, 6\)/);
   assert.match(publishedPosts, /&limit=\$\{requestedLimit\}/);

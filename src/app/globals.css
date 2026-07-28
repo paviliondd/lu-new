@@ -631,6 +631,64 @@ iframe {
   background: var(--site-panel);
 }
 
+/* Live Action Sea-Bubble Floating Glow Animations */
+@keyframes liveBubble1 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(65px, -45px) scale(1.18);
+  }
+  66% {
+    transform: translate(110px, 25px) scale(0.92);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes liveBubble2 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  40% {
+    transform: translate(-75px, 40px) scale(0.88);
+  }
+  75% {
+    transform: translate(-45px, -55px) scale(1.15);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes liveBubble3 {
+  0% {
+    transform: translate(0px, 0px) scale(0.95);
+  }
+  45% {
+    transform: translate(55px, 45px) scale(1.14);
+  }
+  80% {
+    transform: translate(-35px, -35px) scale(1.03);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(0.95);
+  }
+}
+
+.animate-live-bubble-1 {
+  animation: liveBubble1 7s ease-in-out infinite;
+}
+
+.animate-live-bubble-2 {
+  animation: liveBubble2 9.5s ease-in-out infinite;
+}
+
+.animate-live-bubble-3 {
+  animation: liveBubble3 8.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

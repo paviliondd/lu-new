@@ -6,17 +6,27 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
-- Created interactive animated `CicdWorkflow.tsx` component (`commit` → `lint`/`unit`/`build` → `scan` → `deploy`) with pure SVG coordinate rendering for 0 text overlap, stark white border (`border-2 border-white`) in light mode, `build` job duration > 5s, celebration blinking lights, 15s pause cycle, `prefers-reduced-motion` support, and Page Visibility API tab handling.
+- Implemented asymmetric 2-zone editorial Hero section (70% main content / 30% progress cluster) featuring mixed typography ("The Unity" bold sans-serif + "Journey" serif italic in teal), brand description (`LinuxUnity is a team of engineers sharing what we learn on our journey through DevOps and Cloud.`), and `Start exploring →` action button.
+- Added live-action floating sea-bubble ambient glow effect powered by global CSS keyframes (`liveBubble1`, `liveBubble2`, `liveBubble3` in `globals.css`) for continuous real-time drifting, scaling, and morphing behind `"The Unity Journey"`.
+- Implemented 1-way ocean wave progress flow animation (`explore` → `learn` → `share` → hold → dissolve fade-out → repeat wave from top), eliminating all backward line contractions.
+- Updated Series section header to include horizontal dash line prefix `── COLLECTIONS` (matching `── FROM THE BLOG`) and removed `02 /` prefix.
 
 Changed:
 
-- Replaced the technology grid on the right side of the Hero section in `HomePage.tsx` with `<CicdWorkflow />`.
-- Updated hero slogan in `LanguageProvider.tsx` to: `"LinuxUnity is an ongoing journey of learning, creating, and growing—one step at a time."`.
-- Replaced all domain references from `tesst.linuxunity.com` and `test.linuxunity.com` to `linuxunity.com` across configuration (`.env.example`, `image-hosts.json`, `metadata.ts`), scripts (`diagnose-host.sh`, `30-render-site-conf.sh`), and documentation (`README.md`, `deploy/README.md`, `docs/CICD_DEPLOYMENT.md`).
+- Updated hero translation keys for title split, description, collections label, and action button in `LanguageProvider.tsx`.
 
 Validated:
 
-- Passed `npm run lint` (0 errors, 0 warnings), `npm test` (2 tests), and `npm run build`.
+- Passed `npm run lint` (0 errors, 0 warnings) and `npm test` (28 unit tests). Verified live dev server rendering on `http://localhost:3000`.
+
+
+
+
+
+
+
+
+
 
 ## 2026-07-27
 

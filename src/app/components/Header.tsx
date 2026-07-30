@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 import ThemeToggle from "./ThemeToggle";
+import LanguageToggle from "./LanguageToggle";
 import SearchModal from "./SearchModal";
 import { navigationConfig } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
@@ -91,6 +92,7 @@ export default function Header() {
               <Search className="h-4 w-4" />
             </button>
 
+            <LanguageToggle />
             <ThemeToggle />
 
             {/* Mobile Menu Toggle */}

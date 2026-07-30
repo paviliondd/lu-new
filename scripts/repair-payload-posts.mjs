@@ -170,6 +170,7 @@ async function printStats(client, label) {
 }
 
 async function repairPosts(client) {
+  await client.query('ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "chapter_order" numeric;');
   const result = await client.query(`
     SELECT id, content_vi, content_en
     FROM posts

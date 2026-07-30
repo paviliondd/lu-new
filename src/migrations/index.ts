@@ -5,6 +5,7 @@ import * as migration_20260711_113838_add_post_richtext_fields from './20260711_
 import * as migration_20260712_160000_add_media_filename_slug_and_sizes from './20260712_160000_add_media_filename_slug_and_sizes';
 import * as migration_20260713_000001_add_media_image_size_columns from './20260713_000001_add_media_image_size_columns';
 import * as migration_20260715_000001_add_media_fit from './20260715_000001_add_media_fit';
+import * as migration_20260730_000001_add_chapter_order from './20260730_000001_add_chapter_order';
 
 export const migrations = [
   {
@@ -41,5 +42,10 @@ export const migrations = [
     up: migration_20260715_000001_add_media_fit.up,
     down: migration_20260715_000001_add_media_fit.down,
     name: '20260715_000001_add_media_fit'
+  },
+  {
+    up: migration_20260730_000001_add_chapter_order.up,
+    down: migration_20260730_000001_add_chapter_order.down,
+    name: '20260730_000001_add_chapter_order'
   },
 ];

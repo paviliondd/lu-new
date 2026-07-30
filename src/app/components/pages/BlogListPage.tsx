@@ -77,7 +77,7 @@ export default function BlogListPage({
     return sortedPosts;
   }, [allPublishedPosts, searchQuery, selectedTag, selectedTopic]);
 
-  const isFiltered = Boolean(selectedTag || selectedTopic || searchQuery.trim());
+  const isFiltered = Boolean(selectedTag || selectedTopic);
   const reservedSlugs = new Set(
     [...featuredPosts, ...followingPosts].map((post) => post.slug),
   );
@@ -185,19 +185,6 @@ export default function BlogListPage({
                 <SlidersHorizontal className="h-3.5 w-3.5 text-teal-600 dark:text-emerald-400" />
                 Filter:
               </span>
-              {searchQuery.trim() && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100/90 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300 border border-teal-200 dark:border-emerald-800/60 shadow-xs">
-                  Search: &quot;{searchQuery.trim()}&quot;
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="ml-0.5 rounded-full p-0.5 text-teal-700 hover:bg-teal-200 hover:text-teal-950 dark:text-emerald-400 dark:hover:bg-emerald-900 dark:hover:text-white transition cursor-pointer"
-                    aria-label="Remove search filter"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              )}
               {selectedTopic && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100/90 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300 border border-teal-200 dark:border-emerald-800/60 shadow-xs">
                   Topic: {formatTopicLabel(selectedTopic)}

@@ -90,8 +90,7 @@ async function requestOpenAiTranslation(input: TranslationPayload) {
           { role: "system", content: instructions },
           { role: "user", content: JSON.stringify(input) },
         ],
-        temperature: 0.3,
-        response_format: { type: "json_object" },
+        temperature: 0.2,
       })
     : JSON.stringify({
         model: translationModel(),

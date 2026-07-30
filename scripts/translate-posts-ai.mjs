@@ -27,9 +27,14 @@ function translationEndpoint() {
 }
 
 const candidateModels = [
-  process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL || "claude-opus-5",
+  process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL,
+  "claude-opus-5",
   "gpt-5.6-sol",
   "claude-opus-4-8",
+  "gpt-4o-mini",
+  "gpt-4o",
+  "claude-3-5-sonnet",
+  "default",
 ].filter((item, index, self) => Boolean(item) && self.indexOf(item) === index);
 
 function extractText(payload) {
@@ -53,7 +58,7 @@ async function requestTranslationWithModel(apiKey, post, model) {
   };
 
   const instructions =
-    "You are an expert technical translator. Translate the provided Vietnamese technology article into natural English for software engineering documentation. Preserve all HTML formatting, code snippets, inline code, and JSON/YAML structures exactly. Return a valid JSON object with keys: title, description, content.";
+    "You are an expert technical translator. Translate the provided Vietnamese technology article into natural English for software engineering documentation. Preserve all HTML formatting, code snippets, inline code, and JSON/YAML structures exactly. Return ONLY a valid JSON object with keys: title, description, content. Do not include markdown code block backticks surrounding the JSON output.";
 
   const body = isChatCompletions
     ? JSON.stringify({
@@ -63,7 +68,6 @@ async function requestTranslationWithModel(apiKey, post, model) {
           { role: "user", content: JSON.stringify(inputPayload) },
         ],
         temperature: 0.2,
-        response_format: { type: "json_object" },
       })
     : JSON.stringify({
         model,

@@ -26,9 +26,11 @@ function translationEndpoint() {
   return process.env.OPENAI_TRANSLATION_BASE_URL || "https://agentrouter.org/v1/chat/completions";
 }
 
-function translationModel() {
-  return process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL || "gpt-4o-mini";
-}
+const candidateModels = [
+  process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL || "claude-opus-5",
+  "gpt-5.6-sol",
+  "claude-opus-4-8",
+].filter((item, index, self) => Boolean(item) && self.indexOf(item) === index);
 
 function extractText(payload) {
   if (typeof payload.output_text === "string") return payload.output_text;
@@ -38,19 +40,20 @@ function extractText(payload) {
   return "";
 }
 
-async function translatePostWithAI(apiKey, post) {
+async function requestTranslationWithModel(apiKey, post, model) {
   const endpoint = translationEndpoint();
-  const model = translationModel();
   const isChatCompletions = endpoint.includes("chat/completions") || !endpoint.includes("responses");
+
+  const cleanContent = (post.content_vi || "").replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
 
   const inputPayload = {
     title: post.title_vi || post.slug,
     description: post.excerpt_vi || post.seo_description_vi || "",
-    content: post.content_vi || "",
+    content: cleanContent,
   };
 
   const instructions =
-    "Translate Vietnamese technical blog content into natural English. Preserve HTML tags, code blocks, inline code, URLs, image paths, Markdown-like syntax inside code, product names, CLI commands, and JSON/YAML exactly. Return only valid JSON object with keys: title, description, content.";
+    "You are an expert technical translator. Translate the provided Vietnamese technology article into natural English for software engineering documentation. Preserve all HTML formatting, code snippets, inline code, and JSON/YAML structures exactly. Return a valid JSON object with keys: title, description, content.";
 
   const body = isChatCompletions
     ? JSON.stringify({
@@ -59,7 +62,7 @@ async function translatePostWithAI(apiKey, post) {
           { role: "system", content: instructions },
           { role: "user", content: JSON.stringify(inputPayload) },
         ],
-        temperature: 0.3,
+        temperature: 0.2,
         response_format: { type: "json_object" },
       })
     : JSON.stringify({
@@ -78,16 +81,46 @@ async function translatePostWithAI(apiKey, post) {
     body,
   });
 
+  const rawText = await response.text().catch(() => "");
   if (!response.ok) {
-    const errorText = await response.text().catch(() => "");
-    throw new Error(`API request failed [${response.status}]: ${errorText}`);
+    throw new Error(`API request failed [${response.status}]: ${rawText}`);
   }
 
-  const rawJson = extractText(await response.json());
+  let parsedResponse = {};
+  try {
+    parsedResponse = JSON.parse(rawText);
+  } catch {
+    throw new Error(`Invalid JSON response from server: ${rawText.slice(0, 150)}`);
+  }
+
+  const rawJson = extractText(parsedResponse);
   if (!rawJson) throw new Error("Empty translation output received from API.");
 
   const cleaned = rawJson.replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
   return JSON.parse(cleaned);
+}
+
+async function translatePostWithAI(apiKey, post) {
+  let lastError = null;
+
+  for (const model of candidateModels) {
+    try {
+      if (model !== candidateModels[0]) {
+        console.log(`   🔄 Retrying translation using fallback model "${model}"...`);
+      }
+      return await requestTranslationWithModel(apiKey, post, model);
+    } catch (err) {
+      lastError = err;
+      const isContentBlocked = err.message.includes("content-blocked");
+      if (isContentBlocked) {
+        console.warn(`   ⚠️ Model "${model}" hit Agent Router content-blocked guard. Trying next fallback model...`);
+      } else {
+        console.warn(`   ⚠️ Model "${model}" failed: ${err.message}. Trying next fallback model...`);
+      }
+    }
+  }
+
+  throw lastError || new Error("All candidate models failed to translate post.");
 }
 
 async function main() {

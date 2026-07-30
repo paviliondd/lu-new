@@ -12,6 +12,7 @@ import AuthorAvatar from "./AuthorAvatar";
 import Comments from "./Comments";
 import type { CommentRecord } from "@/lib/comments/types";
 import { formatTopicLabel } from "@/lib/utils/formatTopic";
+import { formatReadTime } from "@/lib/utils/formatReadTime";
 
 interface ArticleClientProps {
   post: Post;
@@ -234,7 +235,7 @@ export default function ArticleClient({
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5" />
-                    {post.readTime}
+                    {formatReadTime(post.readTime)}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Eye className="h-3.5 w-3.5" />

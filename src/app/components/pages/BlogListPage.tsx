@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import type { Post } from "@/app/data";
 import { team } from "@/app/data";
 import PostCard from "@/app/components/PostCard";
 import FeaturedPostsCarousel from "@/app/components/FeaturedPostsCarousel";
+import SearchModal from "@/app/components/SearchModal";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 import { formatTopicLabel } from "@/lib/utils/formatTopic";
@@ -27,6 +28,7 @@ export default function BlogListPage({
   initialTopic = "",
 }: BlogListPageProps) {
   const { t, language, localePath } = useLanguage();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const posts = usePublishedPosts(initialPosts);
   const selectedTag = initialTag;
   const selectedTopic = initialTopic;
@@ -104,6 +106,26 @@ export default function BlogListPage({
       <FeaturedPostsCarousel posts={featuredPosts} followingPosts={followingPosts} />
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+        {/* Search Bar - matching exact requested UI */}
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => setIsSearchOpen(true)}
+            className="group flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white/90 px-4 py-3 text-left shadow-xs transition hover:border-teal-500 hover:shadow-sm dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:border-emerald-400 cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Search className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-teal-600 dark:group-hover:text-emerald-400" />
+              <span className="truncate text-sm font-medium text-slate-400 dark:text-slate-500">
+                Search
+              </span>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <kbd className="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-sans text-[11px] font-semibold text-slate-500 shadow-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">Ctrl</kbd>
+              <kbd className="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-sans text-[11px] font-semibold text-slate-500 shadow-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">K</kbd>
+            </div>
+          </button>
+        </div>
+
         {/* Topic Filter Bar */}
         {availableTopics.length > 0 && (
           <div className="mb-8 overflow-x-auto pb-2 scrollbar-none">
@@ -144,21 +166,44 @@ export default function BlogListPage({
         )}
 
         {isFiltered && (
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b theme-border pb-5">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-xl border theme-border bg-slate-50/80 p-3.5 dark:bg-slate-900/60">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs uppercase font-bold text-slate-400">{language === "vi" ? "Đang lọc theo:" : "Filtered by:"}</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-teal-600 dark:text-emerald-400" />
+                Filter:
+              </span>
               {selectedTopic && (
-                <span className="rounded-full bg-teal-100 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100/90 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300 border border-teal-200 dark:border-emerald-800/60 shadow-xs">
                   Topic: {formatTopicLabel(selectedTopic)}
+                  <Link
+                    href={pageHrefWithFilters(1, selectedTag, "")}
+                    scroll={false}
+                    className="ml-0.5 rounded-full p-0.5 text-teal-700 hover:bg-teal-200 hover:text-teal-950 dark:text-emerald-400 dark:hover:bg-emerald-900 dark:hover:text-white transition"
+                    aria-label="Remove topic filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </Link>
                 </span>
               )}
               {selectedTag && (
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-200/80 px-3 py-1 text-xs font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200 border theme-border shadow-xs">
                   Tag: {selectedTag}
+                  <Link
+                    href={pageHrefWithFilters(1, "", selectedTopic)}
+                    scroll={false}
+                    className="ml-0.5 rounded-full p-0.5 text-slate-600 hover:bg-slate-300 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition"
+                    aria-label="Remove tag filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </Link>
                 </span>
               )}
             </div>
-            <Link href={localePath("/blog")} scroll={false} className="text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
+            <Link
+              href={localePath("/blog")}
+              scroll={false}
+              className="text-xs font-bold uppercase tracking-wider text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200 transition"
+            >
               {t("resetFilter")}
             </Link>
           </div>
@@ -243,6 +288,8 @@ export default function BlogListPage({
           </>
         ) : null}
       </section>
+
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </div>
   );
 }

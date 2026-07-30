@@ -5,6 +5,7 @@ import { Eye } from "lucide-react";
 import type { Author, Post } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import AuthorAvatar, { getAuthorDisplay } from "./AuthorAvatar";
+import { formatReadTime } from "@/lib/utils/formatReadTime";
 
 interface PostListRowProps {
   post: Post;
@@ -76,7 +77,7 @@ export default function PostListRow({
             {formatCompactViews(post.views || 0, language)}{" "}
             {language === "vi" ? "lượt xem" : "views"}
           </span>
-          <span className="sm:ml-auto">{post.readTime}</span>
+          <span className="sm:ml-auto">{formatReadTime(post.readTime)}</span>
         </div>
       </div>
     </Link>

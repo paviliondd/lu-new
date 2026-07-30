@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Eye, Clock, Link2, ChevronRight } from "lucide-react";
+import { ArrowLeft, Calendar, Eye, Clock, Link2 } from "lucide-react";
 import { Post, Author, team } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import PostListRow from "./PostListRow";
@@ -11,12 +11,17 @@ import CustomImage from "./CustomImage";
 import AuthorAvatar from "./AuthorAvatar";
 import Comments from "./Comments";
 import type { CommentRecord } from "@/lib/comments/types";
+import { formatTopicLabel } from "@/lib/utils/formatTopic";
+import { formatReadTime } from "@/lib/utils/formatReadTime";
 
 interface ArticleClientProps {
   post: Post;
   author: Author;
   headings: TocHeading[];
   relatedPosts: Post[];
+  prevPost?: Post | null;
+  nextPost?: Post | null;
+  groupTitle?: string;
   initialComments?: CommentRecord[];
   children: ReactNode;
 }
@@ -45,12 +50,20 @@ export default function ArticleClient({
   author,
   headings,
   relatedPosts,
+  prevPost,
+  nextPost,
+  groupTitle,
   initialComments = [],
   children,
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [views, setViews] = useState(post.views || 0);
+
+  const effectiveGroupTitle =
+    groupTitle ||
+    post.series?.title ||
+    formatTopicLabel(post.category || "DevOps");
 
   useEffect(() => {
     const storageKey = `linuxunity:viewed:${post.slug}`;
@@ -101,16 +114,18 @@ export default function ArticleClient({
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        {/* Breadcrumb */}
-        <div className="mb-7 flex min-w-0 items-center gap-1 overflow-hidden text-xs theme-muted">
-          <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("home")}</Link>
-          <ChevronRight className="h-3 w-3 shrink-0" />
-          <Link href={localePath("/blog")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("blog")}</Link>
-          <ChevronRight className="h-3 w-3 shrink-0" />
-          <span className="truncate text-gray-900 dark:text-gray-100 font-medium max-w-[52vw] sm:max-w-xs">
-            {post.title}
-          </span>
-        </div>
+        {/* Draft Preview Banner */}
+        {post.status === "draft" && (
+          <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
+            <div className="flex items-center gap-2.5 text-sm font-bold">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+              <span>{language === "vi" ? "BẢN NHÁP — BẠN ĐANG XEM TRƯỚC BÀI VIẾT" : "DRAFT — PREVIEW MODE"}</span>
+            </div>
+            <span className="text-xs font-semibold opacity-80">
+              {language === "vi" ? "Chưa xuất bản công khai" : "Not published yet"}
+            </span>
+          </div>
+        )}
 
         {/* 3-Column Layout */}
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,820px)_15rem] xl:justify-center">
@@ -231,7 +246,7 @@ export default function ArticleClient({
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5" />
-                    {post.readTime}
+                    {formatReadTime(post.readTime)}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Eye className="h-3.5 w-3.5" />
@@ -277,18 +292,53 @@ export default function ArticleClient({
             {/* Sanitized rich text is parsed on the server and passed through this client shell. */}
             {children}
 
+            {/* Chapter Navigation (Previous / Next Chapter) */}
+            {(prevPost || nextPost) && (
+              <nav aria-label="Chapter navigation" className="article-reading-frame pt-10">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {prevPost ? (
+                    <Link
+                      href={localePath(`/blog/${prevPost.slug}`)}
+                      className="group flex flex-col justify-between rounded-xl border theme-border bg-white p-4 sm:p-5 shadow-xs transition hover:border-teal-500 hover:shadow-md dark:bg-slate-900 dark:hover:border-emerald-400"
+                    >
+                      <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-600 transition duration-200 group-hover:-translate-x-1 dark:text-emerald-400">
+                        <ArrowLeft className="h-3.5 w-3.5" />
+                        PREVIOUS
+                      </span>
+                      <h3 className="mt-2 line-clamp-2 text-base font-bold text-slate-900 transition group-hover:text-teal-700 dark:text-white dark:group-hover:text-emerald-300">
+                        {prevPost.title}
+                      </h3>
+                    </Link>
+                  ) : (
+                    <div />
+                  )}
+
+                  {nextPost ? (
+                    <Link
+                      href={localePath(`/blog/${nextPost.slug}`)}
+                      className={`group flex flex-col justify-between rounded-xl border theme-border bg-white p-4 sm:p-5 shadow-xs transition hover:border-teal-500 hover:shadow-md dark:bg-slate-900 dark:hover:border-emerald-400 text-right ${
+                        !prevPost ? "sm:col-start-2" : ""
+                      }`}
+                    >
+                      <span className="flex items-center justify-end gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-600 transition duration-200 group-hover:translate-x-1 dark:text-emerald-400">
+                        NEXT
+                        <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                      </span>
+                      <h3 className="mt-2 line-clamp-2 text-base font-bold text-slate-900 transition group-hover:text-teal-700 dark:text-white dark:group-hover:text-emerald-300">
+                        {nextPost.title}
+                      </h3>
+                    </Link>
+                  ) : null}
+                </div>
+              </nav>
+            )}
+
             {relatedPosts.length > 0 && (
               <section className="article-reading-frame pt-10">
-                <div className="mb-4 flex items-center justify-between border-b theme-border pb-3">
+                <div className="mb-4 border-b theme-border pb-3">
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-                    {t("relatedPosts")}
+                    {`More in ${effectiveGroupTitle}`}
                   </h2>
-                  <Link
-                    href={localePath("/blog")}
-                    className="text-sm font-semibold text-teal-700 transition hover:text-teal-800 dark:text-emerald-300 dark:hover:text-emerald-200"
-                  >
-                    {t("viewAll")}
-                  </Link>
                 </div>
                 <div>
                   {relatedPosts.map((relatedPost, index) => (
@@ -301,6 +351,15 @@ export default function ArticleClient({
                       isLast={index === relatedPosts.length - 1}
                     />
                   ))}
+                </div>
+                <div className="mt-6 border-t theme-border pt-4">
+                  <Link
+                    href={localePath("/blog")}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-600 transition hover:text-teal-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to all posts
+                  </Link>
                 </div>
               </section>
             )}

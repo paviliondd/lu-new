@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Cloud, Code, Shield, Cpu, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { Cloud, Code, Shield, Cpu, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/app/components/LanguageProvider";
 
 export default function AboutPage() {
@@ -41,60 +42,37 @@ export default function AboutPage() {
   return (
     <div className="theme-page min-h-screen w-full py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {/* Breadcrumb */}
-        <div className="mb-6 flex items-center gap-1 text-xs theme-muted">
-          <Link href={localePath("/")} className="transition hover:text-teal-700 dark:hover:text-emerald-300">{t("home")}</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="font-medium text-slate-900 dark:text-slate-100">{t("about")}</span>
-        </div>
-
         {/* Title area */}
         <div className="mb-12 max-w-3xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
+          <p className="text-base font-bold tracking-wider text-teal-700 dark:text-emerald-300 sm:text-lg">
             LinuxUnity
           </p>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-6xl">
             {t("about")}
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 theme-muted">
-            {t("logoSubtitle")}
-          </p>
         </div>
 
         {/* Core Sections */}
         <div className="space-y-14">
           {/* Section 1: Introduction */}
           <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]">
-            <div className="space-y-4 text-base leading-7 theme-muted">
+            <div className="space-y-4 text-base leading-8 theme-muted">
               <h2 className="text-2xl font-bold text-slate-950 dark:text-white">
                 {t("missionTitle")}
               </h2>
-              {language === "vi" ? (
-                <>
-                  <p>
-                    Tại LinuxUnity, chúng tôi không chỉ viết lý thuyết. Mỗi bài lab được thiết lập theo hướng thực chiến: xây dựng hệ thống serverless hoàn chỉnh, giả lập và bắn hàng chục ngàn request để kiểm thử tải (Load testing), hoặc thiết kế các đường ống CI/CD có khả năng tự động rollback khi phát hiện lỗi.
-                  </p>
-                  <p>
-                    Tất cả mã nguồn triển khai (IaC code, script, test code) trong mỗi bài viết đều được chia sẻ công khai trên GitHub để bạn có thể tự mình chạy thử (Demo) và dọn dẹp sạch sẽ sau khi hoàn thành.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p>
-                    At LinuxUnity, the articles do not stop at theory. Each guide is built around practical labs: complete serverless systems, load tests with tens of thousands of simulated requests, or CI/CD pipelines that can automatically rollback when errors are detected.
-                  </p>
-                  <p>
-                    Deployment source code (IaC code, scripts, test code) is shared publicly on GitHub so you can run the demo yourself and clean it up after completion.
-                  </p>
-                </>
-              )}
+              <p>
+                Every journey begins with curiosity. At LinuxUnity, we embrace the process of exploring unfamiliar ideas, learning through practice, and growing through both progress and setbacks.
+              </p>
+              <p>
+                We share what we discover along the way—not as final answers, but as honest reflections, hoping they can inspire others on their own journeys.
+              </p>
             </div>
             
             {/* Mission Illustration (Decorative Gradient Block) */}
             <div className="theme-card relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border p-8 text-center sm:aspect-[4/3] md:aspect-square">
               <div className="space-y-2">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border theme-border bg-white text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
-                  <Cloud className="h-7 w-7" />
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border theme-border bg-white p-1 text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
+                  <Image src="/images/logo-icon.png" alt="LinuxUnity Logo" width={38} height={38} className="object-contain" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-950 dark:text-white">{t("exploreBuildShare")}</h3>
                 <p className="mx-auto max-w-xs text-sm leading-6 theme-muted">

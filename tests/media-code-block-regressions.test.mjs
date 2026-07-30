@@ -135,8 +135,8 @@ test("featured carousel keeps autoplay and shows distinct following posts below"
     readFile("src/app/components/FeaturedPostsCarousel.tsx", "utf8"),
   ]);
 
-  assert.match(blogList, /const featuredPosts = selectedTag \? \[\] : filteredPosts\.slice\(0, 3\)/);
-  assert.match(blogList, /const followingPosts = selectedTag \? \[\] : filteredPosts\.slice\(3, 6\)/);
+  assert.match(blogList, /const featuredPosts = useMemo\(\(\) => allPublishedPosts\.slice\(0, 3\)/);
+  assert.match(blogList, /const followingPosts = useMemo\(\(\) => allPublishedPosts\.slice\(3, 6\)/);
   assert.match(blogList, /<FeaturedPostsCarousel posts=\{featuredPosts\} followingPosts=\{followingPosts\}/);
   assert.match(carousel, /followingPosts: Post\[\]/);
   assert.match(carousel, /followingPosts\.map\(\(post\) =>/);

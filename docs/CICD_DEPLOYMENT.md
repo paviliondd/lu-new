@@ -11,7 +11,7 @@ Current production stack:
 Required runtime variables:
 
 ```bash
-NEXT_PUBLIC_SITE_URL=https://tesst.linuxunity.com
+NEXT_PUBLIC_SITE_URL=https://linuxunity.com
 PAYLOAD_SECRET=change-this-long-random-payload-secret
 POSTGRES_DB=payload
 POSTGRES_USER=payload
@@ -24,10 +24,10 @@ OAuth login for comments:
 ```bash
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
-GITHUB_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/github/callback
+GITHUB_CALLBACK_URL=https://linuxunity.com/api/auth/github/callback
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
-GOOGLE_CALLBACK_URL=https://tesst.linuxunity.com/api/auth/google/callback
+GOOGLE_CALLBACK_URL=https://linuxunity.com/api/auth/google/callback
 ```
 
 The OAuth callback must always redirect using `NEXT_PUBLIC_SITE_URL` as the public base,
@@ -67,14 +67,14 @@ DEPLOY_IMAGE_SOURCE=registry
 Admin URL:
 
 ```text
-https://tesst.linuxunity.com/admin
+https://linuxunity.com/admin
 ```
 
 Health checks:
 
 ```bash
-curl -fsS https://tesst.linuxunity.com/api/health
-curl -I https://tesst.linuxunity.com/admin
+curl -fsS https://linuxunity.com/api/health
+curl -I https://linuxunity.com/admin
 ```
 
 Deployment check:

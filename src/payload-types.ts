@@ -251,17 +251,52 @@ export interface Series {
  */
 export interface Post {
   id: number;
+  /**
+   * Post publication status (WordPress-style Publish box).
+   */
+  status: 'draft' | 'published';
+  /**
+   * Publication date & time.
+   */
+  publishedAt?: string | null;
+  /**
+   * Article author.
+   */
+  author?: (number | null) | Author;
+  /**
+   * WordPress-style Featured Image.
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * Topic / Chủ đề bài viết (dùng để lọc bài trong mục Blog).
+   */
+  category?: string | null;
+  /**
+   * Assign article to a Series.
+   */
+  series?: (number | null) | Series;
+  /**
+   * Article tags.
+   */
+  tags?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * WordPress-style excerpt shown in article cards.
+   */
+  excerptVi?: string | null;
+  excerptEn?: string | null;
   titleVi: string;
   titleEn?: string | null;
   /**
    * Generated from Title VI when left blank.
    */
   slug: string;
-  coverImage?: (number | null) | Media;
-  excerptVi?: string | null;
-  excerptEn?: string | null;
   /**
-   * WordPress-style rich editor for new Vietnamese posts.
+   * WordPress Gutenberg-style block editor for Vietnamese content.
    */
   contentRichVi?: {
     root: {
@@ -279,7 +314,7 @@ export interface Post {
     [k: string]: unknown;
   } | null;
   /**
-   * Leave blank to reuse Vietnamese content for English.
+   * Optional English content block editor.
    */
   contentRichEn?: {
     root: {
@@ -296,14 +331,6 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
-  category?: string | null;
-  series?: (number | null) | Series;
-  tags?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
   seo?: {
     titleVi?: string | null;
     titleEn?: string | null;
@@ -311,12 +338,6 @@ export interface Post {
     descriptionEn?: string | null;
     ogImage?: (number | null) | Media;
   };
-  status: 'draft' | 'published';
-  /**
-   * Generated on publish when left blank.
-   */
-  publishedAt?: string | null;
-  author?: (number | null) | Author;
   /**
    * Optional Markdown/HTML fallback for migrated posts. Long articles are supported.
    */
@@ -600,14 +621,10 @@ export interface SeriesSelect<T extends boolean = true> {
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
-  titleVi?: T;
-  titleEn?: T;
-  slug?: T;
+  status?: T;
+  publishedAt?: T;
+  author?: T;
   coverImage?: T;
-  excerptVi?: T;
-  excerptEn?: T;
-  contentRichVi?: T;
-  contentRichEn?: T;
   category?: T;
   series?: T;
   tags?:
@@ -616,6 +633,13 @@ export interface PostsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  excerptVi?: T;
+  excerptEn?: T;
+  titleVi?: T;
+  titleEn?: T;
+  slug?: T;
+  contentRichVi?: T;
+  contentRichEn?: T;
   seo?:
     | T
     | {
@@ -625,9 +649,6 @@ export interface PostsSelect<T extends boolean = true> {
         descriptionEn?: T;
         ogImage?: T;
       };
-  status?: T;
-  publishedAt?: T;
-  author?: T;
   contentVi?: T;
   contentEn?: T;
   readTimeVi?: T;

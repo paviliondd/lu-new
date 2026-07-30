@@ -4,7 +4,9 @@ import crypto from "node:crypto";
 import config from "@payload-config";
 import { marked } from "marked";
 import { getPayload, type Where } from "payload";
-import { FilterXSS } from "xss";
+import xss from "xss";
+
+const { FilterXSS } = xss;
 import { allPosts, series as fileSeries, team, type HeroMedia, type Post, type Series } from "@/app/data";
 import { localizePost, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
@@ -205,10 +207,10 @@ async function renderPostContent(preferred: unknown, legacy: unknown) {
   return renderContent(legacy);
 }
 
-function estimateReadTime(content: string, locale: Locale) {
+function estimateReadTime(content: string, _locale?: Locale) {
   const wordCount = content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(wordCount / 220));
-  return locale === "vi" ? `${minutes} phút đọc` : `${minutes} min read`;
+  return `${minutes} min read`;
 }
 
 function fallbackBase(slug: string): Post | null {
@@ -306,6 +308,7 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
     id: asNumber(doc.id, fallback?.id || 0),
     roadmapId: asNumber(doc.roadmapId, fallback?.roadmapId || 0),
     roadmapOrder: asNumber(doc.roadmapOrder, fallback?.roadmapOrder || 0),
+    chapterOrder: typeof doc.chapterOrder === "number" ? doc.chapterOrder : fallback?.chapterOrder ?? null,
     slug,
     title: titleVi,
     title_en: titleEn,
@@ -508,30 +511,39 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
 
 export const getCmsSeries = getPayloadSeries;
 
-async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promise<Post | null> {
-  return cachedJson(`posts:detail:${locale}:${slug}`, 30, async () => {
+async function getPayloadPostBySlug(
+  slug: string,
+  locale: Locale = "vi",
+  allowDraft = false
+): Promise<Post | null> {
+  const fetchPost = async () => {
     const filePost = await getLocalizedFilePost(slug, locale);
     const payload = await getPayloadClient();
     if (!payload) return filePost ? withLocalView(filePost) : null;
 
     try {
+      const whereConditions: Where[] = [
+        {
+          slug: {
+            equals: slug,
+          },
+        },
+      ];
+      if (!allowDraft) {
+        whereConditions.push({
+          status: {
+            equals: "published",
+          },
+        });
+      }
+
       const result = await payload.find({
         collection: "posts",
         depth: 2,
         limit: 1,
+        overrideAccess: allowDraft,
         where: {
-          and: [
-            {
-              slug: {
-                equals: slug,
-              },
-            },
-            {
-              status: {
-                equals: "published",
-              },
-            },
-          ],
+          and: whereConditions,
         },
       });
 
@@ -542,7 +554,10 @@ async function getPayloadPostBySlug(slug: string, locale: Locale = "vi"): Promis
       console.error("Unable to resolve Payload post by slug", { slug, locale, error });
       return filePost ? withLocalView(filePost) : null;
     }
-  });
+  };
+
+  if (allowDraft) return fetchPost();
+  return cachedJson(`posts:detail:${locale}:${slug}`, 30, fetchPost);
 }
 
 export const getCmsPostBySlug = getPayloadPostBySlug;

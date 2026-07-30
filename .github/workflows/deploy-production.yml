@@ -39,12 +39,6 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Build
-        run: npm run build
-
-      - name: Docker build validation
-        run: docker build --file ./Dockerfile --tag cloud-devops-blog-app:ci .
-
   build-and-push:
     name: Build and Push ECR Image
     runs-on: ubuntu-latest
@@ -113,6 +107,8 @@ jobs:
         run: |
           docker buildx build \
             --file ./Dockerfile \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
             --tag "${IMAGE}:latest" \
             --tag "${IMAGE}:production" \
             --tag "${IMAGE}:${GITHUB_SHA}" \

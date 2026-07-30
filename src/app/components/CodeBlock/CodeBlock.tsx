@@ -36,7 +36,7 @@ export default function CodeBlock({
   code,
   language,
   filename,
-  showLineNumbers = true,
+  showLineNumbers = false,
   downloadable = Boolean(filename),
   initiallyExpanded = false,
   highlightedCode,
@@ -73,13 +73,18 @@ export default function CodeBlock({
         data-compact={!filename && !language ? "true" : undefined}
       >
         <div className="code-card__identity">
+          <div className="code-card__dots" aria-hidden="true">
+            <span className="code-card__dot code-card__dot--red" />
+            <span className="code-card__dot code-card__dot--yellow" />
+            <span className="code-card__dot code-card__dot--green" />
+          </div>
+          {language && <span className="code-card__language">{language.toUpperCase()}</span>}
           {filename && (
             <span className="code-card__filename" title={filename}>
               <FileText className="code-action-icon" aria-hidden="true" />
               <span>{filename}</span>
             </span>
           )}
-          {language && <span className="code-card__language">{language}</span>}
         </div>
 
         <div className="code-card__actions">

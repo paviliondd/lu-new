@@ -15,6 +15,7 @@ import { hasLocale } from "@/i18n/config";
 import { localizedAlternates } from "@/i18n/metadata";
 import { localePath } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
+import { getChapterNavigation } from "@/lib/utils/chapter";
 import { load } from "cheerio";
 
 export const revalidate = 60;
@@ -22,6 +23,7 @@ export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>;
+  searchParams?: Promise<{ preview?: string }>;
 }
 
 function slugifyHeading(text: string, index: number) {
@@ -104,11 +106,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params, searchParams }: Props) {
   const { lang, slug } = await params;
   if (!hasLocale(lang)) notFound();
 
-  const post = await getCmsPostBySlug(slug, lang);
+  const query = await searchParams;
+  const isPreview = query?.preview === "true";
+  const post = await getCmsPostBySlug(slug, lang, isPreview);
   
   if (!post) {
     notFound();
@@ -119,9 +123,11 @@ export default async function BlogPostPage({ params }: Props) {
   const preparedContent = prepareArticleContent(highlightedContent);
   const localizedPost = { ...post, content: preparedContent.html };
   const headings = preparedContent.headings;
-  const relatedPosts = (await getCmsPublishedPosts(lang))
-    .filter((item) => item.slug !== post.slug && item.category === post.category)
-    .slice(0, 3);
+  const allPublishedPosts = await getCmsPublishedPosts(lang);
+  const { prevPost, nextPost, groupTitle, relatedPosts } = getChapterNavigation(
+    post,
+    allPublishedPosts
+  );
   const initialComments = (await getApprovedPayloadComments(post.slug)) || (await getComments(post.slug));
   const assetBase = publicAssetBase();
   const externalAssetOrigins = legacyAssetOrigins();
@@ -182,6 +188,9 @@ export default async function BlogPostPage({ params }: Props) {
         author={author}
         headings={headings}
         relatedPosts={relatedPosts}
+        prevPost={prevPost}
+        nextPost={nextPost}
+        groupTitle={groupTitle}
         initialComments={initialComments}
       >
         <RichTextRenderer

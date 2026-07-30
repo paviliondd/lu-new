@@ -93,7 +93,7 @@ export default function RichTextRenderer({
           code={nodeText(codeElement)}
           language={language || undefined}
           filename={filename || undefined}
-          showLineNumbers={domNode.attribs["data-line-numbers"] !== "false"}
+          showLineNumbers={false}
           downloadable={Boolean(filename)}
           highlightedCode={domToReact(
             (highlightedLines.length ? highlightedLines : codeElement.children) as DOMNode[],

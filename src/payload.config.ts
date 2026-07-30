@@ -781,12 +781,12 @@ const Posts: CollectionConfig = {
     },
     preview: (data) => {
       const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
-      return data?.slug ? `${site}/vi/blog/${data.slug}` : site;
+      return data?.slug ? `${site}/vi/blog/${data.slug}?preview=true` : site;
     },
     livePreview: {
       url: ({ data }) => {
         const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
-        return data?.slug ? `${site}/vi/blog/${data.slug}` : site;
+        return data?.slug ? `${site}/vi/blog/${data.slug}?preview=true` : site;
       },
     },
   },
@@ -810,15 +810,14 @@ const Posts: CollectionConfig = {
             null,
             true,
           );
-}
+        }
         if (isPublished(data)) {
           if (!data.titleVi || typeof data.titleVi !== "string" || !data.titleVi.trim()) {
             throw new APIError("Bắt buộc phải nhập tiêu đề bài viết (Title VI) khi Publish.", 400, null, true);
           }
           if (!data.category || typeof data.category !== "string" || !data.category.trim()) {
-            throw new APIError("Bắt buộc phải chọn danh mục (Category) khi Publish.", 400, null, true);
+            throw new APIError("Bắt buộc phải chọn Topic (Chủ đề) khi Publish.", 400, null, true);
           }
-
         }
         data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
         data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
@@ -873,11 +872,12 @@ const Posts: CollectionConfig = {
     },
     {
       name: "category",
+      label: "Topic (Chủ đề)",
       type: "text",
       defaultValue: "Cloud",
       admin: {
         position: "sidebar",
-        description: "Article category.",
+        description: "Topic / Chủ đề bài viết (dùng để lọc bài trong mục Blog).",
       },
     },
     {
@@ -887,6 +887,15 @@ const Posts: CollectionConfig = {
       admin: {
         position: "sidebar",
         description: "Assign article to a Series.",
+      },
+    },
+    {
+      name: "chapterOrder",
+      label: "Chapter Number / Order",
+      type: "number",
+      admin: {
+        position: "sidebar",
+        description: "Thứ tự Chap/Bài (1, 2, 3...). Để trống hệ thống sẽ tự đọc số từ Tiêu đề (vd: 'Phần 1', 'Chapter 2').",
       },
     },
     {

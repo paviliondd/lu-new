@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-DOMAIN="${SITE_DOMAIN:-tesst.linuxunity.com}"
+DOMAIN="${SITE_DOMAIN:-linuxunity.com}"
 WWW_DOMAIN="${SITE_WWW_DOMAIN:-www.${DOMAIN}}"
 KUMA_DOMAIN="${KUMA_DOMAIN:-kuma.linuxunity.com}"
 TEMPLATE="/etc/nginx/templates/default.conf.template"

@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, Search, X, Cloud } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 import ThemeToggle from "./ThemeToggle";
 import SearchModal from "./SearchModal";
@@ -14,7 +15,7 @@ export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { t, localePath, language, setLanguage } = useLanguage();
+  const { t, localePath } = useLanguage();
 
   const navLinks = navigationConfig.main.map((link) => ({
     href: localePath(link.href),
@@ -49,8 +50,8 @@ export default function Header() {
         <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           {/* Logo */}
           <Link href={localePath("/")} className="group flex min-w-0 items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border theme-border bg-white text-teal-700 shadow-sm transition duration-200 group-hover:border-teal-500 group-hover:text-teal-800 dark:bg-slate-900 dark:text-emerald-300">
-              <Cloud className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border theme-border bg-white p-1 text-teal-700 shadow-sm transition duration-200 group-hover:border-teal-500 dark:bg-slate-900">
+              <Image src="/images/logo-icon.png" alt="LinuxUnity Logo" width={28} height={28} className="object-contain" />
             </div>
             <span className="truncate text-lg font-bold tracking-tight text-slate-950 dark:text-white">
               {siteConfig.name.replace("Unity", "")}<span className="font-extrabold text-teal-600 dark:text-emerald-300">Unity</span>
@@ -83,36 +84,14 @@ export default function Header() {
             <button
               type="button"
               onClick={openSearch}
-              className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-lg border theme-border bg-white px-3 text-sm font-semibold text-slate-600 transition hover:border-teal-500 hover:bg-slate-50 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="grid h-10 w-10 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
               aria-label={t("search")}
               title={t("search")}
             >
               <Search className="h-4 w-4" />
-              <span className="hidden text-[11px] text-slate-400 lg:inline">Ctrl K</span>
             </button>
 
             <ThemeToggle />
-
-            <div
-              className="hidden h-10 items-center rounded-lg border theme-border bg-white/70 p-1 text-xs font-bold text-slate-600 dark:bg-slate-950/50 dark:text-slate-300 sm:flex"
-              aria-label={t("language")}
-            >
-              {(["vi", "en"] as const).map((locale) => (
-                <button
-                  key={locale}
-                  type="button"
-                  onClick={() => setLanguage(locale)}
-                  className={`h-7 rounded-md px-2.5 uppercase transition ${
-                    language === locale
-                      ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
-                      : "hover:bg-slate-200 dark:hover:bg-slate-800"
-                  }`}
-                  aria-pressed={language === locale}
-                >
-                  {locale}
-                </button>
-              ))}
-            </div>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -152,28 +131,6 @@ export default function Header() {
                   </li>
                 );
               })}
-              <li>
-                <div className="flex items-center gap-2 px-4 py-2">
-                  {(["vi", "en"] as const).map((locale) => (
-                    <button
-                      key={locale}
-                      type="button"
-                      onClick={() => {
-                        setLanguage(locale);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`h-9 rounded-lg px-4 text-sm font-bold uppercase ${
-                        language === locale
-                          ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
-                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                      }`}
-                      aria-pressed={language === locale}
-                    >
-                      {locale}
-                    </button>
-                  ))}
-                </div>
-              </li>
               <li>
                 <button
                   type="button"

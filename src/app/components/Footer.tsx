@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Cloud, Rss, ArrowRight, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import { Rss, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 import { footerConfig } from "@/config/footer";
 import { siteConfig } from "@/config/site";
@@ -38,8 +39,8 @@ export default function Footer() {
       setSubscribed(true);
       setEmail("");
       setTimeout(() => setSubscribed(false), 5000);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to subscribe");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to subscribe");
     } finally {
       setIsSubmitting(false);
     }
@@ -52,8 +53,8 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="space-y-4">
             <Link href={localePath("/")} className="group flex w-fit items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border theme-border bg-white text-teal-700 transition group-hover:border-teal-500 dark:bg-slate-900 dark:text-emerald-300 dark:group-hover:border-emerald-400">
-                <Cloud className="h-4 w-4" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg border theme-border bg-white p-0.5 transition group-hover:border-teal-500 dark:bg-slate-900 dark:group-hover:border-emerald-400">
+                <Image src="/images/logo-icon.png" alt="LinuxUnity Logo" width={22} height={22} className="object-contain" />
               </div>
               <span className="text-base font-bold tracking-tight text-slate-950 dark:text-white">
                 {siteConfig.name.replace("Unity", "")}<span className="font-extrabold text-teal-700 dark:text-emerald-300">Unity</span>

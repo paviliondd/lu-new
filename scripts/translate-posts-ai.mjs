@@ -100,6 +100,63 @@ async function requestTranslationWithModel(apiKey, post, model) {
   return JSON.parse(cleaned);
 }
 
+async function translatePostInSafeChunks(apiKey, post) {
+  console.log("   🛠 Activating Safe Chunking Fallback for blocked post...");
+
+  // 1. Translate Title & Description separately (small payload)
+  let titleEn = post.title_vi || post.slug;
+  let excerptEn = post.excerpt_vi || post.seo_description_vi || "";
+  try {
+    const metaResult = await requestTranslationWithModel(
+      apiKey,
+      {
+        title_vi: post.title_vi,
+        excerpt_vi: post.excerpt_vi || post.seo_description_vi,
+        content_vi: "",
+      },
+      candidateModels[0]
+    );
+    if (metaResult.title) titleEn = metaResult.title;
+    if (metaResult.description) excerptEn = metaResult.description;
+  } catch {
+    // Keep original title/excerpt if metadata call fails
+  }
+
+  // 2. Process Content: Keep code blocks untouched, translate HTML paragraphs
+  const rawHtml = post.content_vi || "";
+  if (!rawHtml.trim()) {
+    return { title: titleEn, description: excerptEn, content: "" };
+  }
+
+  const parts = rawHtml.split(/(<pre[\s\S]*?<\/pre>|<code[\s\S]*?<\/code>)/i);
+  const translatedParts = [];
+
+  for (const part of parts) {
+    if (!part.trim()) continue;
+    if (/^<(pre|code)\b/i.test(part.trim())) {
+      translatedParts.push(part);
+      continue;
+    }
+
+    try {
+      const textResult = await requestTranslationWithModel(
+        apiKey,
+        { title_vi: "Documentation", excerpt_vi: "", content_vi: part },
+        candidateModels[0]
+      );
+      translatedParts.push(textResult.content || part);
+    } catch {
+      translatedParts.push(part);
+    }
+  }
+
+  return {
+    title: titleEn,
+    description: excerptEn,
+    content: translatedParts.join("\n"),
+  };
+}
+
 async function translatePostWithAI(apiKey, post) {
   let lastError = null;
 
@@ -120,7 +177,12 @@ async function translatePostWithAI(apiKey, post) {
     }
   }
 
-  throw lastError || new Error("All candidate models failed to translate post.");
+  // Ultimate fallback: Chunking and isolating code blocks
+  try {
+    return await translatePostInSafeChunks(apiKey, post);
+  } catch {
+    throw lastError || new Error("All candidate models and chunking fallbacks failed.");
+  }
 }
 
 async function main() {

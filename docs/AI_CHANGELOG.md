@@ -2,6 +2,23 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-30
+
+Added:
+
+- Added an inline search bar matching requested mockup UI (`Search` icon, placeholder, `Ctrl K` shortcut badges) on `BlogListPage.tsx` that triggers `SearchModal`.
+- Added `formatReadTime` utility (`src/lib/utils/formatReadTime.ts`) to standardize all reading time labels to English format (`X min read`).
+
+Changed:
+
+- Removed `"Đang lọc theo:"` filter label from `BlogListPage.tsx` and replaced it with a modern minimalist `Filter:` badge, removable tag pills (`X`), and `Reset Filters` action.
+- Updated `FeaturedPostsCarousel.tsx` to make the entire slide article card (image, background, title, description) clickable for direct article access. Added `e.stopPropagation()` to slide navigation arrows and dot indicators.
+- Standardized reading time displays to English (`X min read`) in `payload.ts`, `ArticleClient.tsx`, `PostCard.tsx`, `PostListRow.tsx`, and `FeaturedPostsCarousel.tsx`.
+
+Validated:
+
+- Executed `npm run lint` (0 errors, 0 warnings), `npm test` (8 pass), and `npm run build` (successful static page generation & compilation).
+
 ## 2026-07-28
 
 Added:

@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/config";
 import CustomImage from "./CustomImage";
 import { useLanguage } from "./LanguageProvider";
 import AuthorAvatar, { getAuthorDisplay } from "./AuthorAvatar";
+import { formatReadTime } from "@/lib/utils/formatReadTime";
 
 interface PostCardProps {
   post: Post;
@@ -121,7 +122,7 @@ export default function PostCard({
           )}
           <span className="flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5" />
-            {post.readTime}
+            {formatReadTime(post.readTime)}
           </span>
           <span className="flex items-center gap-1.5">
             <Eye className="h-3.5 w-3.5" />

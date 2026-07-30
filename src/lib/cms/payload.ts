@@ -205,10 +205,10 @@ async function renderPostContent(preferred: unknown, legacy: unknown) {
   return renderContent(legacy);
 }
 
-function estimateReadTime(content: string, locale: Locale) {
+function estimateReadTime(content: string, _locale?: Locale) {
   const wordCount = content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(wordCount / 220));
-  return locale === "vi" ? `${minutes} phút đọc` : `${minutes} min read`;
+  return `${minutes} min read`;
 }
 
 function fallbackBase(slug: string): Post | null {

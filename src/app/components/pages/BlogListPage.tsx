@@ -28,7 +28,7 @@ export default function BlogListPage({
   initialTopic = "",
 }: BlogListPageProps) {
   const { t, language, localePath } = useLanguage();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const posts = usePublishedPosts(initialPosts);
   const selectedTag = initialTag;
   const selectedTopic = initialTopic;
@@ -46,8 +46,8 @@ export default function BlogListPage({
 
   const allPublishedPosts = useMemo(() => {
     return [...posts]
-      .filter((post) => post.status === "published")
-      .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime());
+      .filter((post) => post.status !== "draft")
+      .sort((left, right) => new Date(right.date || right.publishDate || 0).getTime() - new Date(left.date || left.publishDate || 0).getTime());
   }, [posts]);
 
   const featuredPosts = useMemo(() => allPublishedPosts.slice(0, 3), [allPublishedPosts]);
@@ -65,14 +65,24 @@ export default function BlogListPage({
         post.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
       );
     }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      sortedPosts = sortedPosts.filter(
+        (post) =>
+          (post.title && post.title.toLowerCase().includes(q)) ||
+          (post.description && post.description.toLowerCase().includes(q)) ||
+          (post.category && post.category.toLowerCase().includes(q)) ||
+          post.tags.some((tag) => tag.toLowerCase().includes(q))
+      );
+    }
     return sortedPosts;
-  }, [allPublishedPosts, selectedTag, selectedTopic]);
+  }, [allPublishedPosts, searchQuery, selectedTag, selectedTopic]);
 
-  const isFiltered = Boolean(selectedTag || selectedTopic);
+  const isFiltered = Boolean(selectedTag || selectedTopic || searchQuery.trim());
   const reservedSlugs = new Set(
     [...featuredPosts, ...followingPosts].map((post) => post.slug),
   );
-  const listPosts = selectedTag || selectedTopic
+  const listPosts = selectedTag || selectedTopic || searchQuery.trim()
     ? filteredPosts
     : filteredPosts.filter((post) => !reservedSlugs.has(post.slug));
   const totalPages = Math.max(1, Math.ceil(listPosts.length / pageSize));
@@ -106,24 +116,28 @@ export default function BlogListPage({
       <FeaturedPostsCarousel posts={featuredPosts} followingPosts={followingPosts} />
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-        {/* Search Bar - matching exact requested UI */}
-        <div className="mb-6">
-          <button
-            type="button"
-            onClick={() => setIsSearchOpen(true)}
-            className="group flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white/90 px-4 py-3 text-left shadow-xs transition hover:border-teal-500 hover:shadow-sm dark:border-slate-700/80 dark:bg-slate-900/80 dark:hover:border-emerald-400 cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <Search className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-teal-600 dark:group-hover:text-emerald-400" />
-              <span className="truncate text-sm font-medium text-slate-400 dark:text-slate-500">
-                Search
-              </span>
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <kbd className="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-sans text-[11px] font-semibold text-slate-500 shadow-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">Ctrl</kbd>
-              <kbd className="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-sans text-[11px] font-semibold text-slate-500 shadow-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">K</kbd>
-            </div>
-          </button>
+        {/* Inline Search Bar - direct input without popup modal */}
+        <div className="relative mb-6">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+            <Search className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search articles by title, topic, or keyword..."
+            className="w-full rounded-xl border border-slate-300 bg-white/90 py-3 pl-11 pr-10 text-sm font-medium text-slate-900 placeholder-slate-400 shadow-xs transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700/80 dark:bg-slate-900/80 dark:text-white dark:placeholder-slate-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-400/20"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              aria-label="Clear search input"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Topic Filter Bar */}
@@ -172,6 +186,19 @@ export default function BlogListPage({
                 <SlidersHorizontal className="h-3.5 w-3.5 text-teal-600 dark:text-emerald-400" />
                 Filter:
               </span>
+              {searchQuery.trim() && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100/90 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300 border border-teal-200 dark:border-emerald-800/60 shadow-xs">
+                  Search: &quot;{searchQuery.trim()}&quot;
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="ml-0.5 rounded-full p-0.5 text-teal-700 hover:bg-teal-200 hover:text-teal-950 dark:text-emerald-400 dark:hover:bg-emerald-900 dark:hover:text-white transition cursor-pointer"
+                    aria-label="Remove search filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
               {selectedTopic && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100/90 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300 border border-teal-200 dark:border-emerald-800/60 shadow-xs">
                   Topic: {formatTopicLabel(selectedTopic)}
@@ -199,13 +226,15 @@ export default function BlogListPage({
                 </span>
               )}
             </div>
-            <Link
-              href={localePath("/blog")}
-              scroll={false}
-              className="text-xs font-bold uppercase tracking-wider text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200 transition"
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="text-xs font-bold uppercase tracking-wider text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200 transition cursor-pointer"
             >
-              {t("resetFilter")}
-            </Link>
+              <Link href={localePath("/blog")} scroll={false}>
+                {t("resetFilter")}
+              </Link>
+            </button>
           </div>
         )}
 

@@ -1,12 +1,11 @@
-import {
-  FilterXSS,
-  escapeAttrValue,
-  safeAttrValue,
+import xss, {
   type ICSSFilter,
   type IFilterXSSOptions,
   type IWhiteList,
 } from "xss";
 import { load } from "cheerio";
+
+const { FilterXSS, escapeAttrValue, safeAttrValue } = xss;
 
 const commonAttributes = ["id", "class", "title", "role", "aria-label", "aria-hidden"];
 const tableCellAttributes = ["colspan", "rowspan", "scope", "align", "valign"];

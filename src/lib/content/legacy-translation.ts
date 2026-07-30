@@ -48,6 +48,14 @@ function shouldTranslate(post: Post, scope: TranslationScope) {
 function extractOutputText(payload: Record<string, unknown>) {
   if (typeof payload.output_text === "string") return payload.output_text;
 
+  const choices = Array.isArray(payload.choices) ? payload.choices : [];
+  if (choices.length > 0 && choices[0] && typeof choices[0] === "object") {
+    const message = (choices[0] as { message?: { content?: string } }).message;
+    if (message && typeof message.content === "string") {
+      return message.content.trim();
+    }
+  }
+
   const output = Array.isArray(payload.output) ? payload.output : [];
   const parts: string[] = [];
   for (const item of output) {
@@ -69,19 +77,36 @@ async function requestOpenAiTranslation(input: TranslationPayload) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
 
-  const response = await fetch(translationEndpoint(), {
+  const endpoint = translationEndpoint();
+  const isChatCompletions = endpoint.includes("chat/completions") || !endpoint.includes("responses");
+
+  const instructions =
+    "Translate Vietnamese technical blog content into natural English. Preserve HTML tags, code blocks, inline code, URLs, image paths, Markdown-like syntax inside code, product names, CLI commands, and JSON/YAML exactly. Return only valid JSON with keys title, description, and content when content is provided.";
+
+  const body = isChatCompletions
+    ? JSON.stringify({
+        model: translationModel(),
+        messages: [
+          { role: "system", content: instructions },
+          { role: "user", content: JSON.stringify(input) },
+        ],
+        temperature: 0.3,
+        response_format: { type: "json_object" },
+      })
+    : JSON.stringify({
+        model: translationModel(),
+        store: false,
+        instructions,
+        input: JSON.stringify(input),
+      });
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       authorization: `Bearer ${apiKey}`,
       "content-type": "application/json",
     },
-    body: JSON.stringify({
-      model: translationModel(),
-      store: false,
-      instructions:
-        "Translate Vietnamese technical blog content into natural English. Preserve HTML tags, code blocks, inline code, URLs, image paths, Markdown-like syntax inside code, product names, CLI commands, and JSON/YAML exactly. Return only valid JSON with keys title, description, and content when content is provided.",
-      input: JSON.stringify(input),
-    }),
+    body,
   });
 
   if (!response.ok) {
@@ -96,7 +121,8 @@ async function requestOpenAiTranslation(input: TranslationPayload) {
   if (!raw) return null;
 
   try {
-    const parsed = JSON.parse(raw) as Partial<TranslationPayload>;
+    const cleaned = raw.replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
+    const parsed = JSON.parse(cleaned) as Partial<TranslationPayload>;
     return {
       title: typeof parsed.title === "string" ? parsed.title : input.title,
       description:

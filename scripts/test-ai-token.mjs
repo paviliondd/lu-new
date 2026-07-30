@@ -33,38 +33,28 @@ const candidateUrls = [
 // Candidate User-Agents and Auth headers
 const headerCombos = [
   {
+    name: "Roo-Code Approved Client Header",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "user-agent": "roo-code/3.8.0",
+      "content-type": "application/json",
+    },
+  },
+  {
+    name: "OpenCode Approved Client Header",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "user-agent": "opencode/1.0.0",
+      "content-type": "application/json",
+    },
+  },
+  {
     name: "Bearer + AgentRouter Referer & Origin",
     headers: {
       authorization: `Bearer ${apiKey}`,
       referer: "https://agentrouter.org",
       origin: "https://agentrouter.org",
-      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "content-type": "application/json",
-    },
-  },
-  {
-    name: "Bearer + LinuxUnity Referer",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      referer: "https://linuxunity.com",
-      origin: "https://linuxunity.com",
-      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "content-type": "application/json",
-    },
-  },
-  {
-    name: "Bearer + Browser User-Agent",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "content-type": "application/json",
-    },
-  },
-  {
-    name: "Bearer + OpenAI User-Agent",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      "user-agent": "OpenAI/NodeJS",
+      "user-agent": "roo-code/3.8.0",
       "content-type": "application/json",
     },
   },

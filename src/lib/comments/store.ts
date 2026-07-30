@@ -2,9 +2,10 @@ import "server-only";
 
 import { promises as fs } from "fs";
 import path from "path";
-import { marked } from "marked";
-import { FilterXSS } from "xss";
+import xss from "xss";
 import type { CommentRecord } from "./types";
+
+const { FilterXSS } = xss;
 
 const commentsFile = path.join(process.cwd(), "data", "comments.json");
 const commentFilter = new FilterXSS({

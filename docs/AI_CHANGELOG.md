@@ -15,7 +15,7 @@ Changed:
 - Removed top-right "Tất cả bài viết" and "View All" header links from `More in [Topic/Series]` in `ArticleClient.tsx`.
 - Relocated "← Back to all posts" link to the bottom of `More in [Topic/Series]` right above comments.
 - Updated `More in [Topic/Series]` section title to dynamically display the Series title (if assigned) or Topic name with English base labels.
-- Fixed `PostListRow.tsx` thumbnail bug where plain text badges were rendered instead of post featured images (`heroImage` / `ogImage` / `thumbnail`) using `<CustomImage />`.
+- Fixed `src/lib/utils/security.ts`, `src/lib/comments/store.ts`, and `src/lib/cms/payload.ts` by using CJS-safe default imports for `xss` (`import xss from 'xss'`) to prevent Node ESM named import `SyntaxError` when fetching published posts from Payload CMS server-side.
 
 Validated:
 

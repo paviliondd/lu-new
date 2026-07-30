@@ -4,7 +4,9 @@ import crypto from "node:crypto";
 import config from "@payload-config";
 import { marked } from "marked";
 import { getPayload, type Where } from "payload";
-import { FilterXSS } from "xss";
+import xss from "xss";
+
+const { FilterXSS } = xss;
 import { allPosts, series as fileSeries, team, type HeroMedia, type Post, type Series } from "@/app/data";
 import { localizePost, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";

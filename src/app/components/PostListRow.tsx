@@ -5,6 +5,7 @@ import { Eye } from "lucide-react";
 import type { Author, Post } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import AuthorAvatar, { getAuthorDisplay } from "./AuthorAvatar";
+import CustomImage from "./CustomImage";
 import { formatReadTime } from "@/lib/utils/formatReadTime";
 
 interface PostListRowProps {
@@ -32,6 +33,7 @@ export default function PostListRow({
   const { localePath } = useLanguage();
   const displayAuthor = getAuthorDisplay(author, post);
   const serviceLabel = post.category.split(/[\s/&-]+/)[0] || "AWS";
+  const coverImage = post.heroImage?.src || post.seo?.ogImage || post.thumbnail;
   const displayDate = post.date
     ? new Date(post.date).toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {
         month: "short",
@@ -51,10 +53,20 @@ export default function PostListRow({
         {String(index + 1).padStart(2, "0")}
       </span>
 
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border theme-border bg-white text-slate-600 dark:bg-slate-900 dark:text-slate-300 sm:h-14 sm:w-14">
-        <span className="px-1 text-center text-xs font-bold uppercase tracking-wide">
-          {serviceLabel}
-        </span>
+      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border theme-border bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300 sm:h-14 sm:w-14">
+        {coverImage ? (
+          <CustomImage
+            src={coverImage}
+            alt={post.title}
+            fill
+            sizes="(min-width: 640px) 56px, 48px"
+            className="object-cover transition duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <span className="px-1 text-center text-xs font-bold uppercase tracking-wide">
+            {serviceLabel}
+          </span>
+        )}
       </div>
 
       <div className="min-w-0 flex-1">

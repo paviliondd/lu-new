@@ -15,6 +15,7 @@ import { hasLocale } from "@/i18n/config";
 import { localizedAlternates } from "@/i18n/metadata";
 import { localePath } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
+import { getChapterNavigation } from "@/lib/utils/chapter";
 import { load } from "cheerio";
 
 export const revalidate = 60;
@@ -122,9 +123,11 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const preparedContent = prepareArticleContent(highlightedContent);
   const localizedPost = { ...post, content: preparedContent.html };
   const headings = preparedContent.headings;
-  const relatedPosts = (await getCmsPublishedPosts(lang))
-    .filter((item) => item.slug !== post.slug && item.category === post.category)
-    .slice(0, 3);
+  const allPublishedPosts = await getCmsPublishedPosts(lang);
+  const { prevPost, nextPost, groupTitle, relatedPosts } = getChapterNavigation(
+    post,
+    allPublishedPosts
+  );
   const initialComments = (await getApprovedPayloadComments(post.slug)) || (await getComments(post.slug));
   const assetBase = publicAssetBase();
   const externalAssetOrigins = legacyAssetOrigins();
@@ -185,6 +188,9 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         author={author}
         headings={headings}
         relatedPosts={relatedPosts}
+        prevPost={prevPost}
+        nextPost={nextPost}
+        groupTitle={groupTitle}
         initialComments={initialComments}
       >
         <RichTextRenderer

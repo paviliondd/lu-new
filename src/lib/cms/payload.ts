@@ -306,6 +306,7 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
     id: asNumber(doc.id, fallback?.id || 0),
     roadmapId: asNumber(doc.roadmapId, fallback?.roadmapId || 0),
     roadmapOrder: asNumber(doc.roadmapOrder, fallback?.roadmapOrder || 0),
+    chapterOrder: typeof doc.chapterOrder === "number" ? doc.chapterOrder : fallback?.chapterOrder ?? null,
     slug,
     title: titleVi,
     title_en: titleEn,

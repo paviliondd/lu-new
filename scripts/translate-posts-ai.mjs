@@ -1,7 +1,24 @@
+import fs from "node:fs";
+import path from "node:path";
 import pg from "pg";
-import dotenv from "dotenv";
 
-dotenv.config();
+// Zero-dependency .env loader for production containers
+const envPath = path.join(process.cwd(), ".env");
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, "utf8");
+  for (const line of envContent.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
+    if (eqIdx > 0) {
+      const key = trimmed.slice(0, eqIdx).trim();
+      const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
+      if (key && !process.env[key]) {
+        process.env[key] = val;
+      }
+    }
+  }
+}
 
 const { Pool } = pg;
 

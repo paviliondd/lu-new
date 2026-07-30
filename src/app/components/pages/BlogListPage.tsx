@@ -7,7 +7,6 @@ import type { Post } from "@/app/data";
 import { team } from "@/app/data";
 import PostCard from "@/app/components/PostCard";
 import FeaturedPostsCarousel from "@/app/components/FeaturedPostsCarousel";
-import SearchModal from "@/app/components/SearchModal";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 import { formatTopicLabel } from "@/lib/utils/formatTopic";
@@ -317,8 +316,6 @@ export default function BlogListPage({
           </>
         ) : null}
       </section>
-
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </div>
   );
 }

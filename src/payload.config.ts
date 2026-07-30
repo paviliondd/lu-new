@@ -890,6 +890,15 @@ const Posts: CollectionConfig = {
       },
     },
     {
+      name: "chapterOrder",
+      label: "Chapter Number / Order",
+      type: "number",
+      admin: {
+        position: "sidebar",
+        description: "Thứ tự Chap/Bài (1, 2, 3...). Để trống hệ thống sẽ tự đọc số từ Tiêu đề (vd: 'Phần 1', 'Chapter 2').",
+      },
+    },
+    {
       ...listField("tags", "Tags"),
       admin: {
         position: "sidebar",

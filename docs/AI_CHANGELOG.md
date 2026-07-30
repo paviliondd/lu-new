@@ -6,14 +6,16 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
-- Added an inline search bar matching requested mockup UI (`Search` icon, placeholder, `Ctrl K` shortcut badges) on `BlogListPage.tsx` that triggers `SearchModal`.
-- Added `formatReadTime` utility (`src/lib/utils/formatReadTime.ts`) to standardize all reading time labels to English format (`X min read`).
+- Implemented Chapter Navigation (`← PREVIOUS` / `NEXT →`) above the `More in [Topic/Series]` section for posts in the same topic or series, with clean chapter parsing (`Phần X`, `Chapter X`, `Bài X`, etc.) and sorting in `src/lib/utils/chapter.ts`.
+- Added unit tests (`tests/chapter-navigation.test.mjs`) validating title chapter extraction, sorting, and navigation derivation.
+- Added optional `chapterOrder` sidebar field in Payload CMS `Posts` collection for manual chapter position overrides.
 
 Changed:
 
-- Removed `"Đang lọc theo:"` filter label from `BlogListPage.tsx` and replaced it with a modern minimalist `Filter:` badge, removable tag pills (`X`), and `Reset Filters` action.
-- Updated `FeaturedPostsCarousel.tsx` to make the entire slide article card (image, background, title, description) clickable for direct article access. Added `e.stopPropagation()` to slide navigation arrows and dot indicators.
-- Standardized reading time displays to English (`X min read`) in `payload.ts`, `ArticleClient.tsx`, `PostCard.tsx`, `PostListRow.tsx`, and `FeaturedPostsCarousel.tsx`.
+- Removed top-right "Tất cả bài viết" and "View All" header links from `More in [Topic/Series]` in `ArticleClient.tsx`.
+- Relocated "← Back to all posts" link to the bottom of `More in [Topic/Series]` right above comments.
+- Updated `More in [Topic/Series]` section title to dynamically display the Series title (if assigned) or Topic name with English base labels.
+- Fixed `PostListRow.tsx` thumbnail bug where plain text badges were rendered instead of post featured images (`heroImage` / `ogImage` / `thumbnail`) using `<CustomImage />`.
 
 Validated:
 

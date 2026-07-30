@@ -19,6 +19,9 @@ interface ArticleClientProps {
   author: Author;
   headings: TocHeading[];
   relatedPosts: Post[];
+  prevPost?: Post | null;
+  nextPost?: Post | null;
+  groupTitle?: string;
   initialComments?: CommentRecord[];
   children: ReactNode;
 }
@@ -47,12 +50,20 @@ export default function ArticleClient({
   author,
   headings,
   relatedPosts,
+  prevPost,
+  nextPost,
+  groupTitle,
   initialComments = [],
   children,
 }: ArticleClientProps) {
   const { t, language, localePath } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [views, setViews] = useState(post.views || 0);
+
+  const effectiveGroupTitle =
+    groupTitle ||
+    post.series?.title ||
+    formatTopicLabel(post.category || "DevOps");
 
   useEffect(() => {
     const storageKey = `linuxunity:viewed:${post.slug}`;
@@ -281,27 +292,53 @@ export default function ArticleClient({
             {/* Sanitized rich text is parsed on the server and passed through this client shell. */}
             {children}
 
+            {/* Chapter Navigation (Previous / Next Chapter) */}
+            {(prevPost || nextPost) && (
+              <nav aria-label="Chapter navigation" className="article-reading-frame pt-10">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {prevPost ? (
+                    <Link
+                      href={localePath(`/blog/${prevPost.slug}`)}
+                      className="group flex flex-col justify-between rounded-xl border theme-border bg-white p-4 sm:p-5 shadow-xs transition hover:border-teal-500 hover:shadow-md dark:bg-slate-900 dark:hover:border-emerald-400"
+                    >
+                      <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-600 transition duration-200 group-hover:-translate-x-1 dark:text-emerald-400">
+                        <ArrowLeft className="h-3.5 w-3.5" />
+                        PREVIOUS
+                      </span>
+                      <h3 className="mt-2 line-clamp-2 text-base font-bold text-slate-900 transition group-hover:text-teal-700 dark:text-white dark:group-hover:text-emerald-300">
+                        {prevPost.title}
+                      </h3>
+                    </Link>
+                  ) : (
+                    <div />
+                  )}
+
+                  {nextPost ? (
+                    <Link
+                      href={localePath(`/blog/${nextPost.slug}`)}
+                      className={`group flex flex-col justify-between rounded-xl border theme-border bg-white p-4 sm:p-5 shadow-xs transition hover:border-teal-500 hover:shadow-md dark:bg-slate-900 dark:hover:border-emerald-400 text-right ${
+                        !prevPost ? "sm:col-start-2" : ""
+                      }`}
+                    >
+                      <span className="flex items-center justify-end gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-600 transition duration-200 group-hover:translate-x-1 dark:text-emerald-400">
+                        NEXT
+                        <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                      </span>
+                      <h3 className="mt-2 line-clamp-2 text-base font-bold text-slate-900 transition group-hover:text-teal-700 dark:text-white dark:group-hover:text-emerald-300">
+                        {nextPost.title}
+                      </h3>
+                    </Link>
+                  ) : null}
+                </div>
+              </nav>
+            )}
+
             {relatedPosts.length > 0 && (
               <section className="article-reading-frame pt-10">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b theme-border pb-3">
+                <div className="mb-4 border-b theme-border pb-3">
                   <h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-                    {`More in ${formatTopicLabel(post.category || "DevOps")}`}
+                    {`More in ${effectiveGroupTitle}`}
                   </h2>
-                  <div className="flex items-center gap-4 text-sm font-semibold">
-                    <Link
-                      href={localePath("/blog")}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
-                    >
-                      <ArrowLeft className="h-3.5 w-3.5" />
-                      {language === "vi" ? "Tất cả bài viết" : "Back to all posts"}
-                    </Link>
-                    <Link
-                      href={localePath("/blog")}
-                      className="text-sm font-semibold text-teal-700 transition hover:text-teal-800 dark:text-emerald-300 dark:hover:text-emerald-200"
-                    >
-                      {t("viewAll")}
-                    </Link>
-                  </div>
                 </div>
                 <div>
                   {relatedPosts.map((relatedPost, index) => (
@@ -314,6 +351,15 @@ export default function ArticleClient({
                       isLast={index === relatedPosts.length - 1}
                     />
                   ))}
+                </div>
+                <div className="mt-6 border-t theme-border pt-4">
+                  <Link
+                    href={localePath("/blog")}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-600 transition hover:text-teal-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to all posts
+                  </Link>
                 </div>
               </section>
             )}

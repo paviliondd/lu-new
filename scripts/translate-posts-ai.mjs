@@ -23,18 +23,32 @@ if (fs.existsSync(envPath)) {
 const { Pool } = pg;
 
 function translationEndpoint() {
-  return process.env.OPENAI_TRANSLATION_BASE_URL || "https://agentrouter.org/v1/chat/completions";
+  if (process.env.OPENAI_TRANSLATION_BASE_URL) {
+    return process.env.OPENAI_TRANSLATION_BASE_URL;
+  }
+  const key = process.env.OPENAI_API_KEY || "";
+  if (key.startsWith("sk-proj-")) {
+    return "https://api.openai.com/v1/chat/completions";
+  }
+  return "https://agentrouter.org/v1/chat/completions";
+}
+
+function defaultModelForKey() {
+  const key = process.env.OPENAI_API_KEY || "";
+  if (key.startsWith("sk-proj-")) {
+    return "gpt-4o-mini";
+  }
+  return "claude-opus-5";
 }
 
 const candidateModels = [
   process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL,
+  defaultModelForKey(),
+  "gpt-4o-mini",
+  "gpt-4o",
   "claude-opus-5",
   "gpt-5.6-sol",
   "claude-opus-4-8",
-  "gpt-4o-mini",
-  "gpt-4o",
-  "claude-3-5-sonnet",
-  "default",
 ].filter((item, index, self) => Boolean(item) && self.indexOf(item) === index);
 
 function extractText(payload) {

@@ -25,9 +25,9 @@ const endpointInput = process.env.OPENAI_TRANSLATION_BASE_URL || "https://agentr
 // Candidate URL variations
 const candidateUrls = [
   endpointInput,
+  "https://api.openai.com/v1/chat/completions",
   "https://agentrouter.org/v1/chat/completions",
   "https://agentrouter.org/api/v1/chat/completions",
-  "https://agentrouter.org/v1",
 ].filter((u, i, self) => Boolean(u) && self.indexOf(u) === i);
 
 // Candidate User-Agents and Auth headers

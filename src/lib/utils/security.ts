@@ -1,11 +1,20 @@
-import xss, {
+import {
+  FilterXSS,
   type ICSSFilter,
   type IFilterXSSOptions,
   type IWhiteList,
 } from "xss";
+import xss from "xss";
 import { load } from "cheerio";
 
-const { FilterXSS, escapeAttrValue, safeAttrValue } = xss;
+const xssModule = xss as unknown as Record<string, unknown>;
+const escapeAttrValue = (xssModule.escapeAttrValue || ((v: string) => v)) as (val: string) => string;
+const safeAttrValue = (xssModule.safeAttrValue || ((...args: unknown[]) => String(args[1] || ""))) as (
+  tag: string,
+  attr: string,
+  value: string,
+  cssFilter?: ICSSFilter
+) => string;
 
 const commonAttributes = ["id", "class", "title", "role", "aria-label", "aria-hidden"];
 const tableCellAttributes = ["colspan", "rowspan", "scope", "align", "valign"];

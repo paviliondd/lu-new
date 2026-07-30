@@ -440,6 +440,7 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
         depth: 2,
         limit,
         sort: "-publishedAt",
+        overrideAccess: true,
         where: {
           status: {
             equals: "published",

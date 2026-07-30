@@ -19,10 +19,18 @@ export default function BulkPublishPosts() {
   const router = useRouter();
   const { clearRouteCache } = useRouteCache();
   const { config } = useConfig();
-  const { count, getQueryParams, selectedIDs, selectAll, toggleAll } = useSelection();
   const [isPublishing, setIsPublishing] = useState(false);
 
-  if (!count) return null;
+  let selection: ReturnType<typeof useSelection> | null = null;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    selection = useSelection();
+  } catch {
+    selection = null;
+  }
+
+  if (!selection || !selection.count) return null;
+  const { count, getQueryParams, selectedIDs, selectAll, toggleAll } = selection;
 
   const publishSelected = async () => {
     if (isPublishing) return;

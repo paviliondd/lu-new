@@ -33,6 +33,26 @@ const candidateUrls = [
 // Candidate User-Agents and Auth headers
 const headerCombos = [
   {
+    name: "Bearer + AgentRouter Referer & Origin",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      referer: "https://agentrouter.org",
+      origin: "https://agentrouter.org",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "content-type": "application/json",
+    },
+  },
+  {
+    name: "Bearer + LinuxUnity Referer",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      referer: "https://linuxunity.com",
+      origin: "https://linuxunity.com",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "content-type": "application/json",
+    },
+  },
+  {
     name: "Bearer + Browser User-Agent",
     headers: {
       authorization: `Bearer ${apiKey}`,
@@ -45,21 +65,6 @@ const headerCombos = [
     headers: {
       authorization: `Bearer ${apiKey}`,
       "user-agent": "OpenAI/NodeJS",
-      "content-type": "application/json",
-    },
-  },
-  {
-    name: "X-Api-Key + Browser User-Agent",
-    headers: {
-      "x-api-key": apiKey,
-      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "content-type": "application/json",
-    },
-  },
-  {
-    name: "Standard Bearer",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
       "content-type": "application/json",
     },
   },

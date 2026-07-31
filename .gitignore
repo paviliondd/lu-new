@@ -61,6 +61,7 @@ public/uploads/
 dist/
 .cache/
 .tmp/
+.translation-work/
 
 # vercel
 .vercel

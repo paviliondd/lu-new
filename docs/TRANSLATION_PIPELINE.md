@@ -73,6 +73,22 @@ Use this workflow when the provider only permits approved interactive clients. E
 docker compose exec app npm run content:export-translations -- --limit 3 --max-source-tokens 12000
 ```
 
+On a trusted local workstation with Codex CLI installed, translate the complete export automatically. The runner reads `OPENAI_API_KEY` from `.env`, passes it only to the Codex child process, caches completed chunks for resume, fills metadata, and validates HTML/code/URLs:
+
+```powershell
+npm run content:translate-with-agent -- `
+  --input "$HOME\Downloads\translation-export.json" `
+  --output "$HOME\Downloads\translated.json"
+```
+
+Optional controls:
+
+```powershell
+--model gpt-5.6-sol --max-chunk-chars 3500 --retries 2
+```
+
+Do not run this command on the production VPS. It is intentionally a local trusted-workstation tool because Agent Router only accepts approved clients and the API credential must not be exposed to website code.
+
 Open the generated `.translation-work/*-translation-export.json` in an approved Codex or Claude client. Ask it to follow the embedded instructions and fill only the `translation` values. Preserve IDs and the complete JSON structure. Save the result as `.translation-work/translated.json`.
 
 Validate without connecting to Payload:

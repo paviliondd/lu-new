@@ -20,6 +20,7 @@
     "content:export-translations": "node --import tsx scripts/translation-pipeline.mjs --mode export",
     "content:validate-translations": "node --import tsx scripts/translation-pipeline.mjs --mode validate",
     "content:import-translations": "node --import tsx scripts/translation-pipeline.mjs --mode import",
+    "content:translate-with-agent": "node scripts/translate-with-codex.mjs",
     "content:translate": "node --import tsx scripts/translation-pipeline.mjs --mode translate",
     "payload:sync-series": "node scripts/sync-payload-series.mjs",
     "wordpress:import": "node scripts/import-wordpress-rest.mjs",

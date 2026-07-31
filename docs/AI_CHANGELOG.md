@@ -6,6 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
+- Added a resumable local Codex CLI translation runner that automatically translates metadata, Lexical units, and legacy HTML; enforces structured output; preserves protected HTML/code; and produces an import-ready package without exposing the agent credential to the website runtime.
 - Added protocol-aware translation routing: Claude models use Anthropic Messages while GPT models use OpenAI Chat Completions, with a local mock-server integration test covering cross-protocol fallback without consuming API credit.
 - Added a database-free translation provider probe command for validating model access, endpoint routing, and credentials before starting a batch.
 - Added an offline export, validation, dry-run import, and explicit apply workflow for translating through approved interactive agents without exposing production database access or making duplicate AI requests.

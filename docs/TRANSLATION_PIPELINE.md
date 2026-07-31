@@ -65,6 +65,34 @@ docker compose exec app npm run content:translate -- --resume .translation-work/
 
 Exit code `2` means one or more posts failed but the candidate, snapshot, and failure reports were still written. A provider `content-blocked` response skips retries on that model and immediately tries the next configured model.
 
+## Offline agent workflow
+
+Use this workflow when the provider only permits approved interactive clients. Export does not call an AI API:
+
+```powershell
+docker compose exec app npm run content:export-translations -- --limit 3 --max-source-tokens 12000
+```
+
+Open the generated `.translation-work/*-translation-export.json` in an approved Codex or Claude client. Ask it to follow the embedded instructions and fill only the `translation` values. Preserve IDs and the complete JSON structure. Save the result as `.translation-work/translated.json`.
+
+Validate without connecting to Payload:
+
+```powershell
+docker compose exec app npm run content:validate-translations -- --input .translation-work/translated.json
+```
+
+Create a database-safe dry-run candidate. Import rejects stale exports when the Vietnamese source or post identity changed:
+
+```powershell
+docker compose exec app npm run content:import-translations -- --input .translation-work/translated.json
+```
+
+Review the generated candidate, then apply the same input without another AI request:
+
+```powershell
+docker compose exec app npm run content:import-translations -- --input .translation-work/translated.json --apply
+```
+
 Candidate and snapshot files are bind-mounted to the host at `.translation-work/`. Always inspect the dry-run candidate before using `--apply`. To roll back an applied run:
 
 ```powershell

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
-import { applyLexicalTranslations, auditPost, collectLexicalUnits, translateJson, translationProvider, verifyTranslationCandidate } from "../scripts/translation-pipeline.mjs";
+import { applyLexicalTranslations, auditPost, buildImportCandidate, collectLexicalUnits, translateJson, translationProvider, validateTranslationPackage, verifyTranslationCandidate } from "../scripts/translation-pipeline.mjs";
 import { readFile } from "node:fs/promises";
 
 test("collectLexicalUnits translates prose but preserves code and terminal commands", () => {
@@ -111,4 +111,46 @@ test("translation falls back from a rejected Claude request to GPT using the cor
     }
     await new Promise((resolve) => server.close(resolve));
   }
+});
+
+test("offline translation packages require complete metadata and matching unit translations", () => {
+  const valid = {
+    formatVersion: 1,
+    posts: [{
+      id: 1,
+      slug: "demo",
+      source: { units: [{ id: 0, text: "Xin chao" }], legacyContent: null },
+      translation: { title: "Title", excerpt: "Excerpt", seoTitle: "SEO", seoDescription: "Description", units: [{ id: 0, text: "Hello" }], legacyContent: null },
+    }],
+  };
+  assert.deepEqual(validateTranslationPackage(valid), []);
+  const invalid = structuredClone(valid);
+  invalid.posts[0].translation.title = "";
+  invalid.posts[0].translation.units[0].text = "";
+  assert.deepEqual(validateTranslationPackage(invalid), [
+    "demo: missing translation.title",
+    "demo: missing translation unit 0",
+  ]);
+  assert.deepEqual(validateTranslationPackage({}), ["Invalid translation package format."]);
+});
+
+test("offline import reconstructs Lexical content and rejects a stale Vietnamese source", () => {
+  const post = {
+    id: 1,
+    slug: "demo",
+    contentRichVi: { root: { type: "root", children: [{ type: "paragraph", children: [{ type: "text", text: "Noi dung", version: 1 }] }] } },
+    seo: {},
+  };
+  const entry = {
+    id: 1,
+    slug: "demo",
+    source: { units: [{ id: 0, text: "Noi dung" }] },
+    translation: { title: "Title", excerpt: "Excerpt", seoTitle: "SEO", seoDescription: "Description", units: [{ id: 0, text: "Content" }] },
+  };
+  const candidate = buildImportCandidate(post, entry);
+  assert.equal(candidate.qa.passed, true);
+  assert.equal(candidate.data.contentRichEn.root.children[0].children[0].text, "Content");
+  const stale = structuredClone(entry);
+  stale.source.units[0].text = "Old content";
+  assert.throws(() => buildImportCandidate(post, stale), /Vietnamese source changed after export/);
 });

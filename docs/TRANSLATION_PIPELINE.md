@@ -43,8 +43,17 @@ docker compose exec app npm run content:translate -- --limit 3 --apply
 Configure an ordered model fallback list in `.env` when using Agent Router:
 
 ```dotenv
-OPENAI_TRANSLATION_BASE_URL=https://agentrouter.org/v1/chat/completions
+OPENAI_TRANSLATION_BASE_URL=https://agentrouter.org/v1
+ANTHROPIC_TRANSLATION_BASE_URL=https://agentrouter.org
 OPENAI_TRANSLATION_MODELS=claude-opus-5,gpt-5.6-sol,claude-opus-4-8
+```
+
+The pipeline routes `claude-*` models through Anthropic Messages at `/v1/messages` and other models through OpenAI Chat Completions at `/v1/chat/completions`. Both protocols reuse `OPENAI_API_KEY` by default; set `ANTHROPIC_API_KEY` only when the Anthropic endpoint has a separate credential.
+
+Probe every configured model before translating. This does not connect to Payload or modify any post:
+
+```powershell
+docker compose exec app npm run content:test-translation-api
 ```
 
 The pipeline translates smaller posts first. Cap unusually large posts and resume only failures from a previous run with:

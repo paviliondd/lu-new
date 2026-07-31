@@ -139,19 +139,39 @@ function parseArgs(argv) {
     else if (arg === "--max-source-tokens") options.maxSourceTokens = Number(argv[++index] || 0);
     else throw new Error(`Unknown argument: ${arg}`);
   }
-  if (!new Set(["audit", "translate", "rollback"]).has(options.mode)) throw new Error(`Invalid mode: ${options.mode}`);
+  if (!new Set(["audit", "translate", "rollback", "probe"]).has(options.mode)) throw new Error(`Invalid mode: ${options.mode}`);
   if (options.mode === "rollback" && (!options.apply || !options.snapshot)) {
     throw new Error("Rollback requires --apply and --snapshot <file>.");
   }
   return options;
 }
 
-function endpoint() {
-  return process.env.OPENAI_TRANSLATION_BASE_URL || "https://agentrouter.org/v1/chat/completions";
-}
-
 function model() {
   return process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL || "claude-opus-5";
+}
+
+function appendApiPath(baseUrl, apiPath) {
+  const normalized = baseUrl.replace(/\/+$/, "");
+  if (normalized.endsWith(apiPath)) return normalized;
+  if (apiPath === "/v1/chat/completions" && normalized.endsWith("/v1")) return `${normalized}/chat/completions`;
+  return `${normalized}${apiPath}`;
+}
+
+export function translationProvider(selectedModel) {
+  const isClaude = /^claude-/i.test(selectedModel);
+  if (isClaude) {
+    return {
+      protocol: "anthropic-messages",
+      endpoint: appendApiPath(process.env.ANTHROPIC_TRANSLATION_BASE_URL || "https://agentrouter.org", "/v1/messages"),
+      apiKey: process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY,
+    };
+  }
+  const configuredEndpoint = process.env.OPENAI_TRANSLATION_BASE_URL || "https://agentrouter.org/v1";
+  return {
+    protocol: configuredEndpoint.includes("/responses") ? "openai-responses" : "openai-chat-completions",
+    endpoint: configuredEndpoint.includes("/responses") ? configuredEndpoint : appendApiPath(configuredEndpoint, "/v1/chat/completions"),
+    apiKey: process.env.OPENAI_API_KEY,
+  };
 }
 
 function models() {
@@ -172,32 +192,38 @@ class TranslationApiError extends Error {
 
 function extractOutput(payload) {
   if (typeof payload.output_text === "string") return payload.output_text;
+  if (Array.isArray(payload.content)) return payload.content.map((item) => item.text || "").join("");
   const content = payload.choices?.[0]?.message?.content;
   if (typeof content === "string") return content;
   if (Array.isArray(content)) return content.map((item) => item.text || "").join("");
   return "";
 }
 
-async function translateJson(input, schemaDescription) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY is required for translate mode.");
+export async function translateJson(input, schemaDescription, selectedModels = models()) {
   const instructions = [
     "Translate Vietnamese technical documentation into natural professional English.",
     "Preserve product names, URLs, placeholders, inline code, commands and formatting exactly.",
     `Return JSON only. ${schemaDescription}`,
   ].join(" ");
-  const target = endpoint();
-  const isResponses = target.includes("/responses");
   let lastError;
-  for (const selectedModel of models()) {
+  for (const selectedModel of selectedModels) {
+    const provider = translationProvider(selectedModel);
+    if (!provider.apiKey) throw new Error(`${provider.protocol === "anthropic-messages" ? "ANTHROPIC_API_KEY or OPENAI_API_KEY" : "OPENAI_API_KEY"} is required for translate mode.`);
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
-        const requestBody = isResponses
-          ? { model: selectedModel, store: false, instructions, input: JSON.stringify(input) }
-          : { model: selectedModel, temperature: 0.1, messages: [{ role: "system", content: instructions }, { role: "user", content: JSON.stringify(input) }] };
-        const response = await fetch(target, {
+        const requestBody = provider.protocol === "anthropic-messages"
+          ? { model: selectedModel, max_tokens: 8192, system: instructions, messages: [{ role: "user", content: JSON.stringify(input) }] }
+          : provider.protocol === "openai-responses"
+            ? { model: selectedModel, store: false, instructions, input: JSON.stringify(input) }
+            : { model: selectedModel, temperature: 0.1, messages: [{ role: "system", content: instructions }, { role: "user", content: JSON.stringify(input) }] };
+        const headers = {
+          authorization: `Bearer ${provider.apiKey}`,
+          "content-type": "application/json",
+          ...(provider.protocol === "anthropic-messages" ? { "anthropic-version": "2023-06-01" } : {}),
+        };
+        const response = await fetch(provider.endpoint, {
           method: "POST",
-          headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+          headers,
           body: JSON.stringify(requestBody),
           signal: AbortSignal.timeout(120_000),
         });
@@ -214,7 +240,7 @@ async function translateJson(input, schemaDescription) {
         await sleep(1000 * (2 ** (attempt - 1)));
       }
     }
-    console.warn(`[translate] model ${selectedModel} failed; trying fallback if configured`);
+    console.warn(`[translate] model ${selectedModel} via ${provider.protocol} failed; trying fallback if configured`);
   }
   throw lastError;
 }
@@ -356,9 +382,28 @@ async function runRollback(payload, options) {
   }
 }
 
+async function runProbe() {
+  const results = [];
+  for (const selectedModel of models()) {
+    const provider = translationProvider(selectedModel);
+    try {
+      const output = await translateJson({ probe: "Return the value ok." }, "Return an object with a status key whose value is ok.", [selectedModel]);
+      results.push({ model: selectedModel, protocol: provider.protocol, endpoint: provider.endpoint, ok: output.status === "ok", output });
+    } catch (error) {
+      results.push({ model: selectedModel, protocol: provider.protocol, endpoint: provider.endpoint, ok: false, error: error instanceof Error ? error.message : String(error) });
+    }
+  }
+  console.log(JSON.stringify({ results }, null, 2));
+  if (results.some((result) => !result.ok)) process.exitCode = 2;
+}
+
 export async function main(argv = process.argv.slice(2)) {
   loadEnvFile();
   const options = parseArgs(argv);
+  if (options.mode === "probe") {
+    await runProbe();
+    return;
+  }
   const payload = await getPayloadClient();
   if (options.mode === "audit") await runAudit(payload, options);
   else if (options.mode === "translate") await runTranslate(payload, options);

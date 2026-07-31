@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { createServer } from "node:http";
 import test from "node:test";
-import { applyLexicalTranslations, auditPost, collectLexicalUnits, verifyTranslationCandidate } from "../scripts/translation-pipeline.mjs";
+import { applyLexicalTranslations, auditPost, collectLexicalUnits, translateJson, translationProvider, verifyTranslationCandidate } from "../scripts/translation-pipeline.mjs";
 import { readFile } from "node:fs/promises";
 
 test("collectLexicalUnits translates prose but preserves code and terminal commands", () => {
@@ -50,4 +51,64 @@ test("translation runner isolates failures and supports fallback resume controls
   assert.match(source, /failures\.push/);
   assert.match(source, /-failures\.json/);
   assert.match(source, /start \+= 25/);
+});
+
+test("provider routing uses Anthropic Messages for Claude and OpenAI Chat Completions for GPT", () => {
+  const previousAnthropic = process.env.ANTHROPIC_TRANSLATION_BASE_URL;
+  const previousOpenAi = process.env.OPENAI_TRANSLATION_BASE_URL;
+  process.env.ANTHROPIC_TRANSLATION_BASE_URL = "https://router.example";
+  process.env.OPENAI_TRANSLATION_BASE_URL = "https://router.example/v1";
+  try {
+    assert.deepEqual(translationProvider("claude-opus-5"), {
+      protocol: "anthropic-messages",
+      endpoint: "https://router.example/v1/messages",
+      apiKey: process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY,
+    });
+    assert.equal(translationProvider("gpt-5.6-sol").protocol, "openai-chat-completions");
+    assert.equal(translationProvider("gpt-5.6-sol").endpoint, "https://router.example/v1/chat/completions");
+  } finally {
+    if (previousAnthropic === undefined) delete process.env.ANTHROPIC_TRANSLATION_BASE_URL;
+    else process.env.ANTHROPIC_TRANSLATION_BASE_URL = previousAnthropic;
+    if (previousOpenAi === undefined) delete process.env.OPENAI_TRANSLATION_BASE_URL;
+    else process.env.OPENAI_TRANSLATION_BASE_URL = previousOpenAi;
+  }
+});
+
+test("translation falls back from a rejected Claude request to GPT using the correct wire protocols", async () => {
+  const requests = [];
+  const server = createServer(async (request, response) => {
+    let raw = "";
+    for await (const chunk of request) raw += chunk;
+    requests.push({ url: request.url, headers: request.headers, body: JSON.parse(raw) });
+    response.setHeader("content-type", "application/json");
+    if (request.url === "/anthropic/v1/messages") {
+      response.statusCode = 401;
+      response.end(JSON.stringify({ error: { message: "unauthorized model client" } }));
+      return;
+    }
+    response.end(JSON.stringify({ choices: [{ message: { content: '{"status":"ok"}' } }] }));
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const { port } = server.address();
+  const keys = ["OPENAI_API_KEY", "OPENAI_TRANSLATION_MODELS", "OPENAI_TRANSLATION_BASE_URL", "ANTHROPIC_TRANSLATION_BASE_URL"];
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  try {
+    process.env.OPENAI_API_KEY = "test-key";
+    process.env.OPENAI_TRANSLATION_MODELS = "claude-opus-5,gpt-5.6-sol";
+    process.env.ANTHROPIC_TRANSLATION_BASE_URL = `http://127.0.0.1:${port}/anthropic`;
+    process.env.OPENAI_TRANSLATION_BASE_URL = `http://127.0.0.1:${port}/openai/v1`;
+    assert.deepEqual(await translateJson({ text: "Xin chao" }, "Return status."), { status: "ok" });
+    assert.equal(requests.length, 2);
+    assert.equal(requests[0].url, "/anthropic/v1/messages");
+    assert.equal(requests[0].headers["anthropic-version"], "2023-06-01");
+    assert.equal(requests[0].body.system.includes("Translate Vietnamese"), true);
+    assert.equal(requests[1].url, "/openai/v1/chat/completions");
+    assert.equal(requests[1].body.messages[0].role, "system");
+  } finally {
+    for (const key of keys) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+    await new Promise((resolve) => server.close(resolve));
+  }
 });

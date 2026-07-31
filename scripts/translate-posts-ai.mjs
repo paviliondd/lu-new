@@ -112,8 +112,77 @@ async function requestTranslationWithModel(apiKey, post, model) {
   const rawJson = extractText(parsedResponse);
   if (!rawJson) throw new Error("Empty translation output received from API.");
 
-  const cleaned = rawJson.replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
+  let cleaned = rawJson.replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    cleaned = jsonMatch[0];
+  }
   return JSON.parse(cleaned);
+}
+
+async function translateSingleChunkWithModel(apiKey, textSnippet, model) {
+  const endpoint = translationEndpoint();
+  const isChatCompletions = endpoint.includes("chat/completions") || !endpoint.includes("responses");
+
+  const instructions =
+    "You are an expert technical translator. Translate the provided Vietnamese technology article fragment into natural English. Preserve all HTML formatting, inline code, and product names. Return ONLY the translated text/HTML without any introduction, explanations, or JSON wrappers.";
+
+  const body = isChatCompletions
+    ? JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: instructions },
+          { role: "user", content: textSnippet },
+        ],
+        temperature: 0.2,
+      })
+    : JSON.stringify({
+        model,
+        store: false,
+        instructions,
+        input: textSnippet,
+      });
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "user-agent": "roo-code/3.8.0",
+      "content-type": "application/json",
+    },
+    body,
+  });
+
+  const rawText = await response.text().catch(() => "");
+  if (!response.ok) {
+    throw new Error(`API request failed [${response.status}]: ${rawText}`);
+  }
+
+  const parsedResponse = JSON.parse(rawText);
+  const rawOutput = extractText(parsedResponse);
+  if (!rawOutput) throw new Error("Empty translation output received from API.");
+
+  let cleaned = rawOutput.replace(/^```(html|text)?\s*/i, "").replace(/\s*```$/, "").trim();
+  if (cleaned.toLowerCase().startsWith("i'm looking") || cleaned.toLowerCase().startsWith("here is")) {
+    const lines = cleaned.split("\n");
+    if (lines.length > 1 && (lines[0].includes(":") || lines[0].includes("..."))) {
+      cleaned = lines.slice(1).join("\n").trim();
+    }
+  }
+
+  return cleaned;
+}
+
+async function translateTextChunkWithAI(apiKey, textSnippet) {
+  let lastErr = null;
+  for (const model of candidateModels) {
+    try {
+      return await translateSingleChunkWithModel(apiKey, textSnippet, model);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error("All candidate models failed for this text chunk.");
 }
 
 async function translatePostInSafeChunks(apiKey, post) {
@@ -163,12 +232,8 @@ async function translatePostInSafeChunks(apiKey, post) {
     chunkIndex++;
     console.log(`   ⏳ Translating chunk [${chunkIndex}/${totalChunks}]...`);
     try {
-      const textResult = await requestTranslationWithModel(
-        apiKey,
-        { title_vi: "Documentation", excerpt_vi: "", content_vi: part },
-        candidateModels[0]
-      );
-      translatedParts.push(textResult.content || part);
+      const translatedChunk = await translateTextChunkWithAI(apiKey, part);
+      translatedParts.push(translatedChunk || part);
     } catch (err) {
       console.warn(`   ⚠️ Chunk [${chunkIndex}/${totalChunks}] failed (${err.message}). Keeping original block.`);
       translatedParts.push(part);

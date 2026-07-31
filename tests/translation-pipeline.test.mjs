@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { applyLexicalTranslations, auditPost, collectLexicalUnits, verifyTranslationCandidate } from "../scripts/translation-pipeline.mjs";
+import { readFile } from "node:fs/promises";
 
 test("collectLexicalUnits translates prose but preserves code and terminal commands", () => {
   const source = { root: { type: "root", children: [
@@ -37,4 +38,16 @@ test("verifyTranslationCandidate rejects changed Lexical structure and Vietnames
   assert.equal(result.passed, false);
   assert.ok(result.issues.includes("lexical-structure-changed"));
   assert.ok(result.issues.includes("possible-vietnamese-remains"));
+});
+
+test("translation runner isolates failures and supports fallback resume controls", async () => {
+  const source = await readFile("scripts/translation-pipeline.mjs", "utf8");
+  assert.match(source, /OPENAI_TRANSLATION_MODELS/);
+  assert.match(source, /AbortSignal\.timeout\(120_000\)/);
+  assert.match(source, /\[429, 500, 502, 503, 504\]/);
+  assert.match(source, /--resume/);
+  assert.match(source, /--max-source-tokens/);
+  assert.match(source, /failures\.push/);
+  assert.match(source, /-failures\.json/);
+  assert.match(source, /start \+= 25/);
 });

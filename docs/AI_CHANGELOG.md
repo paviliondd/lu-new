@@ -6,16 +6,33 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
+- Added translation model fallback, transient retry/backoff, per-post failure isolation, failure resume, source-token caps, smaller Lexical request batches, and smallest-post-first selection.
+- Added automatic ownership initialization for the host-mounted translation workspace.
+- Added deploy health rollback to the previously running immutable image.
+- Added Docker Compose operating instructions and a persistent host bind mount for translation candidates and rollback snapshots.
+- Added a repository-boundary guide recommending an incremental `app` / `cms` / `server` / `shared` organization instead of a disruptive frontend/backend split.
 - Added a Lexical-safe English translation pipeline with read-only audit mode, explicit dry-run/apply behavior, capped selection, ignored candidate artifacts, pre-change snapshots, rollback mode, and structural/remaining-Vietnamese QA gates.
 - Added regression tests proving that prose is translated without changing code blocks or terminal commands, and that unsafe Lexical candidates are rejected.
 - Added editable draw.io workflows for the current VPS/Compose architecture, a serverless ECS Fargate target, and an EKS target.
 - Added translation operating instructions and an AWS stack/migration evaluation.
+
+Changed:
+
+- Parallelized verification and container build in production CI, skipped documentation-only deployments, reduced GitHub Actions cache upload size, removed the redundant ECR existence check and `latest` image tag, and explicitly build the production runner target.
+- Kept `tsx` as a production runtime dependency because the containerized Payload migration and translation tools load TypeScript configuration at runtime.
+
+Removed:
+
+- Removed repository-local copies of Codex design skills, an embedded AWS CLI installer, obsolete WordPress deployment plugins, superseded translation and API-token diagnostic scripts, unused Next.js starter assets, unused UI/config modules, local logs, and unreferenced roadmap drafts.
+- Removed the API-token diagnostic from the default Node test discovery path; it made external authenticated requests and was not a website regression test.
 
 Validated:
 
 - `npm test` passes all 35 tests, including the translation pipeline coverage.
 - `npm run build` completes successfully while using the documented local-content fallback because the Docker-only PostgreSQL hostname is unreachable on the host.
 - `npm run lint` completes with zero errors and two pre-existing unused-variable warnings outside the new pipeline.
+- The post-cleanup validation completes with 34 passing website tests, a successful production build, and zero lint errors (one pre-existing warning remains).
+- The generated codebase knowledge graph validates with 176 nodes, 376 edges, eight architectural layers, and four onboarding tour steps.
 - All workflow diagrams pass draw.io structural validation; current and serverless diagrams score with no warnings.
 
 Known limitation:

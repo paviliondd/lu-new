@@ -4,6 +4,7 @@ set -euo pipefail
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
 DEPLOY_IMAGE_SOURCE="${DEPLOY_IMAGE_SOURCE:-build}"
 DEPLOY_SKIP_GIT_SYNC="${DEPLOY_SKIP_GIT_SYNC:-false}"
+DEPLOY_ROLLBACK_IMAGE="${DEPLOY_ROLLBACK_IMAGE:-}"
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -12,6 +13,15 @@ log() {
 fail() {
   printf '[deploy] ERROR: %s\n' "$*" >&2
   exit 1
+}
+
+rollback_app() {
+  if [ -z "${DEPLOY_ROLLBACK_IMAGE}" ] || [ "${DEPLOY_ROLLBACK_IMAGE}" = "${APP_IMAGE:-}" ]; then
+    return 1
+  fi
+  log "Rolling app back to ${DEPLOY_ROLLBACK_IMAGE}"
+  export APP_IMAGE="${DEPLOY_ROLLBACK_IMAGE}"
+  docker compose up -d --no-deps --no-build app
 }
 
 load_env_file() {
@@ -130,7 +140,8 @@ for attempt in $(seq 1 60); do
   fi
 
   if [ "$attempt" -eq 60 ]; then
-    fail "App did not become healthy after 120 seconds."
+    rollback_app || true
+    fail "App did not become healthy after 120 seconds; rollback was attempted when a previous image was available."
   fi
 
   sleep 2

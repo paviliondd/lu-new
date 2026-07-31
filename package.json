@@ -40,6 +40,7 @@
     "server-only": "^0.0.1",
     "sharp": "0.33.5",
     "shiki": "^4.2.0",
+    "tsx": "^4.22.4",
     "xss": "^1.0.15"
   },
   "devDependencies": {
@@ -51,7 +52,6 @@
     "eslint-config-next": "16.2.7",
     "happy-dom": "^20.10.6",
     "tailwindcss": "^4",
-    "tsx": "4.22.4",
     "typescript": "^5"
   }
 }

@@ -48,12 +48,15 @@ services:
     depends_on:
       media-permissions:
         condition: service_completed_successfully
+      translation-work-permissions:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
       - payload_media:/app/public/uploads
+      - ./.translation-work:/app/.translation-work
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1"]
       interval: 30s
@@ -72,6 +75,14 @@ services:
     restart: "no"
     volumes:
       - payload_media:/app/public/uploads
+
+  translation-work-permissions:
+    image: ${APP_IMAGE:-cloud-devops-blog-app:production}
+    user: "0:0"
+    command: ["sh", "-lc", "mkdir -p /app/.translation-work && chown -R 1001:1001 /app/.translation-work"]
+    restart: "no"
+    volumes:
+      - ./.translation-work:/app/.translation-work
 
   uptime-kuma:
     image: louislam/uptime-kuma:1.23.16

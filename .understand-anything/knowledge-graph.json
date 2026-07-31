@@ -1,0 +1,5386 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "linuxunity-blog",
+    "languages": [
+      "conf",
+      "css",
+      "dockerfile",
+      "drawio",
+      "example",
+      "javascript",
+      "json",
+      "markdown",
+      "mjs",
+      "shell",
+      "typescript",
+      "unknown",
+      "yaml"
+    ],
+    "frameworks": [
+      "Docker",
+      "Docker Compose",
+      "GitHub Actions",
+      "Next.js",
+      "React",
+      "Tailwind CSS"
+    ],
+    "description": "LinuxUnity Blog là ứng dụng blog song ngữ xây dựng bằng Next.js App Router và React, với Payload CMS nhúng trong cùng ứng dụng, PostgreSQL làm database và Docker Compose phục vụ triển khai. Lưu ý: dự án có hơn 100 source file; nên giới hạn phân tích theo subdirectory để xử lý nhanh hơn.",
+    "analyzedAt": "2026-07-31T10:48:54.288Z",
+    "gitCommitHash": "3ff415fd82ba25d70326a26047cc745a7f943cb7"
+  },
+  "nodes": [
+    {
+      "id": "file:.dockerignore",
+      "type": "file",
+      "name": ".dockerignore",
+      "filePath": ".dockerignore",
+      "summary": "mã nguồn .dockerignore, được viết bằng unknown và có 19 dòng.",
+      "tags": [
+        "code",
+        "unknown",
+        ".dockerignore"
+      ],
+      "complexity": "low",
+      "language": "unknown"
+    },
+    {
+      "id": "file:.env.example",
+      "type": "file",
+      "name": ".env.example",
+      "filePath": ".env.example",
+      "summary": "mã nguồn .env.example, được viết bằng example và có 55 dòng.",
+      "tags": [
+        "code",
+        "example",
+        ".env.example"
+      ],
+      "complexity": "low",
+      "language": "example"
+    },
+    {
+      "id": "file:.gitattributes",
+      "type": "file",
+      "name": ".gitattributes",
+      "filePath": ".gitattributes",
+      "summary": "mã nguồn .gitattributes, được viết bằng unknown và có 16 dòng.",
+      "tags": [
+        "code",
+        "unknown",
+        ".gitattributes"
+      ],
+      "complexity": "low",
+      "language": "unknown"
+    },
+    {
+      "id": "pipeline:.github/workflows/deploy-production.yml",
+      "type": "pipeline",
+      "name": "deploy-production.yml",
+      "filePath": ".github/workflows/deploy-production.yml",
+      "summary": "hạ tầng .github/workflows/deploy-production.yml, được viết bằng yaml và có 147 dòng.",
+      "tags": [
+        "infra",
+        "yaml",
+        ".github"
+      ],
+      "complexity": "low",
+      "language": "yaml"
+    },
+    {
+      "id": "document:AGENTS.md",
+      "type": "document",
+      "name": "AGENTS.md",
+      "filePath": "AGENTS.md",
+      "summary": "tài liệu AGENTS.md, được viết bằng markdown và có 90 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "AGENTS.md"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "config:content/image-hosts.json",
+      "type": "config",
+      "name": "image-hosts.json",
+      "filePath": "content/image-hosts.json",
+      "summary": "cấu hình content/image-hosts.json, được viết bằng json và có 5 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "content"
+      ],
+      "complexity": "low",
+      "language": "json"
+    },
+    {
+      "id": "document:content/posts/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "content/posts/README.md",
+      "summary": "tài liệu content/posts/README.md, được viết bằng markdown và có 32 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "content"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "config:data/comments.json",
+      "type": "config",
+      "name": "comments.json",
+      "filePath": "data/comments.json",
+      "summary": "cấu hình data/comments.json, được viết bằng json và có 2 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "data"
+      ],
+      "complexity": "low",
+      "language": "json"
+    },
+    {
+      "id": "config:data/newsletter_subscribers.json",
+      "type": "config",
+      "name": "newsletter_subscribers.json",
+      "filePath": "data/newsletter_subscribers.json",
+      "summary": "cấu hình data/newsletter_subscribers.json, được viết bằng json và có 2 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "data"
+      ],
+      "complexity": "low",
+      "language": "json"
+    },
+    {
+      "id": "config:data/views.json",
+      "type": "config",
+      "name": "views.json",
+      "filePath": "data/views.json",
+      "summary": "cấu hình data/views.json, được viết bằng json và có 2 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "data"
+      ],
+      "complexity": "low",
+      "language": "json"
+    },
+    {
+      "id": "file:deploy/certbot/.gitkeep",
+      "type": "file",
+      "name": ".gitkeep",
+      "filePath": "deploy/certbot/.gitkeep",
+      "summary": "mã nguồn deploy/certbot/.gitkeep, được viết bằng unknown và có 2 dòng.",
+      "tags": [
+        "code",
+        "unknown",
+        "deploy"
+      ],
+      "complexity": "low",
+      "language": "unknown"
+    },
+    {
+      "id": "file:deploy/certbot/letsencrypt/.gitkeep",
+      "type": "file",
+      "name": ".gitkeep",
+      "filePath": "deploy/certbot/letsencrypt/.gitkeep",
+      "summary": "mã nguồn deploy/certbot/letsencrypt/.gitkeep, được viết bằng unknown và có 2 dòng.",
+      "tags": [
+        "code",
+        "unknown",
+        "deploy"
+      ],
+      "complexity": "low",
+      "language": "unknown"
+    },
+    {
+      "id": "file:deploy/certbot/www/.gitkeep",
+      "type": "file",
+      "name": ".gitkeep",
+      "filePath": "deploy/certbot/www/.gitkeep",
+      "summary": "mã nguồn deploy/certbot/www/.gitkeep, được viết bằng unknown và có 2 dòng.",
+      "tags": [
+        "code",
+        "unknown",
+        "deploy"
+      ],
+      "complexity": "low",
+      "language": "unknown"
+    },
+    {
+      "id": "file:deploy/nginx/default.conf",
+      "type": "file",
+      "name": "default.conf",
+      "filePath": "deploy/nginx/default.conf",
+      "summary": "mã nguồn deploy/nginx/default.conf, được viết bằng conf và có 83 dòng.",
+      "tags": [
+        "code",
+        "conf",
+        "deploy"
+      ],
+      "complexity": "low",
+      "language": "conf"
+    },
+    {
+      "id": "file:deploy/nginx/docker-entrypoint.d/30-render-site-conf.sh",
+      "type": "file",
+      "name": "30-render-site-conf.sh",
+      "filePath": "deploy/nginx/docker-entrypoint.d/30-render-site-conf.sh",
+      "summary": "script vận hành deploy/nginx/docker-entrypoint.d/30-render-site-conf.sh, được viết bằng shell và có 105 dòng.",
+      "tags": [
+        "script",
+        "shell",
+        "deploy"
+      ],
+      "complexity": "low",
+      "language": "shell"
+    },
+    {
+      "id": "document:deploy/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "deploy/README.md",
+      "summary": "tài liệu deploy/README.md, được viết bằng markdown và có 140 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "deploy"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "hạ tầng docker-compose.yml, được viết bằng yaml và có 139 dòng.",
+      "tags": [
+        "infra",
+        "yaml",
+        "docker-compose.yml"
+      ],
+      "complexity": "low",
+      "language": "yaml"
+    },
+    {
+      "id": "service:Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "Dockerfile",
+      "summary": "hạ tầng Dockerfile, được viết bằng dockerfile và có 63 dòng.",
+      "tags": [
+        "infra",
+        "dockerfile",
+        "Dockerfile"
+      ],
+      "complexity": "low",
+      "language": "dockerfile"
+    },
+    {
+      "id": "document:docs/AI_CHANGELOG.md",
+      "type": "document",
+      "name": "AI_CHANGELOG.md",
+      "filePath": "docs/AI_CHANGELOG.md",
+      "summary": "tài liệu docs/AI_CHANGELOG.md, được viết bằng markdown và có 324 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "medium",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/AI_WORKFLOW.md",
+      "type": "document",
+      "name": "AI_WORKFLOW.md",
+      "filePath": "docs/AI_WORKFLOW.md",
+      "summary": "tài liệu docs/AI_WORKFLOW.md, được viết bằng markdown và có 52 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/AWS_STACK_EVALUATION.md",
+      "type": "document",
+      "name": "AWS_STACK_EVALUATION.md",
+      "filePath": "docs/AWS_STACK_EVALUATION.md",
+      "summary": "tài liệu docs/AWS_STACK_EVALUATION.md, được viết bằng markdown và có 53 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "file:docs/aws-eks-workflow.drawio",
+      "type": "file",
+      "name": "aws-eks-workflow.drawio",
+      "filePath": "docs/aws-eks-workflow.drawio",
+      "summary": "mã nguồn docs/aws-eks-workflow.drawio, được viết bằng drawio và có 260 dòng.",
+      "tags": [
+        "code",
+        "drawio",
+        "docs"
+      ],
+      "complexity": "medium",
+      "language": "drawio"
+    },
+    {
+      "id": "file:docs/aws-production-topology.drawio",
+      "type": "file",
+      "name": "aws-production-topology.drawio",
+      "filePath": "docs/aws-production-topology.drawio",
+      "summary": "mã nguồn docs/aws-production-topology.drawio, được viết bằng drawio và có 90 dòng.",
+      "tags": [
+        "code",
+        "drawio",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "drawio"
+    },
+    {
+      "id": "file:docs/aws-serverless-workflow.drawio",
+      "type": "file",
+      "name": "aws-serverless-workflow.drawio",
+      "filePath": "docs/aws-serverless-workflow.drawio",
+      "summary": "mã nguồn docs/aws-serverless-workflow.drawio, được viết bằng drawio và có 202 dòng.",
+      "tags": [
+        "code",
+        "drawio",
+        "docs"
+      ],
+      "complexity": "medium",
+      "language": "drawio"
+    },
+    {
+      "id": "document:docs/CICD_DEPLOYMENT.md",
+      "type": "document",
+      "name": "CICD_DEPLOYMENT.md",
+      "filePath": "docs/CICD_DEPLOYMENT.md",
+      "summary": "tài liệu docs/CICD_DEPLOYMENT.md, được viết bằng markdown và có 90 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "file:docs/current-website-workflow.drawio",
+      "type": "file",
+      "name": "current-website-workflow.drawio",
+      "filePath": "docs/current-website-workflow.drawio",
+      "summary": "mã nguồn docs/current-website-workflow.drawio, được viết bằng drawio và có 200 dòng.",
+      "tags": [
+        "code",
+        "drawio",
+        "docs"
+      ],
+      "complexity": "medium",
+      "language": "drawio"
+    },
+    {
+      "id": "document:docs/FEATURES.md",
+      "type": "document",
+      "name": "FEATURES.md",
+      "filePath": "docs/FEATURES.md",
+      "summary": "tài liệu docs/FEATURES.md, được viết bằng markdown và có 286 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "medium",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/GIT_WORKFLOW.md",
+      "type": "document",
+      "name": "GIT_WORKFLOW.md",
+      "filePath": "docs/GIT_WORKFLOW.md",
+      "summary": "tài liệu docs/GIT_WORKFLOW.md, được viết bằng markdown và có 231 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "medium",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/PAYLOAD_CMS_FLOW.md",
+      "type": "document",
+      "name": "PAYLOAD_CMS_FLOW.md",
+      "filePath": "docs/PAYLOAD_CMS_FLOW.md",
+      "summary": "tài liệu docs/PAYLOAD_CMS_FLOW.md, được viết bằng markdown và có 30 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/PROJECT_AUDIT.md",
+      "type": "document",
+      "name": "PROJECT_AUDIT.md",
+      "filePath": "docs/PROJECT_AUDIT.md",
+      "summary": "tài liệu docs/PROJECT_AUDIT.md, được viết bằng markdown và có 108 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/REGRESSION_CHECKLIST.md",
+      "type": "document",
+      "name": "REGRESSION_CHECKLIST.md",
+      "filePath": "docs/REGRESSION_CHECKLIST.md",
+      "summary": "tài liệu docs/REGRESSION_CHECKLIST.md, được viết bằng markdown và có 47 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/STABILIZATION_REPORT.md",
+      "type": "document",
+      "name": "STABILIZATION_REPORT.md",
+      "filePath": "docs/STABILIZATION_REPORT.md",
+      "summary": "tài liệu docs/STABILIZATION_REPORT.md, được viết bằng markdown và có 57 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "document:docs/TRANSLATION_PIPELINE.md",
+      "type": "document",
+      "name": "TRANSLATION_PIPELINE.md",
+      "filePath": "docs/TRANSLATION_PIPELINE.md",
+      "summary": "tài liệu docs/TRANSLATION_PIPELINE.md, được viết bằng markdown và có 35 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "docs"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "file:eslint.config.mjs",
+      "type": "file",
+      "name": "eslint.config.mjs",
+      "filePath": "eslint.config.mjs",
+      "summary": "mã nguồn eslint.config.mjs, được viết bằng mjs và có 25 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "eslint.config.mjs"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "config:knip.json",
+      "type": "config",
+      "name": "knip.json",
+      "filePath": "knip.json",
+      "summary": "cấu hình knip.json, được viết bằng json và có 5 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "knip.json"
+      ],
+      "complexity": "low",
+      "language": "json"
+    },
+    {
+      "id": "file:next.config.ts",
+      "type": "file",
+      "name": "next.config.ts",
+      "filePath": "next.config.ts",
+      "summary": "mã nguồn next.config.ts, được viết bằng typescript và có 91 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "next.config.ts"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "config:package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "package.json",
+      "summary": "cấu hình package.json, được viết bằng json và có 58 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "package.json"
+      ],
+      "complexity": "low",
+      "language": "json"
+    },
+    {
+      "id": "file:postcss.config.mjs",
+      "type": "file",
+      "name": "postcss.config.mjs",
+      "filePath": "postcss.config.mjs",
+      "summary": "mã nguồn postcss.config.mjs, được viết bằng mjs và có 8 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "postcss.config.mjs"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "tài liệu README.md, được viết bằng markdown và có 96 dòng.",
+      "tags": [
+        "docs",
+        "markdown",
+        "README.md"
+      ],
+      "complexity": "low",
+      "language": "markdown"
+    },
+    {
+      "id": "file:scripts/audit-content-rendering.mjs",
+      "type": "file",
+      "name": "audit-content-rendering.mjs",
+      "filePath": "scripts/audit-content-rendering.mjs",
+      "summary": "mã nguồn scripts/audit-content-rendering.mjs, được viết bằng mjs và có 83 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "scripts"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:scripts/backup.sh",
+      "type": "file",
+      "name": "backup.sh",
+      "filePath": "scripts/backup.sh",
+      "summary": "script vận hành scripts/backup.sh, được viết bằng shell và có 18 dòng.",
+      "tags": [
+        "script",
+        "shell",
+        "scripts"
+      ],
+      "complexity": "low",
+      "language": "shell"
+    },
+    {
+      "id": "file:scripts/deploy.sh",
+      "type": "file",
+      "name": "deploy.sh",
+      "filePath": "scripts/deploy.sh",
+      "summary": "script vận hành scripts/deploy.sh, được viết bằng shell và có 149 dòng.",
+      "tags": [
+        "script",
+        "shell",
+        "scripts"
+      ],
+      "complexity": "low",
+      "language": "shell"
+    },
+    {
+      "id": "file:scripts/diagnose-host.sh",
+      "type": "file",
+      "name": "diagnose-host.sh",
+      "filePath": "scripts/diagnose-host.sh",
+      "summary": "script vận hành scripts/diagnose-host.sh, được viết bằng shell và có 53 dòng.",
+      "tags": [
+        "script",
+        "shell",
+        "scripts"
+      ],
+      "complexity": "low",
+      "language": "shell"
+    },
+    {
+      "id": "file:scripts/import-wordpress-rest.mjs",
+      "type": "file",
+      "name": "import-wordpress-rest.mjs",
+      "filePath": "scripts/import-wordpress-rest.mjs",
+      "summary": "mã nguồn scripts/import-wordpress-rest.mjs, được viết bằng mjs và có 465 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "scripts"
+      ],
+      "complexity": "medium",
+      "language": "mjs"
+    },
+    {
+      "id": "file:scripts/migrate-payload-richtext.mjs",
+      "type": "file",
+      "name": "migrate-payload-richtext.mjs",
+      "filePath": "scripts/migrate-payload-richtext.mjs",
+      "summary": "mã nguồn scripts/migrate-payload-richtext.mjs, được viết bằng mjs và có 105 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "scripts"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:scripts/normalize-xml-images.mjs",
+      "type": "file",
+      "name": "normalize-xml-images.mjs",
+      "filePath": "scripts/normalize-xml-images.mjs",
+      "summary": "mã nguồn scripts/normalize-xml-images.mjs, được viết bằng mjs và có 215 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "scripts"
+      ],
+      "complexity": "medium",
+      "language": "mjs"
+    },
+    {
+      "id": "file:scripts/repair-payload-posts.mjs",
+      "type": "file",
+      "name": "repair-payload-posts.mjs",
+      "filePath": "scripts/repair-payload-posts.mjs",
+      "summary": "mã nguồn scripts/repair-payload-posts.mjs, được viết bằng mjs và có 243 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "scripts"
+      ],
+      "complexity": "medium",
+      "language": "mjs"
+    },
+    {
+      "id": "file:scripts/restore.sh",
+      "type": "file",
+      "name": "restore.sh",
+      "filePath": "scripts/restore.sh",
+      "summary": "script vận hành scripts/restore.sh, được viết bằng shell và có 24 dòng.",
+      "tags": [
+        "script",
+        "shell",
+        "scripts"
+      ],
+      "complexity": "low",
+      "language": "shell"
+    },
+    {
+      "id": "file:scripts/sync-payload-series.mjs",
+      "type": "file",
+      "name": "sync-payload-series.mjs",
+      "filePath": "scripts/sync-payload-series.mjs",
+      "summary": "mã nguồn scripts/sync-payload-series.mjs, được viết bằng mjs và có 113 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "scripts"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:scripts/translation-pipeline.mjs",
+      "type": "file",
+      "name": "translation-pipeline.mjs",
+      "filePath": "scripts/translation-pipeline.mjs",
+      "summary": "mã nguồn scripts/translation-pipeline.mjs, được viết bằng mjs và có 322 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "scripts"
+      ],
+      "complexity": "medium",
+      "language": "mjs"
+    },
+    {
+      "id": "file:src/app/(payload)/admin/[[...segments]]/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/(payload)/admin/[[...segments]]/page.tsx",
+      "summary": "mã nguồn src/app/(payload)/admin/[[...segments]]/page.tsx, được viết bằng typescript và có 21 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/(payload)/admin/importMap.js",
+      "type": "file",
+      "name": "importMap.js",
+      "filePath": "src/app/(payload)/admin/importMap.js",
+      "summary": "mã nguồn src/app/(payload)/admin/importMap.js, được viết bằng javascript và có 67 dòng.",
+      "tags": [
+        "code",
+        "javascript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/app/(payload)/api/graphql-playground/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/(payload)/api/graphql-playground/route.ts",
+      "summary": "mã nguồn src/app/(payload)/api/graphql-playground/route.ts, được viết bằng typescript và có 5 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/(payload)/api/graphql/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/(payload)/api/graphql/route.ts",
+      "summary": "mã nguồn src/app/(payload)/api/graphql/route.ts, được viết bằng typescript và có 5 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/(payload)/api/payload/[[...slug]]/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/(payload)/api/payload/[[...slug]]/route.ts",
+      "summary": "mã nguồn src/app/(payload)/api/payload/[[...slug]]/route.ts, được viết bằng typescript và có 101 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/(payload)/components/BulkPublishPosts.tsx",
+      "type": "file",
+      "name": "BulkPublishPosts.tsx",
+      "filePath": "src/app/(payload)/components/BulkPublishPosts.tsx",
+      "summary": "mã nguồn src/app/(payload)/components/BulkPublishPosts.tsx, được viết bằng typescript và có 103 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/(payload)/importMap.js",
+      "type": "file",
+      "name": "importMap.js",
+      "filePath": "src/app/(payload)/importMap.js",
+      "summary": "mã nguồn src/app/(payload)/importMap.js, được viết bằng javascript và có 2 dòng.",
+      "tags": [
+        "code",
+        "javascript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "javascript"
+    },
+    {
+      "id": "file:src/app/(payload)/layout.tsx",
+      "type": "file",
+      "name": "layout.tsx",
+      "filePath": "src/app/(payload)/layout.tsx",
+      "summary": "mã nguồn src/app/(payload)/layout.tsx, được viết bằng typescript và có 21 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/(payload)/serverFunction.ts",
+      "type": "file",
+      "name": "serverFunction.ts",
+      "filePath": "src/app/(payload)/serverFunction.ts",
+      "summary": "mã nguồn src/app/(payload)/serverFunction.ts, được viết bằng typescript và có 14 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/about/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/[lang]/about/page.tsx",
+      "summary": "mã nguồn src/app/[lang]/about/page.tsx, được viết bằng typescript và có 32 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/blog/[slug]/error.tsx",
+      "type": "file",
+      "name": "error.tsx",
+      "filePath": "src/app/[lang]/blog/[slug]/error.tsx",
+      "summary": "mã nguồn src/app/[lang]/blog/[slug]/error.tsx, được viết bằng typescript và có 39 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/blog/[slug]/loading.tsx",
+      "type": "file",
+      "name": "loading.tsx",
+      "filePath": "src/app/[lang]/blog/[slug]/loading.tsx",
+      "summary": "mã nguồn src/app/[lang]/blog/[slug]/loading.tsx, được viết bằng typescript và có 39 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/blog/[slug]/not-found.tsx",
+      "type": "file",
+      "name": "not-found.tsx",
+      "filePath": "src/app/[lang]/blog/[slug]/not-found.tsx",
+      "summary": "mã nguồn src/app/[lang]/blog/[slug]/not-found.tsx, được viết bằng typescript và có 34 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/[lang]/blog/[slug]/page.tsx",
+      "summary": "mã nguồn src/app/[lang]/blog/[slug]/page.tsx, được viết bằng typescript và có 207 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/blog/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/[lang]/blog/page.tsx",
+      "summary": "mã nguồn src/app/[lang]/blog/page.tsx, được viết bằng typescript và có 45 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "summary": "mã nguồn src/app/[lang]/blog/series/[seriesSlug]/page.tsx, được viết bằng typescript và có 213 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/blog/series/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/[lang]/blog/series/page.tsx",
+      "summary": "mã nguồn src/app/[lang]/blog/series/page.tsx, được viết bằng typescript và có 37 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/feed.xml/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/[lang]/feed.xml/route.ts",
+      "summary": "mã nguồn src/app/[lang]/feed.xml/route.ts, được viết bằng typescript và có 70 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/layout.tsx",
+      "type": "file",
+      "name": "layout.tsx",
+      "filePath": "src/app/[lang]/layout.tsx",
+      "summary": "mã nguồn src/app/[lang]/layout.tsx, được viết bằng typescript và có 78 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/[lang]/page.tsx",
+      "summary": "mã nguồn src/app/[lang]/page.tsx, được viết bằng typescript và có 36 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/[lang]/search/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/[lang]/search/page.tsx",
+      "summary": "mã nguồn src/app/[lang]/search/page.tsx, được viết bằng typescript và có 129 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/auth/github/callback/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/github/callback/route.ts",
+      "summary": "mã nguồn src/app/api/auth/github/callback/route.ts, được viết bằng typescript và có 38 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/auth/github/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/github/route.ts",
+      "summary": "mã nguồn src/app/api/auth/github/route.ts, được viết bằng typescript và có 19 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/auth/google/callback/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/google/callback/route.ts",
+      "summary": "mã nguồn src/app/api/auth/google/callback/route.ts, được viết bằng typescript và có 39 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/auth/google/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/google/route.ts",
+      "summary": "mã nguồn src/app/api/auth/google/route.ts, được viết bằng typescript và có 19 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/auth/logout/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/logout/route.ts",
+      "summary": "mã nguồn src/app/api/auth/logout/route.ts, được viết bằng typescript và có 15 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/auth/session/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/session/route.ts",
+      "summary": "mã nguồn src/app/api/auth/session/route.ts, được viết bằng typescript và có 8 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/comments/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/comments/route.ts",
+      "summary": "mã nguồn src/app/api/comments/route.ts, được viết bằng typescript và có 59 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/health/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/health/route.ts",
+      "summary": "mã nguồn src/app/api/health/route.ts, được viết bằng typescript và có 10 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/newsletter/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/newsletter/route.ts",
+      "summary": "mã nguồn src/app/api/newsletter/route.ts, được viết bằng typescript và có 51 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/posts/[slug]/view/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/posts/[slug]/view/route.ts",
+      "summary": "mã nguồn src/app/api/posts/[slug]/view/route.ts, được viết bằng typescript và có 139 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/posts/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/posts/route.ts",
+      "summary": "mã nguồn src/app/api/posts/route.ts, được viết bằng typescript và có 33 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/revalidate/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/revalidate/route.ts",
+      "summary": "mã nguồn src/app/api/revalidate/route.ts, được viết bằng typescript và có 67 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/search/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/search/route.ts",
+      "summary": "mã nguồn src/app/api/search/route.ts, được viết bằng typescript và có 39 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/api/series/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/series/route.ts",
+      "summary": "mã nguồn src/app/api/series/route.ts, được viết bằng typescript và có 20 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/blog/[slug]/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/blog/[slug]/page.tsx",
+      "summary": "mã nguồn src/app/blog/[slug]/page.tsx, được viết bằng typescript và có 34 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/ArticleClient.tsx",
+      "type": "file",
+      "name": "ArticleClient.tsx",
+      "filePath": "src/app/components/ArticleClient.tsx",
+      "summary": "mã nguồn src/app/components/ArticleClient.tsx, được viết bằng typescript và có 383 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/ArticleImageEnhancer.tsx",
+      "type": "file",
+      "name": "ArticleImageEnhancer.tsx",
+      "filePath": "src/app/components/ArticleImageEnhancer.tsx",
+      "summary": "mã nguồn src/app/components/ArticleImageEnhancer.tsx, được viết bằng typescript và có 291 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/AuthorAvatar.tsx",
+      "type": "file",
+      "name": "AuthorAvatar.tsx",
+      "filePath": "src/app/components/AuthorAvatar.tsx",
+      "summary": "mã nguồn src/app/components/AuthorAvatar.tsx, được viết bằng typescript và có 61 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/code-theme.css",
+      "type": "file",
+      "name": "code-theme.css",
+      "filePath": "src/app/components/CodeBlock/code-theme.css",
+      "summary": "giao diện src/app/components/CodeBlock/code-theme.css, được viết bằng css và có 585 dòng.",
+      "tags": [
+        "markup",
+        "css",
+        "src"
+      ],
+      "complexity": "high",
+      "language": "css"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/CodeBlock.tsx",
+      "type": "file",
+      "name": "CodeBlock.tsx",
+      "filePath": "src/app/components/CodeBlock/CodeBlock.tsx",
+      "summary": "mã nguồn src/app/components/CodeBlock/CodeBlock.tsx, được viết bằng typescript và có 135 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/CopyButton.tsx",
+      "type": "file",
+      "name": "CopyButton.tsx",
+      "filePath": "src/app/components/CodeBlock/CopyButton.tsx",
+      "summary": "mã nguồn src/app/components/CodeBlock/CopyButton.tsx, được viết bằng typescript và có 99 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/copyText.ts",
+      "type": "file",
+      "name": "copyText.ts",
+      "filePath": "src/app/components/CodeBlock/copyText.ts",
+      "summary": "mã nguồn src/app/components/CodeBlock/copyText.ts, được viết bằng typescript và có 46 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/DownloadButton.tsx",
+      "type": "file",
+      "name": "DownloadButton.tsx",
+      "filePath": "src/app/components/CodeBlock/DownloadButton.tsx",
+      "summary": "mã nguồn src/app/components/CodeBlock/DownloadButton.tsx, được viết bằng typescript và có 41 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/app/components/CodeBlock/index.ts",
+      "summary": "mã nguồn src/app/components/CodeBlock/index.ts, được viết bằng typescript và có 3 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/labels.ts",
+      "type": "file",
+      "name": "labels.ts",
+      "filePath": "src/app/components/CodeBlock/labels.ts",
+      "summary": "mã nguồn src/app/components/CodeBlock/labels.ts, được viết bằng typescript và có 35 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CodeBlock/syntax.ts",
+      "type": "file",
+      "name": "syntax.ts",
+      "filePath": "src/app/components/CodeBlock/syntax.ts",
+      "summary": "mã nguồn src/app/components/CodeBlock/syntax.ts, được viết bằng typescript và có 66 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/Comments.tsx",
+      "type": "file",
+      "name": "Comments.tsx",
+      "filePath": "src/app/components/Comments.tsx",
+      "summary": "mã nguồn src/app/components/Comments.tsx, được viết bằng typescript và có 320 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/CustomImage.tsx",
+      "type": "file",
+      "name": "CustomImage.tsx",
+      "filePath": "src/app/components/CustomImage.tsx",
+      "summary": "mã nguồn src/app/components/CustomImage.tsx, được viết bằng typescript và có 46 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "type": "file",
+      "name": "FeaturedPostsCarousel.tsx",
+      "filePath": "src/app/components/FeaturedPostsCarousel.tsx",
+      "summary": "mã nguồn src/app/components/FeaturedPostsCarousel.tsx, được viết bằng typescript và có 239 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/Footer.tsx",
+      "type": "file",
+      "name": "Footer.tsx",
+      "filePath": "src/app/components/Footer.tsx",
+      "summary": "mã nguồn src/app/components/Footer.tsx, được viết bằng typescript và có 157 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/Header.tsx",
+      "type": "file",
+      "name": "Header.tsx",
+      "filePath": "src/app/components/Header.tsx",
+      "summary": "mã nguồn src/app/components/Header.tsx, được viết bằng typescript và có 156 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/LanguageProvider.tsx",
+      "type": "file",
+      "name": "LanguageProvider.tsx",
+      "filePath": "src/app/components/LanguageProvider.tsx",
+      "summary": "mã nguồn src/app/components/LanguageProvider.tsx, được viết bằng typescript và có 236 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/LanguageToggle.tsx",
+      "type": "file",
+      "name": "LanguageToggle.tsx",
+      "filePath": "src/app/components/LanguageToggle.tsx",
+      "summary": "mã nguồn src/app/components/LanguageToggle.tsx, được viết bằng typescript và có 26 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/MermaidRenderer.tsx",
+      "type": "file",
+      "name": "MermaidRenderer.tsx",
+      "filePath": "src/app/components/MermaidRenderer.tsx",
+      "summary": "mã nguồn src/app/components/MermaidRenderer.tsx, được viết bằng typescript và có 122 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/pages/AboutPage.tsx",
+      "type": "file",
+      "name": "AboutPage.tsx",
+      "filePath": "src/app/components/pages/AboutPage.tsx",
+      "summary": "mã nguồn src/app/components/pages/AboutPage.tsx, được viết bằng typescript và có 141 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/pages/BlogListPage.tsx",
+      "type": "file",
+      "name": "BlogListPage.tsx",
+      "filePath": "src/app/components/pages/BlogListPage.tsx",
+      "summary": "mã nguồn src/app/components/pages/BlogListPage.tsx, được viết bằng typescript và có 309 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/pages/HomePage.tsx",
+      "type": "file",
+      "name": "HomePage.tsx",
+      "filePath": "src/app/components/pages/HomePage.tsx",
+      "summary": "mã nguồn src/app/components/pages/HomePage.tsx, được viết bằng typescript và có 244 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/pages/SeriesListPage.tsx",
+      "type": "file",
+      "name": "SeriesListPage.tsx",
+      "filePath": "src/app/components/pages/SeriesListPage.tsx",
+      "summary": "mã nguồn src/app/components/pages/SeriesListPage.tsx, được viết bằng typescript và có 87 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/PostCard.tsx",
+      "type": "file",
+      "name": "PostCard.tsx",
+      "filePath": "src/app/components/PostCard.tsx",
+      "summary": "mã nguồn src/app/components/PostCard.tsx, được viết bằng typescript và có 137 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/PostListRow.tsx",
+      "type": "file",
+      "name": "PostListRow.tsx",
+      "filePath": "src/app/components/PostListRow.tsx",
+      "summary": "mã nguồn src/app/components/PostListRow.tsx, được viết bằng typescript và có 98 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/RecentWritingSection.tsx",
+      "type": "file",
+      "name": "RecentWritingSection.tsx",
+      "filePath": "src/app/components/RecentWritingSection.tsx",
+      "summary": "mã nguồn src/app/components/RecentWritingSection.tsx, được viết bằng typescript và có 137 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/RichTextRenderer/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/app/components/RichTextRenderer/index.ts",
+      "summary": "mã nguồn src/app/components/RichTextRenderer/index.ts, được viết bằng typescript và có 2 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/RichTextRenderer/Renderer.tsx",
+      "type": "file",
+      "name": "Renderer.tsx",
+      "filePath": "src/app/components/RichTextRenderer/Renderer.tsx",
+      "summary": "mã nguồn src/app/components/RichTextRenderer/Renderer.tsx, được viết bằng typescript và có 123 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/SearchModal.tsx",
+      "type": "file",
+      "name": "SearchModal.tsx",
+      "filePath": "src/app/components/SearchModal.tsx",
+      "summary": "mã nguồn src/app/components/SearchModal.tsx, được viết bằng typescript và có 272 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/TableOfContents.tsx",
+      "type": "file",
+      "name": "TableOfContents.tsx",
+      "filePath": "src/app/components/TableOfContents.tsx",
+      "summary": "mã nguồn src/app/components/TableOfContents.tsx, được viết bằng typescript và có 208 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/ThemeScript.tsx",
+      "type": "file",
+      "name": "ThemeScript.tsx",
+      "filePath": "src/app/components/ThemeScript.tsx",
+      "summary": "mã nguồn src/app/components/ThemeScript.tsx, được viết bằng typescript và có 22 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/ThemeToggle.tsx",
+      "type": "file",
+      "name": "ThemeToggle.tsx",
+      "filePath": "src/app/components/ThemeToggle.tsx",
+      "summary": "mã nguồn src/app/components/ThemeToggle.tsx, được viết bằng typescript và có 87 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/components/usePublishedPosts.ts",
+      "type": "file",
+      "name": "usePublishedPosts.ts",
+      "filePath": "src/app/components/usePublishedPosts.ts",
+      "summary": "mã nguồn src/app/components/usePublishedPosts.ts, được viết bằng typescript và có 48 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/data.ts",
+      "type": "file",
+      "name": "data.ts",
+      "filePath": "src/app/data.ts",
+      "summary": "mã nguồn src/app/data.ts, được viết bằng typescript và có 1774 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "high",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/feed.xml/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/feed.xml/route.ts",
+      "summary": "mã nguồn src/app/feed.xml/route.ts, được viết bằng typescript và có 54 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/globals.css",
+      "type": "file",
+      "name": "globals.css",
+      "filePath": "src/app/globals.css",
+      "summary": "giao diện src/app/globals.css, được viết bằng css và có 702 dòng.",
+      "tags": [
+        "markup",
+        "css",
+        "src"
+      ],
+      "complexity": "high",
+      "language": "css"
+    },
+    {
+      "id": "file:src/app/robots.ts",
+      "type": "file",
+      "name": "robots.ts",
+      "filePath": "src/app/robots.ts",
+      "summary": "mã nguồn src/app/robots.ts, được viết bằng typescript và có 14 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/rss.xml/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/rss.xml/route.ts",
+      "summary": "mã nguồn src/app/rss.xml/route.ts, được viết bằng typescript và có 2 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/app/sitemap.ts",
+      "type": "file",
+      "name": "sitemap.ts",
+      "filePath": "src/app/sitemap.ts",
+      "summary": "mã nguồn src/app/sitemap.ts, được viết bằng typescript và có 91 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/config/footer.ts",
+      "type": "file",
+      "name": "footer.ts",
+      "filePath": "src/config/footer.ts",
+      "summary": "mã nguồn src/config/footer.ts, được viết bằng typescript và có 16 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/config/navigation.ts",
+      "type": "file",
+      "name": "navigation.ts",
+      "filePath": "src/config/navigation.ts",
+      "summary": "mã nguồn src/config/navigation.ts, được viết bằng typescript và có 8 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/config/site.ts",
+      "type": "file",
+      "name": "site.ts",
+      "filePath": "src/config/site.ts",
+      "summary": "mã nguồn src/config/site.ts, được viết bằng typescript và có 11 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/i18n/config.ts",
+      "type": "file",
+      "name": "config.ts",
+      "filePath": "src/i18n/config.ts",
+      "summary": "mã nguồn src/i18n/config.ts, được viết bằng typescript và có 46 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/i18n/metadata.ts",
+      "type": "file",
+      "name": "metadata.ts",
+      "filePath": "src/i18n/metadata.ts",
+      "summary": "mã nguồn src/i18n/metadata.ts, được viết bằng typescript và có 46 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/auth/oauth.ts",
+      "type": "file",
+      "name": "oauth.ts",
+      "filePath": "src/lib/auth/oauth.ts",
+      "summary": "mã nguồn src/lib/auth/oauth.ts, được viết bằng typescript và có 162 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/auth/session.ts",
+      "type": "file",
+      "name": "session.ts",
+      "filePath": "src/lib/auth/session.ts",
+      "summary": "mã nguồn src/lib/auth/session.ts, được viết bằng typescript và có 150 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/cms/media-url.ts",
+      "type": "file",
+      "name": "media-url.ts",
+      "filePath": "src/lib/cms/media-url.ts",
+      "summary": "mã nguồn src/lib/cms/media-url.ts, được viết bằng typescript và có 30 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/cms/payload.ts",
+      "type": "file",
+      "name": "payload.ts",
+      "filePath": "src/lib/cms/payload.ts",
+      "summary": "mã nguồn src/lib/cms/payload.ts, được viết bằng typescript và có 780 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "high",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/comments/store.ts",
+      "type": "file",
+      "name": "store.ts",
+      "filePath": "src/lib/comments/store.ts",
+      "summary": "mã nguồn src/lib/comments/store.ts, được viết bằng typescript và có 90 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/comments/types.ts",
+      "type": "file",
+      "name": "types.ts",
+      "filePath": "src/lib/comments/types.ts",
+      "summary": "mã nguồn src/lib/comments/types.ts, được viết bằng typescript và có 16 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/content/excerpt.ts",
+      "type": "file",
+      "name": "excerpt.ts",
+      "filePath": "src/lib/content/excerpt.ts",
+      "summary": "mã nguồn src/lib/content/excerpt.ts, được viết bằng typescript và có 17 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/content/highlight.ts",
+      "type": "file",
+      "name": "highlight.ts",
+      "filePath": "src/lib/content/highlight.ts",
+      "summary": "mã nguồn src/lib/content/highlight.ts, được viết bằng typescript và có 84 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/content/legacy-translation.ts",
+      "type": "file",
+      "name": "legacy-translation.ts",
+      "filePath": "src/lib/content/legacy-translation.ts",
+      "summary": "mã nguồn src/lib/content/legacy-translation.ts, được viết bằng typescript và có 208 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/content/localized-posts.ts",
+      "type": "file",
+      "name": "localized-posts.ts",
+      "filePath": "src/lib/content/localized-posts.ts",
+      "summary": "mã nguồn src/lib/content/localized-posts.ts, được viết bằng typescript và có 165 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/newsletter/smtp.ts",
+      "type": "file",
+      "name": "smtp.ts",
+      "filePath": "src/lib/newsletter/smtp.ts",
+      "summary": "mã nguồn src/lib/newsletter/smtp.ts, được viết bằng typescript và có 156 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/newsletter/store.ts",
+      "type": "file",
+      "name": "store.ts",
+      "filePath": "src/lib/newsletter/store.ts",
+      "summary": "mã nguồn src/lib/newsletter/store.ts, được viết bằng typescript và có 69 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/search/posts.ts",
+      "type": "file",
+      "name": "posts.ts",
+      "filePath": "src/lib/search/posts.ts",
+      "summary": "mã nguồn src/lib/search/posts.ts, được viết bằng typescript và có 145 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/server/rate-limit.ts",
+      "type": "file",
+      "name": "rate-limit.ts",
+      "filePath": "src/lib/server/rate-limit.ts",
+      "summary": "mã nguồn src/lib/server/rate-limit.ts, được viết bằng typescript và có 55 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/server/redis-cache.ts",
+      "type": "file",
+      "name": "redis-cache.ts",
+      "filePath": "src/lib/server/redis-cache.ts",
+      "summary": "mã nguồn src/lib/server/redis-cache.ts, được viết bằng typescript và có 181 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/utils/chapter.ts",
+      "type": "file",
+      "name": "chapter.ts",
+      "filePath": "src/lib/utils/chapter.ts",
+      "summary": "mã nguồn src/lib/utils/chapter.ts, được viết bằng typescript và có 105 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/utils/formatReadTime.ts",
+      "type": "file",
+      "name": "formatReadTime.ts",
+      "filePath": "src/lib/utils/formatReadTime.ts",
+      "summary": "mã nguồn src/lib/utils/formatReadTime.ts, được viết bằng typescript và có 13 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/utils/formatTopic.ts",
+      "type": "file",
+      "name": "formatTopic.ts",
+      "filePath": "src/lib/utils/formatTopic.ts",
+      "summary": "mã nguồn src/lib/utils/formatTopic.ts, được viết bằng typescript và có 25 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/utils/security.ts",
+      "type": "file",
+      "name": "security.ts",
+      "filePath": "src/lib/utils/security.ts",
+      "summary": "mã nguồn src/lib/utils/security.ts, được viết bằng typescript và có 159 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/lib/views/store.ts",
+      "type": "file",
+      "name": "store.ts",
+      "filePath": "src/lib/views/store.ts",
+      "summary": "mã nguồn src/lib/views/store.ts, được viết bằng typescript và có 85 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "config:src/migrations/20260707_154745_init_payload_schema.json",
+      "type": "config",
+      "name": "20260707_154745_init_payload_schema.json",
+      "filePath": "src/migrations/20260707_154745_init_payload_schema.json",
+      "summary": "cấu hình src/migrations/20260707_154745_init_payload_schema.json, được viết bằng json và có 2164 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "src"
+      ],
+      "complexity": "high",
+      "language": "json"
+    },
+    {
+      "id": "file:src/migrations/20260707_154745_init_payload_schema.ts",
+      "type": "file",
+      "name": "20260707_154745_init_payload_schema.ts",
+      "filePath": "src/migrations/20260707_154745_init_payload_schema.ts",
+      "summary": "mã nguồn src/migrations/20260707_154745_init_payload_schema.ts, được viết bằng typescript và có 290 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "medium",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/20260709_000001_add_comments_collection.ts",
+      "type": "file",
+      "name": "20260709_000001_add_comments_collection.ts",
+      "filePath": "src/migrations/20260709_000001_add_comments_collection.ts",
+      "summary": "mã nguồn src/migrations/20260709_000001_add_comments_collection.ts, được viết bằng typescript và có 51 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/20260709_000002_add_oauth_comment_fields.ts",
+      "type": "file",
+      "name": "20260709_000002_add_oauth_comment_fields.ts",
+      "filePath": "src/migrations/20260709_000002_add_oauth_comment_fields.ts",
+      "summary": "mã nguồn src/migrations/20260709_000002_add_oauth_comment_fields.ts, được viết bằng typescript và có 60 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/20260711_113838_add_post_richtext_fields.ts",
+      "type": "file",
+      "name": "20260711_113838_add_post_richtext_fields.ts",
+      "filePath": "src/migrations/20260711_113838_add_post_richtext_fields.ts",
+      "summary": "mã nguồn src/migrations/20260711_113838_add_post_richtext_fields.ts, được viết bằng typescript và có 19 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/20260712_160000_add_media_filename_slug_and_sizes.ts",
+      "type": "file",
+      "name": "20260712_160000_add_media_filename_slug_and_sizes.ts",
+      "filePath": "src/migrations/20260712_160000_add_media_filename_slug_and_sizes.ts",
+      "summary": "mã nguồn src/migrations/20260712_160000_add_media_filename_slug_and_sizes.ts, được viết bằng typescript và có 33 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/20260713_000001_add_media_image_size_columns.ts",
+      "type": "file",
+      "name": "20260713_000001_add_media_image_size_columns.ts",
+      "filePath": "src/migrations/20260713_000001_add_media_image_size_columns.ts",
+      "summary": "mã nguồn src/migrations/20260713_000001_add_media_image_size_columns.ts, được viết bằng typescript và có 75 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/20260715_000001_add_media_fit.ts",
+      "type": "file",
+      "name": "20260715_000001_add_media_fit.ts",
+      "filePath": "src/migrations/20260715_000001_add_media_fit.ts",
+      "summary": "mã nguồn src/migrations/20260715_000001_add_media_fit.ts, được viết bằng typescript và có 25 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/20260730_000001_add_chapter_order.ts",
+      "type": "file",
+      "name": "20260730_000001_add_chapter_order.ts",
+      "filePath": "src/migrations/20260730_000001_add_chapter_order.ts",
+      "summary": "mã nguồn src/migrations/20260730_000001_add_chapter_order.ts, được viết bằng typescript và có 15 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/migrations/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/migrations/index.ts",
+      "summary": "mã nguồn src/migrations/index.ts, được viết bằng typescript và có 52 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/payload-types.ts",
+      "type": "file",
+      "name": "payload-types.ts",
+      "filePath": "src/payload-types.ts",
+      "summary": "mã nguồn src/payload-types.ts, được viết bằng typescript và có 776 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "high",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/payload.config.ts",
+      "type": "file",
+      "name": "payload.config.ts",
+      "filePath": "src/payload.config.ts",
+      "summary": "mã nguồn src/payload.config.ts, được viết bằng typescript và có 1115 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "high",
+      "language": "typescript"
+    },
+    {
+      "id": "file:src/proxy.ts",
+      "type": "file",
+      "name": "proxy.ts",
+      "filePath": "src/proxy.ts",
+      "summary": "mã nguồn src/proxy.ts, được viết bằng typescript và có 52 dòng.",
+      "tags": [
+        "code",
+        "typescript",
+        "src"
+      ],
+      "complexity": "low",
+      "language": "typescript"
+    },
+    {
+      "id": "file:tests/article-rendering.test.mjs",
+      "type": "file",
+      "name": "article-rendering.test.mjs",
+      "filePath": "tests/article-rendering.test.mjs",
+      "summary": "mã nguồn tests/article-rendering.test.mjs, được viết bằng mjs và có 35 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/chapter-navigation.test.mjs",
+      "type": "file",
+      "name": "chapter-navigation.test.mjs",
+      "filePath": "tests/chapter-navigation.test.mjs",
+      "summary": "mã nguồn tests/chapter-navigation.test.mjs, được viết bằng mjs và có 65 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/code-copy-behavior.test.mjs",
+      "type": "file",
+      "name": "code-copy-behavior.test.mjs",
+      "filePath": "tests/code-copy-behavior.test.mjs",
+      "summary": "mã nguồn tests/code-copy-behavior.test.mjs, được viết bằng mjs và có 158 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "medium",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/code-syntax.test.mjs",
+      "type": "file",
+      "name": "code-syntax.test.mjs",
+      "filePath": "tests/code-syntax.test.mjs",
+      "summary": "mã nguồn tests/code-syntax.test.mjs, được viết bằng mjs và có 50 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/ecr-deployment-regressions.test.mjs",
+      "type": "file",
+      "name": "ecr-deployment-regressions.test.mjs",
+      "filePath": "tests/ecr-deployment-regressions.test.mjs",
+      "summary": "mã nguồn tests/ecr-deployment-regressions.test.mjs, được viết bằng mjs và có 31 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/format-topic-label.test.mjs",
+      "type": "file",
+      "name": "format-topic-label.test.mjs",
+      "filePath": "tests/format-topic-label.test.mjs",
+      "summary": "mã nguồn tests/format-topic-label.test.mjs, được viết bằng mjs và có 18 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/homepage-toc-regressions.test.mjs",
+      "type": "file",
+      "name": "homepage-toc-regressions.test.mjs",
+      "filePath": "tests/homepage-toc-regressions.test.mjs",
+      "summary": "mã nguồn tests/homepage-toc-regressions.test.mjs, được viết bằng mjs và có 59 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/media-code-block-regressions.test.mjs",
+      "type": "file",
+      "name": "media-code-block-regressions.test.mjs",
+      "filePath": "tests/media-code-block-regressions.test.mjs",
+      "summary": "mã nguồn tests/media-code-block-regressions.test.mjs, được viết bằng mjs và có 147 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/payload-media-schema.test.mjs",
+      "type": "file",
+      "name": "payload-media-schema.test.mjs",
+      "filePath": "tests/payload-media-schema.test.mjs",
+      "summary": "mã nguồn tests/payload-media-schema.test.mjs, được viết bằng mjs và có 41 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/posts-publication-safeguard.test.mjs",
+      "type": "file",
+      "name": "posts-publication-safeguard.test.mjs",
+      "filePath": "tests/posts-publication-safeguard.test.mjs",
+      "summary": "mã nguồn tests/posts-publication-safeguard.test.mjs, được viết bằng mjs và có 38 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "file:tests/translation-pipeline.test.mjs",
+      "type": "file",
+      "name": "translation-pipeline.test.mjs",
+      "filePath": "tests/translation-pipeline.test.mjs",
+      "summary": "mã nguồn tests/translation-pipeline.test.mjs, được viết bằng mjs và có 41 dòng.",
+      "tags": [
+        "code",
+        "mjs",
+        "tests"
+      ],
+      "complexity": "low",
+      "language": "mjs"
+    },
+    {
+      "id": "config:tsconfig.json",
+      "type": "config",
+      "name": "tsconfig.json",
+      "filePath": "tsconfig.json",
+      "summary": "cấu hình tsconfig.json, được viết bằng json và có 36 dòng.",
+      "tags": [
+        "config",
+        "json",
+        "tsconfig.json"
+      ],
+      "complexity": "low",
+      "language": "json"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:1",
+      "source": "file:src/app/(payload)/admin/[[...segments]]/page.tsx",
+      "target": "file:src/app/(payload)/importMap.js",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:2",
+      "source": "file:src/app/(payload)/admin/[[...segments]]/page.tsx",
+      "target": "file:src/payload.config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:3",
+      "source": "file:src/app/(payload)/admin/importMap.js",
+      "target": "file:src/app/(payload)/components/BulkPublishPosts.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:4",
+      "source": "file:src/app/(payload)/api/graphql-playground/route.ts",
+      "target": "file:src/payload.config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:5",
+      "source": "file:src/app/(payload)/api/graphql/route.ts",
+      "target": "file:src/payload.config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:6",
+      "source": "file:src/app/(payload)/api/payload/[[...slug]]/route.ts",
+      "target": "file:src/payload.config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:7",
+      "source": "file:src/app/(payload)/importMap.js",
+      "target": "file:src/app/(payload)/admin/importMap.js",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:8",
+      "source": "file:src/app/(payload)/layout.tsx",
+      "target": "file:src/app/(payload)/importMap.js",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:9",
+      "source": "file:src/app/(payload)/layout.tsx",
+      "target": "file:src/app/(payload)/serverFunction.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:10",
+      "source": "file:src/app/(payload)/layout.tsx",
+      "target": "file:src/payload.config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:11",
+      "source": "file:src/app/(payload)/serverFunction.ts",
+      "target": "file:src/app/(payload)/importMap.js",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:12",
+      "source": "file:src/app/(payload)/serverFunction.ts",
+      "target": "file:src/payload.config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:13",
+      "source": "file:src/app/[lang]/about/page.tsx",
+      "target": "file:src/app/components/pages/AboutPage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:14",
+      "source": "file:src/app/[lang]/about/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:15",
+      "source": "file:src/app/[lang]/about/page.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:16",
+      "source": "file:src/app/[lang]/blog/[slug]/not-found.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:17",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/app/components/ArticleClient.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:18",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/app/components/CodeBlock/labels.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:19",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/app/components/RichTextRenderer/index.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:20",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:21",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:22",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:23",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:24",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/lib/comments/store.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:25",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/lib/content/highlight.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:26",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "file:src/lib/utils/chapter.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:27",
+      "source": "file:src/app/[lang]/blog/page.tsx",
+      "target": "file:src/app/components/pages/BlogListPage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:28",
+      "source": "file:src/app/[lang]/blog/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:29",
+      "source": "file:src/app/[lang]/blog/page.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:30",
+      "source": "file:src/app/[lang]/blog/page.tsx",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:31",
+      "source": "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "target": "file:src/app/components/PostCard.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:32",
+      "source": "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:33",
+      "source": "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:34",
+      "source": "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:35",
+      "source": "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:36",
+      "source": "file:src/app/[lang]/blog/series/page.tsx",
+      "target": "file:src/app/components/pages/SeriesListPage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:37",
+      "source": "file:src/app/[lang]/blog/series/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:38",
+      "source": "file:src/app/[lang]/blog/series/page.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:39",
+      "source": "file:src/app/[lang]/blog/series/page.tsx",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:40",
+      "source": "file:src/app/[lang]/feed.xml/route.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:41",
+      "source": "file:src/app/[lang]/feed.xml/route.ts",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:42",
+      "source": "file:src/app/[lang]/feed.xml/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:43",
+      "source": "file:src/app/[lang]/layout.tsx",
+      "target": "file:src/app/components/Footer.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:44",
+      "source": "file:src/app/[lang]/layout.tsx",
+      "target": "file:src/app/components/Header.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:45",
+      "source": "file:src/app/[lang]/layout.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:46",
+      "source": "file:src/app/[lang]/layout.tsx",
+      "target": "file:src/app/components/ThemeScript.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:47",
+      "source": "file:src/app/[lang]/layout.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:48",
+      "source": "file:src/app/[lang]/layout.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:49",
+      "source": "file:src/app/[lang]/page.tsx",
+      "target": "file:src/app/components/pages/HomePage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:50",
+      "source": "file:src/app/[lang]/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:51",
+      "source": "file:src/app/[lang]/page.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:52",
+      "source": "file:src/app/[lang]/page.tsx",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:53",
+      "source": "file:src/app/[lang]/search/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:54",
+      "source": "file:src/app/[lang]/search/page.tsx",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:55",
+      "source": "file:src/app/[lang]/search/page.tsx",
+      "target": "file:src/lib/search/posts.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:56",
+      "source": "file:src/app/api/auth/github/callback/route.ts",
+      "target": "file:src/lib/auth/oauth.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:57",
+      "source": "file:src/app/api/auth/github/callback/route.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:58",
+      "source": "file:src/app/api/auth/github/callback/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:59",
+      "source": "file:src/app/api/auth/github/route.ts",
+      "target": "file:src/lib/auth/oauth.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:60",
+      "source": "file:src/app/api/auth/github/route.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:61",
+      "source": "file:src/app/api/auth/google/callback/route.ts",
+      "target": "file:src/lib/auth/oauth.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:62",
+      "source": "file:src/app/api/auth/google/callback/route.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:63",
+      "source": "file:src/app/api/auth/google/callback/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:64",
+      "source": "file:src/app/api/auth/google/route.ts",
+      "target": "file:src/lib/auth/oauth.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:65",
+      "source": "file:src/app/api/auth/google/route.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:66",
+      "source": "file:src/app/api/auth/logout/route.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:67",
+      "source": "file:src/app/api/auth/session/route.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:68",
+      "source": "file:src/app/api/comments/route.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:69",
+      "source": "file:src/app/api/comments/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:70",
+      "source": "file:src/app/api/comments/route.ts",
+      "target": "file:src/lib/comments/store.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:71",
+      "source": "file:src/app/api/comments/route.ts",
+      "target": "file:src/lib/server/rate-limit.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:72",
+      "source": "file:src/app/api/newsletter/route.ts",
+      "target": "file:src/lib/newsletter/smtp.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:73",
+      "source": "file:src/app/api/newsletter/route.ts",
+      "target": "file:src/lib/newsletter/store.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:74",
+      "source": "file:src/app/api/newsletter/route.ts",
+      "target": "file:src/lib/server/rate-limit.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:75",
+      "source": "file:src/app/api/posts/[slug]/view/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:76",
+      "source": "file:src/app/api/posts/[slug]/view/route.ts",
+      "target": "file:src/lib/server/rate-limit.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:77",
+      "source": "file:src/app/api/posts/[slug]/view/route.ts",
+      "target": "file:src/lib/server/redis-cache.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:78",
+      "source": "file:src/app/api/posts/[slug]/view/route.ts",
+      "target": "file:src/lib/views/store.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:79",
+      "source": "file:src/app/api/posts/route.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:80",
+      "source": "file:src/app/api/posts/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:81",
+      "source": "file:src/app/api/posts/route.ts",
+      "target": "file:src/lib/server/rate-limit.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:82",
+      "source": "file:src/app/api/revalidate/route.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:83",
+      "source": "file:src/app/api/revalidate/route.ts",
+      "target": "file:src/lib/server/redis-cache.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:84",
+      "source": "file:src/app/api/search/route.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:85",
+      "source": "file:src/app/api/search/route.ts",
+      "target": "file:src/lib/search/posts.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:86",
+      "source": "file:src/app/api/search/route.ts",
+      "target": "file:src/lib/server/rate-limit.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:87",
+      "source": "file:src/app/api/series/route.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:88",
+      "source": "file:src/app/api/series/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:89",
+      "source": "file:src/app/api/series/route.ts",
+      "target": "file:src/lib/server/rate-limit.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:90",
+      "source": "file:src/app/blog/[slug]/page.tsx",
+      "target": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:91",
+      "source": "file:src/app/blog/[slug]/page.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:92",
+      "source": "file:src/app/blog/[slug]/page.tsx",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:93",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/app/components/AuthorAvatar.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:94",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/app/components/Comments.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:95",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/app/components/CustomImage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:96",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:97",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/app/components/PostListRow.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:98",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/app/components/TableOfContents.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:99",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:100",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/lib/comments/types.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:101",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/lib/utils/formatReadTime.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:102",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "file:src/lib/utils/formatTopic.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:103",
+      "source": "file:src/app/components/AuthorAvatar.tsx",
+      "target": "file:src/app/components/CustomImage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:104",
+      "source": "file:src/app/components/AuthorAvatar.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:105",
+      "source": "file:src/app/components/CodeBlock/CodeBlock.tsx",
+      "target": "file:src/app/components/CodeBlock/CopyButton.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:106",
+      "source": "file:src/app/components/CodeBlock/CodeBlock.tsx",
+      "target": "file:src/app/components/CodeBlock/DownloadButton.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:107",
+      "source": "file:src/app/components/CodeBlock/CopyButton.tsx",
+      "target": "file:src/app/components/CodeBlock/copyText.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:108",
+      "source": "file:src/app/components/CodeBlock/index.ts",
+      "target": "file:src/app/components/CodeBlock/CodeBlock.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:109",
+      "source": "file:src/app/components/CodeBlock/labels.ts",
+      "target": "file:src/app/components/CodeBlock/CodeBlock.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:110",
+      "source": "file:src/app/components/Comments.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:111",
+      "source": "file:src/app/components/Comments.tsx",
+      "target": "file:src/lib/comments/types.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:112",
+      "source": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "target": "file:src/app/components/AuthorAvatar.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:113",
+      "source": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "target": "file:src/app/components/CustomImage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:114",
+      "source": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:115",
+      "source": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:116",
+      "source": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "target": "file:src/lib/utils/formatReadTime.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:117",
+      "source": "file:src/app/components/Footer.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:118",
+      "source": "file:src/app/components/Footer.tsx",
+      "target": "file:src/config/footer.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:119",
+      "source": "file:src/app/components/Footer.tsx",
+      "target": "file:src/config/site.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:120",
+      "source": "file:src/app/components/Header.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:121",
+      "source": "file:src/app/components/Header.tsx",
+      "target": "file:src/app/components/LanguageToggle.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:122",
+      "source": "file:src/app/components/Header.tsx",
+      "target": "file:src/app/components/SearchModal.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:123",
+      "source": "file:src/app/components/Header.tsx",
+      "target": "file:src/app/components/ThemeToggle.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:124",
+      "source": "file:src/app/components/Header.tsx",
+      "target": "file:src/config/navigation.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:125",
+      "source": "file:src/app/components/Header.tsx",
+      "target": "file:src/config/site.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:126",
+      "source": "file:src/app/components/LanguageProvider.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:127",
+      "source": "file:src/app/components/LanguageToggle.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:128",
+      "source": "file:src/app/components/pages/AboutPage.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:129",
+      "source": "file:src/app/components/pages/BlogListPage.tsx",
+      "target": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:130",
+      "source": "file:src/app/components/pages/BlogListPage.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:131",
+      "source": "file:src/app/components/pages/BlogListPage.tsx",
+      "target": "file:src/app/components/PostCard.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:132",
+      "source": "file:src/app/components/pages/BlogListPage.tsx",
+      "target": "file:src/app/components/usePublishedPosts.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:133",
+      "source": "file:src/app/components/pages/BlogListPage.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:134",
+      "source": "file:src/app/components/pages/BlogListPage.tsx",
+      "target": "file:src/lib/utils/formatTopic.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:135",
+      "source": "file:src/app/components/pages/HomePage.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:136",
+      "source": "file:src/app/components/pages/HomePage.tsx",
+      "target": "file:src/app/components/RecentWritingSection.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:137",
+      "source": "file:src/app/components/pages/HomePage.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:138",
+      "source": "file:src/app/components/pages/SeriesListPage.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:139",
+      "source": "file:src/app/components/pages/SeriesListPage.tsx",
+      "target": "file:src/app/components/usePublishedPosts.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:140",
+      "source": "file:src/app/components/pages/SeriesListPage.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:141",
+      "source": "file:src/app/components/PostCard.tsx",
+      "target": "file:src/app/components/AuthorAvatar.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:142",
+      "source": "file:src/app/components/PostCard.tsx",
+      "target": "file:src/app/components/CustomImage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:143",
+      "source": "file:src/app/components/PostCard.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:144",
+      "source": "file:src/app/components/PostCard.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:145",
+      "source": "file:src/app/components/PostCard.tsx",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:146",
+      "source": "file:src/app/components/PostCard.tsx",
+      "target": "file:src/lib/utils/formatReadTime.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:147",
+      "source": "file:src/app/components/PostListRow.tsx",
+      "target": "file:src/app/components/AuthorAvatar.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:148",
+      "source": "file:src/app/components/PostListRow.tsx",
+      "target": "file:src/app/components/CustomImage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:149",
+      "source": "file:src/app/components/PostListRow.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:150",
+      "source": "file:src/app/components/PostListRow.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:151",
+      "source": "file:src/app/components/PostListRow.tsx",
+      "target": "file:src/lib/utils/formatReadTime.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:152",
+      "source": "file:src/app/components/RecentWritingSection.tsx",
+      "target": "file:src/app/components/AuthorAvatar.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:153",
+      "source": "file:src/app/components/RecentWritingSection.tsx",
+      "target": "file:src/app/components/CustomImage.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:154",
+      "source": "file:src/app/components/RecentWritingSection.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:155",
+      "source": "file:src/app/components/RecentWritingSection.tsx",
+      "target": "file:src/app/components/usePublishedPosts.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:156",
+      "source": "file:src/app/components/RecentWritingSection.tsx",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:157",
+      "source": "file:src/app/components/RecentWritingSection.tsx",
+      "target": "file:src/lib/utils/formatTopic.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:158",
+      "source": "file:src/app/components/RichTextRenderer/index.ts",
+      "target": "file:src/app/components/RichTextRenderer/Renderer.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:159",
+      "source": "file:src/app/components/RichTextRenderer/Renderer.tsx",
+      "target": "file:src/app/components/ArticleImageEnhancer.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:160",
+      "source": "file:src/app/components/RichTextRenderer/Renderer.tsx",
+      "target": "file:src/app/components/CodeBlock/index.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:161",
+      "source": "file:src/app/components/RichTextRenderer/Renderer.tsx",
+      "target": "file:src/app/components/CodeBlock/syntax.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:162",
+      "source": "file:src/app/components/RichTextRenderer/Renderer.tsx",
+      "target": "file:src/app/components/MermaidRenderer.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:163",
+      "source": "file:src/app/components/SearchModal.tsx",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:164",
+      "source": "file:src/app/components/usePublishedPosts.ts",
+      "target": "file:src/app/components/LanguageProvider.tsx",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:165",
+      "source": "file:src/app/components/usePublishedPosts.ts",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:166",
+      "source": "file:src/app/feed.xml/route.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:167",
+      "source": "file:src/app/feed.xml/route.ts",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:168",
+      "source": "file:src/app/feed.xml/route.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:169",
+      "source": "file:src/app/robots.ts",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:170",
+      "source": "file:src/app/rss.xml/route.ts",
+      "target": "file:src/app/feed.xml/route.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:171",
+      "source": "file:src/app/sitemap.ts",
+      "target": "file:src/i18n/metadata.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:172",
+      "source": "file:src/app/sitemap.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:173",
+      "source": "file:src/i18n/metadata.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:174",
+      "source": "file:src/lib/auth/oauth.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:175",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:176",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:177",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/auth/session.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:178",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/cms/media-url.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:179",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/comments/types.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:180",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/content/excerpt.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:181",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/content/localized-posts.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:182",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/server/redis-cache.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:183",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/utils/security.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:184",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/lib/views/store.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:185",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "file:src/payload.config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:186",
+      "source": "file:src/lib/comments/store.ts",
+      "target": "file:src/lib/comments/types.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:187",
+      "source": "file:src/lib/content/highlight.ts",
+      "target": "file:src/app/components/CodeBlock/syntax.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:188",
+      "source": "file:src/lib/content/legacy-translation.ts",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:189",
+      "source": "file:src/lib/content/legacy-translation.ts",
+      "target": "file:src/lib/server/redis-cache.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:190",
+      "source": "file:src/lib/content/localized-posts.ts",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:191",
+      "source": "file:src/lib/content/localized-posts.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:192",
+      "source": "file:src/lib/content/localized-posts.ts",
+      "target": "file:src/lib/content/legacy-translation.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:193",
+      "source": "file:src/lib/content/localized-posts.ts",
+      "target": "file:src/lib/utils/security.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:194",
+      "source": "file:src/lib/search/posts.ts",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:195",
+      "source": "file:src/lib/search/posts.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:196",
+      "source": "file:src/lib/search/posts.ts",
+      "target": "file:src/lib/cms/payload.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:197",
+      "source": "file:src/lib/utils/chapter.ts",
+      "target": "file:src/app/data.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:198",
+      "source": "file:src/lib/utils/chapter.ts",
+      "target": "file:src/lib/utils/formatTopic.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:199",
+      "source": "file:src/lib/views/store.ts",
+      "target": "file:src/lib/server/redis-cache.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:200",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260707_154745_init_payload_schema.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:201",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260709_000001_add_comments_collection.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:202",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260709_000002_add_oauth_comment_fields.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:203",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260711_113838_add_post_richtext_fields.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:204",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260712_160000_add_media_filename_slug_and_sizes.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:205",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260713_000001_add_media_image_size_columns.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:206",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260715_000001_add_media_fit.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:207",
+      "source": "file:src/migrations/index.ts",
+      "target": "file:src/migrations/20260730_000001_add_chapter_order.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:208",
+      "source": "file:src/payload.config.ts",
+      "target": "file:src/lib/cms/media-url.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:209",
+      "source": "file:src/proxy.ts",
+      "target": "file:src/i18n/config.ts",
+      "type": "imports",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:210",
+      "source": "file:.dockerignore",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:211",
+      "source": "file:.env.example",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:212",
+      "source": "file:.gitattributes",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:213",
+      "source": "pipeline:.github/workflows/deploy-production.yml",
+      "target": "service:docker-compose.yml",
+      "type": "deploys",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:214",
+      "source": "pipeline:.github/workflows/deploy-production.yml",
+      "target": "service:Dockerfile",
+      "type": "deploys",
+      "weight": 0.7
+    },
+    {
+      "id": "edge:215",
+      "source": "file:deploy/certbot/.gitkeep",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:216",
+      "source": "file:deploy/certbot/letsencrypt/.gitkeep",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:217",
+      "source": "file:deploy/certbot/www/.gitkeep",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:218",
+      "source": "file:deploy/nginx/default.conf",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:219",
+      "source": "file:deploy/nginx/docker-entrypoint.d/30-render-site-conf.sh",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:220",
+      "source": "document:docs/AI_CHANGELOG.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:221",
+      "source": "document:docs/AI_WORKFLOW.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:222",
+      "source": "document:docs/AWS_STACK_EVALUATION.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:223",
+      "source": "file:docs/aws-eks-workflow.drawio",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:224",
+      "source": "file:docs/aws-eks-workflow.drawio",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:225",
+      "source": "file:docs/aws-production-topology.drawio",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:226",
+      "source": "file:docs/aws-production-topology.drawio",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:227",
+      "source": "file:docs/aws-serverless-workflow.drawio",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:228",
+      "source": "file:docs/aws-serverless-workflow.drawio",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:229",
+      "source": "document:docs/CICD_DEPLOYMENT.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:230",
+      "source": "file:docs/current-website-workflow.drawio",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:231",
+      "source": "file:docs/current-website-workflow.drawio",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:232",
+      "source": "document:docs/FEATURES.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:233",
+      "source": "document:docs/GIT_WORKFLOW.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:234",
+      "source": "document:docs/PAYLOAD_CMS_FLOW.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:235",
+      "source": "document:docs/PROJECT_AUDIT.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:236",
+      "source": "document:docs/REGRESSION_CHECKLIST.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:237",
+      "source": "document:docs/STABILIZATION_REPORT.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:238",
+      "source": "document:docs/TRANSLATION_PIPELINE.md",
+      "target": "document:README.md",
+      "type": "related",
+      "weight": 0.5
+    },
+    {
+      "id": "edge:239",
+      "source": "file:eslint.config.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:240",
+      "source": "file:next.config.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:241",
+      "source": "file:postcss.config.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:242",
+      "source": "file:scripts/audit-content-rendering.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:243",
+      "source": "file:scripts/backup.sh",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:244",
+      "source": "file:scripts/deploy.sh",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:245",
+      "source": "file:scripts/diagnose-host.sh",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:246",
+      "source": "file:scripts/import-wordpress-rest.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:247",
+      "source": "file:scripts/migrate-payload-richtext.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:248",
+      "source": "file:scripts/normalize-xml-images.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:249",
+      "source": "file:scripts/repair-payload-posts.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:250",
+      "source": "file:scripts/restore.sh",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:251",
+      "source": "file:scripts/sync-payload-series.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:253",
+      "source": "file:scripts/translation-pipeline.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:254",
+      "source": "file:src/app/(payload)/admin/[[...segments]]/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:255",
+      "source": "file:src/app/(payload)/admin/importMap.js",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:256",
+      "source": "file:src/app/(payload)/api/graphql-playground/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:257",
+      "source": "file:src/app/(payload)/api/graphql/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:258",
+      "source": "file:src/app/(payload)/api/payload/[[...slug]]/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:259",
+      "source": "file:src/app/(payload)/components/BulkPublishPosts.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:260",
+      "source": "file:src/app/(payload)/importMap.js",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:261",
+      "source": "file:src/app/(payload)/layout.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:262",
+      "source": "file:src/app/(payload)/serverFunction.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:263",
+      "source": "file:src/app/[lang]/about/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:264",
+      "source": "file:src/app/[lang]/blog/[slug]/error.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:265",
+      "source": "file:src/app/[lang]/blog/[slug]/loading.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:266",
+      "source": "file:src/app/[lang]/blog/[slug]/not-found.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:267",
+      "source": "file:src/app/[lang]/blog/[slug]/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:268",
+      "source": "file:src/app/[lang]/blog/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:269",
+      "source": "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:270",
+      "source": "file:src/app/[lang]/blog/series/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:271",
+      "source": "file:src/app/[lang]/feed.xml/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:272",
+      "source": "file:src/app/[lang]/layout.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:273",
+      "source": "file:src/app/[lang]/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:274",
+      "source": "file:src/app/[lang]/search/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:275",
+      "source": "file:src/app/api/auth/github/callback/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:276",
+      "source": "file:src/app/api/auth/github/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:277",
+      "source": "file:src/app/api/auth/google/callback/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:278",
+      "source": "file:src/app/api/auth/google/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:279",
+      "source": "file:src/app/api/auth/logout/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:280",
+      "source": "file:src/app/api/auth/session/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:281",
+      "source": "file:src/app/api/comments/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:282",
+      "source": "file:src/app/api/health/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:283",
+      "source": "file:src/app/api/newsletter/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:284",
+      "source": "file:src/app/api/posts/[slug]/view/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:285",
+      "source": "file:src/app/api/posts/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:286",
+      "source": "file:src/app/api/revalidate/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:287",
+      "source": "file:src/app/api/search/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:288",
+      "source": "file:src/app/api/series/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:289",
+      "source": "file:src/app/blog/[slug]/page.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:290",
+      "source": "file:src/app/components/ArticleClient.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:291",
+      "source": "file:src/app/components/ArticleImageEnhancer.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:292",
+      "source": "file:src/app/components/AuthorAvatar.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:293",
+      "source": "file:src/app/components/CodeBlock/code-theme.css",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:294",
+      "source": "file:src/app/components/CodeBlock/CodeBlock.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:295",
+      "source": "file:src/app/components/CodeBlock/CopyButton.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:296",
+      "source": "file:src/app/components/CodeBlock/copyText.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:297",
+      "source": "file:src/app/components/CodeBlock/DownloadButton.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:298",
+      "source": "file:src/app/components/CodeBlock/index.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:299",
+      "source": "file:src/app/components/CodeBlock/labels.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:300",
+      "source": "file:src/app/components/CodeBlock/syntax.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:301",
+      "source": "file:src/app/components/Comments.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:302",
+      "source": "file:src/app/components/CustomImage.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:303",
+      "source": "file:src/app/components/FeaturedPostsCarousel.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:304",
+      "source": "file:src/app/components/Footer.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:305",
+      "source": "file:src/app/components/Header.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:306",
+      "source": "file:src/app/components/LanguageProvider.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:307",
+      "source": "file:src/app/components/LanguageToggle.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:308",
+      "source": "file:src/app/components/MermaidRenderer.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:309",
+      "source": "file:src/app/components/pages/AboutPage.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:310",
+      "source": "file:src/app/components/pages/BlogListPage.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:311",
+      "source": "file:src/app/components/pages/HomePage.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:312",
+      "source": "file:src/app/components/pages/SeriesListPage.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:313",
+      "source": "file:src/app/components/PostCard.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:314",
+      "source": "file:src/app/components/PostListRow.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:315",
+      "source": "file:src/app/components/RecentWritingSection.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:316",
+      "source": "file:src/app/components/RichTextRenderer/index.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:317",
+      "source": "file:src/app/components/RichTextRenderer/Renderer.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:318",
+      "source": "file:src/app/components/SearchModal.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:319",
+      "source": "file:src/app/components/TableOfContents.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:320",
+      "source": "file:src/app/components/ThemeScript.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:321",
+      "source": "file:src/app/components/ThemeToggle.tsx",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:322",
+      "source": "file:src/app/components/usePublishedPosts.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:323",
+      "source": "file:src/app/data.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:324",
+      "source": "file:src/app/feed.xml/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:325",
+      "source": "file:src/app/globals.css",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:326",
+      "source": "file:src/app/robots.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:327",
+      "source": "file:src/app/rss.xml/route.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:328",
+      "source": "file:src/app/sitemap.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:329",
+      "source": "file:src/config/footer.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:330",
+      "source": "file:src/config/navigation.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:331",
+      "source": "file:src/config/site.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:332",
+      "source": "file:src/i18n/config.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:333",
+      "source": "file:src/i18n/metadata.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:334",
+      "source": "file:src/lib/auth/oauth.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:335",
+      "source": "file:src/lib/auth/session.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:336",
+      "source": "file:src/lib/cms/media-url.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:337",
+      "source": "file:src/lib/cms/payload.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:338",
+      "source": "file:src/lib/comments/store.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:339",
+      "source": "file:src/lib/comments/types.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:340",
+      "source": "file:src/lib/content/excerpt.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:341",
+      "source": "file:src/lib/content/highlight.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:342",
+      "source": "file:src/lib/content/legacy-translation.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:343",
+      "source": "file:src/lib/content/localized-posts.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:344",
+      "source": "file:src/lib/newsletter/smtp.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:345",
+      "source": "file:src/lib/newsletter/store.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:346",
+      "source": "file:src/lib/search/posts.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:347",
+      "source": "file:src/lib/server/rate-limit.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:348",
+      "source": "file:src/lib/server/redis-cache.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:349",
+      "source": "file:src/lib/utils/chapter.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:350",
+      "source": "file:src/lib/utils/formatReadTime.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:351",
+      "source": "file:src/lib/utils/formatTopic.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:352",
+      "source": "file:src/lib/utils/security.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:353",
+      "source": "file:src/lib/views/store.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:354",
+      "source": "file:src/migrations/20260707_154745_init_payload_schema.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:355",
+      "source": "file:src/migrations/20260709_000001_add_comments_collection.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:356",
+      "source": "file:src/migrations/20260709_000002_add_oauth_comment_fields.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:357",
+      "source": "file:src/migrations/20260711_113838_add_post_richtext_fields.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:358",
+      "source": "file:src/migrations/20260712_160000_add_media_filename_slug_and_sizes.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:359",
+      "source": "file:src/migrations/20260713_000001_add_media_image_size_columns.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:360",
+      "source": "file:src/migrations/20260715_000001_add_media_fit.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:361",
+      "source": "file:src/migrations/20260730_000001_add_chapter_order.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:362",
+      "source": "file:src/migrations/index.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:363",
+      "source": "file:src/payload-types.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:364",
+      "source": "file:src/payload.config.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:365",
+      "source": "file:src/proxy.ts",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:366",
+      "source": "file:tests/article-rendering.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:367",
+      "source": "file:tests/chapter-navigation.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:368",
+      "source": "file:tests/code-copy-behavior.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:369",
+      "source": "file:tests/code-syntax.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:370",
+      "source": "file:tests/ecr-deployment-regressions.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:371",
+      "source": "file:tests/format-topic-label.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:372",
+      "source": "file:tests/homepage-toc-regressions.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:373",
+      "source": "file:tests/media-code-block-regressions.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:374",
+      "source": "file:tests/payload-media-schema.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:375",
+      "source": "file:tests/posts-publication-safeguard.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    },
+    {
+      "id": "edge:376",
+      "source": "file:tests/translation-pipeline.test.mjs",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "weight": 0.6
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:presentation",
+      "name": "Frontend và Presentation",
+      "description": "Routes, components, styles và nội dung hiển thị phía người dùng.",
+      "nodeIds": [
+        "file:src/app/(payload)/admin/[[...segments]]/page.tsx",
+        "file:src/app/(payload)/admin/importMap.js",
+        "file:src/app/(payload)/api/graphql-playground/route.ts",
+        "file:src/app/(payload)/api/graphql/route.ts",
+        "file:src/app/(payload)/api/payload/[[...slug]]/route.ts",
+        "file:src/app/(payload)/components/BulkPublishPosts.tsx",
+        "file:src/app/(payload)/importMap.js",
+        "file:src/app/(payload)/layout.tsx",
+        "file:src/app/(payload)/serverFunction.ts",
+        "file:src/app/[lang]/about/page.tsx",
+        "file:src/app/[lang]/blog/[slug]/error.tsx",
+        "file:src/app/[lang]/blog/[slug]/loading.tsx",
+        "file:src/app/[lang]/blog/[slug]/not-found.tsx",
+        "file:src/app/[lang]/blog/[slug]/page.tsx",
+        "file:src/app/[lang]/blog/page.tsx",
+        "file:src/app/[lang]/blog/series/[seriesSlug]/page.tsx",
+        "file:src/app/[lang]/blog/series/page.tsx",
+        "file:src/app/[lang]/feed.xml/route.ts",
+        "file:src/app/[lang]/layout.tsx",
+        "file:src/app/[lang]/page.tsx",
+        "file:src/app/[lang]/search/page.tsx",
+        "file:src/app/api/auth/github/callback/route.ts",
+        "file:src/app/api/auth/github/route.ts",
+        "file:src/app/api/auth/google/callback/route.ts",
+        "file:src/app/api/auth/google/route.ts",
+        "file:src/app/api/auth/logout/route.ts",
+        "file:src/app/api/auth/session/route.ts",
+        "file:src/app/api/comments/route.ts",
+        "file:src/app/api/health/route.ts",
+        "file:src/app/api/newsletter/route.ts",
+        "file:src/app/api/posts/[slug]/view/route.ts",
+        "file:src/app/api/posts/route.ts",
+        "file:src/app/api/revalidate/route.ts",
+        "file:src/app/api/search/route.ts",
+        "file:src/app/api/series/route.ts",
+        "file:src/app/blog/[slug]/page.tsx",
+        "file:src/app/components/ArticleClient.tsx",
+        "file:src/app/components/ArticleImageEnhancer.tsx",
+        "file:src/app/components/AuthorAvatar.tsx",
+        "file:src/app/components/CodeBlock/code-theme.css",
+        "file:src/app/components/CodeBlock/CodeBlock.tsx",
+        "file:src/app/components/CodeBlock/CopyButton.tsx",
+        "file:src/app/components/CodeBlock/copyText.ts",
+        "file:src/app/components/CodeBlock/DownloadButton.tsx",
+        "file:src/app/components/CodeBlock/index.ts",
+        "file:src/app/components/CodeBlock/labels.ts",
+        "file:src/app/components/CodeBlock/syntax.ts",
+        "file:src/app/components/Comments.tsx",
+        "file:src/app/components/CustomImage.tsx",
+        "file:src/app/components/FeaturedPostsCarousel.tsx",
+        "file:src/app/components/Footer.tsx",
+        "file:src/app/components/Header.tsx",
+        "file:src/app/components/LanguageProvider.tsx",
+        "file:src/app/components/LanguageToggle.tsx",
+        "file:src/app/components/MermaidRenderer.tsx",
+        "file:src/app/components/pages/AboutPage.tsx",
+        "file:src/app/components/pages/BlogListPage.tsx",
+        "file:src/app/components/pages/HomePage.tsx",
+        "file:src/app/components/pages/SeriesListPage.tsx",
+        "file:src/app/components/PostCard.tsx",
+        "file:src/app/components/PostListRow.tsx",
+        "file:src/app/components/RecentWritingSection.tsx",
+        "file:src/app/components/RichTextRenderer/index.ts",
+        "file:src/app/components/RichTextRenderer/Renderer.tsx",
+        "file:src/app/components/SearchModal.tsx",
+        "file:src/app/components/TableOfContents.tsx",
+        "file:src/app/components/ThemeScript.tsx",
+        "file:src/app/components/ThemeToggle.tsx",
+        "file:src/app/components/usePublishedPosts.ts",
+        "file:src/app/data.ts",
+        "file:src/app/feed.xml/route.ts",
+        "file:src/app/globals.css",
+        "file:src/app/robots.ts",
+        "file:src/app/rss.xml/route.ts",
+        "file:src/app/sitemap.ts"
+      ]
+    },
+    {
+      "id": "layer:cms-backend",
+      "name": "Payload CMS và Backend",
+      "description": "Collections, hooks, access control, API và cấu hình Payload CMS.",
+      "nodeIds": [
+        "file:src/lib/auth/oauth.ts",
+        "file:src/lib/auth/session.ts",
+        "file:src/lib/cms/media-url.ts",
+        "file:src/lib/cms/payload.ts",
+        "file:src/lib/comments/store.ts",
+        "file:src/lib/comments/types.ts",
+        "file:src/lib/content/excerpt.ts",
+        "file:src/lib/content/highlight.ts",
+        "file:src/lib/content/legacy-translation.ts",
+        "file:src/lib/content/localized-posts.ts",
+        "file:src/lib/newsletter/smtp.ts",
+        "file:src/lib/newsletter/store.ts",
+        "file:src/lib/search/posts.ts",
+        "file:src/lib/server/rate-limit.ts",
+        "file:src/lib/server/redis-cache.ts",
+        "file:src/lib/utils/chapter.ts",
+        "file:src/lib/utils/formatReadTime.ts",
+        "file:src/lib/utils/formatTopic.ts",
+        "file:src/lib/utils/security.ts",
+        "file:src/lib/views/store.ts",
+        "file:src/payload-types.ts",
+        "file:src/payload.config.ts"
+      ]
+    },
+    {
+      "id": "layer:content",
+      "name": "Content và Data",
+      "description": "Nội dung fallback, dữ liệu seed và schema dữ liệu.",
+      "nodeIds": [
+        "config:content/image-hosts.json",
+        "document:content/posts/README.md"
+      ]
+    },
+    {
+      "id": "layer:infrastructure",
+      "name": "Infrastructure và Delivery",
+      "description": "Docker, reverse proxy, CI/CD và cấu hình triển khai.",
+      "nodeIds": [
+        "pipeline:.github/workflows/deploy-production.yml",
+        "service:docker-compose.yml",
+        "service:Dockerfile"
+      ]
+    },
+    {
+      "id": "layer:operations",
+      "name": "Operations và Tooling",
+      "description": "Scripts quản trị, translation, migration, test và công cụ phát triển.",
+      "nodeIds": [
+        "file:deploy/nginx/docker-entrypoint.d/30-render-site-conf.sh",
+        "file:scripts/audit-content-rendering.mjs",
+        "file:scripts/backup.sh",
+        "file:scripts/deploy.sh",
+        "file:scripts/diagnose-host.sh",
+        "file:scripts/import-wordpress-rest.mjs",
+        "file:scripts/migrate-payload-richtext.mjs",
+        "file:scripts/normalize-xml-images.mjs",
+        "file:scripts/repair-payload-posts.mjs",
+        "file:scripts/restore.sh",
+        "file:scripts/sync-payload-series.mjs",
+        "file:scripts/translation-pipeline.mjs",
+        "file:tests/article-rendering.test.mjs",
+        "file:tests/chapter-navigation.test.mjs",
+        "file:tests/code-copy-behavior.test.mjs",
+        "file:tests/code-syntax.test.mjs",
+        "file:tests/ecr-deployment-regressions.test.mjs",
+        "file:tests/format-topic-label.test.mjs",
+        "file:tests/homepage-toc-regressions.test.mjs",
+        "file:tests/media-code-block-regressions.test.mjs",
+        "file:tests/payload-media-schema.test.mjs",
+        "file:tests/posts-publication-safeguard.test.mjs",
+        "file:tests/translation-pipeline.test.mjs"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation",
+      "description": "Tài liệu dự án, kiến trúc và hướng dẫn vận hành.",
+      "nodeIds": [
+        "document:AGENTS.md",
+        "document:deploy/README.md",
+        "document:docs/AI_CHANGELOG.md",
+        "document:docs/AI_WORKFLOW.md",
+        "document:docs/AWS_STACK_EVALUATION.md",
+        "document:docs/CICD_DEPLOYMENT.md",
+        "document:docs/FEATURES.md",
+        "document:docs/GIT_WORKFLOW.md",
+        "document:docs/PAYLOAD_CMS_FLOW.md",
+        "document:docs/PROJECT_AUDIT.md",
+        "document:docs/REGRESSION_CHECKLIST.md",
+        "document:docs/STABILIZATION_REPORT.md",
+        "document:docs/TRANSLATION_PIPELINE.md",
+        "document:README.md"
+      ]
+    },
+    {
+      "id": "layer:configuration",
+      "name": "Configuration",
+      "description": "Manifest và cấu hình framework/tooling ở cấp dự án.",
+      "nodeIds": [
+        "config:data/comments.json",
+        "config:data/newsletter_subscribers.json",
+        "config:data/views.json",
+        "config:knip.json",
+        "config:package.json",
+        "config:src/migrations/20260707_154745_init_payload_schema.json",
+        "config:tsconfig.json"
+      ]
+    },
+    {
+      "id": "layer:shared",
+      "name": "Shared Application Code",
+      "description": "Mã nguồn dùng chung chưa thuộc các lớp chuyên biệt.",
+      "nodeIds": [
+        "file:.dockerignore",
+        "file:.env.example",
+        "file:.gitattributes",
+        "file:deploy/certbot/.gitkeep",
+        "file:deploy/certbot/letsencrypt/.gitkeep",
+        "file:deploy/certbot/www/.gitkeep",
+        "file:deploy/nginx/default.conf",
+        "file:docs/aws-eks-workflow.drawio",
+        "file:docs/aws-production-topology.drawio",
+        "file:docs/aws-serverless-workflow.drawio",
+        "file:docs/current-website-workflow.drawio",
+        "file:eslint.config.mjs",
+        "file:next.config.ts",
+        "file:postcss.config.mjs",
+        "file:src/config/footer.ts",
+        "file:src/config/navigation.ts",
+        "file:src/config/site.ts",
+        "file:src/i18n/config.ts",
+        "file:src/i18n/metadata.ts",
+        "file:src/migrations/20260707_154745_init_payload_schema.ts",
+        "file:src/migrations/20260709_000001_add_comments_collection.ts",
+        "file:src/migrations/20260709_000002_add_oauth_comment_fields.ts",
+        "file:src/migrations/20260711_113838_add_post_richtext_fields.ts",
+        "file:src/migrations/20260712_160000_add_media_filename_slug_and_sizes.ts",
+        "file:src/migrations/20260713_000001_add_media_image_size_columns.ts",
+        "file:src/migrations/20260715_000001_add_media_fit.ts",
+        "file:src/migrations/20260730_000001_add_chapter_order.ts",
+        "file:src/migrations/index.ts",
+        "file:src/proxy.ts"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Tổng quan dự án",
+      "description": "Bắt đầu từ README và package manifest để hiểu mục tiêu, stack và lệnh vận hành.",
+      "nodeIds": [
+        "document:README.md",
+        "config:package.json"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Điểm vào ứng dụng",
+      "description": "Khám phá Next.js App Router, layout và cấu hình Payload CMS.",
+      "nodeIds": [
+        "file:src/payload.config.ts"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Luồng hiển thị song ngữ",
+      "description": "Theo dõi routes và helpers phục vụ tiếng Việt mặc định cùng locale /en.",
+      "nodeIds": [
+        "file:src/app/[lang]/blog/[slug]/error.tsx",
+        "file:src/app/[lang]/blog/[slug]/loading.tsx",
+        "file:src/app/[lang]/blog/[slug]/not-found.tsx",
+        "file:src/app/[lang]/blog/[slug]/page.tsx",
+        "file:src/app/api/posts/[slug]/view/route.ts",
+        "file:src/app/blog/[slug]/page.tsx"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Triển khai và vận hành",
+      "description": "Kiểm tra container, CI/CD và tài liệu AWS để hiểu đường đi production.",
+      "nodeIds": [
+        "pipeline:.github/workflows/deploy-production.yml",
+        "service:docker-compose.yml",
+        "service:Dockerfile"
+      ]
+    }
+  ]
+}

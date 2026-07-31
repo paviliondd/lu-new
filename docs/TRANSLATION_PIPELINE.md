@@ -28,7 +28,27 @@ node --import tsx scripts/translation-pipeline.mjs `
 
 Run the three-post command without `--apply` first. Review the generated candidates and `/en` rendering before any database write.
 
+## Docker Compose
+
+The production image contains the translation script and its runtime dependencies. Run it in the existing `app` container so that the Docker-only `postgres` hostname resolves correctly:
+
+```powershell
+docker compose exec app npm run content:audit-translations
+docker compose exec app npm run content:translate -- --limit 3
+docker compose exec app npm run content:translate -- --limit 3 --apply
+```
+
+Candidate and snapshot files are bind-mounted to the host at `.translation-work/`. Always inspect the dry-run candidate before using `--apply`. To roll back an applied run:
+
+```powershell
+docker compose exec app node --import tsx scripts/translation-pipeline.mjs `
+  --mode rollback `
+  --snapshot .translation-work/<run>-snapshot.json `
+  --apply
+```
+
+Do not run multiple apply jobs concurrently. The pilot sequence should be: audit, dry-run three posts, editorial review, apply those three posts, verify `/en`, then increase the batch size gradually.
+
 ## Runtime prerequisite
 
 When `.env` uses Docker DNS such as `postgres`, execute the command inside the Compose network or override `DATABASE_URL` with a reachable, explicitly approved database endpoint. Do not silently replace the production connection string.
-

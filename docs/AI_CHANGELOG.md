@@ -8,6 +8,7 @@ Added:
 
 - Added protocol-aware translation routing: Claude models use Anthropic Messages while GPT models use OpenAI Chat Completions, with a local mock-server integration test covering cross-protocol fallback without consuming API credit.
 - Added a database-free translation provider probe command for validating model access, endpoint routing, and credentials before starting a batch.
+- Added an offline export, validation, dry-run import, and explicit apply workflow for translating through approved interactive agents without exposing production database access or making duplicate AI requests.
 - Added translation model fallback, transient retry/backoff, per-post failure isolation, failure resume, source-token caps, smaller Lexical request batches, and smallest-post-first selection.
 - Added automatic ownership initialization for the host-mounted translation workspace.
 - Added deploy health rollback to the previously running immutable image.

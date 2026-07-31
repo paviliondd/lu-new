@@ -137,12 +137,14 @@ function parseArgs(argv) {
     else if (arg === "--snapshot") options.snapshot = path.resolve(argv[++index]);
     else if (arg === "--resume") options.resume = path.resolve(argv[++index]);
     else if (arg === "--max-source-tokens") options.maxSourceTokens = Number(argv[++index] || 0);
+    else if (arg === "--input") options.input = path.resolve(argv[++index]);
     else throw new Error(`Unknown argument: ${arg}`);
   }
-  if (!new Set(["audit", "translate", "rollback", "probe"]).has(options.mode)) throw new Error(`Invalid mode: ${options.mode}`);
+  if (!new Set(["audit", "translate", "rollback", "probe", "export", "validate", "import"]).has(options.mode)) throw new Error(`Invalid mode: ${options.mode}`);
   if (options.mode === "rollback" && (!options.apply || !options.snapshot)) {
     throw new Error("Rollback requires --apply and --snapshot <file>.");
   }
+  if (new Set(["validate", "import"]).has(options.mode) && !options.input) throw new Error(`${options.mode} mode requires --input <file>.`);
   return options;
 }
 
@@ -318,6 +320,116 @@ async function runAudit(payload, options) {
   console.log(JSON.stringify({ reportPath, summary }, null, 2));
 }
 
+function translationTemplate(post) {
+  const units = hasContent(post.contentRichVi) ? collectLexicalUnits(post.contentRichVi) : [];
+  return {
+    id: post.id,
+    slug: post.slug,
+    source: {
+      title: post.titleVi || post.slug,
+      excerpt: post.excerptVi || "",
+      seoTitle: post.seo?.titleVi || post.titleVi || post.slug,
+      seoDescription: post.seo?.descriptionVi || post.excerptVi || "",
+      units: units.map(({ id, text }) => ({ id, text })),
+      legacyContent: units.length ? null : (post.contentVi || null),
+    },
+    translation: {
+      title: "",
+      excerpt: "",
+      seoTitle: "",
+      seoDescription: "",
+      units: units.map(({ id }) => ({ id, text: "" })),
+      legacyContent: units.length ? null : "",
+    },
+  };
+}
+
+export function validateTranslationPackage(bundle) {
+  const errors = [];
+  if (bundle?.formatVersion !== 1 || !Array.isArray(bundle.posts)) return ["Invalid translation package format."];
+  for (const entry of bundle.posts) {
+    const prefix = entry.slug || entry.id || "unknown";
+    for (const key of ["title", "excerpt", "seoTitle", "seoDescription"]) {
+      if (!entry.translation?.[key]?.trim()) errors.push(`${prefix}: missing translation.${key}`);
+    }
+    const sourceUnits = entry.source?.units || [];
+    if (sourceUnits.length) {
+      const translated = new Map((entry.translation?.units || []).map((unit) => [Number(unit.id), String(unit.text || "").trim()]));
+      for (const unit of sourceUnits) if (!translated.get(Number(unit.id))) errors.push(`${prefix}: missing translation unit ${unit.id}`);
+      if (translated.size !== sourceUnits.length) errors.push(`${prefix}: translation unit count changed`);
+    } else if (entry.source?.legacyContent && !entry.translation?.legacyContent?.trim()) {
+      errors.push(`${prefix}: missing translation.legacyContent`);
+    }
+  }
+  return errors;
+}
+
+async function readTranslationPackage(input) {
+  return JSON.parse(await fsp.readFile(input, "utf8"));
+}
+
+async function runExport(payload, options) {
+  if (!options.limit && !options.slugs.length) throw new Error("Export mode requires --limit or one or more --slug values.");
+  let posts = (await readPosts(payload, { ...options, limit: 0 }))
+    .filter((post) => auditPost(post).translationStatus !== "complete-rich")
+    .map((post) => ({ post, audit: auditPost(post) }))
+    .filter(({ audit }) => !options.maxSourceTokens || audit.estimatedSourceTokens <= options.maxSourceTokens)
+    .sort((left, right) => left.audit.estimatedSourceTokens - right.audit.estimatedSourceTokens);
+  if (options.limit > 0) posts = posts.slice(0, options.limit);
+  const bundle = {
+    formatVersion: 1,
+    generatedAt: new Date().toISOString(),
+    instructions: "Translate only values inside translation. Preserve IDs, JSON structure, commands, code, URLs and product names. Return the complete JSON package.",
+    posts: posts.map(({ post }) => translationTemplate(post)),
+  };
+  const outputPath = await writeJson(options.outputDir, `${new Date().toISOString().replace(/[:.]/g, "-")}-translation-export.json`, bundle);
+  console.log(JSON.stringify({ exported: bundle.posts.length, outputPath }, null, 2));
+}
+
+async function runValidate(options) {
+  const errors = validateTranslationPackage(await readTranslationPackage(options.input));
+  console.log(JSON.stringify({ valid: errors.length === 0, errors }, null, 2));
+  if (errors.length) process.exitCode = 2;
+}
+
+export function buildImportCandidate(post, entry) {
+  if (!post || String(post.id) !== String(entry.id) || post.slug !== entry.slug) throw new Error(`${entry.slug}: post identity no longer matches export.`);
+  const currentUnits = collectLexicalUnits(post.contentRichVi || {});
+  if (JSON.stringify(currentUnits.map(({ id, text }) => ({ id, text }))) !== JSON.stringify(entry.source.units || [])) throw new Error(`${entry.slug}: Vietnamese source changed after export.`);
+  const translated = new Map((entry.translation.units || []).map((unit) => [Number(unit.id), String(unit.text)]));
+  const contentRichEn = currentUnits.length ? applyLexicalTranslations(post.contentRichVi, currentUnits.map((unit) => ({ ...unit, translation: translated.get(unit.id) }))) : post.contentRichEn;
+  const data = {
+    titleEn: entry.translation.title,
+    excerptEn: entry.translation.excerpt,
+    contentRichEn,
+    contentEn: currentUnits.length ? post.contentEn : entry.translation.legacyContent,
+    seo: { ...(post.seo || {}), titleEn: entry.translation.seoTitle, descriptionEn: entry.translation.seoDescription },
+  };
+  return { data, qa: verifyTranslationCandidate(post, data) };
+}
+
+async function runImport(payload, options) {
+  const bundle = await readTranslationPackage(options.input);
+  const errors = validateTranslationPackage(bundle);
+  if (errors.length) throw new Error(`Translation package validation failed:\n${errors.join("\n")}`);
+  const currentPosts = await readPosts(payload, { ...options, limit: 0, slugs: bundle.posts.map((entry) => entry.slug) });
+  const bySlug = new Map(currentPosts.map((post) => [post.slug, post]));
+  const snapshots = [];
+  const candidates = [];
+  for (const entry of bundle.posts) {
+    const post = bySlug.get(entry.slug);
+    const { data, qa } = buildImportCandidate(post, entry);
+    if (!qa.passed) throw new Error(`${entry.slug}: QA failed: ${qa.issues.join(", ")}`);
+    snapshots.push({ id: post.id, slug: post.slug, before: { titleEn: post.titleEn, excerptEn: post.excerptEn, contentRichEn: post.contentRichEn, contentEn: post.contentEn, seo: post.seo } });
+    candidates.push({ id: post.id, slug: post.slug, qa, data });
+    if (options.apply) await payload.update({ collection: "posts", id: post.id, data, depth: 0, overrideAccess: true });
+  }
+  const runId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${crypto.randomBytes(3).toString("hex")}`;
+  const snapshotPath = await writeJson(options.outputDir, `${runId}-snapshot.json`, { runId, applied: options.apply, posts: snapshots });
+  const candidatePath = await writeJson(options.outputDir, `${runId}-candidates.json`, { runId, applied: options.apply, source: options.input, posts: candidates });
+  console.log(JSON.stringify({ applied: options.apply, imported: candidates.length, snapshotPath, candidatePath }, null, 2));
+}
+
 async function runTranslate(payload, options) {
   if (options.resume) {
     const resume = JSON.parse(await fsp.readFile(options.resume, "utf8"));
@@ -404,9 +516,15 @@ export async function main(argv = process.argv.slice(2)) {
     await runProbe();
     return;
   }
+  if (options.mode === "validate") {
+    await runValidate(options);
+    return;
+  }
   const payload = await getPayloadClient();
   if (options.mode === "audit") await runAudit(payload, options);
   else if (options.mode === "translate") await runTranslate(payload, options);
+  else if (options.mode === "export") await runExport(payload, options);
+  else if (options.mode === "import") await runImport(payload, options);
   else await runRollback(payload, options);
 }
 

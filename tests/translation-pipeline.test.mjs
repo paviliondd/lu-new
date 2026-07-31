@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
-import { applyLexicalTranslations, auditPost, buildImportCandidate, collectLexicalUnits, translateJson, translationProvider, validateTranslationPackage, verifyTranslationCandidate } from "../scripts/translation-pipeline.mjs";
+import { applyLexicalTranslations, auditPost, buildImportCandidate, collectLexicalUnits, hasTranslatableSource, translateJson, translationProvider, validateTranslationPackage, verifyTranslationCandidate } from "../scripts/translation-pipeline.mjs";
 import { readFile } from "node:fs/promises";
 
 test("collectLexicalUnits translates prose but preserves code and terminal commands", () => {
@@ -25,6 +25,12 @@ test("auditPost distinguishes rich completion from partial and missing translati
   assert.equal(auditPost(base).translationStatus, "missing");
   assert.equal(auditPost({ ...base, titleEn: "Post" }).translationStatus, "partial");
   assert.equal(auditPost({ ...base, titleEn: "Post", excerptEn: "Excerpt", contentRichEn: { root: { children: [{ type: "text", text: "Content" }] } }, seo: { titleEn: "SEO", descriptionEn: "Description" } }).translationStatus, "complete-rich");
+});
+
+test("translation selection excludes Payload records without Vietnamese source content", () => {
+  assert.equal(hasTranslatableSource({ titleVi: "Metadata only" }), false);
+  assert.equal(hasTranslatableSource({ contentVi: "<p>Noi dung</p>" }), true);
+  assert.equal(hasTranslatableSource({ contentRichVi: { root: { children: [{ type: "text", text: "Noi dung" }] } } }), true);
 });
 
 test("verifyTranslationCandidate rejects changed Lexical structure and Vietnamese remnants", () => {
@@ -51,6 +57,7 @@ test("translation runner isolates failures and supports fallback resume controls
   assert.match(source, /failures\.push/);
   assert.match(source, /-failures\.json/);
   assert.match(source, /start \+= 25/);
+  assert.match(source, /finally \{\s*await payload\.destroy\(\)/);
 });
 
 test("provider routing uses Anthropic Messages for Claude and OpenAI Chat Completions for GPT", () => {

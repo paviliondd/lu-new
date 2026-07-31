@@ -9,6 +9,11 @@ Added:
 - Added protocol-aware translation routing: Claude models use Anthropic Messages while GPT models use OpenAI Chat Completions, with a local mock-server integration test covering cross-protocol fallback without consuming API credit.
 - Added a database-free translation provider probe command for validating model access, endpoint routing, and credentials before starting a batch.
 - Added an offline export, validation, dry-run import, and explicit apply workflow for translating through approved interactive agents without exposing production database access or making duplicate AI requests.
+
+Fixed:
+
+- Excluded metadata-only Payload records without Vietnamese rich or legacy content from translation/export selection, preventing empty posts from consuming batch slots and AI credit.
+- Closed the Payload client in a `finally` block so audit, export, import, and rollback commands exit immediately after their output is written instead of remaining alive on database handles.
 - Added translation model fallback, transient retry/backoff, per-post failure isolation, failure resume, source-token caps, smaller Lexical request batches, and smallest-post-first selection.
 - Added automatic ownership initialization for the host-mounted translation workspace.
 - Added deploy health rollback to the previously running immutable image.

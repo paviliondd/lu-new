@@ -125,6 +125,10 @@ export function auditPost(post) {
   };
 }
 
+export function hasTranslatableSource(post) {
+  return hasContent(post.contentRichVi) || hasContent(post.contentVi);
+}
+
 function parseArgs(argv) {
   const options = { mode: "audit", limit: 0, apply: false, slugs: [], outputDir: path.join(rootDir, ".translation-work"), maxSourceTokens: 0 };
   for (let index = 0; index < argv.length; index += 1) {
@@ -370,8 +374,10 @@ async function readTranslationPackage(input) {
 
 async function runExport(payload, options) {
   if (!options.limit && !options.slugs.length) throw new Error("Export mode requires --limit or one or more --slug values.");
-  let posts = (await readPosts(payload, { ...options, limit: 0 }))
-    .filter((post) => auditPost(post).translationStatus !== "complete-rich")
+  const allPosts = await readPosts(payload, { ...options, limit: 0 });
+  const skippedWithoutSource = allPosts.filter((post) => !hasTranslatableSource(post)).map((post) => post.slug);
+  let posts = allPosts
+    .filter((post) => hasTranslatableSource(post) && auditPost(post).translationStatus !== "complete-rich")
     .map((post) => ({ post, audit: auditPost(post) }))
     .filter(({ audit }) => !options.maxSourceTokens || audit.estimatedSourceTokens <= options.maxSourceTokens)
     .sort((left, right) => left.audit.estimatedSourceTokens - right.audit.estimatedSourceTokens);
@@ -383,7 +389,7 @@ async function runExport(payload, options) {
     posts: posts.map(({ post }) => translationTemplate(post)),
   };
   const outputPath = await writeJson(options.outputDir, `${new Date().toISOString().replace(/[:.]/g, "-")}-translation-export.json`, bundle);
-  console.log(JSON.stringify({ exported: bundle.posts.length, outputPath }, null, 2));
+  console.log(JSON.stringify({ exported: bundle.posts.length, skippedWithoutSource, outputPath }, null, 2));
 }
 
 async function runValidate(options) {
@@ -435,7 +441,7 @@ async function runTranslate(payload, options) {
     const resume = JSON.parse(await fsp.readFile(options.resume, "utf8"));
     options.slugs = (resume.failures || resume.posts || []).map((item) => item.slug).filter(Boolean);
   }
-  let posts = (await readPosts(payload, { ...options, limit: 0 })).filter((post) => auditPost(post).translationStatus !== "complete-rich");
+  let posts = (await readPosts(payload, { ...options, limit: 0 })).filter((post) => hasTranslatableSource(post) && auditPost(post).translationStatus !== "complete-rich");
   if (!options.limit && !options.slugs.length) throw new Error("Translate mode requires --limit or one or more --slug values.");
   posts = posts
     .map((post) => ({ post, audit: auditPost(post) }))
@@ -521,11 +527,15 @@ export async function main(argv = process.argv.slice(2)) {
     return;
   }
   const payload = await getPayloadClient();
-  if (options.mode === "audit") await runAudit(payload, options);
-  else if (options.mode === "translate") await runTranslate(payload, options);
-  else if (options.mode === "export") await runExport(payload, options);
-  else if (options.mode === "import") await runImport(payload, options);
-  else await runRollback(payload, options);
+  try {
+    if (options.mode === "audit") await runAudit(payload, options);
+    else if (options.mode === "translate") await runTranslate(payload, options);
+    else if (options.mode === "export") await runExport(payload, options);
+    else if (options.mode === "import") await runImport(payload, options);
+    else await runRollback(payload, options);
+  } finally {
+    await payload.destroy();
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === filename) {

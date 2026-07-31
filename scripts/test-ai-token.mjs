@@ -98,9 +98,6 @@ const testModels = [
   "claude-opus-5",
   "gpt-5.6-sol",
   "claude-opus-4-8",
-  "gpt-4o-mini",
-  "gpt-4o",
-  "default",
 ].filter((m, i, self) => Boolean(m) && self.indexOf(m) === i);
 
 async function main() {

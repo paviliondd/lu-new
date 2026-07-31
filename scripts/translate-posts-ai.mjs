@@ -43,9 +43,6 @@ function defaultModelForKey() {
 
 const candidateModels = [
   process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL,
-  defaultModelForKey(),
-  "gpt-4o-mini",
-  "gpt-4o",
   "claude-opus-5",
   "gpt-5.6-sol",
   "claude-opus-4-8",
@@ -126,6 +123,7 @@ async function translatePostInSafeChunks(apiKey, post) {
   let titleEn = post.title_vi || post.slug;
   let excerptEn = post.excerpt_vi || post.seo_description_vi || "";
   try {
+    console.log("   📝 Translating Title & Excerpt metadata...");
     const metaResult = await requestTranslationWithModel(
       apiKey,
       {
@@ -148,7 +146,12 @@ async function translatePostInSafeChunks(apiKey, post) {
   }
 
   const parts = rawHtml.split(/(<pre[\s\S]*?<\/pre>|<code[\s\S]*?<\/code>)/i);
+  const textChunks = parts.filter((p) => p.trim() && !/^<(pre|code)\b/i.test(p.trim()));
+  const totalChunks = textChunks.length;
+  console.log(`   🧩 Split content into ${totalChunks} text chunks (preserving ${parts.length - totalChunks} code blocks untouched).`);
+
   const translatedParts = [];
+  let chunkIndex = 0;
 
   for (const part of parts) {
     if (!part.trim()) continue;
@@ -157,6 +160,8 @@ async function translatePostInSafeChunks(apiKey, post) {
       continue;
     }
 
+    chunkIndex++;
+    console.log(`   ⏳ Translating chunk [${chunkIndex}/${totalChunks}]...`);
     try {
       const textResult = await requestTranslationWithModel(
         apiKey,
@@ -164,7 +169,8 @@ async function translatePostInSafeChunks(apiKey, post) {
         candidateModels[0]
       );
       translatedParts.push(textResult.content || part);
-    } catch {
+    } catch (err) {
+      console.warn(`   ⚠️ Chunk [${chunkIndex}/${totalChunks}] failed (${err.message}). Keeping original block.`);
       translatedParts.push(part);
     }
   }

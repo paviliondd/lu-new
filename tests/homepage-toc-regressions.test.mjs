@@ -45,6 +45,7 @@ test("media deployment initializes volume ownership and shares x64-v1 Sharp with
 
   assert.match(compose, /media-permissions:[\s\S]*user: "0:0"/);
   assert.match(compose, /chown -R 1001:1001 \/app\/public\/uploads/);
+  assert.match(compose, /translation-work-permissions:[\s\S]*chown -R 1001:1001 \/app\/\.translation-work/);
   assert.match(compose, /condition: service_completed_successfully/);
   assert.doesNotMatch(dockerfile, /sharp-wasm32|versions\.emscripten/);
   assert.equal(

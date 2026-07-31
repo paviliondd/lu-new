@@ -126,7 +126,7 @@ export function auditPost(post) {
 }
 
 function parseArgs(argv) {
-  const options = { mode: "audit", limit: 0, apply: false, slugs: [], outputDir: path.join(rootDir, ".translation-work") };
+  const options = { mode: "audit", limit: 0, apply: false, slugs: [], outputDir: path.join(rootDir, ".translation-work"), maxSourceTokens: 0 };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--mode") options.mode = argv[++index];
@@ -135,6 +135,8 @@ function parseArgs(argv) {
     else if (arg === "--apply") options.apply = true;
     else if (arg === "--output-dir") options.outputDir = path.resolve(argv[++index]);
     else if (arg === "--snapshot") options.snapshot = path.resolve(argv[++index]);
+    else if (arg === "--resume") options.resume = path.resolve(argv[++index]);
+    else if (arg === "--max-source-tokens") options.maxSourceTokens = Number(argv[++index] || 0);
     else throw new Error(`Unknown argument: ${arg}`);
   }
   if (!new Set(["audit", "translate", "rollback"]).has(options.mode)) throw new Error(`Invalid mode: ${options.mode}`);
@@ -150,6 +152,22 @@ function endpoint() {
 
 function model() {
   return process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL || "claude-opus-5";
+}
+
+function models() {
+  return [...new Set((process.env.OPENAI_TRANSLATION_MODELS || model()).split(",").map((value) => value.trim()).filter(Boolean))];
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+class TranslationApiError extends Error {
+  constructor(status, body) {
+    super(`Translation API ${status}: ${body.slice(0, 300)}`);
+    this.status = status;
+    this.body = body;
+  }
 }
 
 function extractOutput(payload) {
@@ -170,20 +188,35 @@ async function translateJson(input, schemaDescription) {
   ].join(" ");
   const target = endpoint();
   const isResponses = target.includes("/responses");
-  const requestBody = isResponses
-    ? { model: model(), store: false, instructions, input: JSON.stringify(input) }
-    : { model: model(), temperature: 0.1, messages: [{ role: "system", content: instructions }, { role: "user", content: JSON.stringify(input) }] };
-  const response = await fetch(target, {
-    method: "POST",
-    headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-    body: JSON.stringify(requestBody),
-  });
-  const raw = await response.text();
-  if (!response.ok) throw new Error(`Translation API ${response.status}: ${raw.slice(0, 300)}`);
-  const output = extractOutput(JSON.parse(raw)).replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
-  const match = output.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("Translation API did not return a JSON object.");
-  return JSON.parse(match[0]);
+  let lastError;
+  for (const selectedModel of models()) {
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        const requestBody = isResponses
+          ? { model: selectedModel, store: false, instructions, input: JSON.stringify(input) }
+          : { model: selectedModel, temperature: 0.1, messages: [{ role: "system", content: instructions }, { role: "user", content: JSON.stringify(input) }] };
+        const response = await fetch(target, {
+          method: "POST",
+          headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+          body: JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(120_000),
+        });
+        const raw = await response.text();
+        if (!response.ok) throw new TranslationApiError(response.status, raw);
+        const output = extractOutput(JSON.parse(raw)).replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
+        const match = output.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error("Translation API did not return a JSON object.");
+        return JSON.parse(match[0]);
+      } catch (error) {
+        lastError = error;
+        const transient = error?.name === "TimeoutError" || error?.name === "AbortError" || [429, 500, 502, 503, 504].includes(error?.status);
+        if (!transient || attempt === 3) break;
+        await sleep(1000 * (2 ** (attempt - 1)));
+      }
+    }
+    console.warn(`[translate] model ${selectedModel} failed; trying fallback if configured`);
+  }
+  throw lastError;
 }
 
 async function translateMetadata(post) {
@@ -198,8 +231,8 @@ async function translateMetadata(post) {
 async function translateLexical(source) {
   const units = collectLexicalUnits(source);
   const translated = [];
-  for (let start = 0; start < units.length; start += 40) {
-    const batch = units.slice(start, start + 40);
+  for (let start = 0; start < units.length; start += 25) {
+    const batch = units.slice(start, start + 25);
     const result = await translateJson({ units: batch.map(({ id, text }) => ({ id, text })) }, "Return an object with a units array; each item must contain the same numeric id and translated text.");
     const byId = new Map((result.units || []).map((item) => [Number(item.id), String(item.text || "")]));
     for (const unit of batch) {
@@ -260,40 +293,59 @@ async function runAudit(payload, options) {
 }
 
 async function runTranslate(payload, options) {
-  const posts = (await readPosts(payload, options)).filter((post) => auditPost(post).translationStatus !== "complete-rich");
+  if (options.resume) {
+    const resume = JSON.parse(await fsp.readFile(options.resume, "utf8"));
+    options.slugs = (resume.failures || resume.posts || []).map((item) => item.slug).filter(Boolean);
+  }
+  let posts = (await readPosts(payload, { ...options, limit: 0 })).filter((post) => auditPost(post).translationStatus !== "complete-rich");
   if (!options.limit && !options.slugs.length) throw new Error("Translate mode requires --limit or one or more --slug values.");
+  posts = posts
+    .map((post) => ({ post, audit: auditPost(post) }))
+    .filter(({ audit }) => !options.maxSourceTokens || audit.estimatedSourceTokens <= options.maxSourceTokens)
+    .sort((left, right) => left.audit.estimatedSourceTokens - right.audit.estimatedSourceTokens)
+    .map(({ post }) => post);
+  if (options.limit > 0) posts = posts.slice(0, options.limit);
   const runId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${crypto.randomBytes(3).toString("hex")}`;
   const snapshots = [];
   const candidates = [];
+  const failures = [];
   for (const post of posts) {
     console.log(`[translate] ${post.slug}`);
-    const metadata = await translateMetadata(post);
-    let contentRichEn = post.contentRichEn;
-    let contentEn = post.contentEn;
-    let translatedUnits = 0;
-    if (hasContent(post.contentRichVi)) {
-      const result = await translateLexical(post.contentRichVi);
-      contentRichEn = result.content;
-      translatedUnits = result.units;
-    } else if (hasContent(post.contentVi)) {
-      contentEn = await translateLegacyHtml(post.contentVi);
+    try {
+      const metadata = await translateMetadata(post);
+      let contentRichEn = post.contentRichEn;
+      let contentEn = post.contentEn;
+      let translatedUnits = 0;
+      if (hasContent(post.contentRichVi)) {
+        const result = await translateLexical(post.contentRichVi);
+        contentRichEn = result.content;
+        translatedUnits = result.units;
+      } else if (hasContent(post.contentVi)) {
+        contentEn = await translateLegacyHtml(post.contentVi);
+      }
+      const data = {
+        titleEn: metadata.title,
+        excerptEn: metadata.excerpt,
+        contentRichEn,
+        contentEn,
+        seo: { ...(post.seo || {}), titleEn: metadata.seoTitle, descriptionEn: metadata.seoDescription },
+      };
+      snapshots.push({ id: post.id, slug: post.slug, before: { titleEn: post.titleEn, excerptEn: post.excerptEn, contentRichEn: post.contentRichEn, contentEn: post.contentEn, seo: post.seo } });
+      const qa = verifyTranslationCandidate(post, data);
+      if (!qa.passed) throw new Error(`QA failed: ${qa.issues.join(", ")}`);
+      candidates.push({ id: post.id, slug: post.slug, translatedUnits, qa, data });
+      if (options.apply) await payload.update({ collection: "posts", id: post.id, data, depth: 0, overrideAccess: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      failures.push({ id: post.id, slug: post.slug, error: message });
+      console.error(`[translate] failed ${post.slug}: ${message}`);
     }
-    const data = {
-      titleEn: metadata.title,
-      excerptEn: metadata.excerpt,
-      contentRichEn,
-      contentEn,
-      seo: { ...(post.seo || {}), titleEn: metadata.seoTitle, descriptionEn: metadata.seoDescription },
-    };
-    snapshots.push({ id: post.id, slug: post.slug, before: { titleEn: post.titleEn, excerptEn: post.excerptEn, contentRichEn: post.contentRichEn, contentEn: post.contentEn, seo: post.seo } });
-    const qa = verifyTranslationCandidate(post, data);
-    candidates.push({ id: post.id, slug: post.slug, translatedUnits, qa, data });
-    if (options.apply && !qa.passed) throw new Error(`QA failed for ${post.slug}: ${qa.issues.join(", ")}`);
-    if (options.apply) await payload.update({ collection: "posts", id: post.id, data, depth: 0, overrideAccess: true });
   }
   const snapshotPath = await writeJson(options.outputDir, `${runId}-snapshot.json`, { runId, applied: options.apply, posts: snapshots });
-  const candidatePath = await writeJson(options.outputDir, `${runId}-candidates.json`, { runId, applied: options.apply, model: model(), posts: candidates });
-  console.log(JSON.stringify({ applied: options.apply, translated: candidates.length, snapshotPath, candidatePath }, null, 2));
+  const candidatePath = await writeJson(options.outputDir, `${runId}-candidates.json`, { runId, applied: options.apply, models: models(), posts: candidates });
+  const failurePath = await writeJson(options.outputDir, `${runId}-failures.json`, { runId, failures });
+  console.log(JSON.stringify({ applied: options.apply, translated: candidates.length, failed: failures.length, snapshotPath, candidatePath, failurePath }, null, 2));
+  if (failures.length) process.exitCode = 2;
 }
 
 async function runRollback(payload, options) {

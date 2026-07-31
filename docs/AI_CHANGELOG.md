@@ -2,6 +2,26 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-07-31
+
+Added:
+
+- Added a Lexical-safe English translation pipeline with read-only audit mode, explicit dry-run/apply behavior, capped selection, ignored candidate artifacts, pre-change snapshots, rollback mode, and structural/remaining-Vietnamese QA gates.
+- Added regression tests proving that prose is translated without changing code blocks or terminal commands, and that unsafe Lexical candidates are rejected.
+- Added editable draw.io workflows for the current VPS/Compose architecture, a serverless ECS Fargate target, and an EKS target.
+- Added translation operating instructions and an AWS stack/migration evaluation.
+
+Validated:
+
+- `npm test` passes all 35 tests, including the translation pipeline coverage.
+- `npm run build` completes successfully while using the documented local-content fallback because the Docker-only PostgreSQL hostname is unreachable on the host.
+- `npm run lint` completes with zero errors and two pre-existing unused-variable warnings outside the new pipeline.
+- All workflow diagrams pass draw.io structural validation; current and serverless diagrams score with no warnings.
+
+Known limitation:
+
+- The local translation audit and three-post pilot require a reachable PostgreSQL service. The current `.env` resolves PostgreSQL through Docker hostname `postgres`, but Docker is unavailable in this execution environment, so no database record was read or changed.
+
 ## 2026-07-30
 
 Added:

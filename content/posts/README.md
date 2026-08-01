@@ -1,6 +1,6 @@
 # Localized Article Files
 
-Payload CMS is the primary backend. Local MDX files are kept only as a development/build fallback.
+Payload CMS is authoritative whenever it is reachable. Local MDX files are kept only as a development/build or outage fallback; they are not merged into a successful CMS response. Deleting a post or series in Payload must therefore remove it from the public site even if a matching local fallback file still exists.
 
 Use one file per locale:
 

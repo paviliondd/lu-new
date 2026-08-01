@@ -47,9 +47,6 @@ export async function generateMetadata({
     },
     description,
     alternates: localizedAlternates(lang),
-    icons: {
-      icon: "/favicon.ico",
-    },
   };
 }
 

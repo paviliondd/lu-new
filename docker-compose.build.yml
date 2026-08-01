@@ -1,0 +1,13 @@
+services:
+  app:
+    image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+
+  media-permissions:
+    image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}
+
+  translation-work-permissions:
+    image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}

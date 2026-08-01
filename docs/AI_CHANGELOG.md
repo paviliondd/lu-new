@@ -6,12 +6,20 @@ Every Codex code or workflow change must update this file.
 
 Added:
 
+- Added a resumable local Codex CLI translation runner that automatically translates metadata, Lexical units, and legacy HTML; enforces structured output; preserves protected HTML/code; and produces an import-ready package without exposing the agent credential to the website runtime.
 - Added protocol-aware translation routing: Claude models use Anthropic Messages while GPT models use OpenAI Chat Completions, with a local mock-server integration test covering cross-protocol fallback without consuming API credit.
 - Added a database-free translation provider probe command for validating model access, endpoint routing, and credentials before starting a batch.
 - Added an offline export, validation, dry-run import, and explicit apply workflow for translating through approved interactive agents without exposing production database access or making duplicate AI requests.
 
 Fixed:
 
+- Removed the localized post excerpt from the article-detail header in both Vietnamese and English, avoiding duplication with the opening article content while retaining excerpts for SEO, cards, and search results.
+- Limited Vietnamese-remnant QA to translatable visible prose, avoiding false failures from intentionally preserved legacy image attributes, URLs, markup, and code while still rejecting untranslated article text.
+- Excluded common UTF-8/Windows-1252 mojibake punctuation such as `â€”` from Vietnamese-remnant detection without weakening checks for real Vietnamese prose.
+- Retried legacy HTML translation chunks when model output changes protected markup or code, while preserving successful cache entries and bypassing invalid cached candidates on validation retries.
+- Removed legacy `<code>` contents from model input and restored them byte-for-byte after translation, preventing repeated command mutations from blocking a translation batch.
+- Switched legacy HTML translation to isolated text units that are reinserted into the original source string, making tags, protected attributes, formatting, and code structurally immutable during translation.
+- Restored every code block from the complete source article after reassembling translated chunks, protecting multiline commands even when a character-based chunk boundary falls inside `<pre>/<code>`.
 - Excluded metadata-only Payload records without Vietnamese rich or legacy content from translation/export selection, preventing empty posts from consuming batch slots and AI credit.
 - Closed the Payload client in a `finally` block so audit, export, import, and rollback commands exit immediately after their output is written instead of remaining alive on database handles.
 - Added translation model fallback, transient retry/backoff, per-post failure isolation, failure resume, source-token caps, smaller Lexical request batches, and smallest-post-first selection.
@@ -31,6 +39,7 @@ Changed:
 
 Removed:
 
+- Removed generated Understand Anything knowledge-graph metadata from version control and ignored future `.understand-anything/` output.
 - Removed repository-local copies of Codex design skills, an embedded AWS CLI installer, obsolete WordPress deployment plugins, superseded translation and API-token diagnostic scripts, unused Next.js starter assets, unused UI/config modules, local logs, and unreferenced roadmap drafts.
 - Removed the API-token diagnostic from the default Node test discovery path; it made external authenticated requests and was not a website regression test.
 

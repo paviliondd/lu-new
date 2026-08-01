@@ -47,6 +47,22 @@ test("verifyTranslationCandidate rejects changed Lexical structure and Vietnames
   assert.ok(result.issues.includes("possible-vietnamese-remains"));
 });
 
+test("legacy translation QA ignores protected HTML attributes but checks visible prose", () => {
+  const post = { contentVi: '<p>Noi dung</p><img alt="ảnh minh họa" src="/image.jpg">' };
+  const base = { titleEn: "Title", excerptEn: "Excerpt", seo: { titleEn: "SEO", descriptionEn: "Description" } };
+
+  assert.equal(verifyTranslationCandidate(post, { ...base, contentEn: '<p>English content</p><img alt="ảnh minh họa" src="/image.jpg">' }).passed, true);
+  assert.ok(verifyTranslationCandidate(post, { ...base, contentEn: '<p>Vẫn còn tiếng Việt</p><img alt="image" src="/image.jpg">' }).issues.includes("possible-vietnamese-remains"));
+});
+
+test("legacy translation QA does not mistake mojibake punctuation for Vietnamese prose", () => {
+  const post = { contentVi: "<p>Noi dung</p>" };
+  const base = { titleEn: "Title", excerptEn: "Excerpt", seo: { titleEn: "SEO", descriptionEn: "Description" } };
+
+  assert.equal(verifyTranslationCandidate(post, { ...base, contentEn: "<p>Managed Database â€” AWS handles the infrastructure.</p>" }).passed, true);
+  assert.ok(verifyTranslationCandidate(post, { ...base, contentEn: "<p>Cấu hình database.</p>" }).issues.includes("possible-vietnamese-remains"));
+});
+
 test("translation runner isolates failures and supports fallback resume controls", async () => {
   const source = await readFile("scripts/translation-pipeline.mjs", "utf8");
   assert.match(source, /OPENAI_TRANSLATION_MODELS/);

@@ -1,0 +1,27 @@
+{
+  "formatVersion": 1,
+  "generatedAt": "2026-07-31T00:00:00.000Z",
+  "instructions": "Test fixture",
+  "posts": [
+    {
+      "id": 1,
+      "slug": "smoke-test",
+      "source": {
+        "title": "Cài đặt Ansible",
+        "excerpt": "Hướng dẫn cài đặt Ansible trên Ubuntu.",
+        "seoTitle": "Cài đặt Ansible trên Ubuntu",
+        "seoDescription": "Hướng dẫn cài đặt và kiểm tra Ansible.",
+        "units": [],
+        "legacyContent": "<p>Cài đặt Ansible trên Ubuntu bằng các lệnh sau.</p><pre><code>apt update\napt install ansible</code></pre>"
+      },
+      "translation": {
+        "title": "",
+        "excerpt": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "units": [],
+        "legacyContent": ""
+      }
+    }
+  ]
+}

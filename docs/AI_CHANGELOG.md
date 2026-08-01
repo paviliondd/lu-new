@@ -2,6 +2,16 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-01
+
+Changed:
+
+- Replaced the shared website logo icon with the supplied penguin mark on a transparent background.
+
+Fixed:
+
+- Changed locale switching to replace the current browser history entry, so repeated VI/EN toggles no longer pollute Back-button history.
+
 ## 2026-07-31
 
 Added:

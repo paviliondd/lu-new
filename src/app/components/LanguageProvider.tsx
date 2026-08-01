@@ -205,7 +205,7 @@ export function LanguageProvider({
     if (lang === language) return;
     localStorage.setItem("language", lang);
     document.cookie = `linuxunity-locale=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    router.push(switchLocalePath(pathname, lang));
+    router.replace(switchLocalePath(pathname, lang));
   };
 
   const t = (key: keyof typeof translations.vi) => {

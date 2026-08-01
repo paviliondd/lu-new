@@ -39,6 +39,7 @@ Changed:
 
 Removed:
 
+- Removed generated Understand Anything knowledge-graph metadata from version control and ignored future `.understand-anything/` output.
 - Removed repository-local copies of Codex design skills, an embedded AWS CLI installer, obsolete WordPress deployment plugins, superseded translation and API-token diagnostic scripts, unused Next.js starter assets, unused UI/config modules, local logs, and unreferenced roadmap drafts.
 - Removed the API-token diagnostic from the default Node test discovery path; it made external authenticated requests and was not a website regression test.
 

@@ -1,89 +1,144 @@
-# CI/CD Deployment Notes
+# CI/CD, Backup, and Rollback Runbook
 
-Current production stack:
+## Nguyên tắc vận hành
 
-- `nginx`: public reverse proxy.
-- `app`: Next.js frontend plus Payload CMS admin/API.
-- `postgres`: Payload CMS database.
-- `uptime-kuma`: monitoring dashboard.
-- `certbot`: tools profile for TLS certificate issuance.
+- GitHub Actions là nơi duy nhất build production image.
+- Mỗi image production có tag Git commit SHA bất biến và được lưu tại ECR.
+- VPS chỉ `docker compose pull` và `docker compose up --no-build`; không build source production.
+- Tag ECR `production` chỉ được cập nhật sau khi VPS deploy và healthcheck thành công.
+- ECR chỉ lưu application image. Postgres, Payload media, runtime JSON và Uptime Kuma phải backup riêng.
+- Rollback image và rollback dữ liệu là hai thao tác khác nhau. Chỉ restore dữ liệu khi migration hoặc dữ liệu đã bị thay đổi.
 
-Required runtime variables:
+## Luồng CI/CD production
 
-```bash
-NEXT_PUBLIC_SITE_URL=https://linuxunity.com
-PAYLOAD_SECRET=change-this-long-random-payload-secret
-POSTGRES_DB=payload
-POSTGRES_USER=payload
-POSTGRES_PASSWORD=change-this-payload-db-password
-DATABASE_URL=postgres://payload:change-this-payload-db-password@postgres:5432/payload
-```
+1. Push/merge vào `main` chạy lint và test.
+2. GitHub Actions build target `runner` một lần, gắn tag `${GITHUB_SHA}` và push ECR.
+3. VPS đồng bộ checkout `origin/main` để lấy Compose và deployment scripts mới nhất.
+4. Trước khi app mới chạy migration, `scripts/backup.sh` tạo snapshot dữ liệu hiện tại.
+5. VPS pull đúng image SHA, chạy Compose với `--no-build`, rồi kiểm tra `/api/health`.
+6. Nếu healthcheck lỗi, deploy script pull lại previous SHA từ ECR và rollback app image.
+7. Nếu thành công, workflow mới promote SHA thành tag `production`.
+8. VPS xóa previous app image local và prune các image không dùng. Container đang chạy luôn giữ image hiện tại; ECR vẫn là nguồn rollback.
 
-OAuth login for comments:
-
-```bash
-GITHUB_CLIENT_ID=...
-GITHUB_CLIENT_SECRET=...
-GITHUB_CALLBACK_URL=https://linuxunity.com/api/auth/github/callback
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-GOOGLE_CALLBACK_URL=https://linuxunity.com/api/auth/google/callback
-```
-
-The OAuth callback must always redirect using `NEXT_PUBLIC_SITE_URL` as the public base,
-never the container host name or internal Docker address.
-
-## ECR image flow
-
-The production workflow builds the application once on GitHub Actions and pushes the
-same image with three tags:
-
-- `latest`: newest verified production build.
-- `production`: stable mutable production tag.
-- the full Git commit SHA: immutable deployment tag.
-
-Production jobs run only for the `main` branch, including manual workflow dispatches.
-
-The VPS deploy uses the commit SHA tag, pulls it from ECR, and starts Compose with
-`--no-build`. This guarantees that the deployed container matches the verified CI
-commit and prevents the older VPS CPU from rebuilding Sharp locally.
-
-The Docker dependency stages pin Sharp `0.33.5`, remove Next's nested Sharp `0.34.5`,
-and fail the image build unless Payload and Next resolve the same compatible native
-package. Sharp WASM is not used because the VPS CPU does not provide WebAssembly SIMD.
-
-The SSH step synchronizes `origin/main` before invoking `scripts/deploy.sh`. This
-prevents a running copy of the old deploy script from resetting and replacing itself
-halfway through its own execution.
-
-Manual source builds remain available by leaving `DEPLOY_IMAGE_SOURCE` unset (the
-default is `build`). Registry deployments must set:
+Production Compose không còn thuộc tính `build:`. Vì vậy lệnh sau trên VPS không thể vô tình build source cũ:
 
 ```bash
-APP_IMAGE=ACCOUNT.dkr.ecr.REGION.amazonaws.com/REPOSITORY:COMMIT_SHA
-DEPLOY_IMAGE_SOURCE=registry
+docker compose build app
 ```
 
-Admin URL:
-
-```text
-https://linuxunity.com/admin
-```
-
-Health checks:
+Khi cần build local có chủ đích:
 
 ```bash
-curl -fsS https://linuxunity.com/api/health
-curl -I https://linuxunity.com/admin
+docker compose -f docker-compose.yml -f docker-compose.build.yml build app
+docker compose -f docker-compose.yml -f docker-compose.build.yml up -d
 ```
 
-Deployment check:
+## Dữ liệu nào được backup
+
+Mỗi snapshot trong `backups/YYYYMMDD-HHMMSS/` gồm:
+
+- `payload-postgres.dump`: Postgres custom-format dump.
+- `payload-media.tgz`: volume upload của Payload.
+- `app-runtime-data.tgz`: comments/newsletter/views JSON fallback trong volume `app_runtime_data`.
+- `uptime-kuma-data.tgz`: dữ liệu Uptime Kuma.
+- `translation-work.tgz`: translation workspace nếu có.
+- `manifest.env`: image SHA và Git commit tương ứng.
+- `SHA256SUMS`: checksum để kiểm tra file backup.
+
+Redis không nằm trong backup vì chỉ giữ cache và có thể tái tạo. TLS certificates và `.env` phải được backup riêng trong secret store có mã hóa.
+
+Chạy backup thủ công:
 
 ```bash
-npm run lint
-npm run build
-docker compose up -d
-docker compose logs -f nginx app postgres
+cd /path/to/app
+BACKUP_REASON=manual sh scripts/backup.sh
 ```
 
-Payload content flow is documented in `docs/PAYLOAD_CMS_FLOW.md`.
+Khuyến nghị cấu hình S3 offsite trong `.env`:
+
+```bash
+BACKUP_ROOT=backups
+BACKUP_RETENTION_DAYS=30
+BACKUP_S3_URI=s3://linuxunity-production-backups/vps
+```
+
+Rollback/deploy thủ công cũng cần `AWS_DEFAULT_REGION`, `AWS_ECR_REGISTRY` và
+AWS credentials khả dụng cho AWS CLI trên VPS.
+
+Script upload archive với S3 server-side encryption. Bucket nên bật Versioning, Block Public Access và lifecycle riêng, ví dụ giữ daily 30 ngày, monthly 12 tháng. Không dùng ECR làm nơi lưu data backup.
+Uptime Kuma được dừng trong thời gian rất ngắn khi snapshot để file SQLite nhất quán, sau đó script tự khởi động lại service.
+
+Cron backup hằng ngày trên VPS:
+
+```cron
+15 2 * * * cd /path/to/app && BACKUP_REASON=daily /bin/sh scripts/backup.sh >> /var/log/linuxunity-backup.log 2>&1
+```
+
+Kiểm tra định kỳ:
+
+```bash
+sha256sum -c backups/YYYYMMDD-HHMMSS/SHA256SUMS
+aws s3 ls s3://linuxunity-production-backups/vps/
+```
+
+Ít nhất mỗi quý phải restore thử trên một Compose project/host tách biệt.
+
+## Rollback mức 1: chỉ application image
+
+Dùng khi release lỗi nhưng database migration chưa làm dữ liệu không tương thích. Thao tác này không restore Postgres/media:
+
+```bash
+cd /path/to/app
+CONFIRM_ROLLBACK=yes bash scripts/rollback.sh image
+```
+
+Script đọc `.deploy-state/previous-image`, login ECR, pull lại SHA, chạy app với `--no-build` và healthcheck. Có thể chỉ định SHA rõ ràng:
+
+```bash
+CONFIRM_ROLLBACK=yes bash scripts/rollback.sh image \
+  ACCOUNT.dkr.ecr.REGION.amazonaws.com/REPOSITORY:GIT_SHA
+```
+
+## Rollback mức 2: application và dữ liệu
+
+Dùng khi migration hoặc thao tác release đã thay đổi dữ liệu. Đây là thao tác destructive và gây downtime:
+
+```bash
+cd /path/to/app
+CONFIRM_ROLLBACK=yes bash scripts/rollback.sh full \
+  backups/YYYYMMDD-HHMMSS
+```
+
+Trình tự:
+
+1. Đọc image SHA từ `manifest.env` và pull lại từ ECR.
+2. Tạo safety backup của trạng thái hiện tại.
+3. Dừng Nginx, app và Uptime Kuma để chặn ghi mới.
+4. Recreate Postgres database rồi `pg_restore` snapshot.
+5. Thay media, runtime data và Uptime Kuma volumes bằng snapshot.
+6. Khởi động stack với image tương ứng và kiểm tra trạng thái.
+
+Không rollback data chỉ vì code lỗi; dữ liệu mới được tạo sau thời điểm snapshot sẽ mất. Trước full rollback phải ghi nhận RPO được chấp nhận và thông báo maintenance window.
+
+## Kiểm tra sau deploy hoặc rollback
+
+```bash
+docker compose ps
+curl -fsS http://127.0.0.1:8080/api/health
+curl -I http://127.0.0.1:8080/admin
+docker compose logs --since 30m app nginx postgres
+```
+
+Xác nhận thêm trong CMS: đăng nhập admin, mở bài mới nhất, kiểm tra media và tạo một draft thử. Với full rollback, đối chiếu timestamp/count dữ liệu với manifest và kỳ vọng RPO.
+
+## ECR retention
+
+- Giữ tag SHA đủ lâu để bao phủ toàn bộ cửa sổ rollback dữ liệu.
+- Không xóa image được tham chiếu trong các backup còn retention.
+- Tag `production` là release thành công gần nhất, nhưng rollback luôn dùng SHA bất biến.
+- Có thể dùng ECR lifecycle để xóa image untagged và SHA quá cũ sau khi retention backup tương ứng đã hết.
+
+Sơ đồ kèm theo:
+
+- `docs/cicd-backup-workflow.drawio` và PNG.
+- `docs/rollback-workflow.drawio` và PNG.

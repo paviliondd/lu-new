@@ -275,6 +275,9 @@ Requirement:
 - Image build/push happens only after verification
 - VPS deploy starts healthy containers
 - Payload migrations run on app startup
+- Production Compose pulls immutable ECR SHA images and never builds VPS source
+- Pre-deploy backups cover Postgres, Payload media, runtime data, and Uptime Kuma
+- Image-only and full-data rollback procedures are documented and scripted
 
 Regression:
 

@@ -56,8 +56,9 @@ docker compose up -d --force-recreate app nginx
 Start the stack:
 
 ```bash
+export APP_IMAGE=ACCOUNT.dkr.ecr.REGION.amazonaws.com/REPOSITORY:GIT_SHA
 docker compose pull
-docker compose up -d
+docker compose up -d --no-build
 docker compose ps
 docker compose logs -f nginx app postgres
 ```
@@ -135,5 +136,10 @@ Back up these Docker volumes:
 - `payload_postgres_data`: Payload database.
 - `payload_media`: uploaded images.
 - `uptime_kuma_data`: monitoring data.
+- `app_runtime_data`: persistent comments/newsletter/views fallback data.
 
-The app image is stateless; content lives in Postgres and the media volume.
+The app image is stateless; content lives in Postgres, Payload media,
+`app_runtime_data`, and the Uptime Kuma volume.
+ECR protects only the app image, not these volumes. Use `scripts/backup.sh` for
+scheduled snapshots and `scripts/rollback.sh` for image-only or full rollback.
+See `docs/CICD_DEPLOYMENT.md` for the production runbook.

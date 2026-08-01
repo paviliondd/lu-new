@@ -6,7 +6,8 @@ The website is intentionally a single deployable Next.js and Payload CMS applica
 
 ```text
 src/
-  app/                 Next.js routes, UI, Payload admin and API route adapters
+  app/                 Next.js routes, UI, Payload admin/API adapters, metadata icons
+  app/components/      Shared page, article, navigation and series UI
   blocks/              Payload rich-content blocks
   collections/         Payload collection definitions
   lib/                 Server integrations, content access, auth, cache and utilities
@@ -17,7 +18,17 @@ scripts/               Operational and migration tools
 deploy/                Runtime deployment configuration
 docs/                  Architecture and operations documentation
 tests/                 Cross-feature regression tests
+docker-compose.yml     Pull-only production stack
+docker-compose.build.yml Explicit local source-build override
 ```
+
+Runtime state is outside the application image: `payload_postgres_data`,
+`payload_media`, `app_runtime_data`, `redis_data`, and `uptime_kuma_data` are
+persistent Compose volumes. `.translation-work` remains a host bind mount.
+
+Payload is the live source of truth. Local content/data is selected only when
+Payload cannot be reached or its query fails; a successful empty CMS result is
+never filled with deleted fallback entities.
 
 ## Recommended gradual organization
 

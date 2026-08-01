@@ -8,10 +8,18 @@ Changed:
 
 - Replaced the shared website logo icon with the supplied penguin mark on a transparent background.
 - Updated the logo asset URL to invalidate stale Next.js/browser image caches and regenerated the favicon from the new mark.
+- Reworked production deployment to use immutable ECR images exclusively, create a pre-migration data backup, record rollback state, promote the production tag only after health checks, and prune unused VPS images.
+- Added a dedicated local Compose build override so production `docker compose build` cannot rebuild stale VPS source.
+- Expanded backup and restore coverage to Postgres, Payload media, persistent runtime data, Uptime Kuma, translation work, checksums, retention, and optional encrypted S3 copies.
+- Added separate image-only and full-data rollback automation plus editable CI/CD and rollback workflow diagrams.
+- Simplified series cards into a shared responsive row design with balanced light/dark styling, compact part counts, and accessible focus states.
+- Replaced the cache-prone `/favicon.ico` metadata path with App Router `icon.png` and `apple-icon.png` assets generated from the current penguin logo.
+- Updated README, repository structure, project audit, content fallback guidance, and the AI constitution to match the current CMS source-of-truth and ECR/Compose backup architecture.
 
 Fixed:
 
 - Changed locale switching to replace the current browser history entry, so repeated VI/EN toggles no longer pollute Back-button history.
+- Stopped merging local fallback series into successful Payload responses, so deleting a series in Admin removes it from the website immediately instead of resurrecting the local fallback record.
 
 ## 2026-07-31
 

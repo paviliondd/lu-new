@@ -7,6 +7,7 @@ Every Codex code or workflow change must update this file.
 Changed:
 
 - Replaced the shared website logo icon with the supplied penguin mark on a transparent background.
+- Updated the logo asset URL to invalidate stale Next.js/browser image caches and regenerated the favicon from the new mark.
 
 Fixed:
 

@@ -22,9 +22,11 @@ test("home and series list share the compact accessible series row", async () =>
     readFile("src/app/components/pages/SeriesListPage.tsx", "utf8"),
   ]);
 
-  assert.match(home, /<SeriesRow key=\{item\.slug\} item=\{item\}/);
+  assert.match(home, /md:grid-cols-3/);
+  assert.match(home, /<SeriesRow key=\{item\.slug\} item=\{item\} compact/);
   assert.match(list, /<SeriesRow key=\{item\.slug\} item=\{item\}/);
   assert.match(row, /focus-visible:ring-2/);
   assert.match(row, /dark:bg-slate-900\/80/);
+  assert.match(row, /dark:bg-emerald-400\/25/);
   assert.doesNotMatch(row, /item\.description/);
 });

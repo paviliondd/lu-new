@@ -203,8 +203,8 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="grid gap-4">
-            {seriesItems.map((item) => <SeriesRow key={item.slug} item={item} />)}
+          <div className="grid gap-4 md:grid-cols-3">
+            {seriesItems.map((item) => <SeriesRow key={item.slug} item={item} compact />)}
           </div>
         </div>
       </section>

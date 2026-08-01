@@ -90,8 +90,7 @@ const translations = {
     seriesList: "Article Series",
     roadmapPrompt: "Explore the complete learning roadmap organized by exam domain.",
     openRoadmap: "Open roadmap",
-    linuxUnitySeries: "LinuxUnity DevOps Series",
-    viewSeries: "Xem series"
+    linuxUnitySeries: "LinuxUnity DevOps Series"
   },
   en: {
     blog: "Blog",
@@ -172,8 +171,7 @@ const translations = {
     seriesList: "Article Series",
     roadmapPrompt: "Explore the complete learning roadmap organized by exam domain.",
     openRoadmap: "Open roadmap",
-    linuxUnitySeries: "LinuxUnity DevOps Series",
-    viewSeries: "View series"
+    linuxUnitySeries: "LinuxUnity DevOps Series"
   }
 };
 

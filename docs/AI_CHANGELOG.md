@@ -13,6 +13,8 @@ Changed:
 - Expanded backup and restore coverage to Postgres, Payload media, persistent runtime data, Uptime Kuma, translation work, checksums, retention, and optional encrypted S3 copies.
 - Added separate image-only and full-data rollback automation plus editable CI/CD and rollback workflow diagrams.
 - Simplified series cards into a shared responsive row design with balanced light/dark styling, compact part counts, and accessible focus states.
+- Restored the homepage series section to three compact cards per desktop row and strengthened the trailing teal/emerald glow in both themes.
+- Removed the series CTA text so each card ends with only the compact arrow action.
 - Replaced the cache-prone `/favicon.ico` metadata path with App Router `icon.png` and `apple-icon.png` assets generated from the current penguin logo.
 - Updated README, repository structure, project audit, content fallback guidance, and the AI constitution to match the current CMS source-of-truth and ECR/Compose backup architecture.
 

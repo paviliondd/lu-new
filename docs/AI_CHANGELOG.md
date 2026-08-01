@@ -13,6 +13,13 @@ Added:
 
 Fixed:
 
+- Removed the localized post excerpt from the article-detail header in both Vietnamese and English, avoiding duplication with the opening article content while retaining excerpts for SEO, cards, and search results.
+- Limited Vietnamese-remnant QA to translatable visible prose, avoiding false failures from intentionally preserved legacy image attributes, URLs, markup, and code while still rejecting untranslated article text.
+- Excluded common UTF-8/Windows-1252 mojibake punctuation such as `â€”` from Vietnamese-remnant detection without weakening checks for real Vietnamese prose.
+- Retried legacy HTML translation chunks when model output changes protected markup or code, while preserving successful cache entries and bypassing invalid cached candidates on validation retries.
+- Removed legacy `<code>` contents from model input and restored them byte-for-byte after translation, preventing repeated command mutations from blocking a translation batch.
+- Switched legacy HTML translation to isolated text units that are reinserted into the original source string, making tags, protected attributes, formatting, and code structurally immutable during translation.
+- Restored every code block from the complete source article after reassembling translated chunks, protecting multiline commands even when a character-based chunk boundary falls inside `<pre>/<code>`.
 - Excluded metadata-only Payload records without Vietnamese rich or legacy content from translation/export selection, preventing empty posts from consuming batch slots and AI credit.
 - Closed the Payload client in a `finally` block so audit, export, import, and rollback commands exit immediately after their output is written instead of remaining alive on database handles.
 - Added translation model fallback, transient retry/backoff, per-post failure isolation, failure resume, source-token caps, smaller Lexical request batches, and smallest-post-first selection.

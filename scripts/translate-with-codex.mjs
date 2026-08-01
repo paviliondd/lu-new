@@ -86,6 +86,79 @@ export function verifyLegacyTranslation(source, target) {
   return issues;
 }
 
+export function protectCodeBlocks(html) {
+  const blocks = [];
+  const protectedHtml = html.replace(/(<code\b[^>]*>)[\s\S]*?(<\/code>)/gi, (match, openingTag, closingTag) => {
+    const openingLength = openingTag.length;
+    blocks.push(match.slice(openingLength, match.length - closingTag.length));
+    return `${openingTag}${closingTag}`;
+  });
+  return {
+    protectedHtml,
+    restore(translatedHtml) {
+      let index = 0;
+      const restored = translatedHtml.replace(/(<code\b[^>]*>)[\s\S]*?(<\/code>)/gi, (match, openingTag, closingTag) => {
+        if (index >= blocks.length) return match;
+        return `${openingTag}${blocks[index++]}${closingTag}`;
+      });
+      return index === blocks.length ? restored : translatedHtml;
+    },
+  };
+}
+
+export function collectLegacyHtmlTextUnits(html) {
+  const units = [];
+  const excludedTags = new Set(["code", "pre", "script", "style"]);
+  const stack = [];
+  const tokenPattern = /<!--[\s\S]*?-->|<[^>]+>|[^<]+/g;
+  let match;
+  while ((match = tokenPattern.exec(html))) {
+    const token = match[0];
+    if (token.startsWith("<")) {
+      const closing = token.match(/^<\s*\/\s*([\w:-]+)/);
+      const opening = token.match(/^<\s*([\w:-]+)/);
+      if (closing) {
+        const tag = closing[1].toLowerCase();
+        const position = stack.lastIndexOf(tag);
+        if (position >= 0) stack.splice(position, 1);
+      } else if (opening && !/\/\s*>$/.test(token)) {
+        stack.push(opening[1].toLowerCase());
+      }
+      continue;
+    }
+    if (stack.some((tag) => excludedTags.has(tag))) continue;
+    const leading = token.match(/^\s*/)?.[0].length || 0;
+    const trailing = token.match(/\s*$/)?.[0].length || 0;
+    const end = match.index + token.length - trailing;
+    const start = match.index + leading;
+    if (start >= end) continue;
+    units.push({ id: units.length, text: html.slice(start, end), start, end });
+  }
+  return units;
+}
+
+export function applyLegacyHtmlTextUnits(html, units, translations) {
+  let result = "";
+  let cursor = 0;
+  for (const unit of units) {
+    if (!translations.has(unit.id)) throw new Error(`Missing translated legacy HTML unit ${unit.id}.`);
+    result += html.slice(cursor, unit.start);
+    result += translations.get(unit.id);
+    cursor = unit.end;
+  }
+  return result + html.slice(cursor);
+}
+
+export async function translateValidatedHtmlChunk(source, retries, translate) {
+  let lastIssues = [];
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const translation = await translate(attempt);
+    lastIssues = verifyLegacyTranslation(source, translation);
+    if (!lastIssues.length) return translation;
+  }
+  throw new Error(lastIssues.join(", "));
+}
+
 function schemaFor(type) {
   if (type === "metadata") return {
     type: "object",
@@ -195,15 +268,25 @@ async function translatePost(entry, context) {
     const chunks = splitHtmlSafely(entry.source.legacyContent, context.maxChunkChars);
     for (let index = 0; index < chunks.length; index += 1) {
       console.log(`[agent] ${entry.slug}: HTML chunk ${index + 1}/${chunks.length}`);
-      const result = await cachedCodex(context.cacheDir, `${entry.slug}-html-${index}`, {
-        prompt: "Translate the source HTML from Vietnamese into natural professional technical English. Preserve every HTML tag, protected attribute, URL, image path, code block, shell command and formatting. Return JSON only.",
-        input: { source: chunks[index] }, schema: schemaFor("html"), ...context,
-      });
-      const issues = verifyLegacyTranslation(chunks[index], result.translation);
-      if (issues.length) throw new Error(`${entry.slug} chunk ${index + 1}: ${issues.join(", ")}`);
-      translatedChunks.push(result.translation);
+      const sourceUnits = collectLegacyHtmlTextUnits(chunks[index]);
+      const translations = new Map();
+      for (let start = 0; start < sourceUnits.length; start += 25) {
+        const batch = sourceUnits.slice(start, start + 25).map(({ id, text }) => ({ id, text }));
+        const result = await cachedCodex(context.cacheDir, `${entry.slug}-html-text-${index}-${start}`, {
+          prompt: "Translate every text unit into natural professional technical English. Preserve IDs, inline commands, URLs, placeholders, product names, and HTML entities. Return every ID exactly once and do not add units.",
+          input: { units: batch }, schema: schemaFor("units"), ...context,
+        });
+        const returnedIds = new Set();
+        for (const unit of result.units) {
+          if (returnedIds.has(unit.id) || !batch.some((sourceUnit) => sourceUnit.id === unit.id)) throw new Error(`${entry.slug} chunk ${index + 1}: invalid translated text unit ${unit.id}`);
+          returnedIds.add(unit.id);
+          translations.set(unit.id, unit.text);
+        }
+        if (returnedIds.size !== batch.length) throw new Error(`${entry.slug} chunk ${index + 1}: translated text unit count changed`);
+      }
+      translatedChunks.push(applyLegacyHtmlTextUnits(chunks[index], sourceUnits, translations));
     }
-    legacyContent = translatedChunks.join("");
+    legacyContent = protectCodeBlocks(entry.source.legacyContent).restore(translatedChunks.join(""));
     const issues = verifyLegacyTranslation(entry.source.legacyContent, legacyContent);
     if (issues.length) throw new Error(`${entry.slug}: ${issues.join(", ")}`);
   }

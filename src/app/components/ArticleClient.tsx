@@ -222,9 +222,6 @@ export default function ArticleClient({
               <h1 className="article-title break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">
                 {post.title}
               </h1>
-              <p className="theme-muted max-w-[70ch] text-[1.0625rem] font-medium leading-[1.65] sm:text-lg">
-                {post.description}
-              </p>
               
               {/* Post Metadata row */}
               <div className="flex flex-col gap-4 border-y theme-border py-4 sm:flex-row sm:items-center sm:justify-between">

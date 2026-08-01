@@ -83,7 +83,15 @@ function lexicalStructure(value) {
 }
 
 function containsVietnameseDiacritics(value) {
-  return /[ăâđêôơưàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ]/iu.test(String(value || ""));
+  const text = String(value || "").replace(/\u00e2\u20ac./gu, "");
+  return /[ăâđêôơưàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ]/iu.test(text);
+}
+
+function legacyVisibleText(html) {
+  return String(html || "")
+    .replace(/<(code|pre|script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<[^>]*>/g, " ");
 }
 
 export function verifyTranslationCandidate(post, data) {
@@ -96,7 +104,9 @@ export function verifyTranslationCandidate(post, data) {
     const targetStructure = JSON.stringify(lexicalStructure(data.contentRichEn));
     if (sourceStructure !== targetStructure) issues.push("lexical-structure-changed");
   }
-  const targetText = JSON.stringify(data.contentRichEn || data.contentEn || "");
+  const targetText = data.contentRichEn
+    ? collectLexicalUnits(data.contentRichEn).map((unit) => unit.text).join(" ")
+    : legacyVisibleText(data.contentEn);
   if (containsVietnameseDiacritics(targetText)) issues.push("possible-vietnamese-remains");
   return { passed: issues.length === 0, issues };
 }

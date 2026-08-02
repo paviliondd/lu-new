@@ -9,6 +9,7 @@ This deployment runs:
 - Postgres for CMS data.
 - A persistent Docker volume for uploaded media at `/app/public/uploads`.
 - Uptime Kuma at `https://kuma.linuxunity.com`.
+- Project portfolio at `https://project.linuxunity.com` using the same immutable app image.
 
 The database has no public port. Docker publishes only Nginx on HTTP/HTTPS and
 keeps `127.0.0.1:8080` as a local diagnostic endpoint.
@@ -97,6 +98,15 @@ account there. After that, editors manage:
 - `Media`: uploaded images used by posts and authors.
 - `Authors`: author profiles and avatars.
 - `Series`: collection metadata.
+- `Projects`: an independent portfolio collection for timeline cards, case-study details, architecture media, and evidence. It does not share blog categories, tags, publication state, post relationships, or editable SEO fields. Public metadata is derived automatically from the project title and summary.
+
+After the projects migration has run, optionally import the three clearly marked placeholder records once:
+
+```bash
+docker compose exec app npm run payload:seed-projects
+```
+
+The seed command skips existing slugs. Once Payload is reachable, its successful project query is authoritative: deleting a CMS project removes it from the public portfolio instead of restoring it from local fallback content.
 
 Public articles are read from Payload documents with `status=published`. Drafts
 remain visible only inside the authenticated admin.
@@ -128,6 +138,25 @@ Restart Nginx:
 ```bash
 docker compose up -d --force-recreate nginx
 ```
+
+### Project subdomain
+
+Create a DNS `A` record for `project.linuxunity.com` pointing to the same public VPS IPv4 address used by `linuxunity.com` (and an `AAAA` record only when the VPS has working public IPv6). The repository cannot determine or safely invent that address; copy the actual value from the current VPS or DNS provider.
+
+After DNS resolves to the VPS, issue the project certificate with the existing webroot:
+
+```bash
+docker compose --profile tools run --rm certbot certonly \
+  --webroot \
+  --webroot-path /var/www/certbot \
+  --email admin@linuxunity.com \
+  --agree-tos \
+  --no-eff-email \
+  -d project.linuxunity.com
+docker compose up -d --force-recreate nginx
+```
+
+Set `PROJECT_DOMAIN=project.linuxunity.com` in the VPS `.env`. Nginx redirects project HTTP traffic to HTTPS, serves the project sitemap/robots endpoints, and proxies all application routes to the existing `app` service. Direct refreshes under `/projects/{slug}` therefore reach Next.js instead of a static-file fallback.
 
 ## Backups
 

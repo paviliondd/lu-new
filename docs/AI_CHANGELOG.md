@@ -376,3 +376,13 @@ Never break:
 - Vietnamese default locale and English locale.
 - Responsive design, dark/light theme, and SEO rendering.
 - Comments, GitHub OAuth, Google OAuth, and comment approval workflow.
+# 2026-08-03 — Project portfolio subdomain
+
+- Added a dedicated LinuxUnity project portfolio layout with a responsive, filterable timeline and static detail routes.
+- Added three clearly marked placeholder projects backed by a typed, runtime-validated content model.
+- Added project-specific metadata, canonical URLs, CreativeWork structured data, sitemap, robots, accessible navigation, and responsive architecture placeholders.
+- Added the absolute Project link to the shared blog navigation and configured the actual repository URL from the Git remote.
+- Added hostname routing and Nginx/Certbot configuration for `project.linuxunity.com` while retaining the existing single ECR image and `docker compose up --no-build` production model.
+- Added portfolio regression tests and deployment/DNS documentation.
+- Added a dedicated Payload `projects` collection, migration, generated types, seed command, published-project preview, and Payload-first project reader. Project content remains isolated from blog posts and local sample data is used only when Payload is unavailable or its query fails.
+- Kept Project administration content-focused by deriving public metadata from title and summary instead of exposing editable SEO fields.

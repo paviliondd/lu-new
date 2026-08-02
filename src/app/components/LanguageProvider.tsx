@@ -13,6 +13,7 @@ export type Language = Locale;
 const translations = {
   vi: {
     blog: "Blog",
+    project: "Project",
     series: "Series",
     about: "About",
     language: "Language",
@@ -94,6 +95,7 @@ const translations = {
   },
   en: {
     blog: "Blog",
+    project: "Project",
     series: "Series",
     about: "About",
     language: "Language",

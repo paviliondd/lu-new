@@ -4,16 +4,19 @@ set -eu
 DOMAIN="${SITE_DOMAIN:-linuxunity.com}"
 WWW_DOMAIN="${SITE_WWW_DOMAIN:-www.${DOMAIN}}"
 KUMA_DOMAIN="${KUMA_DOMAIN:-kuma.linuxunity.com}"
+PROJECT_DOMAIN="${PROJECT_DOMAIN:-project.linuxunity.com}"
 TEMPLATE="/etc/nginx/templates/default.conf.template"
 TARGET="/etc/nginx/conf.d/default.conf"
 CERT_FILE="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
 CERT_KEY="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
 KUMA_CERT_FILE="/etc/letsencrypt/live/${KUMA_DOMAIN}/fullchain.pem"
 KUMA_CERT_KEY="/etc/letsencrypt/live/${KUMA_DOMAIN}/privkey.pem"
+PROJECT_CERT_FILE="/etc/letsencrypt/live/${PROJECT_DOMAIN}/fullchain.pem"
+PROJECT_CERT_KEY="/etc/letsencrypt/live/${PROJECT_DOMAIN}/privkey.pem"
 
-export DOMAIN WWW_DOMAIN KUMA_DOMAIN CERT_FILE CERT_KEY KUMA_CERT_FILE KUMA_CERT_KEY
+export DOMAIN WWW_DOMAIN KUMA_DOMAIN PROJECT_DOMAIN CERT_FILE CERT_KEY KUMA_CERT_FILE KUMA_CERT_KEY PROJECT_CERT_FILE PROJECT_CERT_KEY
 
-envsubst '${DOMAIN} ${WWW_DOMAIN} ${KUMA_DOMAIN} ${CERT_FILE} ${CERT_KEY} ${KUMA_CERT_FILE} ${KUMA_CERT_KEY}' < "$TEMPLATE" > "$TARGET"
+envsubst '${DOMAIN} ${WWW_DOMAIN} ${KUMA_DOMAIN} ${PROJECT_DOMAIN} ${CERT_FILE} ${CERT_KEY} ${KUMA_CERT_FILE} ${KUMA_CERT_KEY} ${PROJECT_CERT_FILE} ${PROJECT_CERT_KEY}' < "$TEMPLATE" > "$TARGET"
 
 if [ -f "$CERT_FILE" ] && [ -f "$CERT_KEY" ]; then
   cat >> "$TARGET" <<EOF
@@ -57,6 +60,56 @@ server {
 EOF
 else
   echo "No TLS certificate found for ${DOMAIN}; starting HTTP-only mode." >&2
+fi
+
+if [ -f "$PROJECT_CERT_FILE" ] && [ -f "$PROJECT_CERT_KEY" ]; then
+  cat >> "$TARGET" <<EOF
+
+server {
+    listen 443 ssl http2;
+    server_name ${PROJECT_DOMAIN};
+
+    ssl_certificate ${PROJECT_CERT_FILE};
+    ssl_certificate_key ${PROJECT_CERT_KEY};
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript application/xml image/svg+xml;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    location = /sitemap.xml {
+        proxy_set_header Host \$host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_pass http://app:3000/projects/sitemap.xml;
+    }
+
+    location = /robots.txt {
+        proxy_set_header Host \$host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_pass http://app:3000/projects/robots.txt;
+    }
+
+    location / {
+        set \$app_upstream http://app:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host \$host;
+        proxy_next_upstream error timeout http_502 http_503 http_504;
+        proxy_next_upstream_tries 2;
+        proxy_pass \$app_upstream;
+    }
+}
+EOF
+else
+  echo "No TLS certificate found for ${PROJECT_DOMAIN}; project site remains HTTP-only." >&2
 fi
 
 if [ -f "$KUMA_CERT_FILE" ] && [ -f "$KUMA_CERT_KEY" ]; then

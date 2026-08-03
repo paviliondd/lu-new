@@ -29,6 +29,15 @@ test("production Compose cannot rebuild stale VPS source", async () => {
   assert.match(deployScript, /APP_IMAGE must use an immutable Git SHA tag/);
 });
 
+test("production image includes Payload config source dependencies", async () => {
+  const dockerfile = await readFile("Dockerfile", "utf8");
+
+  assert.match(dockerfile, /\/app\/src\/collections \.\/src\/collections/);
+  assert.match(dockerfile, /\/app\/src\/content\/projects \.\/src\/content\/projects/);
+  assert.match(dockerfile, /\/app\/src\/payload\.config\.ts \.\/src\/payload\.config\.ts/);
+  assert.match(dockerfile, /\/app\/src\/migrations \.\/src\/migrations/);
+});
+
 test("deployment backs up persistent data and records ECR rollback state", async () => {
   const deployScript = await readFile("scripts/deploy.sh", "utf8");
   const backupScript = await readFile("scripts/backup.sh", "utf8");

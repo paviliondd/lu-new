@@ -45,7 +45,7 @@ test("timeline uses semantic project links and client-side filter state", async 
   assert.match(timeline, /visibleProjects\.map/);
 });
 
-test("project subdomain uses clean English light-mode routes", async () => {
+test("project subdomain uses clean English routes and the shared theme controls", async () => {
   const [proxy, layout, styles, page, detail, header] = await Promise.all([
     readFile("src/proxy.ts", "utf8"),
     readFile("src/app/(projects)/layout.tsx", "utf8"),
@@ -57,11 +57,16 @@ test("project subdomain uses clean English light-mode routes", async () => {
   assert.match(proxy, /pathname === "\/projects"/);
   assert.match(proxy, /projectUrl\.pathname = `\/projects\$\{pathname\}`/);
   assert.match(layout, /<html lang="en"/);
-  assert.doesNotMatch(layout, /\sdark\s/);
-  assert.match(styles, /color-scheme: light/);
+  assert.match(layout, /suppressHydrationWarning/);
+  assert.match(layout, /<ThemeScript \/>/);
+  assert.match(styles, /html\.dark \.projects-site/);
+  assert.match(styles, /color-scheme: dark/);
   assert.match(page, /Hands-on cloud infrastructure/);
   assert.match(detail, /https:\/\/project\.linuxunity\.com\/\$\{project\.slug\}/);
-  assert.match(header, /label: "Projects", href: "\/"/);
+  assert.match(header, /label: "Blog"[\s\S]*label: "Projects"[\s\S]*label: "About"/);
+  assert.match(header, /href="https:\/\/linuxunity\.com" aria-label="LinuxUnity home"/);
+  assert.match(header, /<ThemeToggle \/>/);
+  assert.doesNotMatch(header, /Code2|siteConfig\.social\.github/);
 });
 
 test("detail routes statically generate known slugs and omit unavailable optional actions", async () => {
@@ -69,6 +74,7 @@ test("detail routes statically generate known slugs and omit unavailable optiona
   assert.match(detail, /generateStaticParams/);
   assert.match(detail, /if \(!project\) notFound\(\)/);
   assert.match(detail, /project\.repositoryUrl &&/);
+  assert.match(detail, /<GitHubMark \/>/);
   assert.match(detail, /project\.demoUrl &&/);
   assert.match(detail, /project\.articleUrl &&/);
   assert.ok(projects.every((project) => !project.metrics?.length));
@@ -88,11 +94,13 @@ test("every architecture asset is present and real projects retain their evidenc
 });
 
 test("Payload manages projects in a collection isolated from blog posts", async () => {
-  const [collection, config, cms, migration] = await Promise.all([
+  const [collection, config, cms, migration, seedMigration, migrationIndex] = await Promise.all([
     readFile("src/collections/Projects.ts", "utf8"),
     readFile("src/payload.config.ts", "utf8"),
     readFile("src/lib/cms/projects.ts", "utf8"),
     readFile("src/migrations/20260803_000001_add_projects_collection.ts", "utf8"),
+    readFile("src/migrations/20260803_000002_seed_projects_when_empty.ts", "utf8"),
+    readFile("src/migrations/index.ts", "utf8"),
   ]);
   assert.match(collection, /slug:\s*"projects"/);
   assert.match(collection, /group:\s*"Project Portfolio"/);
@@ -104,4 +112,8 @@ test("Payload manages projects in a collection isolated from blog posts", async 
   assert.match(cms, /return result\.docs\.flatMap/);
   assert.doesNotMatch(cms, /mergeProjects/);
   assert.match(migration, /CREATE TABLE "projects"/);
+  assert.match(seedMigration, /if \(existing\.totalDocs > 0\) return/);
+  assert.match(seedMigration, /payload\.create/);
+  assert.doesNotMatch(seedMigration, /payload\.update|payload\.delete/);
+  assert.match(migrationIndex, /20260803_000002_seed_projects_when_empty/);
 });

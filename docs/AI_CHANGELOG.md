@@ -390,3 +390,17 @@ Never break:
 - Made Payload CLI startup independent of the TypeScript `@/*` alias for runtime config imports, preventing `payload migrate` from treating `@/collections` as an npm package in production containers.
 - Added the documented AWS Serverless Event Registration System to the project portfolio with repository evidence, implementation details, security and observability notes, and an architecture diagram.
 - Changed the project subdomain to clean public URLs (`/` and `/{slug}`), introduced an accessible light theme, translated the project UI to English, and made the explicit project seed command update existing CMS records as well as create missing ones.
+
+# 2026-08-03 — AWS certification content planning
+
+- Added a Vietnamese MDX article outline for the DVA-C02 Lambda execution model, covering lifecycle, handler, context, timeout, basic concurrency, a mini-lab, exam traps, and review questions.
+- Split Lambda Layers and advanced concurrency details into follow-up article topics to keep the first lesson focused.
+
+# 2026-08-03 — Project navigation, data bootstrap, and theme
+
+- Fixed the project header order to Blog, Projects, About and linked the LinuxUnity logo back to `https://linuxunity.com`.
+- Removed the global blog-repository shortcut from the project header; project detail pages now show a GitHub icon only when that project has its own repository URL.
+- Enabled the existing persisted system/dark/light theme controls on project list and detail pages, with project-specific dark color tokens.
+- Prevented project theme initialization from producing a React hydration mismatch.
+- Added a one-time Payload data migration that initializes the project collection only when it has never contained a record, without merging or overwriting CMS-managed content.
+- Removed the final lint warning from the unused read-time locale argument without changing read-time behavior.

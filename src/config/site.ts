@@ -3,7 +3,7 @@ export const siteConfig = {
   description: "Practical Linux, cloud, DevOps, Kubernetes, Terraform, and CI/CD guides.",
   logo: "",
   social: {
-    github: "https://github.com",
+    github: "https://github.com/paviliondd/lu-new",
     linkedin: "https://linkedin.com",
     youtube: "",
   },

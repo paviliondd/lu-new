@@ -19,11 +19,12 @@ export default function Header() {
   const { t, localePath } = useLanguage();
 
   const navLinks = navigationConfig.main.map((link) => ({
-    href: localePath(link.href),
+    href: "external" in link && link.external ? link.href : localePath(link.href),
     label: t(link.labelKey as Parameters<typeof t>[0]),
+    external: "external" in link && link.external,
   }));
   const activeNavHref = navLinks
-    .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
+    .filter((link) => !link.external && (pathname === link.href || pathname.startsWith(`${link.href}/`)))
     .sort((left, right) => right.href.length - left.href.length)[0]?.href;
   const isSearchPage = pathname === localePath("/search");
 

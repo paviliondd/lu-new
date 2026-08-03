@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">AWS landing zone architecture placeholder</title><desc id="desc">AWS Organizations contains workload organizational units and accounts connected to a centralized log archive.</desc>
+  <rect width="1200" height="675" fill="#101720"/><text x="60" y="70" fill="#94a3b8" font-family="Arial" font-size="18">PLACEHOLDER ARCHITECTURE · REPLACE WITH VERIFIED DESIGN</text>
+  <rect x="70" y="125" width="1060" height="470" rx="24" fill="#151e2a" stroke="#273244" stroke-width="2"/><text x="110" y="175" fill="#34d399" font-family="Arial" font-size="23">AWS Organizations</text>
+  <g fill="#101720" stroke="#273244" stroke-width="2"><rect x="130" y="230" width="260" height="260" rx="18"/><rect x="470" y="230" width="260" height="260" rx="18"/><rect x="810" y="230" width="260" height="260" rx="18"/></g>
+  <g fill="#f8fafc" font-family="Arial" font-size="21" text-anchor="middle"><text x="260" y="285">Infrastructure OU</text><text x="260" y="360">Shared services</text><text x="600" y="285">Workloads OU</text><text x="600" y="350">Dev account</text><text x="600" y="395">Prod account</text><text x="940" y="285">Security OU</text><text x="940" y="350">Log archive</text><text x="940" y="395">Audit account</text></g>
+</svg>

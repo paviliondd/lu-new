@@ -73,6 +73,7 @@ export interface Config {
     series: Series;
     posts: Post;
     comments: Comment;
+    projects: Project;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     series: SeriesSelect<false> | SeriesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     comments: CommentsSelect<false> | CommentsSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -276,6 +278,10 @@ export interface Post {
    */
   series?: (number | null) | Series;
   /**
+   * Thứ tự Chap/Bài (1, 2, 3...). Để trống hệ thống sẽ tự đọc số từ Tiêu đề (vd: 'Phần 1', 'Chapter 2').
+   */
+  chapterOrder?: number | null;
+  /**
    * Article tags.
    */
   tags?:
@@ -415,6 +421,138 @@ export interface Comment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  publicationStatus: 'draft' | 'published';
+  projectStatus: 'completed' | 'in-progress' | 'archived';
+  featured?: boolean | null;
+  /**
+   * Clearly marks incomplete sample content on the public site.
+   */
+  placeholder?: boolean | null;
+  publishedAt?: string | null;
+  category: 'AWS' | 'DevOps' | 'Linux' | 'Kubernetes' | 'Observability';
+  type: 'Personal Project' | 'Lab' | 'Open Source';
+  title: string;
+  /**
+   * Generated from title when left blank.
+   */
+  slug: string;
+  summary: string;
+  description?: string | null;
+  startDate: string;
+  endDate?: string | null;
+  /**
+   * Example: Tháng 7, 2026
+   */
+  displayDate: string;
+  role: string;
+  tags?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  highlights?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  metrics?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  repositoryUrl?: string | null;
+  demoUrl?: string | null;
+  articleUrl?: string | null;
+  thumbnail?: (number | null) | Media;
+  architectureImage?: (number | null) | Media;
+  architectureAlt?: string | null;
+  architectureCaption?: string | null;
+  architectureComponents?:
+    | {
+        name: string;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  gallery?:
+    | {
+        image: number | Media;
+        alt: string;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  problem: string;
+  constraints?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  successCriteria?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  implementation: {
+    phase: 'Design' | 'Provision' | 'Build' | 'Secure' | 'Observe' | 'Optimize';
+    title: string;
+    description: string;
+    /**
+     * Separate tools with commas.
+     */
+    tools?: string | null;
+    output: string;
+    linkLabel?: string | null;
+    linkUrl?: string | null;
+    id?: string | null;
+  }[];
+  decisions?:
+    | {
+        decision: string;
+        choice: string;
+        reason: string;
+        id?: string | null;
+      }[]
+    | null;
+  security?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  observability?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  results?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  challenges: {
+    problem: string;
+    solution: string;
+    lesson: string;
+    id?: string | null;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -460,6 +598,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'comments';
         value: number | Comment;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -627,6 +769,7 @@ export interface PostsSelect<T extends boolean = true> {
   coverImage?: T;
   category?: T;
   series?: T;
+  chapterOrder?: T;
   tags?:
     | T
     | {
@@ -708,6 +851,129 @@ export interface CommentsSelect<T extends boolean = true> {
   username?: T;
   avatarUrl?: T;
   postSlug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  publicationStatus?: T;
+  projectStatus?: T;
+  featured?: T;
+  placeholder?: T;
+  publishedAt?: T;
+  category?: T;
+  type?: T;
+  title?: T;
+  slug?: T;
+  summary?: T;
+  description?: T;
+  startDate?: T;
+  endDate?: T;
+  displayDate?: T;
+  role?: T;
+  tags?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  highlights?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  metrics?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  repositoryUrl?: T;
+  demoUrl?: T;
+  articleUrl?: T;
+  thumbnail?: T;
+  architectureImage?: T;
+  architectureAlt?: T;
+  architectureCaption?: T;
+  architectureComponents?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        id?: T;
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        caption?: T;
+        id?: T;
+      };
+  problem?: T;
+  constraints?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  successCriteria?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  implementation?:
+    | T
+    | {
+        phase?: T;
+        title?: T;
+        description?: T;
+        tools?: T;
+        output?: T;
+        linkLabel?: T;
+        linkUrl?: T;
+        id?: T;
+      };
+  decisions?:
+    | T
+    | {
+        decision?: T;
+        choice?: T;
+        reason?: T;
+        id?: T;
+      };
+  security?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  observability?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  results?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  challenges?:
+    | T
+    | {
+        problem?: T;
+        solution?: T;
+        lesson?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

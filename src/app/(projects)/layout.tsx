@@ -11,9 +11,9 @@ export const metadata: Metadata = { metadataBase: new URL("https://project.linux
 
 export default function ProjectsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body className="projects-site">
-        <a className="project-skip" href="#main-content">Bỏ qua điều hướng</a>
+        <a className="project-skip" href="#main-content">Skip to content</a>
         <ProjectHeader />
         <main id="main-content">{children}</main>
       </body>

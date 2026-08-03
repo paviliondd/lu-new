@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Projects | LinuxUnity",
   description,
   alternates: { canonical: "https://project.linuxunity.com/" },
-  openGraph: { title: "Projects | LinuxUnity", description, url: "https://project.linuxunity.com/", siteName: "LinuxUnity", locale: "vi_VN", type: "website" },
+  openGraph: { title: "Projects | LinuxUnity", description, url: "https://project.linuxunity.com/", siteName: "LinuxUnity", locale: "en_US", type: "website" },
   twitter: { card: "summary_large_image", title: "Projects | LinuxUnity", description },
 };
 
@@ -23,11 +23,11 @@ export default async function ProjectsPage() {
         <div className="project-shell">
           <div className="project-eyebrow">AWS · DEVOPS · LINUX</div>
           <h1>Projects</h1>
-          <p>Các project thực hành về cloud infrastructure, automation, observability và platform engineering.</p>
+          <p>Hands-on cloud infrastructure, automation, observability, and platform engineering projects.</p>
           <div className="project-stats" aria-label="Project statistics">
             <span><strong>{projects.length}</strong> projects</span>
             <span><strong>{technologies}</strong> technologies</span>
-            <span>Mới nhất: <strong>{projects[0]?.displayDate}</strong></span>
+            <span>Latest: <strong>{projects[0]?.displayDate || "—"}</strong></span>
           </div>
         </div>
       </header>

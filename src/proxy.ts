@@ -24,6 +24,21 @@ export function proxy(request: NextRequest) {
       projectUrl.pathname = "/projects";
       return NextResponse.rewrite(projectUrl);
     }
+    if (pathname === "/projects") {
+      const projectUrl = request.nextUrl.clone();
+      projectUrl.pathname = "/";
+      return NextResponse.redirect(projectUrl, 308);
+    }
+    if (pathname.startsWith("/projects/")) {
+      const projectUrl = request.nextUrl.clone();
+      projectUrl.pathname = pathname.replace(/^\/projects/, "");
+      return NextResponse.redirect(projectUrl, 308);
+    }
+    if (request.method === "GET" && pathname.split("/").filter(Boolean).length === 1) {
+      const projectUrl = request.nextUrl.clone();
+      projectUrl.pathname = `/projects${pathname}`;
+      return NextResponse.rewrite(projectUrl);
+    }
     return NextResponse.next();
   }
 
@@ -34,6 +49,7 @@ export function proxy(request: NextRequest) {
     projectUrl.protocol = "https";
     projectUrl.hostname = projectDomain;
     projectUrl.port = "";
+    projectUrl.pathname = pathname === "/projects" ? "/" : pathname.replace(/^\/projects/, "");
     return NextResponse.redirect(projectUrl, 308);
   }
   const segments = pathname.split("/").filter(Boolean);

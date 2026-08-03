@@ -12,15 +12,7 @@ for (const project of projects) {
     where: { slug: { equals: project.slug } },
   });
 
-  if (existing.totalDocs) {
-    console.log(`Skip existing project: ${project.slug}`);
-    continue;
-  }
-
-  await payload.create({
-    collection: "projects",
-    overrideAccess: true,
-    data: {
+  const data = {
       publicationStatus: "published",
       projectStatus: project.status,
       featured: project.featured || false,
@@ -61,9 +53,15 @@ for (const project of projects) {
       observability: project.observability?.map((value) => ({ value })),
       results: project.results.map((value) => ({ value })),
       challenges: project.challenges,
-    },
-  });
-  console.log(`Created project: ${project.slug}`);
+  };
+
+  if (existing.docs[0]) {
+    await payload.update({ collection: "projects", id: existing.docs[0].id, overrideAccess: true, data });
+    console.log(`Updated project: ${project.slug}`);
+  } else {
+    await payload.create({ collection: "projects", overrideAccess: true, data });
+    console.log(`Created project: ${project.slug}`);
+  }
 }
 
 console.log("Payload project seed complete.");

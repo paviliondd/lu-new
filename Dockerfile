@@ -48,6 +48,8 @@ COPY --from=builder --chown=nextjs:nextjs /app/content ./content
 COPY --from=builder --chown=nextjs:nextjs /app/scripts ./scripts
 COPY --from=deps-prod --chown=nextjs:nextjs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nextjs /app/src/app/data.ts ./src/app/data.ts
+COPY --from=builder --chown=nextjs:nextjs /app/src/collections ./src/collections
+COPY --from=builder --chown=nextjs:nextjs /app/src/content/projects ./src/content/projects
 COPY --from=builder --chown=nextjs:nextjs /app/src/payload.config.ts ./src/payload.config.ts
 COPY --from=builder --chown=nextjs:nextjs /app/src/migrations ./src/migrations
 COPY --from=builder --chown=nextjs:nextjs /app/tsconfig.json ./tsconfig.json

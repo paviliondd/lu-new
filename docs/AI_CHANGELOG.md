@@ -386,3 +386,4 @@ Never break:
 - Added portfolio regression tests and deployment/DNS documentation.
 - Added a dedicated Payload `projects` collection, migration, generated types, seed command, published-project preview, and Payload-first project reader. Project content remains isolated from blog posts and local sample data is used only when Payload is unavailable or its query fails.
 - Kept Project administration content-focused by deriving public metadata from title and summary instead of exposing editable SEO fields.
+- Fixed the production runner image so Payload migrations can resolve the separate Projects collection and project seed content at container startup.

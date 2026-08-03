@@ -7,7 +7,7 @@ import { useState } from "react";
 import { siteConfig } from "@/config/site";
 
 const links = [
-  { label: "Projects", href: "/projects", internal: true },
+  { label: "Projects", href: "/", internal: true },
   { label: "Blog", href: "https://linuxunity.com" },
   { label: "About", href: "https://linuxunity.com/about" },
 ];
@@ -17,7 +17,7 @@ export default function ProjectHeader() {
   return (
     <header className="project-header">
       <div className="project-shell project-header__inner">
-        <Link className="project-brand" href="/projects" aria-label="LinuxUnity Projects home">
+        <Link className="project-brand" href="/" aria-label="LinuxUnity Projects home">
           <Image src="/images/linuxunity-penguin-logo.png" alt="" aria-hidden width={32} height={32} priority />
           <span>Linux<span className="project-brand__accent">Unity</span></span>
         </Link>

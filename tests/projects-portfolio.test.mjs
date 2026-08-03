@@ -41,8 +41,27 @@ test("timeline uses semantic project links and client-side filter state", async 
   const timeline = await readFile("src/app/(projects)/projects/components/ProjectTimeline.tsx", "utf8");
   assert.match(timeline, /useState/);
   assert.match(timeline, /aria-pressed/);
-  assert.match(timeline, /<Link className="project-card" href={`\/projects\/\$\{project\.slug\}`}>/);
+  assert.match(timeline, /<Link className="project-card" href={`\/\$\{project\.slug\}`}>/);
   assert.match(timeline, /visibleProjects\.map/);
+});
+
+test("project subdomain uses clean English light-mode routes", async () => {
+  const [proxy, layout, styles, page, detail, header] = await Promise.all([
+    readFile("src/proxy.ts", "utf8"),
+    readFile("src/app/(projects)/layout.tsx", "utf8"),
+    readFile("src/app/(projects)/projects/projects.css", "utf8"),
+    readFile("src/app/(projects)/projects/page.tsx", "utf8"),
+    readFile("src/app/(projects)/projects/[slug]/page.tsx", "utf8"),
+    readFile("src/app/(projects)/projects/components/ProjectHeader.tsx", "utf8"),
+  ]);
+  assert.match(proxy, /pathname === "\/projects"/);
+  assert.match(proxy, /projectUrl\.pathname = `\/projects\$\{pathname\}`/);
+  assert.match(layout, /<html lang="en"/);
+  assert.doesNotMatch(layout, /\sdark\s/);
+  assert.match(styles, /color-scheme: light/);
+  assert.match(page, /Hands-on cloud infrastructure/);
+  assert.match(detail, /https:\/\/project\.linuxunity\.com\/\$\{project\.slug\}/);
+  assert.match(header, /label: "Projects", href: "\/"/);
 });
 
 test("detail routes statically generate known slugs and omit unavailable optional actions", async () => {
@@ -65,6 +84,7 @@ test("every architecture asset is present and real projects retain their evidenc
   assert.equal(getProject("serverless-registration-system")?.repositoryUrl, "https://github.com/paviliondd/serverless-registration-system");
   const seed = await readFile("scripts/seed-payload-projects.mjs", "utf8");
   assert.match(seed, /placeholder: project\.placeholder \|\| false/);
+  assert.match(seed, /payload\.update/);
 });
 
 test("Payload manages projects in a collection isolated from blog posts", async () => {

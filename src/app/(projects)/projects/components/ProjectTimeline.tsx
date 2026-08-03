@@ -26,7 +26,7 @@ export default function ProjectTimeline({ projects }: { projects: Project[] }) {
             <li className="project-timeline__item" key={project.slug}>
               <span className="project-node" aria-hidden />
               <time className="project-date" dateTime={project.startDate}>{project.displayDate}</time>
-              <Link className="project-card" href={`/projects/${project.slug}`}>
+              <Link className="project-card" href={`/${project.slug}`}>
                 <div className="project-card__top">
                   <span className="project-card__icon" aria-hidden><CloudCog size={22} /></span>
                   <div><h2>{project.title}</h2><p className="project-card__meta">{project.type} · {project.displayDate}</p></div>
@@ -40,7 +40,7 @@ export default function ProjectTimeline({ projects }: { projects: Project[] }) {
             </li>
           ))}
         </ol>
-      ) : <p className="project-empty">Chưa có project trong nhóm này.</p>}
+      ) : <p className="project-empty">No projects match this filter.</p>}
     </section>
   );
 }

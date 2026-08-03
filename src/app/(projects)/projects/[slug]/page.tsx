@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Code2, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { notFound } from "next/navigation";
 import { projects as fallbackProjects } from "@/content/projects/projects";
 import { getCmsProject, getCmsProjects } from "@/lib/cms/projects";
@@ -9,6 +9,14 @@ import { getCmsProject, getCmsProjects } from "@/lib/cms/projects";
 type Props = { params: Promise<{ slug: string }> };
 
 const statusLabels = { completed: "Completed", "in-progress": "In progress", archived: "Archived" } as const;
+
+function GitHubMark() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
+      <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.57-.29-5.27-1.28-5.27-5.68 0-1.26.45-2.28 1.19-3.08-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.75 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.82 1.19 3.08 0 4.41-2.7 5.38-5.28 5.67.42.36.79 1.06.79 2.14v3.18c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z" />
+    </svg>
+  );
+}
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -68,7 +76,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         <div className="project-tags" aria-label="Technologies">{project.tags.map((tag) => <span className="project-tag" key={tag}>{tag}</span>)}</div>
         {(project.repositoryUrl || project.demoUrl || project.articleUrl) && (
           <div className="project-actions">
-            {project.repositoryUrl && <a className="project-action" href={project.repositoryUrl}><Code2 aria-hidden size={17} /> GitHub</a>}
+            {project.repositoryUrl && <a className="project-action" href={project.repositoryUrl}><GitHubMark /> GitHub</a>}
             {project.demoUrl && <a className="project-action" href={project.demoUrl}><ExternalLink aria-hidden size={17} /> Live demo</a>}
             {project.articleUrl && <a className="project-action" href={project.articleUrl}><ExternalLink aria-hidden size={17} /> Related article</a>}
           </div>

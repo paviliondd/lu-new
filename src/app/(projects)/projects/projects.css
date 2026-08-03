@@ -15,6 +15,20 @@
   color: var(--project-text);
 }
 
+html.dark .projects-site {
+  --project-bg: #0b0f17;
+  --project-surface: #101720;
+  --project-panel: #151e2a;
+  --project-border: #273244;
+  --project-text: #f8fafc;
+  --project-muted: #cbd5e1;
+  --project-subtle: #94a3b8;
+  --project-accent: #34d399;
+  --project-accent-soft: #11382f;
+  --project-shadow: rgba(0, 0, 0, .48);
+  color-scheme: dark;
+}
+
 .project-shell { width: min(100% - 2rem, 72rem); margin-inline: auto; }
 .project-measure { max-width: 46rem; }
 .project-skip { position: fixed; left: 1rem; top: 0.5rem; z-index: 100; transform: translateY(-150%); border-radius: .5rem; background: var(--project-text); color: var(--project-bg); padding: .75rem 1rem; font-weight: 700; }
@@ -27,11 +41,15 @@
 .project-nav { display: flex; align-items: center; gap: .25rem; }
 .project-nav a, .project-menu-button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; border-radius: .625rem; padding: .625rem .875rem; color: var(--project-muted); font-size: .875rem; font-weight: 650; transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease; }
 .project-nav a:hover, .project-nav a[aria-current="page"] { background: var(--project-panel); color: var(--project-text); }
-.project-nav__github { width: 2.75rem; padding: 0 !important; }
+.project-theme-toggle { display: inline-flex; margin-left: .25rem; }
+.project-theme-toggle button { border-color: var(--project-border); background: var(--project-surface); color: var(--project-muted); }
+.project-theme-toggle button:hover { border-color: var(--project-accent); background: var(--project-panel); color: var(--project-text); }
 .project-menu-button { display: none; border: 1px solid var(--project-border); background: var(--project-surface); }
 .project-mobile-nav { display: none; border-top: 1px solid var(--project-border); padding-block: .75rem; }
 .project-mobile-nav a { display: flex; min-height: 2.75rem; align-items: center; border-radius: .625rem; padding-inline: .875rem; color: var(--project-muted); font-weight: 650; }
 .project-mobile-nav a:hover { background: var(--project-panel); color: var(--project-text); }
+.project-mobile-theme { display: flex; min-height: 3rem; align-items: center; justify-content: space-between; padding-inline: .875rem; color: var(--project-muted); font-weight: 650; }
+.project-mobile-theme button { border-color: var(--project-border); background: var(--project-surface); color: var(--project-muted); }
 
 .project-hero { padding-block: clamp(3rem, 6vw, 5rem) clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--project-border); }
 .project-eyebrow { color: var(--project-accent); font-family: var(--font-geist-mono); font-size: .75rem; font-weight: 700; letter-spacing: .16em; }

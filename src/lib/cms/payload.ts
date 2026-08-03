@@ -205,7 +205,7 @@ async function renderPostContent(preferred: unknown, legacy: unknown) {
   return renderContent(legacy);
 }
 
-function estimateReadTime(content: string, _locale?: Locale) {
+function estimateReadTime(content: string) {
   const wordCount = content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(wordCount / 220));
   return `${minutes} min read`;
@@ -275,8 +275,8 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
       publishDate: publishedAt,
       publish_date: publishedAt,
       date: publishedAt,
-      readTime: estimateReadTime(contentVi, "vi"),
-      readTime_en: estimateReadTime(contentEn, "en"),
+      readTime: estimateReadTime(contentVi),
+      readTime_en: estimateReadTime(contentEn),
       views: 0,
       seriesSlug: null,
       topicSlug: "",
@@ -324,8 +324,8 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
     publishDate: publishedAt,
     publish_date: publishedAt,
     date: publishedAt,
-    readTime: asString(doc.readTimeVi, fallback?.readTime || estimateReadTime(contentVi, "vi")),
-    readTime_en: asString(doc.readTimeEn, fallback?.readTime_en || estimateReadTime(contentEn, "en")),
+    readTime: asString(doc.readTimeVi, fallback?.readTime || estimateReadTime(contentVi)),
+    readTime_en: asString(doc.readTimeEn, fallback?.readTime_en || estimateReadTime(contentEn)),
     views: Math.max(0, asNumber(doc.views, fallback?.views || 0)),
     seriesSlug: asString(series?.slug, fallback?.seriesSlug || "") || null,
     series: series

@@ -5,8 +5,8 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
 import { APIError, buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
 import sharp from "sharp";
-import { legacyImportedMediaURL } from "@/lib/cms/media-url";
-import { Projects } from "@/collections/Projects";
+import { Projects } from "./collections/Projects";
+import { legacyImportedMediaURL } from "./lib/cms/media-url";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);

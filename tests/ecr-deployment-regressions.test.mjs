@@ -31,11 +31,14 @@ test("production Compose cannot rebuild stale VPS source", async () => {
 
 test("production image includes Payload config source dependencies", async () => {
   const dockerfile = await readFile("Dockerfile", "utf8");
+  const payloadConfig = await readFile("src/payload.config.ts", "utf8");
 
   assert.match(dockerfile, /\/app\/src\/collections \.\/src\/collections/);
   assert.match(dockerfile, /\/app\/src\/content\/projects \.\/src\/content\/projects/);
   assert.match(dockerfile, /\/app\/src\/payload\.config\.ts \.\/src\/payload\.config\.ts/);
   assert.match(dockerfile, /\/app\/src\/migrations \.\/src\/migrations/);
+  assert.match(payloadConfig, /from "\.\/collections\/Projects"/);
+  assert.doesNotMatch(payloadConfig, /from "@\/collections\/Projects"/);
 });
 
 test("deployment backs up persistent data and records ECR rollback state", async () => {

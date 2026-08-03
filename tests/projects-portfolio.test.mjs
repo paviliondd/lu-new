@@ -5,7 +5,7 @@ import { projects, getProject } from "../src/content/projects/projects.ts";
 import { validateProject } from "../src/content/projects/schema.ts";
 
 test("project content is valid, unique, and sorted newest first", () => {
-  assert.equal(projects.length, 3);
+  assert.equal(projects.length, 4);
   assert.equal(new Set(projects.map(({ slug }) => slug)).size, projects.length);
   const dates = projects.map(({ startDate }) => Date.parse(startDate));
   assert.deepEqual(dates, [...dates].sort((a, b) => b - a));
@@ -14,6 +14,7 @@ test("project content is valid, unique, and sorted newest first", () => {
 test("sample project slugs resolve and missing slugs do not", () => {
   assert.equal(getProject("production-ready-eks-platform")?.title, "Production-ready EKS Platform");
   assert.equal(getProject("serverless-api")?.title, "Serverless API on AWS");
+  assert.equal(getProject("serverless-registration-system")?.title, "AWS Serverless Event Registration System");
   assert.equal(getProject("aws-landing-zone")?.title, "AWS Multi-account Landing Zone");
   assert.equal(getProject("missing-project"), undefined);
 });
@@ -54,13 +55,16 @@ test("detail routes statically generate known slugs and omit unavailable optiona
   assert.ok(projects.every((project) => !project.metrics?.length));
 });
 
-test("every placeholder architecture asset is present", async () => {
+test("every architecture asset is present and real projects retain their evidence", async () => {
   for (const project of projects) {
-    assert.equal(project.placeholder, true);
     assert.ok(project.architectureImage);
     const asset = await stat(`public${project.architectureImage}`);
     assert.ok(asset.size > 500);
   }
+  assert.equal(getProject("serverless-registration-system")?.placeholder, undefined);
+  assert.equal(getProject("serverless-registration-system")?.repositoryUrl, "https://github.com/paviliondd/serverless-registration-system");
+  const seed = await readFile("scripts/seed-payload-projects.mjs", "utf8");
+  assert.match(seed, /placeholder: project\.placeholder \|\| false/);
 });
 
 test("Payload manages projects in a collection isolated from blog posts", async () => {

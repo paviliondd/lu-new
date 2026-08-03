@@ -24,7 +24,7 @@ for (const project of projects) {
       publicationStatus: "published",
       projectStatus: project.status,
       featured: project.featured || false,
-      placeholder: true,
+      placeholder: project.placeholder || false,
       category: project.category,
       type: project.type,
       title: project.title,
@@ -63,7 +63,7 @@ for (const project of projects) {
       challenges: project.challenges,
     },
   });
-  console.log(`Created placeholder project: ${project.slug}`);
+  console.log(`Created project: ${project.slug}`);
 }
 
 console.log("Payload project seed complete.");

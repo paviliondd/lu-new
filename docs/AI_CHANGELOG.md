@@ -388,3 +388,4 @@ Never break:
 - Kept Project administration content-focused by deriving public metadata from title and summary instead of exposing editable SEO fields.
 - Fixed the production runner image so Payload migrations can resolve the separate Projects collection and project seed content at container startup.
 - Made Payload CLI startup independent of the TypeScript `@/*` alias for runtime config imports, preventing `payload migrate` from treating `@/collections` as an npm package in production containers.
+- Added the documented AWS Serverless Event Registration System to the project portfolio with repository evidence, implementation details, security and observability notes, and an architecture diagram.

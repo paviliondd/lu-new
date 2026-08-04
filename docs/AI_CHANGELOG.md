@@ -410,3 +410,10 @@ Never break:
 - Prevented project theme initialization from producing a React hydration mismatch.
 - Added a one-time Payload data migration that initializes the project collection only when it has never contained a record, without merging or overwriting CMS-managed content.
 - Removed the final lint warning from the unused read-time locale argument without changing read-time behavior.
+
+# 2026-08-04 — AWS deployment series architecture outline
+
+- Added matching Vietnamese and English MDX outlines for analyzing the current LinuxUnity architecture.
+- Included placeholders for the system overview, reading, publishing, authentication/comment, and deployment-topology diagrams.
+- Covered current components, data boundaries, dependencies, failure boundaries, strengths, limitations, and protected architectural decisions.
+- Reserved Docker guidance, AWS mappings, certification coverage, and migration roadmaps for later articles.

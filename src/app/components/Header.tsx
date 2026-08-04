@@ -18,11 +18,13 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { t, localePath } = useLanguage();
 
-  const navLinks = navigationConfig.main.map((link) => ({
-    href: "external" in link && link.external ? link.href : localePath(link.href),
-    label: t(link.labelKey as Parameters<typeof t>[0]),
-    external: "external" in link && link.external,
-  }));
+  const navLinks = navigationConfig.main
+    .filter((link) => !("hidden" in link && link.hidden))
+    .map((link) => ({
+      href: "external" in link && link.external ? link.href : localePath(link.href),
+      label: t(link.labelKey as Parameters<typeof t>[0]),
+      external: "external" in link && link.external,
+    }));
   const activeNavHref = navLinks
     .filter((link) => !link.external && (pathname === link.href || pathname.startsWith(`${link.href}/`)))
     .sort((left, right) => right.href.length - left.href.length)[0]?.href;

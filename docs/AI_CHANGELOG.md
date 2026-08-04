@@ -2,6 +2,12 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-04
+
+Changed:
+
+- Temporarily hid the Project link from the shared blog desktop and mobile navigation while retaining its `project.linuxunity.com` configuration and the project subdomain routes for later launch.
+
 ## 2026-08-01
 
 Changed:

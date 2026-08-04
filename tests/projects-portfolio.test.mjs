@@ -25,7 +25,7 @@ test("project validation rejects malformed content", () => {
   assert.throws(() => validateProject({ ...projects[0], repositoryUrl: "javascript:alert(1)" }), /must use http/);
 });
 
-test("blog navigation exposes the absolute Project URL on shared desktop and mobile lists", async () => {
+test("blog navigation retains but hides the absolute Project URL from shared desktop and mobile lists", async () => {
   const [navigation, header, translations] = await Promise.all([
     readFile("src/config/navigation.ts", "utf8"),
     readFile("src/app/components/Header.tsx", "utf8"),
@@ -33,6 +33,8 @@ test("blog navigation exposes the absolute Project URL on shared desktop and mob
   ]);
   assert.match(navigation, /https:\/\/project\.linuxunity\.com/);
   assert.match(navigation, /external:\s*true/);
+  assert.match(navigation, /hidden:\s*true/);
+  assert.match(header, /filter\(\(link\)\s*=>\s*!\(\"hidden\" in link && link\.hidden\)\)/);
   assert.equal((header.match(/navLinks\.map/g) || []).length, 2);
   assert.match(translations, /project:\s*"Project"/);
 });

@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, GitPullRequest, Layers, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Post, Series } from "@/app/data";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import RecentWritingSection from "@/app/components/RecentWritingSection";
+import SeriesRow from "@/app/components/SeriesRow";
 
 interface HomePageProps {
   initialPosts: Post[];
@@ -133,18 +134,7 @@ function ProgressFlow() {
 }
 
 export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
-  const { t, language, localePath } = useLanguage();
-
-  const renderSeriesIcon = (iconName: string) => {
-    switch (iconName) {
-      case "zap":
-        return <Zap className="h-5 w-5" />;
-      case "git-pull-request":
-        return <GitPullRequest className="h-5 w-5" />;
-      default:
-        return <Layers className="h-5 w-5" />;
-    }
-  };
+  const { t, localePath } = useLanguage();
 
   return (
     <div className="theme-page min-h-screen overflow-x-clip bg-[#fdfcf9] dark:bg-[#0c1524]">
@@ -213,28 +203,8 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {seriesItems.map((item) => (
-              <Link
-                key={item.slug}
-                href={localePath(`/blog/series/${item.slug}`)}
-                className="theme-card group flex min-h-56 flex-col rounded-xl border p-6 transition duration-200 hover:-translate-y-0.5 hover:border-teal-500 dark:hover:border-emerald-400"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg border theme-border bg-white text-teal-700 dark:bg-slate-900 dark:text-emerald-300">
-                  {renderSeriesIcon(item.icon)}
-                </div>
-                <h3 className="mt-6 line-clamp-2 text-lg font-bold text-slate-950 transition group-hover:text-teal-700 dark:text-white dark:group-hover:text-emerald-300">
-                  {language === "vi" ? item.title : item.title_en}
-                </h3>
-                <p className="theme-muted mt-3 line-clamp-2 text-sm leading-6">
-                  {language === "vi" ? item.description : item.description_en}
-                </p>
-                <span className="mt-auto flex items-center gap-2 pt-6 text-sm font-bold text-teal-700 dark:text-emerald-300">
-                  {item.partsCount} {t("parts")}
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                </span>
-              </Link>
-            ))}
+          <div className="grid gap-4 md:grid-cols-3">
+            {seriesItems.map((item) => <SeriesRow key={item.slug} item={item} compact />)}
           </div>
         </div>
       </section>

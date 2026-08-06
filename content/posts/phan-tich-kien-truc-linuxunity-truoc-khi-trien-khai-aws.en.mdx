@@ -1,0 +1,303 @@
+---
+title: "Analyzing LinuxUnity's Current Architecture"
+description: "An analysis of LinuxUnity's components, data flows, boundaries, and runtime architecture using Next.js, Payload CMS, PostgreSQL, Redis, Docker Compose, and Nginx."
+date: 2026-08-04
+author: nhatnghia
+category: DevOps
+tags:
+  - Architecture
+  - Next.js
+  - Payload CMS
+  - PostgreSQL
+  - Redis
+  - Docker
+series: docker-to-eks-on-aws
+seoTitle: "Analyzing LinuxUnity's Current Architecture"
+seoDescription: "Understand LinuxUnity's architecture, request flow, publishing flow, data, and current deployment topology before making infrastructure changes."
+---
+
+# Analyzing LinuxUnity's Current Architecture
+
+> **Scope:** This article analyzes the system as it exists today. Docker tutorials, AWS deployment, CI/CD, migration, ECS, and EKS will be covered in separate articles.
+
+## 1. Introduction
+
+<!-- TODO:
+- What is LinuxUnity?
+- Why should we understand the current architecture before changing its infrastructure?
+- What does this article cover and deliberately leave out?
+-->
+
+## 2. System requirements
+
+### Functional requirements
+
+- Publish and display articles.
+- Manage content through Payload CMS.
+- Use Vietnamese as the default language and serve English under `/en`.
+- Manage categories, tags, series, and media.
+- Support search, comments, and view counts.
+- Authenticate users through GitHub or Google.
+- Render SEO metadata, sitemaps, and RSS feeds.
+
+<!-- TODO: Add or adjust items according to the features discussed in the final article. -->
+
+### Non-functional requirements
+
+- Provide a responsive interface with dark and light themes.
+- Fall back to local content when Payload is unavailable or a query fails.
+- Preserve production data across container restarts.
+- Identify every application image by an exact version.
+- Support data backup and recovery.
+
+<!-- TODO: Describe only current system properties, not future goals. -->
+
+## 3. Architecture overview
+
+<!-- IMAGE PLACEHOLDER
+Suggested filename: linuxunity-current-architecture.webp
+Alt text: Overview of the current LinuxUnity architecture
+
+Components to show:
+- Readers and editors
+- DNS/HTTPS
+- Nginx
+- Next.js and Payload CMS in the same application
+- PostgreSQL
+- Redis
+- Payload media volume
+- Runtime fallback data
+-->
+
+<!-- TODO: Explain the diagram from the outside in. -->
+
+## 4. Core components
+
+| Component | Technology | Responsibility |
+|---|---|---|
+| Web application | Next.js App Router, React, TypeScript | Renders the interface, routes, APIs, and SEO output |
+| CMS | Payload CMS | Manages articles, media, users, and comments |
+| Database | PostgreSQL | Stores Payload's primary data |
+| Cache/runtime support | Redis | Supports caching and runtime data |
+| Reverse proxy | Nginx | Accepts requests and proxies them to the application |
+| Container runtime | Docker Compose | Starts and connects the current services |
+| Media storage | Docker volume | Stores files uploaded through Payload |
+| Fallback storage | Local content and JSON data | Used when Payload is unavailable or a query fails |
+
+### Next.js and Payload CMS
+
+<!-- TODO:
+- Explain why the frontend and CMS form one deployable application.
+- How are public routes, APIs, and `/admin` served?
+- Why is this a modular monolith rather than a microservices architecture?
+-->
+
+### PostgreSQL
+
+<!-- TODO:
+- Which groups of data are stored in PostgreSQL?
+- Why is PostgreSQL the most important business-data store?
+-->
+
+### Redis
+
+<!-- TODO:
+- Where does the application currently use Redis?
+- Which data can be recreated, and which data should not rely exclusively on Redis?
+- State conclusions only after checking the current implementation.
+-->
+
+### Nginx
+
+<!-- TODO:
+- Where does Nginx sit in the request path?
+- Which hostnames and paths does it route?
+- Describe its current HTTPS, proxy-header, and static/media responsibilities.
+-->
+
+### Media and fallback data
+
+<!-- TODO:
+- Distinguish uploaded media from local fallback content.
+- Explain the lifecycle and storage location of each data type.
+-->
+
+## 5. Article-reading flow
+
+<!-- IMAGE PLACEHOLDER
+Suggested filename: linuxunity-read-request-flow.webp
+Alt text: Request flow when a reader opens an article on LinuxUnity
+-->
+
+1. <!-- TODO: A reader sends a request to the domain. -->
+2. <!-- TODO: Nginx accepts and forwards the request. -->
+3. <!-- TODO: Next.js resolves the route and locale. -->
+4. <!-- TODO: The application requests the article from Payload. -->
+5. <!-- TODO: PostgreSQL returns the article and its related records. -->
+6. <!-- TODO: Next.js renders the content, media, and metadata. -->
+7. <!-- TODO: Describe relevant secondary requests, such as view counting. -->
+
+### When Payload is unavailable
+
+<!-- TODO: Describe the exact conditions that activate the local fallback. -->
+
+> Payload is authoritative whenever it can be reached. Local content and data are fallbacks only when Payload is unavailable or a query fails. A valid empty CMS result must remain empty; old fallback data must not be merged into it.
+
+## 6. Editing and publishing flow
+
+<!-- IMAGE PLACEHOLDER
+Suggested filename: linuxunity-publishing-flow.webp
+Alt text: Editing and publishing flow through Payload CMS
+-->
+
+1. An editor opens `/admin`.
+2. <!-- TODO: Authentication and editor access. -->
+3. <!-- TODO: Content authoring and sidebar metadata. -->
+4. <!-- TODO: Uploading or selecting media. -->
+5. <!-- TODO: Payload's required publishing validation. -->
+6. <!-- TODO: Writing records to PostgreSQL and files to the media volume. -->
+7. <!-- TODO: Reading the published version on the frontend. -->
+
+### Bilingual content
+
+<!-- TODO:
+- Vietnamese and English fields.
+- Routing rules for `/`, `/vi`, and `/en`.
+- Behavior when English content is missing.
+-->
+
+## 7. Authentication and comment flow
+
+<!-- IMAGE PLACEHOLDER
+Suggested filename: linuxunity-auth-comment-flow.webp
+Alt text: OAuth login, comment submission, and moderation flow on LinuxUnity
+-->
+
+<!-- TODO:
+- GitHub and Google OAuth callbacks.
+- Session cookies.
+- How are users synchronized with Payload?
+- What initial status does a new comment receive?
+- When does a comment become publicly visible?
+-->
+
+## 8. Data and state
+
+| Data group | Storage | Must be preserved? | Notes |
+|---|---|---|---|
+| CMS content | PostgreSQL | Yes | Primary source of truth |
+| Users and comments | PostgreSQL | Yes | Business data |
+| Uploaded media | Payload media volume | Yes | Directly referenced by content |
+| Runtime JSON data | Local persistent data | Yes | Feature-dependent runtime/fallback data |
+| Cache | Redis | Depends on the data | Rebuild behavior must be verified |
+| Application image | ECR | Redeployable | Does not replace a data backup |
+
+### Stateful components
+
+<!-- TODO: Explain why PostgreSQL, media, and some runtime data are stateful. -->
+
+### Stateless components
+
+<!-- TODO: Explain which parts of the application and Nginx can be recreated from images and configuration. -->
+
+### Artifact and data boundary
+
+<!-- TODO: Briefly distinguish an application image from database and media backups. Leave backup procedures for a separate article. -->
+
+## 9. Current deployment topology
+
+<!-- IMAGE PLACEHOLDER
+Suggested filename: linuxunity-deployment-topology.webp
+Alt text: Deployment topology of LinuxUnity containers on a single production host
+-->
+
+<!-- TODO:
+- Which containers run on the production host?
+- Which container accepts external traffic?
+- How do containers communicate with each other?
+- Which volumes are mounted into which services?
+- Where does the application image come from?
+-->
+
+### Network boundary
+
+<!-- TODO: Distinguish the public entry point from internal service communication. -->
+
+### Process and container boundary
+
+<!-- TODO: Describe the impact of failures in the app, database, Redis, or Nginx. -->
+
+### Persistence boundary
+
+<!-- TODO: Identify data that survives the container lifecycle. -->
+
+## 10. Dependencies and failure boundaries
+
+| Failed dependency | Expected behavior | What must be verified |
+|---|---|---|
+| Nginx | <!-- TODO --> | Health check and error response |
+| Next.js/Payload application | <!-- TODO --> | Restart policy and availability |
+| PostgreSQL | <!-- TODO --> | CMS, frontend, and fallback behavior |
+| Redis | <!-- TODO --> | Degraded or failed features |
+| Media volume | <!-- TODO --> | Upload and media rendering behavior |
+| OAuth provider | <!-- TODO --> | New logins and existing sessions |
+
+<!-- TODO: Distinguish single points of failure from dependencies that support graceful degradation. -->
+
+## 11. Strengths of the current architecture
+
+- <!-- TODO: State strengths supported by implementation evidence. -->
+- <!-- TODO: For example, deployment and operational simplicity. -->
+- <!-- TODO: For example, frontend and CMS consistency. -->
+- <!-- TODO: For example, controlled fallback behavior. -->
+
+## 12. Limitations of the current architecture
+
+- <!-- TODO: Describe limitations without proposing replacement AWS services. -->
+- <!-- TODO: Consider host dependency, scaling, persistence, and observability. -->
+- <!-- TODO: Separate measured limitations from unverified assumptions. -->
+
+> These limitations provide input for later design and deployment articles. They do not mean that the current architecture is inherently wrong.
+
+## 13. Architectural decisions to preserve
+
+- Payload CMS remains authoritative whenever it is reachable.
+- Local data is a fallback and must not be merged into a successful CMS query.
+- Vietnamese remains the default locale, with English served under `/en`.
+- Next.js, Payload CMS, PostgreSQL, and Redis remain the core stack.
+- CMS, SEO, media, comments, and OAuth capabilities must remain intact.
+
+## 14. Conclusion
+
+<!-- TODO:
+- Summarize the current architecture in three to five points.
+- Identify the questions answered by the analysis.
+- Identify facts that still require measurement or verification.
+- Do not introduce specific AWS solutions in the conclusion.
+-->
+
+## Next article
+
+<!-- TODO: Add the link only after the next article has been selected and published. -->
+
+## References
+
+<!-- TODO:
+- Internal documentation for the Payload CMS flow.
+- Docker Compose and deployment files used in the analysis.
+- Official framework documentation only when it is actually referenced.
+-->
+
+## Draft completion checklist
+
+- [ ] Verify the article against the current source code.
+- [ ] Verify the topology against Docker Compose and Nginx configuration.
+- [ ] Verify Redis's exact responsibilities.
+- [ ] Verify every fallback condition.
+- [ ] Add the architecture overview diagram.
+- [ ] Add the article-reading flow diagram.
+- [ ] Add the publishing flow diagram.
+- [ ] Add the authentication and comment diagram.
+- [ ] Add the current deployment-topology diagram.
+- [ ] Do not expose secrets, IP addresses, or sensitive production details.
+- [ ] Do not add AWS deployment or Docker tutorial content to this article.

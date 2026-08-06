@@ -14,7 +14,15 @@
     "payload:generate-types": "payload generate:types",
     "payload:migrate-richtext": "node --import tsx scripts/migrate-payload-richtext.mjs",
     "payload:repair-posts": "node scripts/repair-payload-posts.mjs",
+    "payload:seed-projects": "node --import tsx scripts/seed-payload-projects.mjs",
     "content:audit-rendering": "node --import tsx scripts/audit-content-rendering.mjs",
+    "content:audit-translations": "node --import tsx scripts/translation-pipeline.mjs --mode audit",
+    "content:test-translation-api": "node --import tsx scripts/translation-pipeline.mjs --mode probe",
+    "content:export-translations": "node --import tsx scripts/translation-pipeline.mjs --mode export",
+    "content:validate-translations": "node --import tsx scripts/translation-pipeline.mjs --mode validate",
+    "content:import-translations": "node --import tsx scripts/translation-pipeline.mjs --mode import",
+    "content:translate-with-agent": "node scripts/translate-with-codex.mjs",
+    "content:translate": "node --import tsx scripts/translation-pipeline.mjs --mode translate",
     "payload:sync-series": "node scripts/sync-payload-series.mjs",
     "wordpress:import": "node scripts/import-wordpress-rest.mjs",
     "xml:normalize-images": "node scripts/normalize-xml-images.mjs"
@@ -38,6 +46,7 @@
     "server-only": "^0.0.1",
     "sharp": "0.33.5",
     "shiki": "^4.2.0",
+    "tsx": "^4.22.4",
     "xss": "^1.0.15"
   },
   "devDependencies": {
@@ -49,7 +58,6 @@
     "eslint-config-next": "16.2.7",
     "happy-dom": "^20.10.6",
     "tailwindcss": "^4",
-    "tsx": "4.22.4",
     "typescript": "^5"
   }
 }

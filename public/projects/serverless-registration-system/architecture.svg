@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">AWS Serverless Event Registration architecture</title>
+  <desc id="desc">A user submits an Amplify form through API Gateway. A registration Lambda stores the record in DynamoDB and places a message on SQS. A sender Lambda sends email through SES and SNS, then updates DynamoDB.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1220"/><stop offset="1" stop-color="#111c31"/></linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#38bdf8"/></marker>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <text x="60" y="66" fill="#f8fafc" font-family="Arial, sans-serif" font-size="28" font-weight="700">AWS Serverless Event Registration</text>
+  <text x="60" y="98" fill="#94a3b8" font-family="Arial, sans-serif" font-size="16">Asynchronous registration and notification workflow</text>
+  <g fill="#17233a" stroke="#334155" stroke-width="2"><rect x="45" y="265" width="125" height="80" rx="14"/><rect x="210" y="265" width="135" height="80" rx="14"/><rect x="385" y="265" width="150" height="80" rx="14"/><rect x="580" y="190" width="145" height="80" rx="14"/><rect x="580" y="350" width="145" height="80" rx="14"/><rect x="770" y="350" width="145" height="80" rx="14"/><rect x="960" y="255" width="155" height="80" rx="14"/><rect x="960" y="430" width="155" height="80" rx="14"/></g>
+  <g fill="#f8fafc" font-family="Arial, sans-serif" font-size="17" text-anchor="middle"><text x="107" y="312">User</text><text x="277" y="300">Amplify</text><text x="277" y="323">Frontend</text><text x="460" y="300">API Gateway</text><text x="460" y="323">POST /register</text><text x="652" y="222">Registration</text><text x="652" y="245">Lambda</text><text x="652" y="397">DynamoDB</text><text x="842" y="397">SQS Queue</text><text x="1037" y="287">Email Sender</text><text x="1037" y="310">Lambda</text><text x="1037" y="462">SES → User</text><text x="1037" y="485">SNS → Admin</text></g>
+  <g fill="none" stroke="#38bdf8" stroke-width="4" marker-end="url(#arrow)"><path d="M170 305h40"/><path d="M345 305h40"/><path d="M535 295l45-45"/><path d="M652 270v80"/><path d="M725 390h45"/><path d="M915 380l45-55"/><path d="M1037 335v95"/><path d="M960 305c-120 0-180-20-235-70"/></g>
+  <g fill="#94a3b8" font-family="Arial, sans-serif" font-size="14"><text x="742" y="218">Update status to SENT</text><text x="760" y="454">Asynchronous processing</text></g>
+</svg>

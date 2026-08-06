@@ -19,6 +19,88 @@ Validation:
 - `npm run lint` passes with two pre-existing warnings.
 - `npm run build` passes; local Postgres hostname remains unavailable outside Docker and falls back as designed.
 
+## 2026-08-04
+
+Changed:
+
+- Temporarily hid the Project link from the shared blog desktop and mobile navigation while retaining its `project.linuxunity.com` configuration and the project subdomain routes for later launch.
+
+## 2026-08-01
+
+Changed:
+
+- Replaced the shared website logo icon with the supplied penguin mark on a transparent background.
+- Updated the logo asset URL to invalidate stale Next.js/browser image caches and regenerated the favicon from the new mark.
+- Reworked production deployment to use immutable ECR images exclusively, create a pre-migration data backup, record rollback state, promote the production tag only after health checks, and prune unused VPS images.
+- Added a dedicated local Compose build override so production `docker compose build` cannot rebuild stale VPS source.
+- Expanded backup and restore coverage to Postgres, Payload media, persistent runtime data, Uptime Kuma, translation work, checksums, retention, and optional encrypted S3 copies.
+- Added separate image-only and full-data rollback automation plus editable CI/CD and rollback workflow diagrams.
+- Simplified series cards into a shared responsive row design with balanced light/dark styling, compact part counts, and accessible focus states.
+- Restored the homepage series section to three compact cards per desktop row and strengthened the trailing teal/emerald glow in both themes.
+- Removed the series CTA text so each card ends with only the compact arrow action.
+- Replaced the cache-prone `/favicon.ico` metadata path with App Router `icon.png` and `apple-icon.png` assets generated from the current penguin logo.
+- Updated README, repository structure, project audit, content fallback guidance, and the AI constitution to match the current CMS source-of-truth and ECR/Compose backup architecture.
+
+Fixed:
+
+- Changed locale switching to replace the current browser history entry, so repeated VI/EN toggles no longer pollute Back-button history.
+- Stopped merging local fallback series into successful Payload responses, so deleting a series in Admin removes it from the website immediately instead of resurrecting the local fallback record.
+
+## 2026-07-31
+
+Added:
+
+- Added a resumable local Codex CLI translation runner that automatically translates metadata, Lexical units, and legacy HTML; enforces structured output; preserves protected HTML/code; and produces an import-ready package without exposing the agent credential to the website runtime.
+- Added protocol-aware translation routing: Claude models use Anthropic Messages while GPT models use OpenAI Chat Completions, with a local mock-server integration test covering cross-protocol fallback without consuming API credit.
+- Added a database-free translation provider probe command for validating model access, endpoint routing, and credentials before starting a batch.
+- Added an offline export, validation, dry-run import, and explicit apply workflow for translating through approved interactive agents without exposing production database access or making duplicate AI requests.
+
+Fixed:
+
+- Removed the localized post excerpt from the article-detail header in both Vietnamese and English, avoiding duplication with the opening article content while retaining excerpts for SEO, cards, and search results.
+- Limited Vietnamese-remnant QA to translatable visible prose, avoiding false failures from intentionally preserved legacy image attributes, URLs, markup, and code while still rejecting untranslated article text.
+- Excluded common UTF-8/Windows-1252 mojibake punctuation such as `â€”` from Vietnamese-remnant detection without weakening checks for real Vietnamese prose.
+- Retried legacy HTML translation chunks when model output changes protected markup or code, while preserving successful cache entries and bypassing invalid cached candidates on validation retries.
+- Removed legacy `<code>` contents from model input and restored them byte-for-byte after translation, preventing repeated command mutations from blocking a translation batch.
+- Switched legacy HTML translation to isolated text units that are reinserted into the original source string, making tags, protected attributes, formatting, and code structurally immutable during translation.
+- Restored every code block from the complete source article after reassembling translated chunks, protecting multiline commands even when a character-based chunk boundary falls inside `<pre>/<code>`.
+- Excluded metadata-only Payload records without Vietnamese rich or legacy content from translation/export selection, preventing empty posts from consuming batch slots and AI credit.
+- Closed the Payload client in a `finally` block so audit, export, import, and rollback commands exit immediately after their output is written instead of remaining alive on database handles.
+- Added translation model fallback, transient retry/backoff, per-post failure isolation, failure resume, source-token caps, smaller Lexical request batches, and smallest-post-first selection.
+- Added automatic ownership initialization for the host-mounted translation workspace.
+- Added deploy health rollback to the previously running immutable image.
+- Added Docker Compose operating instructions and a persistent host bind mount for translation candidates and rollback snapshots.
+- Added a repository-boundary guide recommending an incremental `app` / `cms` / `server` / `shared` organization instead of a disruptive frontend/backend split.
+- Added a Lexical-safe English translation pipeline with read-only audit mode, explicit dry-run/apply behavior, capped selection, ignored candidate artifacts, pre-change snapshots, rollback mode, and structural/remaining-Vietnamese QA gates.
+- Added regression tests proving that prose is translated without changing code blocks or terminal commands, and that unsafe Lexical candidates are rejected.
+- Added editable draw.io workflows for the current VPS/Compose architecture, a serverless ECS Fargate target, and an EKS target.
+- Added translation operating instructions and an AWS stack/migration evaluation.
+
+Changed:
+
+- Parallelized verification and container build in production CI, skipped documentation-only deployments, reduced GitHub Actions cache upload size, removed the redundant ECR existence check and `latest` image tag, and explicitly build the production runner target.
+- Kept `tsx` as a production runtime dependency because the containerized Payload migration and translation tools load TypeScript configuration at runtime.
+
+Removed:
+
+- Removed generated Understand Anything knowledge-graph metadata from version control and ignored future `.understand-anything/` output.
+- Removed repository-local copies of Codex design skills, an embedded AWS CLI installer, obsolete WordPress deployment plugins, superseded translation and API-token diagnostic scripts, unused Next.js starter assets, unused UI/config modules, local logs, and unreferenced roadmap drafts.
+- Removed the API-token diagnostic from the default Node test discovery path; it made external authenticated requests and was not a website regression test.
+
+Validated:
+
+- `npm test` passes all 35 tests, including the translation pipeline coverage.
+- `npm run build` completes successfully while using the documented local-content fallback because the Docker-only PostgreSQL hostname is unreachable on the host.
+- `npm run lint` completes with zero errors and two pre-existing unused-variable warnings outside the new pipeline.
+- The post-cleanup validation completes with 34 passing website tests, a successful production build, and zero lint errors (one pre-existing warning remains).
+- The generated codebase knowledge graph validates with 176 nodes, 376 edges, eight architectural layers, and four onboarding tour steps.
+- All workflow diagrams pass draw.io structural validation; current and serverless diagrams score with no warnings.
+
+Known limitation:
+
+- The local translation audit and three-post pilot require a reachable PostgreSQL service. The current `.env` resolves PostgreSQL through Docker hostname `postgres`, but Docker is unavailable in this execution environment, so no database record was read or changed.
+
+
 ## 2026-07-30
 
 Added:
@@ -319,3 +401,38 @@ Never break:
 - Vietnamese default locale and English locale.
 - Responsive design, dark/light theme, and SEO rendering.
 - Comments, GitHub OAuth, Google OAuth, and comment approval workflow.
+# 2026-08-03 — Project portfolio subdomain
+
+- Added a dedicated LinuxUnity project portfolio layout with a responsive, filterable timeline and static detail routes.
+- Added three clearly marked placeholder projects backed by a typed, runtime-validated content model.
+- Added project-specific metadata, canonical URLs, CreativeWork structured data, sitemap, robots, accessible navigation, and responsive architecture placeholders.
+- Added the absolute Project link to the shared blog navigation and configured the actual repository URL from the Git remote.
+- Added hostname routing and Nginx/Certbot configuration for `project.linuxunity.com` while retaining the existing single ECR image and `docker compose up --no-build` production model.
+- Added portfolio regression tests and deployment/DNS documentation.
+- Added a dedicated Payload `projects` collection, migration, generated types, seed command, published-project preview, and Payload-first project reader. Project content remains isolated from blog posts and local sample data is used only when Payload is unavailable or its query fails.
+- Kept Project administration content-focused by deriving public metadata from title and summary instead of exposing editable SEO fields.
+- Fixed the production runner image so Payload migrations can resolve the separate Projects collection and project seed content at container startup.
+- Made Payload CLI startup independent of the TypeScript `@/*` alias for runtime config imports, preventing `payload migrate` from treating `@/collections` as an npm package in production containers.
+- Added the documented AWS Serverless Event Registration System to the project portfolio with repository evidence, implementation details, security and observability notes, and an architecture diagram.
+- Changed the project subdomain to clean public URLs (`/` and `/{slug}`), introduced an accessible light theme, translated the project UI to English, and made the explicit project seed command update existing CMS records as well as create missing ones.
+
+# 2026-08-03 — AWS certification content planning
+
+- Added a Vietnamese MDX article outline for the DVA-C02 Lambda execution model, covering lifecycle, handler, context, timeout, basic concurrency, a mini-lab, exam traps, and review questions.
+- Split Lambda Layers and advanced concurrency details into follow-up article topics to keep the first lesson focused.
+
+# 2026-08-03 — Project navigation, data bootstrap, and theme
+
+- Fixed the project header order to Blog, Projects, About and linked the LinuxUnity logo back to `https://linuxunity.com`.
+- Removed the global blog-repository shortcut from the project header; project detail pages now show a GitHub icon only when that project has its own repository URL.
+- Enabled the existing persisted system/dark/light theme controls on project list and detail pages, with project-specific dark color tokens.
+- Prevented project theme initialization from producing a React hydration mismatch.
+- Added a one-time Payload data migration that initializes the project collection only when it has never contained a record, without merging or overwriting CMS-managed content.
+- Removed the final lint warning from the unused read-time locale argument without changing read-time behavior.
+
+# 2026-08-04 — AWS deployment series architecture outline
+
+- Added matching Vietnamese and English MDX outlines for analyzing the current LinuxUnity architecture.
+- Included placeholders for the system overview, reading, publishing, authentication/comment, and deployment-topology diagrams.
+- Covered current components, data boundaries, dependencies, failure boundaries, strengths, limitations, and protected architectural decisions.
+- Reserved Docker guidance, AWS mappings, certification coverage, and migration roadmaps for later articles.

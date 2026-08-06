@@ -61,6 +61,10 @@ public/uploads/
 dist/
 .cache/
 .tmp/
+.translation-work/
+.deploy-state/
+.drawio-profile/
+.understand-anything/
 
 # vercel
 .vercel

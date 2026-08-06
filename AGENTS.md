@@ -8,8 +8,9 @@ This file is mandatory context for Codex and any AI agent working in this repo.
 - Do not replace Payload CMS with another CMS.
 - Do not change the database schema or Payload collections unless the user explicitly requests it.
 - Do not rewrite working components, routes, collections, or deployment scripts.
-- Preserve the existing fallback model: Payload CMS is primary, local content/data files are fallback.
+- Preserve the source-of-truth model: Payload is authoritative whenever reachable; local content/data is used only when Payload is unavailable or a query fails. Never merge deleted CMS entities back from fallback files.
 - Preserve the current bilingual routing model: Vietnamese is the default locale and English is optional via `/en`.
+- Production images are built in GitHub Actions, stored in ECR under immutable Git SHA tags, and pulled by the VPS. Production Compose must never build from the VPS checkout.
 
 ## Feature Protection
 
@@ -37,6 +38,8 @@ The following features are immutable unless the user explicitly requests a chang
 - Responsive design
 - Dark/light theme
 - SEO rendering
+- Shared responsive series-row design on home and series list pages
+- Cache-busted App Router `icon.png` and `apple-icon.png` generated from the current brand logo
 
 ### User Features
 
@@ -44,6 +47,15 @@ The following features are immutable unless the user explicitly requests a chang
 - GitHub OAuth
 - Google OAuth
 - Comment approval workflow
+
+### Operations
+
+- Pre-deploy backups run before Payload migrations.
+- Persistent backup scope includes Postgres, Payload media, runtime JSON data, Uptime Kuma, and translation work.
+- ECR is the image rollback source; it is not a database or media backup.
+- Image-only rollback must not modify persistent data.
+- Full rollback requires explicit confirmation and restores the image recorded in the backup manifest together with persistent data.
+- Production deploys use `docker compose up --no-build`; local builds use `docker-compose.build.yml` explicitly.
 
 ## Coding Rules
 
@@ -86,4 +98,5 @@ After coding:
 - `main` is production only.
 - `develop` is integration and validation.
 - Feature work must happen on `feature/*`, `bugfix/*`, `hotfix/*`, or `codex/*`.
+- Prefer `feature/*`, `bugfix/*`, or `hotfix/*` for repository work; use `codex/*` only when explicitly appropriate.
 - Codex must not commit directly to `main`.

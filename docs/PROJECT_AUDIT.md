@@ -17,14 +17,14 @@ This project is a Next.js App Router blog and Payload CMS application deployed a
 ## 2. Main Modules
 
 - `src/payload.config.ts`: Payload collections, editor features, uploads, access rules, hooks, and database adapter.
-- `src/lib/cms/payload.ts`: Payload read/write adapter, content rendering, fallback merge, comments, views, and OAuth user upsert.
+- `src/lib/cms/payload.ts`: Payload read/write adapter, content rendering, outage fallback selection, comments, views, and OAuth user upsert.
 - `src/app/[lang]`: Localized frontend routes for home, blog, post detail, search, series, feed, and about.
 - `src/app/api`: Public and auth APIs for posts, comments, search, auth callbacks, newsletter, health, revalidation, and post views.
 - `src/app/components`: UI components for header, footer, pages, article rendering, comments, search, theme, code blocks, images, and Mermaid.
 - `src/i18n`: Locale config, metadata, alternates, and localization helpers.
 - `src/migrations`: Payload database migrations.
 - `scripts`: Import, repair, sync, backup, restore, deploy, and content audit utilities.
-- `deploy`: Nginx, certbot, and legacy WordPress migration/support assets.
+- `deploy`: Nginx and Certbot runtime assets.
 
 ## 3. Data Flow
 
@@ -33,10 +33,10 @@ This project is a Next.js App Router blog and Payload CMS application deployed a
 3. Media uploads are stored under `public/uploads` and mounted as `payload_media` in Docker.
 4. Frontend routes call `getCmsPublishedPosts`, `getCmsPostBySlug`, and `getCmsSeries`.
 5. Payload content is mapped into the existing `Post` and `Series` shapes.
-6. If Payload or Postgres is unavailable, frontend data falls back to local content/data sources.
+6. If Payload or Postgres is unavailable or a query fails, frontend data falls back to local sources. Successful CMS results remain authoritative, including empty results after deletion.
 7. Rich text is converted to HTML, sanitized, highlighted, enhanced with code copy controls, Mermaid rendering, and image enhancement.
 8. Comments require OAuth session, are created as pending, and only approved comments are public.
-9. Deployment builds an image in CI, deploys to VPS, runs compose, waits for health, and runs post repair.
+9. Deployment builds an immutable SHA image in CI, backs up persistent data before migration, pulls it from ECR on the VPS, starts Compose with `--no-build`, waits for health, and records rollback state.
 
 ## 4. Working Features
 
@@ -54,6 +54,7 @@ This project is a Next.js App Router blog and Payload CMS application deployed a
 - Post view tracking with Payload and local fallback.
 - Docker Compose production stack with Nginx, app, Postgres, Redis, Uptime Kuma, and Certbot.
 - Production GitHub Actions deployment to ECR and VPS.
+- Pre-deploy backup plus image-only and full-data rollback automation.
 
 ## 5. Broken Or Risky Features Found
 

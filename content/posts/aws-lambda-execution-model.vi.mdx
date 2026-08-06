@@ -1,0 +1,224 @@
+---
+title: "AWS Lambda Execution Model: Handler, Context, Timeout và Concurrency"
+description: "Hiểu cách AWS Lambda khởi tạo và thực thi function, cách sử dụng handler và context, đồng thời xử lý timeout, cold start và concurrency trong DVA-C02."
+date: 2026-08-03
+author: nhatnghia
+category: AWS Certification
+tags:
+  - AWS
+  - Lambda
+  - DVA-C02
+  - Serverless
+  - Hands-on Lab
+series: aws-developer-associate-dva-c02
+seoTitle: "AWS Lambda Execution Model cho DVA-C02"
+seoDescription: "Học Lambda execution lifecycle, handler, context, timeout, cold start và concurrency qua một mini-lab thực hành dành cho AWS DVA-C02."
+---
+
+# AWS Lambda Execution Model: Handler, Context, Timeout và Concurrency
+
+> **Phạm vi:** Bài này tập trung vào execution model và concurrency căn bản. Lambda Layers, event source mapping và provisioned concurrency nâng cao sẽ được tách thành bài riêng.
+
+## 1. Mục tiêu học tập
+
+Sau bài này, người đọc có thể:
+
+- Mô tả vòng đời `Init → Invoke → Shutdown` của Lambda.
+- Phân biệt cold start và warm start.
+- Giải thích vai trò của `event`, `handler` và `context`.
+- Dùng `context.getRemainingTimeInMillis()` để kiểm soát timeout.
+- Tính concurrency từ request rate và thời gian xử lý.
+- Phân biệt account, reserved và provisioned concurrency ở mức căn bản.
+- Chẩn đoán timeout và throttling bằng CloudWatch metrics.
+
+## 2. Liên kết với DVA-C02
+
+- **Domain 1 — Development with AWS Services:** phát triển và tối ưu code chạy trên Lambda.
+- **Domain 4 — Troubleshooting and Optimization:** phát hiện timeout, throttling và vấn đề hiệu năng.
+
+Mở bài bằng tình huống: một Lambda API đôi lúc phản hồi chậm, khi tải tăng lại xuất hiện `TooManyRequestsException`. Để xử lý đúng, trước hết cần hiểu Lambda thực thi code và scale như thế nào.
+
+## 3. Execution environment và vòng đời Lambda
+
+### Sơ đồ cần minh họa
+
+```text
+Event source
+     |
+     v
+Lambda service
+     |
+     +-- Tái sử dụng environment đang rảnh
+     |
+     +-- Hoặc tạo environment mới
+             |
+             v
+          Init phase
+             |
+             v
+         Invoke phase
+             |
+             v
+       Freeze / Shutdown
+```
+
+### Các ý chính
+
+- **Init:** Lambda tải code, khởi động runtime và chạy code ngoài handler.
+- **Invoke:** Runtime truyền `event` và `context` rồi gọi handler.
+- **Freeze:** Environment có thể được giữ lại cho lần gọi tiếp theo.
+- **Shutdown:** Lambda loại bỏ environment khi không còn cần hoặc khi có lỗi/thay đổi cấu hình.
+- Cold start xảy ra khi Lambda phải tạo environment mới.
+- Warm start có thể tái sử dụng SDK client hoặc kết nối, nhưng ứng dụng không được phụ thuộc vào việc environment chắc chắn tồn tại.
+
+## 4. Handler, event và context
+
+```ts
+import type { Context } from "aws-lambda";
+
+export const handler = async (event: unknown, context: Context) => {
+  console.log({
+    requestId: context.awsRequestId,
+    functionName: context.functionName,
+    remainingTime: context.getRemainingTimeInMillis(),
+  });
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ message: "Hello from Lambda" }),
+  };
+};
+```
+
+Điểm cần giải thích:
+
+- Handler là entry point mà Lambda runtime gọi.
+- `event` chứa dữ liệu từ nguồn gọi; không có một schema chung cho mọi nguồn.
+- `context` chứa metadata của invocation và function.
+- `awsRequestId` phù hợp để làm correlation ID trong log.
+- `getRemainingTimeInMillis()` giúp function dừng an toàn trước timeout.
+- Với Node.js nên dùng `async/await` và trả kết quả hoặc ném exception rõ ràng.
+
+## 5. Code ngoài handler và khả năng tái sử dụng
+
+```ts
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+
+console.log("Execution environment initialized");
+
+const dynamodb = new DynamoDBClient({});
+let invocationCount = 0;
+
+export const handler = async () => {
+  invocationCount += 1;
+  return { invocationCount };
+};
+```
+
+- SDK client ngoài handler có thể được tái sử dụng trong warm environment.
+- `invocationCount` có thể tăng qua nhiều lần gọi nhưng không phải state bền vững.
+- Không lưu số dư, trạng thái đơn hàng hoặc session chỉ trong biến global.
+- Dữ liệu cần bền vững phải nằm trong DynamoDB, S3, ElastiCache hoặc database phù hợp.
+
+## 6. Timeout
+
+- Lambda tiêu chuẩn có timeout tối đa 900 giây.
+- Function dừng khi handler hoàn tất, ném lỗi hoặc hết timeout.
+- Không nên đặt 15 phút cho mọi function để che giấu code hoặc downstream chậm.
+- Chọn timeout dựa trên duration thực tế, timeout của downstream, retry policy và yêu cầu nghiệp vụ.
+
+```ts
+if (context.getRemainingTimeInMillis() < 2_000) {
+  throw new Error("Not enough time to continue safely");
+}
+```
+
+Với workload dài, cân nhắc chia nhỏ tác vụ, dùng SQS, Step Functions, ECS hoặc dịch vụ phù hợp hơn.
+
+## 7. Concurrency và throttling
+
+```text
+Concurrency ≈ requests/second × average duration in seconds
+```
+
+Ví dụ: `100 request/giây × 2 giây = 200 concurrent executions`.
+
+| Khái niệm | Vai trò |
+|---|---|
+| Account concurrency | Pool concurrency dùng chung trong một Region |
+| Reserved concurrency | Dành capacity và giới hạn concurrency tối đa của một function |
+| Provisioned concurrency | Khởi tạo trước environment để giảm cold-start latency |
+
+Nhấn mạnh:
+
+- Reserved concurrency không loại bỏ cold start.
+- Provisioned concurrency có chi phí bổ sung.
+- Reserved concurrency bằng `0` sẽ chặn function xử lý invocation.
+- Khi hết concurrency, invocation mới có thể bị throttled.
+
+## 8. Mini-lab: warm start, timeout và throttling
+
+### Chuẩn bị
+
+Tạo một function có:
+
+- Biến `environmentId` và `invocationCount` ngoài handler.
+- Tham số `delayMs` trong event.
+- Timeout 5 giây.
+- Reserved concurrency bằng 2.
+
+### Thực hiện
+
+1. Gọi tuần tự function ba lần và so sánh `environmentId`.
+2. Gửi `delayMs: 10000` để tạo timeout.
+3. Gửi 10 invocation đồng thời, mỗi invocation chờ 3 giây.
+4. Quan sát log và CloudWatch metrics.
+5. Thay đổi reserved concurrency rồi chạy lại để so sánh.
+
+### Kết quả cần quan sát
+
+- Warm invocation có thể dùng lại cùng `environmentId`.
+- Timeout làm metric `Errors` tăng.
+- Reserved concurrency bằng 2 giới hạn số invocation chạy đồng thời.
+- Invocation vượt giới hạn có thể tạo `TooManyRequestsException` và làm `Throttles` tăng.
+
+Metrics: `Invocations`, `Duration`, `Errors`, `Throttles`, `ConcurrentExecutions`.
+
+## 9. Exam traps
+
+1. Reserved concurrency cô lập hoặc giới hạn capacity, không loại bỏ cold start.
+2. Provisioned concurrency giảm cold start nhưng không thay thế reserved concurrency trong mọi trường hợp.
+3. Mỗi concurrent invocation cần một execution environment riêng.
+4. Global state có thể còn trong warm environment nhưng không phải durable state.
+5. Event schema phụ thuộc vào event source.
+6. Tăng timeout không phải giải pháp mặc định cho workload quá lâu.
+7. `context.getRemainingTimeInMillis()` trả thời gian còn lại của invocation hiện tại.
+
+## 10. Câu hỏi ôn tập
+
+1. Function nhận 250 request/giây, mỗi request chạy trung bình 0,4 giây. Concurrency ước tính là bao nhiêu?
+2. Cần bảo vệ database không nhận quá 30 kết nối đồng thời từ Lambda. Nên dùng cấu hình nào?
+3. Cần latency ổn định cho API đồng bộ và muốn giảm cold start. Nên cân nhắc cấu hình nào?
+4. Vì sao có thể tạo AWS SDK client ngoài handler nhưng không nên lưu trạng thái đơn hàng ở đó?
+5. Metric nào cho biết invocation bị từ chối vì thiếu concurrency?
+
+## 11. Checklist cuối bài
+
+- [ ] Giải thích được `Init`, `Invoke`, `Freeze` và `Shutdown`.
+- [ ] Phân biệt được cold start và warm start.
+- [ ] Phân biệt được `event` và `context`.
+- [ ] Biết khi nào nên khởi tạo SDK client ngoài handler.
+- [ ] Tính được concurrency từ throughput và duration.
+- [ ] Phân biệt được reserved và provisioned concurrency.
+- [ ] Biết dùng CloudWatch để tìm timeout và throttling.
+
+## 12. Bài tiếp theo
+
+**AWS Lambda Layers và dependency packaging:** cấu trúc layer, versioning, `/opt`, native dependency, kiến trúc ARM/x86 và khi nào không nên dùng layer.
+
+## Tài liệu tham khảo
+
+- [AWS Lambda execution environment lifecycle](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html)
+- [Define Lambda function handler in Node.js](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html)
+- [Using the Lambda context object](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-context.html)
+- [Understanding Lambda function scaling](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html)

@@ -18,12 +18,15 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { t, localePath } = useLanguage();
 
-  const navLinks = navigationConfig.main.map((link) => ({
-    href: localePath(link.href),
-    label: t(link.labelKey as Parameters<typeof t>[0]),
-  }));
+  const navLinks = navigationConfig.main
+    .filter((link) => !("hidden" in link && link.hidden))
+    .map((link) => ({
+      href: "external" in link && link.external ? link.href : localePath(link.href),
+      label: t(link.labelKey as Parameters<typeof t>[0]),
+      external: "external" in link && link.external,
+    }));
   const activeNavHref = navLinks
-    .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
+    .filter((link) => !link.external && (pathname === link.href || pathname.startsWith(`${link.href}/`)))
     .sort((left, right) => right.href.length - left.href.length)[0]?.href;
   const isSearchPage = pathname === localePath("/search");
 
@@ -52,7 +55,7 @@ export default function Header() {
           {/* Logo */}
           <Link href={localePath("/")} className="group flex min-w-0 items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border theme-border bg-white p-1 text-teal-700 shadow-sm transition duration-200 group-hover:border-teal-500 dark:bg-slate-900">
-              <Image src="/images/logo-icon.png" alt="LinuxUnity Logo" width={28} height={28} className="object-contain" />
+              <Image src="/images/linuxunity-penguin-logo.png" alt="LinuxUnity Logo" width={28} height={28} className="object-contain" />
             </div>
             <span className="truncate text-lg font-bold tracking-tight text-slate-950 dark:text-white">
               {siteConfig.name.replace("Unity", "")}<span className="font-extrabold text-teal-600 dark:text-emerald-300">Unity</span>

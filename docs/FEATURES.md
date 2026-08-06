@@ -275,6 +275,9 @@ Requirement:
 - Image build/push happens only after verification
 - VPS deploy starts healthy containers
 - Payload migrations run on app startup
+- Production Compose pulls immutable ECR SHA images and never builds VPS source
+- Pre-deploy backups cover Postgres, Payload media, runtime data, and Uptime Kuma
+- Image-only and full-data rollback procedures are documented and scripted
 
 Regression:
 
@@ -283,3 +286,35 @@ Regression:
 - Run `npm run build`
 - Run Docker build
 - Confirm `/api/health`
+
+## Project Portfolio
+
+Status: Implemented (sample content remains placeholder)
+
+Components:
+
+- Dedicated Payload `projects` collection with typed local fallback content
+- Static project list and detail routes
+- Client-side category and technology filters
+- Responsive alternating timeline
+- Dedicated project header and subdomain metadata
+- Nginx virtual host for `project.linuxunity.com`
+
+Requirement:
+
+- Serve the timeline at `https://project.linuxunity.com/`
+- Serve bookmarkable detail pages at `/projects/{slug}`
+- Keep project content ordered newest first
+- Preserve semantic links, keyboard focus, reduced motion, and mobile layout
+- Do not publish placeholder metrics or empty external links
+- Keep project content, statuses, tags, and case-study sections isolated from blog posts
+
+Regression:
+
+- Open the timeline at 375px, 768px, 1024px, and 1440px
+- Filter by AWS, DevOps, Kubernetes, and Terraform
+- Open each card and refresh the detail URL directly
+- Confirm an unknown slug returns the project 404 page
+- Confirm blog desktop and mobile navigation link to the project subdomain
+- Validate `/sitemap.xml`, `/robots.txt`, HTTPS redirect, and canonical tags on the project hostname
+- Create and edit a project from the independent `Project Portfolio > Projects` admin menu

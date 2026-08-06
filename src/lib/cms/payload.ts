@@ -205,7 +205,7 @@ async function renderPostContent(preferred: unknown, legacy: unknown) {
   return renderContent(legacy);
 }
 
-function estimateReadTime(content: string, _locale?: Locale) {
+function estimateReadTime(content: string) {
   const wordCount = content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(wordCount / 220));
   return `${minutes} min read`;
@@ -275,8 +275,8 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
       publishDate: publishedAt,
       publish_date: publishedAt,
       date: publishedAt,
-      readTime: estimateReadTime(contentVi, "vi"),
-      readTime_en: estimateReadTime(contentEn, "en"),
+      readTime: estimateReadTime(contentVi),
+      readTime_en: estimateReadTime(contentEn),
       views: 0,
       seriesSlug: null,
       topicSlug: "",
@@ -324,8 +324,8 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
     publishDate: publishedAt,
     publish_date: publishedAt,
     date: publishedAt,
-    readTime: asString(doc.readTimeVi, fallback?.readTime || estimateReadTime(contentVi, "vi")),
-    readTime_en: asString(doc.readTimeEn, fallback?.readTime_en || estimateReadTime(contentEn, "en")),
+    readTime: asString(doc.readTimeVi, fallback?.readTime || estimateReadTime(contentVi)),
+    readTime_en: asString(doc.readTimeEn, fallback?.readTime_en || estimateReadTime(contentEn)),
     views: Math.max(0, asNumber(doc.views, fallback?.views || 0)),
     seriesSlug: asString(series?.slug, fallback?.seriesSlug || "") || null,
     series: series
@@ -400,20 +400,6 @@ function mergePosts(primary: Post[], fallback: Post[]) {
   });
 }
 
-function mergeSeries(primary: Series[], fallback: Series[]) {
-  const seriesBySlug = new Map<string, Series>();
-  for (const item of fallback) seriesBySlug.set(item.slug, item);
-  for (const item of primary) {
-    const current = seriesBySlug.get(item.slug);
-    seriesBySlug.set(item.slug, {
-      ...(current || item),
-      ...item,
-      partsCount: current?.partsCount || item.partsCount || 0,
-    });
-  }
-  return Array.from(seriesBySlug.values());
-}
-
 async function withLocalViews(posts: Post[]) {
   const localViews = await getLocalPostViews();
   return posts.map((post) => ({
@@ -462,50 +448,36 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
   const limit = requestedLimit === undefined
     ? 100
     : Math.min(Math.max(Math.floor(requestedLimit) || 1, 1), 100);
-  const cacheScope = requestedLimit === undefined ? "all" : String(limit);
+  const posts = await getPayloadPublishedPosts(locale);
+  const counts = new Map<string, number>();
+  for (const post of posts) {
+    if (!post.seriesSlug) continue;
+    counts.set(post.seriesSlug, (counts.get(post.seriesSlug) || 0) + 1);
+  }
 
-  return cachedJson(`series:list:${locale}:${cacheScope}`, 30, async () => {
-    const posts = await getPayloadPublishedPosts(locale);
-    const counts = new Map<string, number>();
-    for (const post of posts) {
-      if (!post.seriesSlug) continue;
-      counts.set(post.seriesSlug, (counts.get(post.seriesSlug) || 0) + 1);
-    }
+  const fallback = fileSeries.map((item) => ({
+    ...item,
+    partsCount: counts.get(item.slug) ?? 0,
+  }));
+  const payload = await getPayloadClient();
+  if (!payload) return requestedLimit === undefined ? fallback : fallback.slice(0, limit);
 
-    const fallback = fileSeries.map((item) => ({
-      ...item,
-      partsCount: counts.get(item.slug) ?? 0,
+  try {
+    const result = await payload.find({
+      collection: "series",
+      depth: 0,
+      limit,
+      sort: requestedLimit === undefined ? "titleVi" : "-createdAt",
+    });
+    const payloadSeries = result.docs.map((doc) => ({
+      ...mapPayloadSeries(asPayloadDoc(doc)),
+      partsCount: counts.get(asString(asPayloadDoc(doc).slug)) ?? 0,
     }));
-    const payload = await getPayloadClient();
-    if (!payload) return requestedLimit === undefined ? fallback : fallback.slice(0, limit);
-
-    try {
-      const result = await payload.find({
-        collection: "series",
-        depth: 0,
-        limit,
-        sort: requestedLimit === undefined ? "titleVi" : "-createdAt",
-      });
-      const payloadSeries = result.docs.map((doc) => mapPayloadSeries(asPayloadDoc(doc)));
-      const withFallback = requestedLimit === undefined
-        ? mergeSeries(payloadSeries, fallback)
-        : [
-            ...payloadSeries.map((item) => ({
-              ...(fallback.find((fallbackItem) => fallbackItem.slug === item.slug) || item),
-              ...item,
-            })),
-            ...fallback.filter((item) => !payloadSeries.some((payloadItem) => payloadItem.slug === item.slug)),
-          ];
-      const localizedSeries = withFallback.map((item) => ({
-        ...item,
-        partsCount: counts.get(item.slug) ?? 0,
-      }));
-      return requestedLimit === undefined ? localizedSeries : localizedSeries.slice(0, limit);
-    } catch (error) {
-      console.error("Unable to fetch Payload series", { locale, error });
-      return requestedLimit === undefined ? fallback : fallback.slice(0, limit);
-    }
-  });
+    return requestedLimit === undefined ? payloadSeries : payloadSeries.slice(0, limit);
+  } catch (error) {
+    console.error("Unable to fetch Payload series", { locale, error });
+    return requestedLimit === undefined ? fallback : fallback.slice(0, limit);
+  }
 }
 
 export const getCmsSeries = getPayloadSeries;

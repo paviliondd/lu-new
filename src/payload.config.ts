@@ -5,7 +5,8 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
 import { APIError, buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
 import sharp from "sharp";
-import { legacyImportedMediaURL } from "@/lib/cms/media-url";
+import { Projects } from "./collections/Projects";
+import { legacyImportedMediaURL } from "./lib/cms/media-url";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -1091,7 +1092,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
   },
-  collections: [Users, Media, Authors, Series, Posts, Comments],
+  collections: [Users, Media, Authors, Series, Posts, Comments, Projects],
   db: postgresAdapter({
     migrationDir: path.resolve(dirname, "migrations"),
     pool: {

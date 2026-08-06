@@ -1,30 +1,59 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { test } from "node:test";
+import test from "node:test";
 
-test("production publishes immutable and current ECR tags", async () => {
+test("production deploys an immutable ECR image and promotes only after SSH succeeds", async () => {
   const workflow = await readFile(".github/workflows/deploy-production.yml", "utf8");
+  const deployIndex = workflow.indexOf("name: Deploy over SSH");
+  const promoteIndex = workflow.indexOf("name: Promote successfully deployed image");
 
-  assert.match(workflow, /if: github\.ref == 'refs\/heads\/main'/);
-  assert.match(workflow, /--tag "\$\{IMAGE\}:latest"/);
-  assert.match(workflow, /--tag "\$\{IMAGE\}:production"/);
   assert.match(workflow, /--tag "\$\{IMAGE\}:\$\{GITHUB_SHA\}"/);
-  assert.match(
-    workflow,
-    /APP_IMAGE="\$\{AWS_ECR_REGISTRY\}\/\$\{AWS_ECR_REPOSITORY\}:\$\{\{ github\.sha \}\}"/,
-  );
-  assert.match(workflow, /DEPLOY_IMAGE_SOURCE="registry"/);
-  assert.match(workflow, /git reset --hard origin\/main/);
-  assert.match(workflow, /DEPLOY_SKIP_GIT_SYNC="true"/);
+  assert.match(workflow, /APP_IMAGE="\$\{AWS_ECR_REGISTRY\}\/\$\{AWS_ECR_REPOSITORY\}:\$\{\{ github\.sha \}\}"/);
+  assert.match(workflow, /DEPLOY_CREATE_BACKUP="true"/);
+  assert.match(workflow, /DEPLOY_PRUNE_IMAGES="true"/);
+  assert.match(workflow, /--tag "\$\{IMAGE\}:production"/);
+  assert.ok(deployIndex >= 0 && promoteIndex > deployIndex);
+  assert.match(workflow, /cache-from type=gha,scope=production/);
+  assert.match(workflow, /cache-to type=gha,scope=production,mode=min/);
 });
 
-test("registry deployment pulls the verified image without rebuilding it", async () => {
+test("production Compose cannot rebuild stale VPS source", async () => {
+  const compose = await readFile("docker-compose.yml", "utf8");
+  const buildOverride = await readFile("docker-compose.build.yml", "utf8");
   const deployScript = await readFile("scripts/deploy.sh", "utf8");
 
-  assert.match(deployScript, /DEPLOY_IMAGE_SOURCE="\$\{DEPLOY_IMAGE_SOURCE:-build\}"/);
-  assert.match(deployScript, /DEPLOY_SKIP_GIT_SYNC="\$\{DEPLOY_SKIP_GIT_SYNC:-false\}"/);
-  assert.match(deployScript, /Using checkout synchronized by the deployment caller/);
-  assert.match(deployScript, /docker compose pull app/);
+  assert.doesNotMatch(compose, /^\s+build:\s*$/m);
+  assert.match(buildOverride, /^\s+build:\s*$/m);
+  assert.doesNotMatch(deployScript, /docker compose build app/);
   assert.match(deployScript, /docker compose up -d --remove-orphans --no-build/);
-  assert.match(deployScript, /docker compose build app/);
+  assert.match(deployScript, /APP_IMAGE must use an immutable Git SHA tag/);
+});
+
+test("production image includes Payload config source dependencies", async () => {
+  const dockerfile = await readFile("Dockerfile", "utf8");
+  const payloadConfig = await readFile("src/payload.config.ts", "utf8");
+
+  assert.match(dockerfile, /\/app\/src\/collections \.\/src\/collections/);
+  assert.match(dockerfile, /\/app\/src\/content\/projects \.\/src\/content\/projects/);
+  assert.match(dockerfile, /\/app\/src\/payload\.config\.ts \.\/src\/payload\.config\.ts/);
+  assert.match(dockerfile, /\/app\/src\/migrations \.\/src\/migrations/);
+  assert.match(payloadConfig, /from "\.\/collections\/Projects"/);
+  assert.doesNotMatch(payloadConfig, /from "@\/collections\/Projects"/);
+});
+
+test("deployment backs up persistent data and records ECR rollback state", async () => {
+  const deployScript = await readFile("scripts/deploy.sh", "utf8");
+  const backupScript = await readFile("scripts/backup.sh", "utf8");
+  const rollbackScript = await readFile("scripts/rollback.sh", "utf8");
+
+  assert.match(deployScript, /BACKUP_REASON=pre-deploy sh scripts\/backup\.sh/);
+  assert.match(deployScript, /previous-image/);
+  assert.match(deployScript, /docker image rm "\$DEPLOY_ROLLBACK_IMAGE"/);
+  assert.match(backupScript, /payload-postgres\.dump/);
+  assert.match(backupScript, /payload-media\.tgz/);
+  assert.match(backupScript, /app-runtime-data\.tgz/);
+  assert.match(backupScript, /uptime-kuma-data\.tgz/);
+  assert.match(backupScript, /aws s3 cp/);
+  assert.match(rollbackScript, /CONFIRM_ROLLBACK/);
+  assert.match(rollbackScript, /scripts\/restore\.sh/);
 });

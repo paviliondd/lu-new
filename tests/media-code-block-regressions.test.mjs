@@ -115,6 +115,7 @@ test("article title, hero, headings, media, and code share the reading column", 
   ]);
 
   assert.match(articleClient, /<header className="article-reading-frame/);
+  assert.doesNotMatch(articleClient, /\{post\.description\}/);
   assert.match(articleClient, /className="article-reading-frame relative aspect-\[2\/1\]/);
   assert.match(globalStyles, /--article-column-width: 46rem/);
   assert.match(globalStyles, /\.article-reading-frame\s*\{[\s\S]*max-width: var\(--article-column-width\)/);

@@ -10,10 +10,48 @@ const reservedSegments = new Set([
   "rss.xml",
   "search",
   "team",
+  "projects",
 ]);
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get("host")?.split(":")[0].toLowerCase();
+  const projectDomain = (process.env.PROJECT_DOMAIN || "project.linuxunity.com").toLowerCase();
+
+  if (hostname === projectDomain || hostname === "project.localhost") {
+    if (pathname === "/") {
+      const projectUrl = request.nextUrl.clone();
+      projectUrl.pathname = "/projects";
+      return NextResponse.rewrite(projectUrl);
+    }
+    if (pathname === "/projects") {
+      const projectUrl = request.nextUrl.clone();
+      projectUrl.pathname = "/";
+      return NextResponse.redirect(projectUrl, 308);
+    }
+    if (pathname.startsWith("/projects/")) {
+      const projectUrl = request.nextUrl.clone();
+      projectUrl.pathname = pathname.replace(/^\/projects/, "");
+      return NextResponse.redirect(projectUrl, 308);
+    }
+    if (request.method === "GET" && pathname.split("/").filter(Boolean).length === 1) {
+      const projectUrl = request.nextUrl.clone();
+      projectUrl.pathname = `/projects${pathname}`;
+      return NextResponse.rewrite(projectUrl);
+    }
+    return NextResponse.next();
+  }
+
+  const siteDomain = (process.env.SITE_DOMAIN || "linuxunity.com").toLowerCase();
+  const wwwDomain = (process.env.SITE_WWW_DOMAIN || `www.${siteDomain}`).toLowerCase();
+  if ((hostname === siteDomain || hostname === wwwDomain) && (pathname === "/projects" || pathname.startsWith("/projects/"))) {
+    const projectUrl = request.nextUrl.clone();
+    projectUrl.protocol = "https";
+    projectUrl.hostname = projectDomain;
+    projectUrl.port = "";
+    projectUrl.pathname = pathname === "/projects" ? "/" : pathname.replace(/^\/projects/, "");
+    return NextResponse.redirect(projectUrl, 308);
+  }
   const segments = pathname.split("/").filter(Boolean);
   const hasEnglishPrefix = pathname === "/en" || pathname.startsWith("/en/");
   const hasVietnamesePrefix = pathname === "/vi" || pathname.startsWith("/vi/");

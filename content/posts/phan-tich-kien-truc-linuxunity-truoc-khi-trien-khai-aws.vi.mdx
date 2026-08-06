@@ -1,0 +1,303 @@
+---
+title: "Phân tích kiến trúc hiện tại của LinuxUnity"
+description: "Phân tích các thành phần, luồng dữ liệu, ranh giới và cách vận hành của LinuxUnity với Next.js, Payload CMS, PostgreSQL, Redis, Docker Compose và Nginx."
+date: 2026-08-04
+author: nhatnghia
+category: DevOps
+tags:
+  - Architecture
+  - Next.js
+  - Payload CMS
+  - PostgreSQL
+  - Redis
+  - Docker
+series: docker-to-eks-on-aws
+seoTitle: "Phân tích kiến trúc hiện tại của LinuxUnity"
+seoDescription: "Tìm hiểu kiến trúc, luồng request, luồng xuất bản, dữ liệu và cách triển khai hiện tại của LinuxUnity trước khi thực hiện các thay đổi hạ tầng."
+---
+
+# Phân tích kiến trúc hiện tại của LinuxUnity
+
+> **Phạm vi:** Bài viết chỉ phân tích hệ thống đang tồn tại. Các chủ đề Docker, triển khai AWS, CI/CD, migration, ECS và EKS sẽ được trình bày trong những bài riêng.
+
+## 1. Giới thiệu
+
+<!-- TODO:
+- LinuxUnity là sản phẩm gì?
+- Vì sao cần hiểu kiến trúc hiện tại trước khi thay đổi hạ tầng?
+- Bài viết sẽ phân tích những gì và không phân tích những gì?
+-->
+
+## 2. Yêu cầu của hệ thống
+
+### Yêu cầu chức năng
+
+- Xuất bản và hiển thị bài viết.
+- Quản lý nội dung bằng Payload CMS.
+- Hỗ trợ tiếng Việt mặc định và tiếng Anh qua `/en`.
+- Quản lý categories, tags, series và media.
+- Hỗ trợ tìm kiếm, bình luận và lượt xem.
+- Đăng nhập bằng GitHub hoặc Google.
+- Render SEO metadata, sitemap và RSS feed.
+
+<!-- TODO: Bổ sung hoặc điều chỉnh theo chức năng thực tế muốn giới thiệu trong bài. -->
+
+### Yêu cầu phi chức năng
+
+- Giao diện responsive và hỗ trợ dark/light theme.
+- Nội dung vẫn có fallback khi Payload không khả dụng hoặc truy vấn thất bại.
+- Dữ liệu production phải tồn tại qua các lần restart container.
+- Application image phải có thể xác định chính xác theo phiên bản.
+- Hệ thống phải hỗ trợ backup và khôi phục dữ liệu.
+
+<!-- TODO: Không đưa mục tiêu tương lai vào đây; chỉ mô tả các thuộc tính hệ thống hiện có. -->
+
+## 3. Tổng quan kiến trúc
+
+<!-- IMAGE PLACEHOLDER
+Tên gợi ý: linuxunity-current-architecture.webp
+Alt text: Sơ đồ kiến trúc hiện tại của LinuxUnity
+
+Các thành phần cần thể hiện:
+- Người đọc và biên tập viên
+- DNS/HTTPS
+- Nginx
+- Next.js và Payload CMS trong cùng application
+- PostgreSQL
+- Redis
+- Payload media volume
+- Runtime fallback data
+-->
+
+<!-- TODO: Viết một đoạn mô tả sơ đồ từ ngoài vào trong. -->
+
+## 4. Các thành phần chính
+
+| Thành phần | Công nghệ | Vai trò |
+|---|---|---|
+| Web application | Next.js App Router, React, TypeScript | Render giao diện, route, API và SEO |
+| CMS | Payload CMS | Quản lý bài viết, media, user và comment |
+| Database | PostgreSQL | Lưu dữ liệu chính của Payload |
+| Cache/runtime support | Redis | Hỗ trợ cache và dữ liệu runtime |
+| Reverse proxy | Nginx | Tiếp nhận và chuyển tiếp request đến application |
+| Container runtime | Docker Compose | Khởi chạy và kết nối các service |
+| Media storage | Docker volume | Lưu file được upload qua Payload |
+| Fallback storage | Local content và JSON data | Dùng khi Payload không khả dụng hoặc query thất bại |
+
+### Next.js và Payload CMS
+
+<!-- TODO:
+- Giải thích frontend và CMS nằm trong cùng một deployable application.
+- Route công khai, API và `/admin` được phục vụ như thế nào?
+- Vì sao kiến trúc này là modular monolith, không phải microservices?
+-->
+
+### PostgreSQL
+
+<!-- TODO:
+- Những nhóm dữ liệu nào được lưu trong PostgreSQL?
+- Vì sao PostgreSQL là nguồn dữ liệu nghiệp vụ quan trọng nhất?
+-->
+
+### Redis
+
+<!-- TODO:
+- Redis đang được ứng dụng sử dụng tại đâu?
+- Dữ liệu nào có thể tái tạo và dữ liệu nào không nên phụ thuộc hoàn toàn vào Redis?
+- Chỉ ghi kết luận sau khi kiểm chứng implementation hiện tại.
+-->
+
+### Nginx
+
+<!-- TODO:
+- Nginx đứng ở đâu trong request path?
+- Nginx định tuyến hostname/path nào?
+- Trách nhiệm HTTPS, proxy header và static/media request hiện tại.
+-->
+
+### Media và dữ liệu fallback
+
+<!-- TODO:
+- Phân biệt media upload với local fallback content.
+- Giải thích vòng đời và nơi lưu của từng loại dữ liệu.
+-->
+
+## 5. Luồng đọc một bài viết
+
+<!-- IMAGE PLACEHOLDER
+Tên gợi ý: linuxunity-read-request-flow.webp
+Alt text: Luồng request khi người dùng đọc một bài viết trên LinuxUnity
+-->
+
+1. <!-- TODO: Người đọc gửi request đến domain. -->
+2. <!-- TODO: Nginx tiếp nhận và chuyển request. -->
+3. <!-- TODO: Next.js xác định route và locale. -->
+4. <!-- TODO: Application lấy bài viết từ Payload. -->
+5. <!-- TODO: PostgreSQL trả dữ liệu bài viết và quan hệ liên quan. -->
+6. <!-- TODO: Next.js render nội dung, media và metadata. -->
+7. <!-- TODO: Những request phụ như view count nếu có. -->
+
+### Khi Payload không khả dụng
+
+<!-- TODO: Mô tả điều kiện application sử dụng local fallback. -->
+
+> Payload là nguồn dữ liệu có thẩm quyền khi có thể truy cập. Local content/data chỉ là fallback khi Payload không khả dụng hoặc truy vấn thất bại. Kết quả CMS rỗng nhưng hợp lệ vẫn phải được giữ nguyên; không được merge dữ liệu cũ từ fallback vào kết quả đó.
+
+## 6. Luồng biên tập và xuất bản
+
+<!-- IMAGE PLACEHOLDER
+Tên gợi ý: linuxunity-publishing-flow.webp
+Alt text: Luồng biên tập và xuất bản bài viết qua Payload CMS
+-->
+
+1. Biên tập viên truy cập `/admin`.
+2. <!-- TODO: Xác thực và mở editor. -->
+3. <!-- TODO: Soạn nội dung và chọn metadata trong sidebar. -->
+4. <!-- TODO: Upload hoặc chọn media. -->
+5. <!-- TODO: Payload thực hiện publish validation. -->
+6. <!-- TODO: Dữ liệu được ghi vào PostgreSQL và media volume. -->
+7. <!-- TODO: Frontend đọc phiên bản đã xuất bản. -->
+
+### Nội dung song ngữ
+
+<!-- TODO:
+- Các field tiếng Việt và tiếng Anh.
+- Quy tắc route `/`, `/vi` và `/en`.
+- Trường hợp nội dung tiếng Anh chưa tồn tại.
+-->
+
+## 7. Luồng xác thực và bình luận
+
+<!-- IMAGE PLACEHOLDER
+Tên gợi ý: linuxunity-auth-comment-flow.webp
+Alt text: Luồng đăng nhập OAuth, gửi và duyệt bình luận trên LinuxUnity
+-->
+
+<!-- TODO:
+- GitHub/Google OAuth callback.
+- Session cookie.
+- User được đồng bộ với Payload ra sao?
+- Comment mới ở trạng thái nào?
+- Khi nào comment xuất hiện công khai?
+-->
+
+## 8. Dữ liệu và trạng thái
+
+| Nhóm dữ liệu | Nơi lưu | Có cần bảo toàn? | Ghi chú |
+|---|---|---|---|
+| Nội dung CMS | PostgreSQL | Có | Nguồn dữ liệu chính |
+| User và comment | PostgreSQL | Có | Dữ liệu nghiệp vụ |
+| Media upload | Payload media volume | Có | Gắn trực tiếp với nội dung |
+| Runtime JSON data | Local persistent data | Có | Dữ liệu fallback/runtime tùy chức năng |
+| Cache | Redis | Tùy loại dữ liệu | Cần kiểm chứng khả năng tái tạo |
+| Application image | ECR | Có thể tái triển khai | Không thay thế backup dữ liệu |
+
+### Stateful components
+
+<!-- TODO: Phân tích vì sao PostgreSQL, media và một phần runtime data là stateful. -->
+
+### Stateless components
+
+<!-- TODO: Phân tích phần nào của application và Nginx có thể được tạo lại từ image/config. -->
+
+### Ranh giới giữa artifact và dữ liệu
+
+<!-- TODO: Giải thích ngắn application image khác database/media backup như thế nào. Không đi sâu vào quy trình backup; để dành cho bài riêng. -->
+
+## 9. Topology triển khai hiện tại
+
+<!-- IMAGE PLACEHOLDER
+Tên gợi ý: linuxunity-deployment-topology.webp
+Alt text: Topology triển khai các container LinuxUnity trên một production host
+-->
+
+<!-- TODO:
+- Các container chạy trên production host.
+- Container nào nhận traffic bên ngoài?
+- Các container giao tiếp qua network nào?
+- Volume nào được mount vào service nào?
+- Image của application đến từ đâu?
+-->
+
+### Network boundary
+
+<!-- TODO: Phân biệt public entry point và internal service communication. -->
+
+### Process và container boundary
+
+<!-- TODO: Một lỗi ở app, database, Redis hoặc Nginx ảnh hưởng đến phần nào của hệ thống? -->
+
+### Persistence boundary
+
+<!-- TODO: Dữ liệu nào nằm ngoài vòng đời container? -->
+
+## 10. Dependency và failure boundary
+
+| Dependency gặp sự cố | Hành vi dự kiến | Điều cần kiểm chứng |
+|---|---|---|
+| Nginx | <!-- TODO --> | Health check và error response |
+| Next.js/Payload application | <!-- TODO --> | Restart policy và availability |
+| PostgreSQL | <!-- TODO --> | CMS, frontend và fallback behavior |
+| Redis | <!-- TODO --> | Chức năng nào suy giảm hoặc thất bại |
+| Media volume | <!-- TODO --> | Upload và hiển thị media |
+| OAuth provider | <!-- TODO --> | Login mới và session hiện có |
+
+<!-- TODO: Phân biệt single point of failure với dependency có graceful degradation. -->
+
+## 11. Điểm mạnh của kiến trúc hiện tại
+
+- <!-- TODO: Nêu điểm mạnh dựa trên bằng chứng từ implementation. -->
+- <!-- TODO: Ví dụ về sự đơn giản trong triển khai và vận hành. -->
+- <!-- TODO: Ví dụ về tính nhất quán của frontend và CMS. -->
+- <!-- TODO: Ví dụ về cơ chế fallback có kiểm soát. -->
+
+## 12. Giới hạn của kiến trúc hiện tại
+
+- <!-- TODO: Chỉ mô tả giới hạn, chưa đề xuất AWS service để thay thế. -->
+- <!-- TODO: Xem xét host dependency, scaling, persistence và observability. -->
+- <!-- TODO: Phân biệt giới hạn thực tế với giả định chưa được đo lường. -->
+
+> Các giới hạn trong phần này là đầu vào cho những bài thiết kế và triển khai tiếp theo, không phải kết luận rằng kiến trúc hiện tại đang sai.
+
+## 13. Các quyết định kiến trúc cần được bảo toàn
+
+- Payload CMS là nguồn dữ liệu có thẩm quyền khi có thể truy cập.
+- Local data chỉ là fallback, không được merge vào một CMS query thành công.
+- Tiếng Việt là locale mặc định; tiếng Anh được phục vụ qua `/en`.
+- Next.js, Payload CMS, PostgreSQL và Redis tiếp tục là stack cốt lõi.
+- Các tính năng CMS, SEO, media, comment và OAuth phải được giữ nguyên.
+
+## 14. Kết luận
+
+<!-- TODO:
+- Tóm tắt kiến trúc hiện tại trong 3-5 ý.
+- Nêu những câu hỏi đã trả lời được.
+- Nêu những điểm còn cần đo hoặc kiểm chứng.
+- Không giới thiệu giải pháp AWS cụ thể trong phần kết luận.
+-->
+
+## Bài tiếp theo
+
+<!-- TODO: Chỉ điền liên kết khi đã quyết định và xuất bản bài tiếp theo. -->
+
+## Tài liệu tham khảo
+
+<!-- TODO:
+- Tài liệu nội bộ về Payload CMS flow.
+- Docker Compose và deployment files đã dùng để phân tích.
+- Tài liệu chính thức của các framework liên quan nếu thực sự được trích dẫn.
+-->
+
+## Checklist hoàn thiện bản thảo
+
+- [ ] Đối chiếu nội dung với source code hiện tại.
+- [ ] Đối chiếu topology với Docker Compose và Nginx config.
+- [ ] Kiểm chứng chính xác vai trò của Redis.
+- [ ] Kiểm chứng toàn bộ điều kiện fallback.
+- [ ] Bổ sung sơ đồ kiến trúc tổng quan.
+- [ ] Bổ sung sơ đồ luồng đọc bài viết.
+- [ ] Bổ sung sơ đồ xuất bản nội dung.
+- [ ] Bổ sung sơ đồ xác thực và bình luận.
+- [ ] Bổ sung topology triển khai hiện tại.
+- [ ] Không công khai secret, IP hoặc thông tin production nhạy cảm.
+- [ ] Không đưa nội dung triển khai AWS hoặc hướng dẫn Docker vào bài này.

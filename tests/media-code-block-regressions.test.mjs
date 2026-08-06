@@ -91,7 +91,8 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.doesNotMatch(codeBlock, /useEffect|querySelectorAll|createElement|showModal/);
   assert.match(copyButton, /import \{ Check, Copy, LoaderCircle, TriangleAlert \}/);
   assert.match(copyButton, /<Copy className="code-copy-button__icon"/);
-  assert.doesNotMatch(copyButton, /code-copy-button__symbol|code-copy-button__label|⧉/);
+  assert.match(copyButton, /code-copy-button__label/);
+  assert.doesNotMatch(copyButton, /code-copy-button__symbol|⧉/);
   assert.match(copyButton, /aria-live="polite"/);
   assert.match(copyButton, /disabled=\{state === "copying"\}/);
   assert.match(copyButton, /clearTimeout\(resetTimer\.current\)/);

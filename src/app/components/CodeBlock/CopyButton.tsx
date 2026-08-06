@@ -82,6 +82,7 @@ export default function CopyCodeButton({
         )}
         {state === "success" && <Check className="code-copy-button__icon" aria-hidden="true" />}
         {state === "error" && <TriangleAlert className="code-copy-button__icon" aria-hidden="true" />}
+        <span className="code-copy-button__label">{label}</span>
       </button>
 
       <span id={statusId} className="sr-only" role="status" aria-live="polite">

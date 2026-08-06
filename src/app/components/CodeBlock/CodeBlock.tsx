@@ -1,8 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, FileText } from "lucide-react";
+import { marked } from "marked";
+import xss from "xss";
+import { formatLanguageLabel } from "./syntax";
 import CopyCodeButton, { type CopyButtonLabels } from "./CopyButton";
 import DownloadCodeButton from "./DownloadButton";
 
@@ -12,6 +15,15 @@ export interface CodeBlockLabels {
   explanation: string;
   showAll: string;
   showLess: string;
+  lines: string;
+  code: string;
+  preview: string;
+  table: {
+    title: string;
+    copy: string;
+    copied: string;
+    download: string;
+  };
 }
 
 export interface CodeBlockProps {
@@ -46,8 +58,14 @@ export default function CodeBlock({
   const totalLines = countCodeLines(code);
   const isLong = totalLines > 20;
   const [expanded, setExpanded] = useState(initiallyExpanded || !isLong);
+  const [view, setView] = useState<"code" | "preview">("code");
   const cardRef = useRef<HTMLElement>(null);
   const lineNumbers = Array.from({ length: totalLines }, (_, index) => index + 1);
+  const isMarkdown = language?.toLowerCase() === "markdown" || language?.toLowerCase() === "md";
+  const previewHtml = useMemo(
+    () => (isMarkdown ? xss(String(marked.parse(code))) : ""),
+    [code, isMarkdown],
+  );
 
   const toggleExpanded = () => {
     const nextExpanded = !expanded;
@@ -73,12 +91,7 @@ export default function CodeBlock({
         data-compact={!filename && !language ? "true" : undefined}
       >
         <div className="code-card__identity">
-          <div className="code-card__dots" aria-hidden="true">
-            <span className="code-card__dot code-card__dot--red" />
-            <span className="code-card__dot code-card__dot--yellow" />
-            <span className="code-card__dot code-card__dot--green" />
-          </div>
-          {language && <span className="code-card__language">{language.toUpperCase()}</span>}
+          {language && <span className="code-card__language">{formatLanguageLabel(language)}</span>}
           {filename && (
             <span className="code-card__filename" title={filename}>
               <FileText className="code-action-icon" aria-hidden="true" />
@@ -92,10 +105,16 @@ export default function CodeBlock({
             <DownloadCodeButton code={code} filename={filename} label={labels.download} />
           )}
           <CopyCodeButton code={code} labels={labels.copy} />
+          {isMarkdown && (
+            <div className="code-card__view-switch" aria-label={`${labels.code}/${labels.preview}`}>
+              <button type="button" data-active={view === "code"} aria-pressed={view === "code"} onClick={() => setView("code")}>{labels.code}</button>
+              <button type="button" data-active={view === "preview"} aria-pressed={view === "preview"} onClick={() => setView("preview")}>{labels.preview}</button>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className="code-card__viewport" data-collapsed={isLong && !expanded ? "true" : undefined}>
+      <div className="code-card__viewport" hidden={view !== "code"} data-collapsed={isLong && !expanded ? "true" : undefined}>
         <pre>
           <code className="code-card__code">
             {showLineNumbers && (
@@ -109,6 +128,10 @@ export default function CodeBlock({
           </code>
         </pre>
       </div>
+
+      {isMarkdown && view === "preview" && (
+        <div className="code-card__preview" dangerouslySetInnerHTML={{ __html: previewHtml }} />
+      )}
 
       {explanation && (
         <details className="code-card__explanation">
@@ -125,7 +148,7 @@ export default function CodeBlock({
             ) : (
               <ChevronDown className="code-action-icon" aria-hidden="true" />
             )}
-            <span>{expanded ? labels.showLess : `${labels.showAll} ${totalLines} dòng`}</span>
+            <span>{expanded ? labels.showLess : `${labels.showAll} ${totalLines} ${labels.lines}`}</span>
           </button>
         </footer>
       )}

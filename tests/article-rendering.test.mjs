@@ -26,9 +26,25 @@ test("code toolbar is present in the initial React render", () => {
 
   assert.match(html, /class="code-card"/);
   assert.match(html, /lucide-copy/);
-  assert.match(html, /Sao chép/);
-  assert.match(html, /Tải file/);
+  assert.match(html, /Copy/);
+  assert.match(html, /Download/);
   assert.match(html, /inventory\.ini/);
   assert.match(html, /echo &lt;LinuxUnity&gt; &amp;&amp; printf/);
   assert.doesNotMatch(html, /data-enhanced|code-shell/);
+});
+
+test("article tables render with a separate toolbar and accessible actions", () => {
+  const html = renderToStaticMarkup(
+    React.createElement(RichTextRenderer, {
+      content: "<table><thead><tr><th>Số lượng</th><th>Đánh giá</th></tr></thead><tbody><tr><td>24 bài</td><td>Đủ sàn</td></tr></tbody></table>",
+      contentKey: "table-test-vi",
+      labels: getCodeBlockLabels("vi"),
+    }),
+  );
+
+  assert.match(html, /class="article-table"/);
+  assert.match(html, /class="article-table__header"/);
+  assert.match(html, /aria-label="Copy table"/);
+  assert.match(html, /aria-label="Download table"/);
+  assert.match(html, /Số lượng/);
 });

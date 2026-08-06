@@ -7,6 +7,8 @@ const languageAliases: Record<string, BundledLanguage> = {
   console: "bash",
   docker: "dockerfile",
   dockerfile: "dockerfile",
+  go: "go",
+  golang: "go",
   hcl: "hcl",
   html: "html",
   js: "javascript",
@@ -46,6 +48,33 @@ export function normalizeCodeLabel(value = "") {
   return ["text", "txt", "plain", "plaintext"].includes(normalized.toLowerCase())
     ? ""
     : normalized;
+}
+
+const languageDisplayNames: Record<string, string> = {
+  html: "HTML",
+  css: "CSS",
+  javascript: "JavaScript",
+  js: "JavaScript",
+  json: "JSON",
+  jsx: "JSX",
+  go: "Go",
+  golang: "Go",
+  markdown: "Markdown",
+  md: "Markdown",
+  python: "Python",
+  py: "Python",
+  sql: "SQL",
+  typescript: "TypeScript",
+  ts: "TypeScript",
+  tsx: "TSX",
+  yaml: "YAML",
+  yml: "YAML",
+};
+
+export function formatLanguageLabel(language = "") {
+  const normalized = language.trim().toLowerCase();
+  if (!normalized) return "";
+  return languageDisplayNames[normalized] || normalized.charAt(0).toUpperCase() + normalized.slice(1);
 }
 
 export function shouldShowLanguage(language: BundledLanguage) {

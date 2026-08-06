@@ -8,6 +8,7 @@ import ArticleImageEnhancer from "../ArticleImageEnhancer";
 import CodeBlock, { type CodeBlockLabels } from "../CodeBlock";
 import MermaidRenderer from "../MermaidRenderer";
 import { languageFromClass, normalizeCodeLabel } from "../CodeBlock/syntax";
+import ArticleTable from "../ArticleTable/ArticleTable";
 
 interface RichTextRendererProps {
   assetBase?: string;
@@ -43,7 +44,22 @@ export default function RichTextRenderer({
   const options: HTMLReactParserOptions = {
     replace(domNode) {
       if (consumed.has(domNode)) return <></>;
-      if (!(domNode instanceof Element) || domNode.name !== "pre") return undefined;
+      if (!(domNode instanceof Element)) return undefined;
+
+      if (domNode.name === "table") {
+        return (
+          <ArticleTable
+            title={labels.table.title}
+            copyLabel={labels.table.copy}
+            copiedLabel={labels.table.copied}
+            downloadLabel={labels.table.download}
+          >
+            <table>{domToReact(domNode.children as DOMNode[], options)}</table>
+          </ArticleTable>
+        );
+      }
+
+      if (domNode.name !== "pre") return undefined;
 
       const codeElement = domNode.children.find(
         (child): child is Element => child instanceof Element && child.name === "code",

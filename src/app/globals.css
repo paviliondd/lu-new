@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source not "../../.codex";
 @import "./components/CodeBlock/code-theme.css";
 
 /* Enable manual dark mode via class selector */
@@ -40,6 +41,9 @@ html {
   --site-accent-strong: #0d9488;
   --site-link: #2563eb;
   --site-focus: #2563eb;
+  --article-panel-body: #f8fafc;
+  --article-panel-header: #eef1f4;
+  --article-panel-border: #cbd5e1;
   background: var(--site-bg);
   scroll-behavior: smooth;
   overflow-x: clip;
@@ -62,6 +66,9 @@ html.dark {
   --site-accent-strong: #5eead4;
   --site-link: #93c5fd;
   --site-focus: #60a5fa;
+  --article-panel-body: #242424;
+  --article-panel-header: #353535;
+  --article-panel-border: #505050;
 }
 
 body {
@@ -289,6 +296,7 @@ iframe {
   font-family: var(--font-mono);
   font-size: 0.875em;
   background-color: var(--site-panel);
+  border: 1px solid var(--site-border);
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   color: var(--site-fg);
@@ -352,29 +360,101 @@ iframe {
   color: var(--site-muted);
 }
 
-.article-content table {
-  display: block;
-  border-collapse: collapse;
+.article-table {
+  width: min(100%, var(--article-column-width));
+  margin: 2rem auto 2.5rem;
+  overflow: hidden;
+  border: 1px solid var(--article-panel-border);
+  border-radius: 0.75rem;
+  background: var(--article-panel-body);
+}
+
+.article-table__header {
+  display: flex;
+  min-height: 2.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--article-panel-border);
+  background: var(--article-panel-header);
+  padding: 0.35rem 0.7rem;
+}
+
+.article-table__title {
+  color: var(--site-fg);
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.article-table__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.article-table__actions button {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--site-fg);
+  cursor: pointer;
+}
+
+.article-table__actions button:hover {
+  background: color-mix(in srgb, var(--site-fg) 9%, transparent);
+}
+
+.article-table__actions svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.article-table__viewport {
+  max-width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 0.85rem;
+}
+
+.article-content .article-table table {
+  width: 100%;
+  min-width: 32rem;
+  border-collapse: collapse;
   font-size: 0.875rem;
 }
 
 .article-content th,
 .article-content td {
-  border: 1px solid var(--site-border);
-  padding: 0.75rem;
+  border: 0;
+  border-right: 1px solid var(--article-panel-border);
+  border-bottom: 1px solid var(--article-panel-border);
+  padding: 0.78rem 1rem;
   text-align: left;
 }
 
 .article-content th {
-  background: var(--site-panel);
+  background: var(--article-panel-body);
   color: var(--site-fg);
 }
 
 .article-content td {
   color: var(--site-muted);
+}
+
+.article-content tr:last-child td,
+.article-content th:last-child,
+.article-content td:last-child {
+  border-right: 0;
+}
+
+.article-content tr:last-child td {
+  border-bottom: 0;
+}
+
+.article-content tbody tr:hover {
+  background: color-mix(in srgb, var(--site-fg) 4%, transparent);
 }
 
 .article-content img,

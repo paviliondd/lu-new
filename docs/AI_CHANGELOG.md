@@ -2,6 +2,23 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-06
+
+Changed:
+
+- Redesigned frontend article tables and code blocks as bordered, shadow-free panels with separate header bars matching the supplied dark-theme reference.
+- Standardized all article table/code controls in English, tightened toolbar density, and added normalized automatic language display names such as HTML, Python, Markdown, and Go.
+- Added responsive table overflow, row hover tint, accessible table copy/download actions, and localized labels without changing Payload collections or stored content.
+- Added a sanitized Markdown Code/Preview switch while preserving code copy, download, collapse, explanation, and Shiki highlighting behavior.
+- Added a local `/en/design-preview` showcase route for visual review of both components.
+- Excluded repository-local `.codex` reference material from Tailwind source discovery to prevent malformed example utilities from entering generated CSS.
+
+Validation:
+
+- Full `npm test` passes (34/34).
+- `npm run lint` passes with two pre-existing warnings.
+- `npm run build` passes; local Postgres hostname remains unavailable outside Docker and falls back as designed.
+
 ## 2026-07-30
 
 Added:
@@ -12,6 +29,7 @@ Added:
 
 Changed:
 
+- Standardized all article table/code controls in English, tightened toolbar density, and added normalized automatic language display names such as HTML, Python, and Markdown.
 - Removed top-right "Tất cả bài viết" and "View All" header links from `More in [Topic/Series]` in `ArticleClient.tsx`.
 - Relocated "← Back to all posts" link to the bottom of `More in [Topic/Series]` right above comments.
 - Updated `More in [Topic/Series]` section title to dynamically display the Series title (if assigned) or Topic name with English base labels.

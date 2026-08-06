@@ -103,7 +103,7 @@ test("copyText reports a failed fallback", async () => {
   window.close();
 });
 
-test("CopyCodeButton renders an icon-only control with accessible status markup", () => {
+test("CopyCodeButton renders the reference icon-and-label control with accessible status markup", () => {
   const html = renderToStaticMarkup(
     React.createElement(CopyCodeButton, {
       code: "printf '%s' \"$HOME\"",
@@ -113,7 +113,8 @@ test("CopyCodeButton renders an icon-only control with accessible status markup"
 
   assert.match(html, /lucide-copy/);
   assert.match(html, /Sao chép/);
-  assert.doesNotMatch(html, /code-copy-button__label|⧉/);
+  assert.match(html, /code-copy-button__label/);
+  assert.doesNotMatch(html, /⧉/);
   assert.match(html, /aria-describedby=/);
   assert.match(html, /aria-live="polite"/);
 });

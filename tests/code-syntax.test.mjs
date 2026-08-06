@@ -6,6 +6,7 @@ import {
   formatCodeSource,
   languageFromClass,
   normalizeCodeLabel,
+  formatLanguageLabel,
   normalizeLanguage,
 } from "../src/app/components/CodeBlock/syntax.ts";
 
@@ -14,7 +15,16 @@ test("code language aliases resolve to Shiki languages", () => {
   assert.equal(normalizeLanguage("TS"), "typescript");
   assert.equal(normalizeLanguage("yml"), "yaml");
   assert.equal(normalizeLanguage("md"), "markdown");
+  assert.equal(normalizeLanguage("golang"), "go");
   assert.equal(languageFromClass("foo language-json bar"), "json");
+});
+
+test("code language labels use familiar display casing automatically", () => {
+  assert.equal(formatLanguageLabel("html"), "HTML");
+  assert.equal(formatLanguageLabel("python"), "Python");
+  assert.equal(formatLanguageLabel("golang"), "Go");
+  assert.equal(formatLanguageLabel("markdown"), "Markdown");
+  assert.equal(formatLanguageLabel("bash"), "Bash");
 });
 
 test("valid JSON is formatted with two-space indentation", () => {

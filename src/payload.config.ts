@@ -31,7 +31,7 @@ const listField = (name: string, label: string) => ({
     {
       name: "value",
       type: "text" as const,
-      required: true,
+      required: false,
     },
   ],
 });
@@ -979,6 +979,33 @@ const Posts: CollectionConfig = {
               required: true,
               unique: true,
               index: true,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              validate: async (value: unknown, options: any) => {
+                if (!value || typeof value !== "string" || !value.trim()) {
+                  return "Bắt buộc phải nhập hoặc tạo Slug cho bài viết.";
+                }
+                const cleanSlug = slugify(value);
+                try {
+                  const id = options?.id;
+                  const req = options?.req;
+                  if (req?.payload?.find) {
+                    const existing = await req.payload.find({
+                      collection: "posts",
+                      where: {
+                        slug: { equals: cleanSlug },
+                        ...(id ? { id: { not_equals: id } } : {}),
+                      },
+                      limit: 1,
+                    });
+                    if (existing?.docs && existing.docs.length > 0) {
+                      return `Slug "${cleanSlug}" đã bị trùng với bài viết khác trong CSDL. Vui lòng đổi Slug khác.`;
+                    }
+                  }
+                } catch {
+                  // Fallback if query error
+                }
+                return true;
+              },
               admin: {
                 description: "Generated from Title VI when left blank.",
               },
@@ -1127,7 +1154,10 @@ const Comments: CollectionConfig = {
 export default buildConfig({
   admin: {
     user: Users.slug,
-    theme: "light",
+    theme: "all",
+    components: {
+      actions: ["@/app/(payload)/components/AdminThemeToggle"],
+    },
   },
   collections: [Users, Media, Authors, Series, Posts, Comments, Projects],
   db: postgresAdapter({

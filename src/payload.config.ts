@@ -396,11 +396,48 @@ async function renameMediaFile(from: string, to: string) {
 function textFromRichText(value: unknown): string {
   if (!value || typeof value !== "object") return "";
 
-  const node = value as { children?: unknown[]; root?: unknown; text?: unknown };
-  const ownText = typeof node.text === "string" ? node.text : "";
-  const rootText = textFromRichText(node.root);
-  const childrenText = Array.isArray(node.children) ? node.children.map(textFromRichText).join(" ") : "";
-  return [ownText, rootText, childrenText].filter(Boolean).join(" ");
+  const visited = new WeakSet<object>();
+
+  function extract(node: unknown): string {
+    if (!node || typeof node !== "object") return "";
+    if (visited.has(node)) return "";
+    visited.add(node);
+
+    const obj = node as { text?: unknown; children?: unknown[]; root?: unknown; fields?: Record<string, unknown> };
+    const parts: string[] = [];
+
+    if (typeof obj.text === "string" && obj.text.trim()) {
+      parts.push(obj.text.trim());
+    }
+
+    if (obj.fields && typeof obj.fields === "object") {
+      if (typeof obj.fields.code === "string" && obj.fields.code.trim()) {
+        parts.push(obj.fields.code.trim());
+      }
+      if (typeof obj.fields.title === "string" && obj.fields.title.trim()) {
+        parts.push(obj.fields.title.trim());
+      }
+      if (typeof obj.fields.explanation === "string" && obj.fields.explanation.trim()) {
+        parts.push(obj.fields.explanation.trim());
+      }
+    }
+
+    if (Array.isArray(obj.children)) {
+      for (const child of obj.children) {
+        const childText = extract(child);
+        if (childText) parts.push(childText);
+      }
+    }
+
+    if (obj.root && typeof obj.root === "object") {
+      const rootText = extract(obj.root);
+      if (rootText) parts.push(rootText);
+    }
+
+    return parts.join(" ");
+  }
+
+  return extract(value);
 }
 
 function wordCount(value: unknown): number {
@@ -797,33 +834,45 @@ const Posts: CollectionConfig = {
   hooks: {
     beforeValidate: [
       ({ data }) => {
-        if (data && !data.slug && data.titleVi) data.slug = slugify(String(data.titleVi));
+        if (!data) return data;
+        try {
+          if (!data.slug && data.titleVi) {
+            data.slug = slugify(String(data.titleVi));
+          }
+        } catch {
+          // Safe fallback
+        }
         return data;
       },
     ],
     beforeChange: [
       ({ data, originalDoc }) => {
         if (!data) return data;
-        if (isPublished(data) && !hasArticleContent(data)) {
-          throw new APIError(
-            "Bài viết phải có nội dung (contentRichVi/contentVi/contentRichEn/contentEn) mới được phép xuất bản (published).",
-            400,
-            null,
-            true,
-          );
-        }
-        if (isPublished(data)) {
-          if (!data.titleVi || typeof data.titleVi !== "string" || !data.titleVi.trim()) {
-            throw new APIError("Bắt buộc phải nhập tiêu đề bài viết (Title VI) khi Publish.", 400, null, true);
+        try {
+          if (isPublished(data) && !hasArticleContent(data)) {
+            throw new APIError(
+              "Bài viết phải có nội dung (contentRichVi/contentVi/contentRichEn/contentEn) mới được phép xuất bản (published).",
+              400,
+              null,
+              true,
+            );
           }
-          if (!data.category || typeof data.category !== "string" || !data.category.trim()) {
-            throw new APIError("Bắt buộc phải chọn Topic (Chủ đề) khi Publish.", 400, null, true);
+          if (isPublished(data)) {
+            if (!data.titleVi || typeof data.titleVi !== "string" || !data.titleVi.trim()) {
+              throw new APIError("Bắt buộc phải nhập tiêu đề bài viết (Title VI) khi Publish.", 400, null, true);
+            }
+            if (!data.category || typeof data.category !== "string" || !data.category.trim()) {
+              throw new APIError("Bắt buộc phải chọn Topic (Chủ đề) khi Publish.", 400, null, true);
+            }
           }
+          data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
+          data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
+          if (typeof data.views !== "number") data.views = Number(originalDoc?.views || 0);
+          if (isPublished(data) && !data.publishedAt) data.publishedAt = new Date().toISOString();
+        } catch (error) {
+          if (error instanceof APIError) throw error;
+          console.error("[Payload beforeChange Error]:", error);
         }
-        data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
-        data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
-        if (typeof data.views !== "number") data.views = Number(originalDoc?.views || 0);
-        if (isPublished(data) && !data.publishedAt) data.publishedAt = new Date().toISOString();
         return data;
       },
     ],
@@ -1078,6 +1127,7 @@ const Comments: CollectionConfig = {
 export default buildConfig({
   admin: {
     user: Users.slug,
+    theme: "light",
   },
   collections: [Users, Media, Authors, Series, Posts, Comments, Projects],
   db: postgresAdapter({

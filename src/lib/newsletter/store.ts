@@ -33,7 +33,7 @@ export function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
-async function getNewsletterSubscribers() {
+export async function getNewsletterSubscribers() {
   await ensureStore();
   try {
     const parsed = JSON.parse(await fs.readFile(subscribersFile, "utf8")) as unknown;

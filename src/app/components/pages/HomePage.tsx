@@ -138,8 +138,8 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
 
   return (
     <div className="theme-page min-h-screen overflow-x-clip bg-[#fdfcf9] dark:bg-[#0c1524]">
-      {/* Editorial Hero Section (Asymmetric 70% / 30% ratio) */}
-      <section className="relative isolate flex min-h-[600px] flex-col justify-center overflow-hidden border-b border-[#dfe5ea] dark:border-slate-800/80 py-16 px-6 sm:py-20 lg:min-h-[660px] lg:py-24 lg:px-20">
+      {/* Editorial Hero Section (Asymmetric Full-Screen Viewport) */}
+      <section className="relative isolate flex min-h-[calc(100vh-4.5rem)] flex-col justify-center overflow-hidden border-b border-[#dfe5ea] dark:border-slate-800/80 py-12 px-4 sm:py-16 sm:px-6 lg:py-20 lg:px-8">
         {/* Organic Ambient Floating Sea-Bubble Glow Effect */}
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
           <div className="absolute top-8 left-[6%] h-[360px] w-[360px] rounded-full bg-teal-400/30 blur-3xl dark:bg-teal-400/25 animate-live-bubble-1" />
@@ -147,7 +147,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
           <div className="absolute top-32 left-[2%] h-[320px] w-[320px] rounded-full bg-cyan-400/25 blur-3xl dark:bg-cyan-500/25 animate-live-bubble-3" />
         </div>
 
-        <div className="mx-auto grid w-full max-w-[1320px] items-center gap-10 lg:grid-cols-[1fr_240px] lg:gap-16">
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-[1fr_auto] lg:gap-16">
           {/* Left Zone: Title, Brand Description & Action Button */}
           <div className="flex flex-col items-start text-left">
             <h1 className="flex flex-wrap items-baseline gap-x-3 text-[clamp(44px,4.5vw,72px)] leading-none tracking-[-0.04em]">
@@ -184,7 +184,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
       <RecentWritingSection initialPosts={initialPosts} />
 
       <section className="theme-surface border-t theme-border py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 flex items-end justify-between gap-4 border-b theme-border pb-4">
             <div>
               <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.16em] text-teal-700 dark:text-emerald-300">

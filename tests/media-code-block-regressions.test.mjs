@@ -87,7 +87,7 @@ test("code blocks render as stable React components with accessible copy and dow
 
   assert.match(codeBlock, /const isLong = totalLines > 20/);
   assert.match(codeBlock, /<CopyCodeButton code=\{code\}/);
-  assert.match(codeBlock, /<DownloadCodeButton code=\{code\}/);
+  assert.doesNotMatch(codeBlock, /<DownloadCodeButton/);
   assert.doesNotMatch(codeBlock, /useEffect|querySelectorAll|createElement|showModal/);
   assert.match(copyButton, /import \{ Check, Copy, LoaderCircle, TriangleAlert \}/);
   assert.match(copyButton, /<Copy className="code-copy-button__icon"/);

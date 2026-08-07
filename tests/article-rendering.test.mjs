@@ -27,7 +27,6 @@ test("code toolbar is present in the initial React render", () => {
   assert.match(html, /class="code-card"/);
   assert.match(html, /lucide-copy/);
   assert.match(html, /Copy/);
-  assert.match(html, /Download/);
   assert.match(html, /inventory\.ini/);
   assert.match(html, /echo &lt;LinuxUnity&gt; &amp;&amp; printf/);
   assert.doesNotMatch(html, /data-enhanced|code-shell/);

@@ -3,6 +3,7 @@ import test from "node:test";
 import { codeToHtml } from "shiki";
 
 import {
+  detectCodeLanguage,
   formatCodeSource,
   languageFromClass,
   normalizeCodeLabel,
@@ -39,12 +40,15 @@ test("invalid JSON and non-JSON code are preserved", () => {
   assert.equal(formatCodeSource("echo hello", "bash"), "echo hello");
 });
 
-test("plain-text labels fall back to bash while useful metadata remains", () => {
-  assert.equal(normalizeCodeLabel("plaintext"), "bash");
-  assert.equal(normalizeCodeLabel("iam-policy.json"), "iam-policy.json");
-  assert.equal(formatLanguageLabel("yaml"), "YAML");
-  assert.equal(formatLanguageLabel(""), "Bash");
-  assert.equal(formatLanguageLabel("unknown"), "Bash");
+test("code auto-detection identifies YAML and Bash snippets or stays blank", () => {
+  assert.equal(detectCodeLanguage("name: Install httpd\nname: Copy Site Files"), "yaml");
+  assert.equal(detectCodeLanguage("tasks:\n  - install httpd\n  - start httpd"), "yaml");
+  assert.equal(detectCodeLanguage('eval "$(ssh-agent -s)"'), "bash");
+  assert.equal(detectCodeLanguage("ssh-add <path_to_private_key>"), "bash");
+  assert.equal(formatLanguageLabel("", "name: Install httpd"), "YAML");
+  assert.equal(formatLanguageLabel("", 'eval "$(ssh-agent -s)"'), "Bash");
+  assert.equal(formatLanguageLabel("", "just regular text"), "");
+  assert.equal(normalizeCodeLabel("plaintext", "just regular text"), "");
 });
 
 test("configured Shiki light and dark themes render together", async () => {

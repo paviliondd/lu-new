@@ -6,14 +6,16 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
-- Updated code block language detection to default unrecognized or plain text snippets to `bash` / `Bash`, added full `YAML`/`yml` display support, and compacted code block header height and padding.
+- Added structural YAML (`name:`, `tasks:`, lists) and Bash (`ssh-add`, `eval`, `ansible`, `$`, `#`) auto-detection for code blocks without explicit language, defaulting unrecognized plain text blocks to empty string.
+- Removed the Download button from `CodeBlock.tsx` header controls and deduplicated identity header tags when filename matches language (`Bash` / `bash`).
+- Fixed table cell border styling in `globals.css` so vertical column separators in the last row remain intact.
 - Created `scripts/sync-mdx-posts-to-payload.mjs` (`npm run payload:sync-posts`) to import/upsert local MDX posts from `content/posts/*.mdx` into Payload CMS `posts` collection in PostgreSQL.
 - Implemented auto-generated English URLs (`slug_en`) from `title_en` for posts when browsing in `/en` locale, while supporting post resolution by either Vietnamese slug or English slug for full backward compatibility.
 - Updated `sitemap.ts`, `generateMetadata`, and `localizePost` so English localized post URLs render English slugs cleanly.
 
 Validation:
 
-- `npm run lint` passes with 0 errors and 1 pre-existing warning.
+- `npm run lint` passes with 0 errors and 0 warnings.
 - `npm test` passes (66 tests).
 - `npm run build` completes successfully.
 

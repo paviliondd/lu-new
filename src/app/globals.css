@@ -443,13 +443,13 @@ iframe {
   color: var(--site-muted);
 }
 
-.article-content tr:last-child td,
 .article-content th:last-child,
 .article-content td:last-child {
   border-right: 0;
 }
 
-.article-content tr:last-child td {
+.article-content tr:last-child td,
+.article-content tr:last-child th {
   border-bottom: 0;
 }
 

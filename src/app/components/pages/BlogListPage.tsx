@@ -29,9 +29,16 @@ export default function BlogListPage({
   const { t, language, localePath } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const posts = usePublishedPosts(initialPosts);
-  const selectedTag = initialTag;
-  const selectedTopic = initialTopic;
-  const currentPage = Math.max(1, initialPage);
+  const [selectedTag, setSelectedTag] = useState(initialTag);
+  const [selectedTopic, setSelectedTopic] = useState(initialTopic);
+  const [currentPage, setCurrentPage] = useState(Math.max(1, initialPage));
+
+  const updateTopic = (topic: string) => {
+    setSelectedTopic(topic);
+    setCurrentPage(1);
+    const href = pageHrefWithFilters(1, selectedTag, topic);
+    window.history.replaceState(null, "", href);
+  };
 
   const availableTopics = useMemo(() => {
     const topicSet = new Set<string>();
@@ -142,32 +149,32 @@ export default function BlogListPage({
               <span className="shrink-0 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider pr-1">
                 Topic:
               </span>
-              <Link
-                href={pageHrefWithFilters(1, selectedTag, "")}
-                scroll={false}
-                className={`shrink-0 rounded-full px-3.5 py-1.5 transition ${
+              <button
+                type="button"
+                onClick={() => updateTopic("")}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 transition cursor-pointer ${
                   !selectedTopic
                     ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950 font-bold shadow-sm"
                     : "border theme-border bg-white text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400"
                 }`}
               >
                 All
-              </Link>
+              </button>
               {availableTopics.map((topic) => {
                 const isActive = selectedTopic.toLowerCase() === topic.toLowerCase();
                 return (
-                  <Link
+                  <button
+                    type="button"
                     key={topic}
-                    href={pageHrefWithFilters(1, selectedTag, topic)}
-                    scroll={false}
-                    className={`shrink-0 rounded-full px-3.5 py-1.5 transition ${
+                    onClick={() => updateTopic(topic)}
+                    className={`shrink-0 rounded-full px-3.5 py-1.5 transition cursor-pointer ${
                       isActive
                         ? "bg-teal-700 text-white dark:bg-emerald-400 dark:text-slate-950 font-bold shadow-sm"
                         : "border theme-border bg-white text-slate-700 hover:border-teal-500 hover:text-teal-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400"
                     }`}
                   >
                     {formatTopicLabel(topic)}
-                  </Link>
+                  </button>
                 );
               })}
             </div>
@@ -179,9 +186,19 @@ export default function BlogListPage({
         {filteredPosts.length === 0 ? (
           <div className="theme-card rounded-xl border border-dashed py-20 text-center">
             <p className="text-sm theme-muted">{t("noPosts")}</p>
-            <Link href={localePath("/blog")} scroll={false} className="mt-4 inline-block text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedTopic("");
+                setSelectedTag("");
+                setSearchQuery("");
+                setCurrentPage(1);
+                window.history.replaceState(null, "", localePath("/blog"));
+              }}
+              className="mt-4 inline-block text-sm font-bold text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200 cursor-pointer"
+            >
               {t("resetFilter")}
-            </Link>
+            </button>
           </div>
         ) : listPosts.length > 0 ? (
           <>

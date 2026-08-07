@@ -26,16 +26,13 @@ export async function POST(request: Request) {
   }
 
   const { subscriber, created } = await addNewsletterSubscriber(email);
-  let confirmationSent = false;
-  let smtpError: string | undefined = undefined;
+  const confirmationSent = isSmtpConfigured();
 
-  if (isSmtpConfigured()) {
-    try {
-      confirmationSent = await sendNewsletterConfirmation(subscriber.email);
-    } catch (error) {
-      smtpError = error instanceof Error ? error.message : String(error);
-      console.error("Newsletter confirmation email failed", { email: subscriber.email, error });
-    }
+  if (confirmationSent) {
+    // Dispatch SMTP confirmation in background so browser gets instant response
+    sendNewsletterConfirmation(subscriber.email).catch((error) => {
+      console.error("Newsletter confirmation email background send failed", { email: subscriber.email, error });
+    });
   }
 
   return NextResponse.json({
@@ -48,6 +45,5 @@ export async function POST(request: Request) {
     },
     created,
     confirmationSent,
-    smtpError,
   });
 }

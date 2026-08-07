@@ -6,6 +6,9 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Fixed Payload CMS post saving/publishing error (`An unknown error occurred`) in `payload.config.ts` by updating `wordCount` to extract text from Lexical richText objects safely.
+- Removed unused legacy fields (`chapterOrder`, `certs`, `services`, `examDomains`, `labs`) from Payload CMS `Posts` collection.
+- Reordered `/blog` page layout: 3-slide carousel (`FeaturedPostsCarousel`) at top -> Search bar & Topic filter pills -> Grid of all remaining posts (newest to oldest, excluding only the 3 slide posts).
 - Enhanced code language auto-detection in `syntax.ts` and `highlight.ts` to recognize Ansible YAML tasks (`- name:`, `tasks:`, `apt:`, `service:`, `state:`) and display `YAML` accurately even when legacy block language was set to `bash`.
 - Added support for explicit `plaintext` / `Plaintext` display labels.
 - Added `title_en`, `description_en`, and dedicated `aws-lambda-execution-model.en.mdx` post, and updated `legacy-translation.ts` fallback synthesis to preserve explicit English titles.

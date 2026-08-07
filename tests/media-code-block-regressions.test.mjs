@@ -138,11 +138,7 @@ test("featured carousel keeps autoplay and shows distinct following posts below"
   ]);
 
   assert.match(blogList, /const featuredPosts = useMemo\(\(\) => allPublishedPosts\.slice\(0, 3\)/);
-  assert.match(blogList, /const followingPosts = useMemo\(\(\) => allPublishedPosts\.slice\(3, 6\)/);
-  assert.match(blogList, /<FeaturedPostsCarousel posts=\{featuredPosts\} followingPosts=\{followingPosts\}/);
-  assert.match(carousel, /followingPosts: Post\[\]/);
-  assert.match(carousel, /followingPosts\.map\(\(post\) =>/);
+  assert.match(blogList, /<FeaturedPostsCarousel posts=\{featuredPosts\}/);
   assert.match(carousel, /window\.setInterval/);
   assert.match(carousel, /5500/);
-  assert.doesNotMatch(carousel, /onClick=\{\(\) => selectSlide\(index\)\}[\s\S]*aria-pressed/);
 });

@@ -393,18 +393,6 @@ async function renameMediaFile(from: string, to: string) {
   }
 }
 
-function wordCount(value: unknown) {
-  if (typeof value !== "string") {
-    return wordCount(textFromRichText(value));
-  }
-  return value
-    .replace(/<[^>]+>/g, " ")
-    .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-}
-
 function textFromRichText(value: unknown): string {
   if (!value || typeof value !== "object") return "";
 
@@ -413,6 +401,18 @@ function textFromRichText(value: unknown): string {
   const rootText = textFromRichText(node.root);
   const childrenText = Array.isArray(node.children) ? node.children.map(textFromRichText).join(" ") : "";
   return [ownText, rootText, childrenText].filter(Boolean).join(" ");
+}
+
+function wordCount(value: unknown): number {
+  if (!value) return 0;
+  const text = typeof value === "string" ? value : textFromRichText(value);
+  if (typeof text !== "string" || !text) return 0;
+  return text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
 }
 
 function readTimeLabel(value: unknown, locale: "vi" | "en") {
@@ -891,15 +891,6 @@ const Posts: CollectionConfig = {
       },
     },
     {
-      name: "chapterOrder",
-      label: "Chapter Number / Order",
-      type: "number",
-      admin: {
-        position: "sidebar",
-        description: "Thứ tự Chap/Bài (1, 2, 3...). Để trống hệ thống sẽ tự đọc số từ Tiêu đề (vd: 'Phần 1', 'Chapter 2').",
-      },
-    },
-    {
       ...listField("tags", "Tags"),
       admin: {
         position: "sidebar",
@@ -1019,10 +1010,6 @@ const Posts: CollectionConfig = {
             { name: "topicSlug", type: "text", admin: { hidden: true } },
             { name: "clusterSlug", type: "text", admin: { hidden: true } },
             { name: "gradient", type: "text", defaultValue: "from-slate-600/90 to-cyan-700/90", admin: { hidden: true } },
-            listField("certs", "Certifications"),
-            listField("services", "Services"),
-            listField("examDomains", "Exam domains"),
-            listField("labs", "Labs"),
             { name: "coverage", type: "text", admin: { hidden: true } },
             { name: "costNote", type: "textarea", admin: { hidden: true } },
             { name: "cleanupNote", type: "textarea", admin: { hidden: true } },

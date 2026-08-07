@@ -12,7 +12,6 @@ import { formatReadTime } from "@/lib/utils/formatReadTime";
 
 interface FeaturedPostsCarouselProps {
   posts: Post[];
-  followingPosts: Post[];
 }
 
 function formatDate(value: string, locale: "vi" | "en") {
@@ -25,7 +24,6 @@ function formatDate(value: string, locale: "vi" | "en") {
 
 export default function FeaturedPostsCarousel({
   posts,
-  followingPosts,
 }: FeaturedPostsCarouselProps) {
   const { language, localePath } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -194,45 +192,6 @@ export default function FeaturedPostsCarousel({
           </>
         )}
       </div>
-
-      {followingPosts.length > 0 && (
-        <div className="featured-following-grid mt-4 grid gap-4 sm:grid-cols-3">
-          {followingPosts.map((post) => {
-            const thumbnail = post.seo.ogImage || post.thumbnail;
-            return (
-              <Link
-                key={post.slug}
-                href={localePath(`/blog/${post.slug}`)}
-                className="theme-card group/next relative aspect-[16/10] min-h-[11.5rem] overflow-hidden rounded-xl border transition hover:-translate-y-0.5 hover:border-teal-500 dark:hover:border-emerald-400"
-                aria-label={post.title}
-              >
-                {thumbnail ? (
-                  <CustomImage
-                    src={thumbnail}
-                    alt=""
-                    fill
-                    sizes="(min-width: 1024px) 24rem, (min-width: 640px) 33vw, 100vw"
-                    className="object-cover transition duration-300 group-hover/next:scale-[1.03]"
-                  />
-                ) : (
-                  <span className="absolute inset-0 bg-slate-800" />
-                )}
-                <span className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-slate-950/20" />
-                <span className="absolute inset-0 flex flex-col justify-between p-4.5 text-left">
-                  <span className="line-clamp-2 text-sm font-bold leading-snug text-white drop-shadow-sm">
-                    {post.title}
-                  </span>
-                  <span className="mt-2 flex items-center justify-end">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-200 transition group-hover/next:text-white">
-                      Read <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                    </span>
-                  </span>
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      )}
     </section>
   );
 }

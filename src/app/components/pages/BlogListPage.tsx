@@ -50,7 +50,6 @@ export default function BlogListPage({
   }, [posts]);
 
   const featuredPosts = useMemo(() => allPublishedPosts.slice(0, 3), [allPublishedPosts]);
-  const followingPosts = useMemo(() => allPublishedPosts.slice(3, 6), [allPublishedPosts]);
 
   const filteredPosts = useMemo(() => {
     let sortedPosts = allPublishedPosts;
@@ -77,9 +76,7 @@ export default function BlogListPage({
     return sortedPosts;
   }, [allPublishedPosts, searchQuery, selectedTag, selectedTopic]);
 
-  const reservedSlugs = new Set(
-    [...featuredPosts, ...followingPosts].map((post) => post.slug),
-  );
+  const reservedSlugs = new Set(featuredPosts.map((post) => post.slug));
   const listPosts = selectedTag || selectedTopic || searchQuery.trim()
     ? filteredPosts
     : filteredPosts.filter((post) => !reservedSlugs.has(post.slug));
@@ -111,7 +108,7 @@ export default function BlogListPage({
       </section>
 
       {/* Featured Slide Carousel - Always visible */}
-      <FeaturedPostsCarousel posts={featuredPosts} followingPosts={followingPosts} />
+      <FeaturedPostsCarousel posts={featuredPosts} />
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
         {/* Inline Search Bar - direct input without popup modal */}

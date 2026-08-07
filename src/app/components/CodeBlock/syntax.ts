@@ -46,13 +46,42 @@ export function normalizeLanguage(language = "") {
   return languageAliases[normalized] || DEFAULT_CODE_LANGUAGE;
 }
 
-export function normalizeCodeLabel(value = "") {
-  const normalized = value.trim();
-  if (!normalized) return "bash";
+export function detectCodeLanguage(code = "") {
+  if (!code || !code.trim()) return "";
+  const trimmed = code.trim();
 
-  return plainTextLanguages.includes(normalized.toLowerCase())
-    ? "bash"
-    : normalized;
+  const hasYamlKeys = /^\s*[\w\d_-]+\s*:\s+.*$/m.test(trimmed);
+  const hasYamlList = /^\s*-\s+[\w\d_-]+/m.test(trimmed);
+  const hasDocStart = /^---/m.test(trimmed);
+  const isCode = /^(const|let|var|function|import|export|class|interface|type|package|public|private)\b/m.test(trimmed);
+
+  if ((hasDocStart || (hasYamlKeys && (hasYamlList || /^\s*name:/m.test(trimmed) || /^\s*tasks:/m.test(trimmed)))) && !isCode) {
+    return "yaml";
+  }
+
+  const hasShebang = /^\s*#!\/(bin|usr\/bin)\/(bash|sh|zsh)/m.test(trimmed);
+  const hasBashCmds = /^\s*(eval\s|ssh-add\s|sudo\s|apt\s|yum\s|dnf\s|systemctl\s|ansible\b|ansible-playbook\b|docker\s|docker-compose\s|kubectl\s|git\s|npm\s|yarn\s|pnpm\s|npx\s|pip\s|curl\s|wget\s)/m.test(trimmed);
+  const hasPrompt = /^\s*[$#]\s+\w+/m.test(trimmed);
+
+  if (hasShebang || hasBashCmds || hasPrompt) {
+    return "bash";
+  }
+
+  if (hasYamlKeys && !isCode) {
+    return "yaml";
+  }
+
+  return "";
+}
+
+export function normalizeCodeLabel(value = "", code = "") {
+  const normalized = value.trim();
+  if (!normalized || plainTextLanguages.includes(normalized.toLowerCase())) {
+    if (code) return detectCodeLanguage(code);
+    return "";
+  }
+
+  return normalized;
 }
 
 export function normalizeCodeLanguageLabel(value = "") {
@@ -83,10 +112,18 @@ const languageDisplayNames: Record<string, string> = {
   sh: "Bash",
 };
 
-export function formatLanguageLabel(language = "") {
-  const normalized = language.trim().toLowerCase();
-  if (!normalized || plainTextLanguages.includes(normalized)) return "Bash";
-  const resolvedLang = normalizeLanguage(normalized);
+export function formatLanguageLabel(language = "", code = "") {
+  let normalized = language.trim().toLowerCase();
+  if (!normalized || plainTextLanguages.includes(normalized)) {
+    if (code) {
+      normalized = detectCodeLanguage(code);
+    } else {
+      normalized = "";
+    }
+  }
+
+  if (!normalized) return "";
+  const resolvedLang = languageAliases[normalized] || normalized;
   return languageDisplayNames[normalized] || languageDisplayNames[resolvedLang] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
 }
 

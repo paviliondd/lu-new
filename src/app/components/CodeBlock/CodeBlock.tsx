@@ -7,7 +7,6 @@ import { marked } from "marked";
 import xss from "xss";
 import { formatLanguageLabel } from "./syntax";
 import CopyCodeButton, { type CopyButtonLabels } from "./CopyButton";
-import DownloadCodeButton from "./DownloadButton";
 
 export interface CodeBlockLabels {
   copy: CopyButtonLabels;
@@ -49,7 +48,6 @@ export default function CodeBlock({
   language,
   filename,
   showLineNumbers = false,
-  downloadable = Boolean(filename),
   initiallyExpanded = false,
   highlightedCode,
   explanation,
@@ -62,6 +60,11 @@ export default function CodeBlock({
   const cardRef = useRef<HTMLElement>(null);
   const lineNumbers = Array.from({ length: totalLines }, (_, index) => index + 1);
   const isMarkdown = language?.toLowerCase() === "markdown" || language?.toLowerCase() === "md";
+  const displayLanguage = formatLanguageLabel(language, code);
+  const isDuplicateFilename =
+    Boolean(filename) &&
+    (filename?.trim().toLowerCase() === (language || "").trim().toLowerCase() ||
+      filename?.trim().toLowerCase() === displayLanguage.trim().toLowerCase());
   const previewHtml = useMemo(
     () => (isMarkdown ? xss(String(marked.parse(code))) : ""),
     [code, isMarkdown],
@@ -84,15 +87,15 @@ export default function CodeBlock({
       className="code-card"
       data-long={isLong || undefined}
       data-expanded={expanded}
-      aria-label={filename || language || "Code"}
+      aria-label={filename || displayLanguage || "Code"}
     >
       <header
         className="code-card__header"
-        data-compact={!filename && !language ? "true" : undefined}
+        data-compact={!filename && !displayLanguage ? "true" : undefined}
       >
         <div className="code-card__identity">
-          <span className="code-card__language">{formatLanguageLabel(language || "bash")}</span>
-          {filename && (
+          {displayLanguage && <span className="code-card__language">{displayLanguage}</span>}
+          {filename && !isDuplicateFilename && (
             <span className="code-card__filename" title={filename}>
               <FileText className="code-action-icon" aria-hidden="true" />
               <span>{filename}</span>
@@ -101,9 +104,6 @@ export default function CodeBlock({
         </div>
 
         <div className="code-card__actions">
-          {downloadable && filename && (
-            <DownloadCodeButton code={code} filename={filename} label={labels.download} />
-          )}
           <CopyCodeButton code={code} labels={labels.copy} />
           {isMarkdown && (
             <div className="code-card__view-switch" aria-label={`${labels.code}/${labels.preview}`}>

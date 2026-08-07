@@ -89,13 +89,18 @@ async function syncMdxPosts() {
     });
 
     if (existing.docs[0]) {
+      const existingDoc = existing.docs[0];
+      const preserveStatus = existingDoc.status || "published";
       await payload.update({
         collection: "posts",
-        id: existing.docs[0].id,
+        id: existingDoc.id,
         overrideAccess: true,
-        data: postPayloadData,
+        data: {
+          ...postPayloadData,
+          status: preserveStatus,
+        },
       });
-      console.log(`Updated Payload post: ${slug}`);
+      console.log(`Updated Payload post: ${slug} (status preserved: ${preserveStatus})`);
     } else {
       await payload.create({
         collection: "posts",

@@ -27,11 +27,13 @@ export async function POST(request: Request) {
 
   const { subscriber, created } = await addNewsletterSubscriber(email);
   let confirmationSent = false;
+  let smtpError: string | undefined = undefined;
 
-  if (created && isSmtpConfigured()) {
+  if (isSmtpConfigured()) {
     try {
       confirmationSent = await sendNewsletterConfirmation(subscriber.email);
     } catch (error) {
+      smtpError = error instanceof Error ? error.message : String(error);
       console.error("Newsletter confirmation email failed", { email: subscriber.email, error });
     }
   }
@@ -46,5 +48,6 @@ export async function POST(request: Request) {
     },
     created,
     confirmationSent,
+    smtpError,
   });
 }

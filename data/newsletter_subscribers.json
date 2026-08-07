@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "ef95d7ff-cd36-410c-952e-b54c282fbd42",
+    "email": "longtp@azdigi.com",
+    "status": "pending",
+    "created_at": "2026-08-07T17:26:44.462Z",
+    "confirmed_at": null
+  }
+]

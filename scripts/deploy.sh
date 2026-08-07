@@ -8,9 +8,29 @@ DEPLOY_CREATE_BACKUP="${DEPLOY_CREATE_BACKUP:-true}"
 DEPLOY_PRUNE_IMAGES="${DEPLOY_PRUNE_IMAGES:-true}"
 IMAGE_PRUNE_UNTIL="${IMAGE_PRUNE_UNTIL:-168h}"
 STATE_DIR="${DEPLOY_STATE_DIR:-.deploy-state}"
+PULL_RETRY_ATTEMPTS="${DEPLOY_PULL_RETRY_ATTEMPTS:-4}"
+PULL_RETRY_DELAY="${DEPLOY_PULL_RETRY_DELAY:-15}"
 
 log() { printf '[deploy] %s\n' "$*"; }
 fail() { printf '[deploy] ERROR: %s\n' "$*" >&2; exit 1; }
+
+retry_docker_compose_pull() {
+  local description="$1"
+  shift
+
+  for attempt in $(seq 1 "$PULL_RETRY_ATTEMPTS"); do
+    if docker compose pull "$@"; then
+      return 0
+    fi
+
+    if [ "$attempt" -eq "$PULL_RETRY_ATTEMPTS" ]; then
+      fail "Failed to pull ${description} after ${PULL_RETRY_ATTEMPTS} attempts."
+    fi
+
+    log "Pull failed for ${description}; retrying in ${PULL_RETRY_DELAY}s (${attempt}/${PULL_RETRY_ATTEMPTS})"
+    sleep "$PULL_RETRY_DELAY"
+  done
+}
 
 load_env_file() {
   local file="$1" line key value
@@ -42,7 +62,7 @@ rollback_app() {
   [ "$DEPLOY_ROLLBACK_IMAGE" != "$failed_image" ] || return 1
   log "Rolling application image back to ${DEPLOY_ROLLBACK_IMAGE}"
   export APP_IMAGE="$DEPLOY_ROLLBACK_IMAGE"
-  docker compose pull app
+  retry_docker_compose_pull "rollback app image ${DEPLOY_ROLLBACK_IMAGE}" app
   docker compose up -d --no-deps --no-build app
   printf '%s\n' "$DEPLOY_ROLLBACK_IMAGE" > "${STATE_DIR}/current-image"
   printf '%s\n' "$failed_image" > "${STATE_DIR}/failed-image"
@@ -95,8 +115,8 @@ aws ecr get-login-password --region "$AWS_DEFAULT_REGION" |
 
 log "Validating Compose and pulling immutable image ${APP_IMAGE}"
 docker compose config >/dev/null
-docker compose pull --ignore-buildable
-docker compose pull app
+retry_docker_compose_pull "Compose images" --ignore-buildable
+retry_docker_compose_pull "app image ${APP_IMAGE}" app
 
 log "Starting production containers without a VPS source build"
 docker compose up -d --remove-orphans --no-build

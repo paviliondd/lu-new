@@ -49,6 +49,8 @@ test("deployment backs up persistent data and records ECR rollback state", async
   assert.match(deployScript, /BACKUP_REASON=pre-deploy sh scripts\/backup\.sh/);
   assert.match(deployScript, /previous-image/);
   assert.match(deployScript, /docker image rm "\$DEPLOY_ROLLBACK_IMAGE"/);
+  assert.match(deployScript, /retry_docker_compose_pull "Compose images" --ignore-buildable/);
+  assert.match(deployScript, /retry_docker_compose_pull "app image \$\{APP_IMAGE\}" app/);
   assert.match(backupScript, /payload-postgres\.dump/);
   assert.match(backupScript, /payload-media\.tgz/);
   assert.match(backupScript, /app-runtime-data\.tgz/);
@@ -56,4 +58,6 @@ test("deployment backs up persistent data and records ECR rollback state", async
   assert.match(backupScript, /aws s3 cp/);
   assert.match(rollbackScript, /CONFIRM_ROLLBACK/);
   assert.match(rollbackScript, /scripts\/restore\.sh/);
+  assert.match(rollbackScript, /retry_docker_compose_pull "rollback app image \$\{target\}" app/);
+  assert.match(rollbackScript, /retry_docker_compose_pull "backup app image \$\{TARGET_IMAGE\}" app/);
 });

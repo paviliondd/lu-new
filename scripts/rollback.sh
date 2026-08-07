@@ -4,6 +4,27 @@ set -euo pipefail
 MODE="${1:-image}"
 ARG="${2:-}"
 STATE_DIR="${DEPLOY_STATE_DIR:-.deploy-state}"
+PULL_RETRY_ATTEMPTS="${DEPLOY_PULL_RETRY_ATTEMPTS:-4}"
+PULL_RETRY_DELAY="${DEPLOY_PULL_RETRY_DELAY:-15}"
+
+retry_docker_compose_pull() {
+  local description="$1"
+  shift
+
+  for attempt in $(seq 1 "$PULL_RETRY_ATTEMPTS"); do
+    if docker compose pull "$@"; then
+      return 0
+    fi
+
+    if [ "$attempt" -eq "$PULL_RETRY_ATTEMPTS" ]; then
+      echo "Failed to pull ${description} after ${PULL_RETRY_ATTEMPTS} attempts." >&2
+      exit 1
+    fi
+
+    echo "Pull failed for ${description}; retrying in ${PULL_RETRY_DELAY}s (${attempt}/${PULL_RETRY_ATTEMPTS})"
+    sleep "$PULL_RETRY_DELAY"
+  done
+}
 
 if [ "${CONFIRM_ROLLBACK:-}" != yes ]; then
   echo "Usage:" >&2
@@ -29,7 +50,7 @@ rollback_image() {
   local current="$(docker inspect --format '{{.Config.Image}}' "$(docker compose ps -q app)" 2>/dev/null || true)"
   export APP_IMAGE="$target"
   aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$AWS_ECR_REGISTRY"
-  docker compose pull app
+  retry_docker_compose_pull "rollback app image ${target}" app
   docker compose up -d --no-deps --no-build app
 
   for attempt in $(seq 1 60); do
@@ -54,7 +75,7 @@ case "$MODE" in
     [ -n "$TARGET_IMAGE" ] || { echo "Backup manifest has no APP_IMAGE." >&2; exit 1; }
     export APP_IMAGE="$TARGET_IMAGE"
     aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$AWS_ECR_REGISTRY"
-    docker compose pull app
+    retry_docker_compose_pull "backup app image ${TARGET_IMAGE}" app
     CONFIRM_RESTORE=yes sh scripts/restore.sh "$ARG"
     mkdir -p "$STATE_DIR"
     printf '%s\n' "$TARGET_IMAGE" > "${STATE_DIR}/current-image"

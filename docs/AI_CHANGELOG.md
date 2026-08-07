@@ -2,6 +2,20 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-07
+
+Fixed:
+
+- Added retry/backoff around production and rollback Docker Compose pulls so transient ECR/S3 layer download resets do not fail a deploy after the first network error.
+
+Validation:
+
+- `bash -n scripts/deploy.sh scripts/rollback.sh` passes.
+- `npm run lint` passes.
+- `npm test` passes with 64 tests.
+- `npm run build` passes with the expected local Postgres fallback warnings.
+- Docker Compose validation could not run locally because Docker is not installed in this environment.
+
 ## 2026-08-06
 
 Changed:

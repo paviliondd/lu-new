@@ -6,7 +6,8 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
-- Fixed Payload CMS post saving/publishing error (`An unknown error occurred`) in `payload.config.ts` by updating `wordCount` to extract text from Lexical richText objects safely.
+- Set `theme: "light"` in `buildConfig.admin` in `payload.config.ts` to switch Payload CMS Admin to Light Mode.
+- Upgraded `textFromRichText` with `WeakSet` node tracking and custom Lexical block fields (`code`, `title`, `explanation`) text extraction, and wrapped `Posts` collection `beforeValidate` and `beforeChange` hooks in defensive try-catch handlers to resolve `An unknown error occurred`.
 - Removed unused legacy fields (`chapterOrder`, `certs`, `services`, `examDomains`, `labs`) from Payload CMS `Posts` collection.
 - Reordered `/blog` page layout: 3-slide carousel (`FeaturedPostsCarousel`) at top -> Search bar & Topic filter pills -> Grid of all remaining posts (newest to oldest, excluding only the 3 slide posts).
 - Enhanced code language auto-detection in `syntax.ts` and `highlight.ts` to recognize Ansible YAML tasks (`- name:`, `tasks:`, `apt:`, `service:`, `state:`) and display `YAML` accurately even when legacy block language was set to `bash`.

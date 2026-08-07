@@ -45,7 +45,7 @@ html {
   --article-panel-header: #eef1f4;
   --article-panel-border: #cbd5e1;
   background: var(--site-bg);
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   overflow-x: clip;
 }
 

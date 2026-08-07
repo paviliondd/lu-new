@@ -22,6 +22,9 @@ Added & Fixed:
 - Created `scripts/sync-mdx-posts-to-payload.mjs` (`npm run payload:sync-posts`) to import/upsert local MDX posts from `content/posts/*.mdx` into Payload CMS `posts` collection in PostgreSQL.
 - Implemented auto-generated English URLs (`slug_en`) from `title_en` for posts when browsing in `/en` locale.
 
+- Implemented scroll position preservation on page refresh (F5) in `ArticleClient.tsx` using a first-mount ref check, and updated root `scroll-behavior` to `auto` in `globals.css` and `layout.tsx` to instantly jump to top on article navigation without bottom-up animated scroll artifacts.
+- Created regression tests and verified that table of contents smooth scrolling to headings remains intact.
+
 Validation:
 
 - `npm run lint` passes with 0 errors and 0 warnings.

@@ -157,8 +157,8 @@ function readableList(values: string[]) {
 function synthesizeEnglishFallback(post: Post, scope: TranslationScope): TranslationPayload {
   const services = readableList(post.services);
   const certs = readableList(post.certs);
-  const title = `${services}: ${post.category} practical guide`;
-  const description = `A practical ${post.category} guide covering ${services}${
+  const title = post.title_en?.trim() || post.title?.trim() || `${services}: ${post.category} practical guide`;
+  const description = post.description_en?.trim() || post.description?.trim() || `A practical ${post.category} guide covering ${services}${
     post.certs.length > 0 ? ` for ${certs}` : ""
   }.`;
   const body = `<p>${description}</p><p>This English fallback is generated from article metadata. Add a dedicated English translation for the full article body.</p>`;

@@ -6,12 +6,14 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
-- Added structural YAML (`name:`, `tasks:`, lists) and Bash (`ssh-add`, `eval`, `ansible`, `$`, `#`) auto-detection for code blocks without explicit language, defaulting unrecognized plain text blocks to empty string.
+- Enhanced code language auto-detection in `syntax.ts` and `highlight.ts` to recognize Ansible YAML tasks (`- name:`, `tasks:`, `apt:`, `service:`, `state:`) and display `YAML` accurately even when legacy block language was set to `bash`.
+- Added support for explicit `plaintext` / `Plaintext` display labels.
+- Added `title_en`, `description_en`, and dedicated `aws-lambda-execution-model.en.mdx` post, and updated `legacy-translation.ts` fallback synthesis to preserve explicit English titles.
+- Removed redundant `FILTER: Topic: ... RESET FILTERS` active pill bar from `BlogListPage.tsx`.
 - Removed the Download button from `CodeBlock.tsx` header controls and deduplicated identity header tags when filename matches language (`Bash` / `bash`).
 - Fixed table cell border styling in `globals.css` so vertical column separators in the last row remain intact.
 - Created `scripts/sync-mdx-posts-to-payload.mjs` (`npm run payload:sync-posts`) to import/upsert local MDX posts from `content/posts/*.mdx` into Payload CMS `posts` collection in PostgreSQL.
-- Implemented auto-generated English URLs (`slug_en`) from `title_en` for posts when browsing in `/en` locale, while supporting post resolution by either Vietnamese slug or English slug for full backward compatibility.
-- Updated `sitemap.ts`, `generateMetadata`, and `localizePost` so English localized post URLs render English slugs cleanly.
+- Implemented auto-generated English URLs (`slug_en`) from `title_en` for posts when browsing in `/en` locale.
 
 Validation:
 

@@ -1,0 +1,47 @@
+---
+title: "AWS Lambda Execution Model: Handler, Context, Timeout and Concurrency"
+description: "Learn AWS Lambda execution lifecycle, handler, context, timeout, cold start, and concurrency in a practical hands-on lab for AWS DVA-C02."
+date: 2026-08-03
+author: nhatnghia
+category: AWS Certification
+tags:
+  - AWS
+  - Lambda
+  - DVA-C02
+  - Serverless
+  - Hands-on Lab
+series: aws-developer-associate-dva-c02
+seoTitle: "AWS Lambda Execution Model for DVA-C02"
+seoDescription: "Learn Lambda execution lifecycle, handler, context, timeout, cold start, and concurrency through a practical hands-on mini-lab for AWS DVA-C02."
+---
+
+# AWS Lambda Execution Model: Handler, Context, Timeout and Concurrency
+
+> **Scope:** This guide focuses on the execution model and core concurrency. Lambda Layers, event source mapping, and advanced provisioned concurrency are covered in separate guides.
+
+## 1. Lambda Execution Lifecycle
+
+AWS Lambda manages the infrastructure lifecycle automatically through three distinct phases:
+
+1. **Init Phase:** Downloads the function code, initializes extensions, and runs the global/static code outside the handler.
+2. **Invoke Phase:** Runs the handler code with the event and context objects.
+3. **Shutdown Phase:** Cleans up resources before terminating the execution environment.
+
+```yaml
+- name: Ensure that Apache is installed
+  apt:
+    name: apache2
+    state: present
+```
+
+## 2. Handler and Context Objects
+
+The **handler** is the entry point for your Lambda function execution. The **context** object provides methods and properties that supply information about the invocation, function, and execution environment.
+
+```yaml
+tasks:
+
+  - install httpd
+
+  - start httpd
+```

@@ -43,12 +43,15 @@ test("invalid JSON and non-JSON code are preserved", () => {
 test("code auto-detection identifies YAML and Bash snippets or stays blank", () => {
   assert.equal(detectCodeLanguage("name: Install httpd\nname: Copy Site Files"), "yaml");
   assert.equal(detectCodeLanguage("tasks:\n  - install httpd\n  - start httpd"), "yaml");
+  assert.equal(detectCodeLanguage("- name: Ensure that Apache is installed\n  apt:\n    name: apache2\n    state: present"), "yaml");
   assert.equal(detectCodeLanguage('eval "$(ssh-agent -s)"'), "bash");
   assert.equal(detectCodeLanguage("ssh-add <path_to_private_key>"), "bash");
+  assert.equal(formatLanguageLabel("bash", "- name: Ensure that Apache is installed\n  apt:\n    name: apache2"), "YAML");
+  assert.equal(formatLanguageLabel("plaintext", "just regular text"), "Plaintext");
   assert.equal(formatLanguageLabel("", "name: Install httpd"), "YAML");
   assert.equal(formatLanguageLabel("", 'eval "$(ssh-agent -s)"'), "Bash");
   assert.equal(formatLanguageLabel("", "just regular text"), "");
-  assert.equal(normalizeCodeLabel("plaintext", "just regular text"), "");
+  assert.equal(normalizeCodeLabel("plaintext", "just regular text"), "plaintext");
 });
 
 test("configured Shiki light and dark themes render together", async () => {

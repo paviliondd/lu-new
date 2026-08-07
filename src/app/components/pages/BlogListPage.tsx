@@ -77,7 +77,6 @@ export default function BlogListPage({
     return sortedPosts;
   }, [allPublishedPosts, searchQuery, selectedTag, selectedTopic]);
 
-  const isFiltered = Boolean(selectedTag || selectedTopic);
   const reservedSlugs = new Set(
     [...featuredPosts, ...followingPosts].map((post) => post.slug),
   );
@@ -178,51 +177,7 @@ export default function BlogListPage({
           </div>
         )}
 
-        {isFiltered && (
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-xl border theme-border bg-slate-50/80 p-3.5 dark:bg-slate-900/60">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                <SlidersHorizontal className="h-3.5 w-3.5 text-teal-600 dark:text-emerald-400" />
-                Filter:
-              </span>
-              {selectedTopic && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100/90 px-3 py-1 text-xs font-bold text-teal-800 dark:bg-emerald-950 dark:text-emerald-300 border border-teal-200 dark:border-emerald-800/60 shadow-xs">
-                  Topic: {formatTopicLabel(selectedTopic)}
-                  <Link
-                    href={pageHrefWithFilters(1, selectedTag, "")}
-                    scroll={false}
-                    className="ml-0.5 rounded-full p-0.5 text-teal-700 hover:bg-teal-200 hover:text-teal-950 dark:text-emerald-400 dark:hover:bg-emerald-900 dark:hover:text-white transition"
-                    aria-label="Remove topic filter"
-                  >
-                    <X className="h-3 w-3" />
-                  </Link>
-                </span>
-              )}
-              {selectedTag && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-200/80 px-3 py-1 text-xs font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200 border theme-border shadow-xs">
-                  Tag: {selectedTag}
-                  <Link
-                    href={pageHrefWithFilters(1, "", selectedTopic)}
-                    scroll={false}
-                    className="ml-0.5 rounded-full p-0.5 text-slate-600 hover:bg-slate-300 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition"
-                    aria-label="Remove tag filter"
-                  >
-                    <X className="h-3 w-3" />
-                  </Link>
-                </span>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="text-xs font-bold uppercase tracking-wider text-teal-700 hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200 transition cursor-pointer"
-            >
-              <Link href={localePath("/blog")} scroll={false}>
-                {t("resetFilter")}
-              </Link>
-            </button>
-          </div>
-        )}
+
 
         {filteredPosts.length === 0 ? (
           <div className="theme-card rounded-xl border border-dashed py-20 text-center">

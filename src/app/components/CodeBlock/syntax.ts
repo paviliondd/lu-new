@@ -46,29 +46,45 @@ export function normalizeLanguage(language = "") {
   return languageAliases[normalized] || DEFAULT_CODE_LANGUAGE;
 }
 
-export function detectCodeLanguage(code = "") {
+export function detectCodeLanguage(code = "", explicitLanguage = ""): string {
   if (!code || !code.trim()) return "";
   const trimmed = code.trim();
+  const lowerExplicit = explicitLanguage.trim().toLowerCase();
 
-  const hasYamlKeys = /^\s*[\w\d_-]+\s*:\s+.*$/m.test(trimmed);
-  const hasYamlList = /^\s*-\s+[\w\d_-]+/m.test(trimmed);
-  const hasDocStart = /^---/m.test(trimmed);
+  if (lowerExplicit === "plaintext" || lowerExplicit === "text" || lowerExplicit === "plain") {
+    return "plaintext";
+  }
+
+  const hasYamlDocStart = /^---/m.test(trimmed);
+  const hasAnsibleName = /^\s*-\s+name\s*:/mi.test(trimmed);
+  const hasAnsibleTasks = /^\s*tasks\s*:/mi.test(trimmed);
+  const hasYamlListItems = /^\s*-\s+[\w\d_-]+\s*:/m.test(trimmed) || /^\s*-\s+[a-z0-9_-]+/m.test(trimmed);
+  const hasAnsibleModules = /^\s*(apt|service|yum|dnf|copy|file|template|lineinfile|git|docker_container|pip)\s*:/m.test(trimmed);
+  const hasYamlKeys = /^\s*[\w\d_-]+\s*:\s*.+$/m.test(trimmed);
   const isCode = /^(const|let|var|function|import|export|class|interface|type|package|public|private)\b/m.test(trimmed);
 
-  if ((hasDocStart || (hasYamlKeys && (hasYamlList || /^\s*name:/m.test(trimmed) || /^\s*tasks:/m.test(trimmed)))) && !isCode) {
+  if ((hasYamlDocStart || hasAnsibleName || hasAnsibleTasks || hasYamlKeys || (hasYamlListItems && (hasAnsibleModules || /state\s*:/m.test(trimmed))) || (hasAnsibleModules && /state\s*:/m.test(trimmed))) && !isCode) {
+    return "yaml";
+  }
+
+  if (hasYamlKeys && hasYamlListItems && !isCode) {
     return "yaml";
   }
 
   const hasShebang = /^\s*#!\/(bin|usr\/bin)\/(bash|sh|zsh)/m.test(trimmed);
-  const hasBashCmds = /^\s*(eval\s|ssh-add\s|sudo\s|apt\s|yum\s|dnf\s|systemctl\s|ansible\b|ansible-playbook\b|docker\s|docker-compose\s|kubectl\s|git\s|npm\s|yarn\s|pnpm\s|npx\s|pip\s|curl\s|wget\s)/m.test(trimmed);
+  const hasBashCmds = /^\s*(eval\s|ssh-add\s|sudo\s|apt-get\s|apt\s+install|yum\s+install|dnf\s+install|systemctl\s|ansible-playbook\b|docker\s|docker-compose\s|kubectl\s|git\s|npm\s|yarn\s|pnpm\s|npx\s|pip\s|curl\s|wget\s)/m.test(trimmed);
   const hasPrompt = /^\s*[$#]\s+\w+/m.test(trimmed);
 
   if (hasShebang || hasBashCmds || hasPrompt) {
     return "bash";
   }
 
-  if (hasYamlKeys && !isCode) {
+  if (hasAnsibleName || hasAnsibleTasks || hasYamlListItems) {
     return "yaml";
+  }
+
+  if (lowerExplicit && !plainTextLanguages.includes(lowerExplicit)) {
+    return languageAliases[lowerExplicit] || lowerExplicit;
   }
 
   return "";
@@ -77,7 +93,7 @@ export function detectCodeLanguage(code = "") {
 export function normalizeCodeLabel(value = "", code = "") {
   const normalized = value.trim();
   if (!normalized || plainTextLanguages.includes(normalized.toLowerCase())) {
-    if (code) return detectCodeLanguage(code);
+    if (code) return detectCodeLanguage(code, normalized);
     return "";
   }
 
@@ -110,16 +126,19 @@ const languageDisplayNames: Record<string, string> = {
   bash: "Bash",
   shell: "Bash",
   sh: "Bash",
+  plaintext: "Plaintext",
+  text: "Plaintext",
+  plain: "Plaintext",
 };
 
 export function formatLanguageLabel(language = "", code = "") {
   let normalized = language.trim().toLowerCase();
-  if (!normalized || plainTextLanguages.includes(normalized)) {
-    if (code) {
-      normalized = detectCodeLanguage(code);
-    } else {
-      normalized = "";
-    }
+  const detected = code ? detectCodeLanguage(code, normalized) : "";
+
+  if (detected) {
+    normalized = detected;
+  } else if (!normalized || plainTextLanguages.includes(normalized)) {
+    normalized = "";
   }
 
   if (!normalized) return "";

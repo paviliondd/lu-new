@@ -3,6 +3,7 @@ import "server-only";
 import { load } from "cheerio";
 import { codeToHtml } from "shiki";
 import {
+  detectCodeLanguage,
   formatCodeSource,
   languageFromClass,
   normalizeLanguage,
@@ -36,7 +37,8 @@ export async function highlightCodeBlocks(html: string) {
       continue;
     }
 
-    const language = normalizeLanguage(originalLanguage);
+    const detectedLang = detectCodeLanguage(code.text(), originalLanguage);
+    const language = normalizeLanguage(detectedLang || originalLanguage);
 
     try {
       let highlighted: string;

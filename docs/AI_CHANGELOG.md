@@ -6,6 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Fixed PostgreSQL `content_vi NOT NULL` database column constraint violation in `payload.config.ts` by ensuring `data.contentVi` defaults to `textFromRichText(data.contentRichVi)` or `" "` in `beforeChange` hook whenever empty during post creation.
 - Created `AdminThemeToggle.tsx` component (`admin.components.actions`) and set `admin.theme: "all"` in `payload.config.ts` to add a Dark/Light Mode toggle button to Payload Admin header bar.
 - Added custom duplicate slug validator to `slug` field in `payload.config.ts` (`Posts` collection) to return readable Vietnamese messages instead of triggering database 500 unique constraint violations.
 - Set `required: false` on `listField` array items (`tags`) to prevent empty tag array validation errors.

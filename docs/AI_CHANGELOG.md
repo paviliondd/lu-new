@@ -6,7 +6,9 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
-- Set `theme: "light"` in `buildConfig.admin` in `payload.config.ts` to switch Payload CMS Admin to Light Mode.
+- Created `AdminThemeToggle.tsx` component (`admin.components.actions`) and set `admin.theme: "all"` in `payload.config.ts` to add a Dark/Light Mode toggle button to Payload Admin header bar.
+- Added custom duplicate slug validator to `slug` field in `payload.config.ts` (`Posts` collection) to return readable Vietnamese messages instead of triggering database 500 unique constraint violations.
+- Set `required: false` on `listField` array items (`tags`) to prevent empty tag array validation errors.
 - Upgraded `textFromRichText` with `WeakSet` node tracking and custom Lexical block fields (`code`, `title`, `explanation`) text extraction, and wrapped `Posts` collection `beforeValidate` and `beforeChange` hooks in defensive try-catch handlers to resolve `An unknown error occurred`.
 - Removed unused legacy fields (`chapterOrder`, `certs`, `services`, `examDomains`, `labs`) from Payload CMS `Posts` collection.
 - Reordered `/blog` page layout: 3-slide carousel (`FeaturedPostsCarousel`) at top -> Search bar & Topic filter pills -> Grid of all remaining posts (newest to oldest, excluding only the 3 slide posts).

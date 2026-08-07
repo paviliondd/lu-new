@@ -905,6 +905,16 @@ const Posts: CollectionConfig = {
             revalidatePath(`/vi/blog/${slug}`);
             revalidatePath(`/en/blog/${slug}`);
           }
+          const isNewlyPublished = (doc as { status?: string })?.status === "published" && (previousDoc as { status?: string })?.status !== "published";
+          if (isNewlyPublished && slug) {
+            const title = (doc as { titleVi?: string; title?: string })?.titleVi || (doc as { title?: string })?.title || slug;
+            const excerpt = (doc as { descriptionVi?: string; description?: string })?.descriptionVi || (doc as { description?: string })?.description;
+            import("./lib/newsletter/smtp").then(({ broadcastNewPostNotification }) => {
+              broadcastNewPostNotification({ title, slug, excerpt }).catch((err) => {
+                console.error("[Payload afterChange Broadcast Error]:", err);
+              });
+            }).catch(() => {});
+          }
         } catch (error) {
           console.error("[Payload afterChange Error]:", error);
         }

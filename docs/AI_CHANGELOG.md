@@ -25,7 +25,7 @@ Added & Fixed:
 - Implemented scroll position preservation on page refresh (F5) in `ArticleClient.tsx` using a first-mount ref check, and updated root `scroll-behavior` to `auto` in `globals.css` and `layout.tsx` to instantly jump to top on article navigation without bottom-up animated scroll artifacts.
 - Created regression tests and verified that table of contents smooth scrolling to headings remains intact.
 - Enforced Payload CMS as authoritative for published posts when reachable in `payload.ts`, eliminating fallback `.mdx` file resurrecting of draft or deleted posts.
-- Added `afterChange` and `afterDelete` hooks to `Posts` collection in `payload.config.ts` to invalidate Redis cache keys (`posts:published:*`, `posts:detail:*`) and trigger `revalidatePath` on post status changes.
+- Added `broadcastNewPostNotification` to `src/lib/newsletter/smtp.ts` and wired it up via dynamic import in `payload.config.ts` `afterChange` hook to automatically send newsletter email broadcasts to all registered subscribers whenever a new post is published.
 
 Validation:
 

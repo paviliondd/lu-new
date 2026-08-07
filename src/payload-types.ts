@@ -278,15 +278,11 @@ export interface Post {
    */
   series?: (number | null) | Series;
   /**
-   * Thứ tự Chap/Bài (1, 2, 3...). Để trống hệ thống sẽ tự đọc số từ Tiêu đề (vd: 'Phần 1', 'Chapter 2').
-   */
-  chapterOrder?: number | null;
-  /**
    * Article tags.
    */
   tags?:
     | {
-        value: string;
+        value?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -360,30 +356,6 @@ export interface Post {
   topicSlug?: string | null;
   clusterSlug?: string | null;
   gradient?: string | null;
-  certs?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  services?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  examDomains?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  labs?:
-    | {
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
   coverage?: string | null;
   costNote?: string | null;
   cleanupNote?: string | null;
@@ -769,7 +741,6 @@ export interface PostsSelect<T extends boolean = true> {
   coverImage?: T;
   category?: T;
   series?: T;
-  chapterOrder?: T;
   tags?:
     | T
     | {
@@ -802,30 +773,6 @@ export interface PostsSelect<T extends boolean = true> {
   topicSlug?: T;
   clusterSlug?: T;
   gradient?: T;
-  certs?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
-  services?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
-  examDomains?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
-  labs?:
-    | T
-    | {
-        value?: T;
-        id?: T;
-      };
   coverage?: T;
   costNote?: T;
   cleanupNote?: T;

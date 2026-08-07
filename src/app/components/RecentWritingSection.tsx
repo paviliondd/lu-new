@@ -38,7 +38,7 @@ export default function RecentWritingSection({ initialPosts }: RecentWritingSect
 
   return (
     <section className="border-b theme-border py-12 sm:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-end justify-between gap-4 sm:mb-10">
           <div>
             <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.16em] text-teal-700 dark:text-emerald-300">
@@ -68,7 +68,7 @@ export default function RecentWritingSection({ initialPosts }: RecentWritingSect
             return (
               <article
                 key={post.slug}
-                className={`theme-card group flex min-w-0 flex-col overflow-hidden rounded-xl border transition duration-200 hover:-translate-y-0.5 hover:border-teal-500 dark:hover:border-emerald-400 ${
+                className={`theme-card group flex min-w-0 flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-teal-500/10 hover:border-teal-500/50 dark:hover:shadow-teal-400/15 dark:hover:border-teal-400/50 ${
                   index === 2 ? "md:border-teal-500/50 dark:md:border-emerald-400/40" : ""
                 }`}
               >

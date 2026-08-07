@@ -2,6 +2,7 @@ import "server-only";
 
 import net from "node:net";
 import tls from "node:tls";
+import { getNewsletterSubscribers } from "./store";
 
 interface SmtpConfig {
   host: string;
@@ -120,7 +121,7 @@ export function isSmtpConfigured() {
   return Boolean(smtpConfig());
 }
 
-export async function sendNewsletterConfirmation(email: string) {
+export async function sendRawEmail(to: string, subject: string, bodyText: string) {
   const config = smtpConfig();
   if (!config) return false;
 
@@ -142,14 +143,68 @@ export async function sendNewsletterConfirmation(email: string) {
     }
 
     const from = escapeAddress(config.from);
-    const to = escapeAddress(email);
+    const recipient = escapeAddress(to);
+    const message = [
+      `From: ${from}`,
+      `To: ${recipient}`,
+      `Subject: ${subject}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/plain; charset=UTF-8",
+      "",
+      bodyText,
+    ].join("\r\n");
+
     await command(socket, `MAIL FROM:<${from}>`);
-    await command(socket, `RCPT TO:<${to}>`);
+    await command(socket, `RCPT TO:<${recipient}>`);
     await command(socket, "DATA", /^354/);
-    await command(socket, `${messageBody(to, from)}\r\n.`, /^250/);
+    await command(socket, `${message}\r\n.`, /^250/);
     await command(socket, "QUIT", /^221/).catch(() => "");
     return true;
   } finally {
     socket.end();
   }
+}
+
+export async function sendNewsletterConfirmation(email: string) {
+  return sendRawEmail(email, "LinuxUnity newsletter subscription", messageBody(email, smtpConfig()?.from || ""));
+}
+
+export async function broadcastNewPostNotification({
+  title,
+  slug,
+  excerpt,
+}: {
+  title: string;
+  slug: string;
+  excerpt?: string;
+}) {
+  if (!isSmtpConfigured()) return { sent: 0, total: 0 };
+
+  const subscribers = await getNewsletterSubscribers();
+  if (!subscribers.length) return { sent: 0, total: 0 };
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://linuxunity.com";
+  const postUrl = `${siteUrl}/vi/blog/${slug}`;
+  const subject = `[LinuxUnity] Bài viết mới: ${title}`;
+  const bodyText = [
+    "Xin chào,",
+    "",
+    `LinuxUnity vừa xuất bản bài viết mới: "${title}"`,
+    excerpt ? `\nTóm tắt: ${excerpt}\n` : "",
+    `Đọc bài viết chi tiết tại: ${postUrl}`,
+    "",
+    "Cảm ơn bạn đã đăng ký nhận tin từ LinuxUnity!",
+  ].join("\n");
+
+  let sentCount = 0;
+  for (const subscriber of subscribers) {
+    try {
+      const success = await sendRawEmail(subscriber.email, subject, bodyText);
+      if (success) sentCount++;
+    } catch (err) {
+      console.error(`Failed to send newsletter email to ${subscriber.email}`, err);
+    }
+  }
+
+  return { sent: sentCount, total: subscribers.length };
 }

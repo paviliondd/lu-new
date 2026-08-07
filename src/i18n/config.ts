@@ -23,7 +23,22 @@ export function switchLocalePath(pathname: string, locale: Locale) {
   return localePath(locale, pathname);
 }
 
+export function slugifyText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/\u0111/g, "d")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
 export function localizePost<T extends {
+  slug: string;
+  slug_en?: string;
   title: string;
   title_en: string;
   description: string;
@@ -35,9 +50,15 @@ export function localizePost<T extends {
 }>(post: T, locale: Locale): T {
   if (locale === "vi") return post;
 
+  const enTitle = post.title_en?.trim();
+  const viTitle = post.title?.trim();
+  const enSlug = post.slug_en?.trim() || (enTitle && enTitle !== viTitle ? slugifyText(enTitle) : post.slug);
+
   return {
     ...post,
-    title: post.title_en.trim() || post.title,
+    slug: enSlug || post.slug,
+    slug_en: enSlug || post.slug,
+    title: enTitle || post.title,
     description: post.description_en.trim() || post.description,
     content: post.content_en.trim() || post.content,
     readTime: post.readTime_en.trim() || post.readTime || "5 min read",

@@ -91,7 +91,7 @@ export default function CodeBlock({
         data-compact={!filename && !language ? "true" : undefined}
       >
         <div className="code-card__identity">
-          {language && <span className="code-card__language">{formatLanguageLabel(language)}</span>}
+          <span className="code-card__language">{formatLanguageLabel(language || "bash")}</span>
           {filename && (
             <span className="code-card__filename" title={filename}>
               <FileText className="code-action-icon" aria-hidden="true" />

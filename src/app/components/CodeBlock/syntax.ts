@@ -1,5 +1,7 @@
 import type { BundledLanguage } from "shiki";
 
+export const DEFAULT_CODE_LANGUAGE: BundledLanguage = "bash";
+
 const languageAliases: Record<string, BundledLanguage> = {
   aws: "bash",
   awscli: "bash",
@@ -32,22 +34,29 @@ const languageAliases: Record<string, BundledLanguage> = {
   yaml: "yaml",
 };
 
+const plainTextLanguages = ["text", "txt", "plain", "plaintext"];
+
 export function languageFromClass(className = "") {
   return className.match(/language-([a-z0-9-]+)/i)?.[1]?.toLowerCase() || "";
 }
 
 export function normalizeLanguage(language = "") {
-  const normalized = language.trim().toLowerCase() || "text";
-  return languageAliases[normalized] || (normalized as BundledLanguage);
+  const normalized = language.trim().toLowerCase();
+  if (!normalized || plainTextLanguages.includes(normalized)) return DEFAULT_CODE_LANGUAGE;
+  return languageAliases[normalized] || DEFAULT_CODE_LANGUAGE;
 }
 
 export function normalizeCodeLabel(value = "") {
   const normalized = value.trim();
-  if (!normalized) return "";
+  if (!normalized) return "bash";
 
-  return ["text", "txt", "plain", "plaintext"].includes(normalized.toLowerCase())
-    ? ""
+  return plainTextLanguages.includes(normalized.toLowerCase())
+    ? "bash"
     : normalized;
+}
+
+export function normalizeCodeLanguageLabel(value = "") {
+  return normalizeLanguage(value);
 }
 
 const languageDisplayNames: Record<string, string> = {
@@ -69,16 +78,20 @@ const languageDisplayNames: Record<string, string> = {
   tsx: "TSX",
   yaml: "YAML",
   yml: "YAML",
+  bash: "Bash",
+  shell: "Bash",
+  sh: "Bash",
 };
 
 export function formatLanguageLabel(language = "") {
   const normalized = language.trim().toLowerCase();
-  if (!normalized) return "";
-  return languageDisplayNames[normalized] || normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  if (!normalized || plainTextLanguages.includes(normalized)) return "Bash";
+  const resolvedLang = normalizeLanguage(normalized);
+  return languageDisplayNames[normalized] || languageDisplayNames[resolvedLang] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
 }
 
-export function shouldShowLanguage(language: BundledLanguage) {
-  return !["text", "txt", "plain", "plaintext"].includes(String(language).toLowerCase());
+export function shouldShowLanguage(_language?: unknown) {
+  return Boolean(_language) || true;
 }
 
 export function formatCodeSource(source: string, language: string) {

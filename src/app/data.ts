@@ -54,6 +54,7 @@ export interface Post {
   roadmapOrder: number;
   chapterOrder?: number | null;
   slug: string;
+  slug_en?: string;
   title: string;
   title_en: string;
   description: string;

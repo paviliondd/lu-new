@@ -39,9 +39,12 @@ test("invalid JSON and non-JSON code are preserved", () => {
   assert.equal(formatCodeSource("echo hello", "bash"), "echo hello");
 });
 
-test("plain-text labels stay hidden while useful metadata remains", () => {
-  assert.equal(normalizeCodeLabel("plaintext"), "");
+test("plain-text labels fall back to bash while useful metadata remains", () => {
+  assert.equal(normalizeCodeLabel("plaintext"), "bash");
   assert.equal(normalizeCodeLabel("iam-policy.json"), "iam-policy.json");
+  assert.equal(formatLanguageLabel("yaml"), "YAML");
+  assert.equal(formatLanguageLabel(""), "Bash");
+  assert.equal(formatLanguageLabel("unknown"), "Bash");
 });
 
 test("configured Shiki light and dark themes render together", async () => {

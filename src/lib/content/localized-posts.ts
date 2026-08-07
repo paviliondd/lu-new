@@ -5,7 +5,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { marked } from "marked";
 import { posts as fallbackPosts, type Post } from "@/app/data";
-import { localizePost, type Locale } from "@/i18n/config";
+import { localizePost, slugifyText, type Locale } from "@/i18n/config";
 import { translateLegacyPostToEnglish } from "@/lib/content/legacy-translation";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 
@@ -23,10 +23,41 @@ function textList(value: unknown) {
   return [];
 }
 
+async function findBaseSlug(slug: string): Promise<string> {
+  const directPath = path.join(postsDirectory, `${slug}.vi.mdx`);
+  try {
+    await fs.access(directPath);
+    return slug;
+  } catch {}
+
+  const fallbackMatch = fallbackPosts.find(
+    (post) => post.slug === slug || (post.title_en && slugifyText(post.title_en) === slug) || post.slug_en === slug
+  );
+  if (fallbackMatch) return fallbackMatch.slug;
+
+  try {
+    const files = await fs.readdir(postsDirectory);
+    for (const file of files) {
+      if (!file.endsWith(".vi.mdx")) continue;
+      const baseSlug = file.slice(0, -".vi.mdx".length);
+      const source = await fs.readFile(path.join(postsDirectory, file), "utf8");
+      const { data } = matter(source);
+      const titleEn = String(data.title_en || data.title || "");
+      const enSlug = String(data.slug_en || (titleEn ? slugifyText(titleEn) : ""));
+      if (baseSlug === slug || enSlug === slug) {
+        return baseSlug;
+      }
+    }
+  } catch {}
+
+  return slug;
+}
+
 export async function getLocalizedFilePost(
-  slug: string,
+  slugInput: string,
   locale: Locale
 ): Promise<Post | null> {
+  const slug = await findBaseSlug(slugInput);
   const requestedFilePath = path.join(postsDirectory, `${slug}.${locale}.mdx`);
   const fallbackViFilePath = path.join(postsDirectory, `${slug}.vi.mdx`);
 

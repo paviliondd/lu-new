@@ -14,6 +14,7 @@
     "payload:generate-types": "payload generate:types",
     "payload:migrate-richtext": "node --import tsx scripts/migrate-payload-richtext.mjs",
     "payload:repair-posts": "node scripts/repair-payload-posts.mjs",
+    "payload:sync-posts": "node --import tsx scripts/sync-mdx-posts-to-payload.mjs",
     "payload:seed-projects": "node --import tsx scripts/seed-payload-projects.mjs",
     "content:audit-rendering": "node --import tsx scripts/audit-content-rendering.mjs",
     "content:audit-translations": "node --import tsx scripts/translation-pipeline.mjs --mode audit",

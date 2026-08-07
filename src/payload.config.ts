@@ -865,6 +865,16 @@ const Posts: CollectionConfig = {
               throw new APIError("Bắt buộc phải chọn Topic (Chủ đề) khi Publish.", 400, null, true);
             }
           }
+          const richViText = textFromRichText(data.contentRichVi);
+          if (!data.contentVi || typeof data.contentVi !== "string" || !data.contentVi.trim()) {
+            data.contentVi = richViText.trim() ? richViText : " ";
+          }
+
+          const richEnText = textFromRichText(data.contentRichEn);
+          if (data.contentEn === undefined || data.contentEn === null) {
+            data.contentEn = richEnText;
+          }
+
           data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
           data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
           if (typeof data.views !== "number") data.views = Number(originalDoc?.views || 0);

@@ -389,17 +389,6 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
   return localized;
 }
 
-function mergePosts(primary: Post[], fallback: Post[]) {
-  const postsBySlug = new Map<string, Post>();
-  for (const post of fallback) postsBySlug.set(post.slug, post);
-  for (const post of primary) postsBySlug.set(post.slug, post);
-  return Array.from(postsBySlug.values()).sort((left, right) => {
-    const leftDate = new Date(left.date || 0).getTime();
-    const rightDate = new Date(right.date || 0).getTime();
-    return rightDate - leftDate;
-  });
-}
-
 async function withLocalViews(posts: Post[]) {
   const localViews = await getLocalPostViews();
   return posts.map((post) => ({
@@ -434,7 +423,7 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
         },
       });
       const payloadPosts = await Promise.all(result.docs.map((doc) => mapPayloadPost(asPayloadDoc(doc), locale)));
-      return (await withLocalViews(mergePosts(payloadPosts, filePosts))).slice(0, limit);
+      return (await withLocalViews(payloadPosts)).slice(0, limit);
     } catch (error) {
       console.error("Unable to fetch Payload published posts", { locale, error });
       return (await withLocalViews(filePosts)).slice(0, limit);
@@ -536,7 +525,7 @@ async function getPayloadPostBySlug(
         }
       }
 
-      if (!doc) return filePost ? withLocalView(filePost) : null;
+      if (!doc) return allowDraft ? (filePost ? withLocalView(filePost) : null) : null;
       return withLocalView(await mapPayloadPost(asPayloadDoc(doc), locale));
     } catch (error) {
       console.error("Unable to resolve Payload post by slug", { slug, locale, error });

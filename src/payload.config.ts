@@ -7,6 +7,8 @@ import { APIError, buildConfig, type Block, type CollectionConfig, type RichText
 import sharp from "sharp";
 import { Projects } from "./collections/Projects";
 import { legacyImportedMediaURL } from "./lib/cms/media-url";
+import { revalidatePath } from "next/cache";
+import { invalidateCache } from "./lib/server/redis-cache";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -884,6 +886,52 @@ const Posts: CollectionConfig = {
           console.error("[Payload beforeChange Error]:", error);
         }
         return data;
+      },
+    ],
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        try {
+          await invalidateCache(["posts:published:*", "posts:detail:*", "series:list:*"]);
+          revalidatePath("/");
+          revalidatePath("/vi");
+          revalidatePath("/en");
+          revalidatePath("/blog");
+          revalidatePath("/vi/blog");
+          revalidatePath("/en/blog");
+          revalidatePath("/sitemap.xml");
+          const slug = (doc as { slug?: string })?.slug || (previousDoc as { slug?: string })?.slug;
+          if (slug) {
+            revalidatePath(`/blog/${slug}`);
+            revalidatePath(`/vi/blog/${slug}`);
+            revalidatePath(`/en/blog/${slug}`);
+          }
+        } catch (error) {
+          console.error("[Payload afterChange Error]:", error);
+        }
+        return doc;
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        try {
+          await invalidateCache(["posts:published:*", "posts:detail:*", "series:list:*"]);
+          revalidatePath("/");
+          revalidatePath("/vi");
+          revalidatePath("/en");
+          revalidatePath("/blog");
+          revalidatePath("/vi/blog");
+          revalidatePath("/en/blog");
+          revalidatePath("/sitemap.xml");
+          const slug = (doc as { slug?: string })?.slug;
+          if (slug) {
+            revalidatePath(`/blog/${slug}`);
+            revalidatePath(`/vi/blog/${slug}`);
+            revalidatePath(`/en/blog/${slug}`);
+          }
+        } catch (error) {
+          console.error("[Payload afterDelete Error]:", error);
+        }
+        return doc;
       },
     ],
   },

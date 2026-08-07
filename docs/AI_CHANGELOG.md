@@ -4,17 +4,18 @@ Every Codex code or workflow change must update this file.
 
 ## 2026-08-07
 
-Fixed:
+Added & Fixed:
 
-- Added retry/backoff around production and rollback Docker Compose pulls so transient ECR/S3 layer download resets do not fail a deploy after the first network error.
+- Updated code block language detection to default unrecognized or plain text snippets to `bash` / `Bash`, added full `YAML`/`yml` display support, and compacted code block header height and padding.
+- Created `scripts/sync-mdx-posts-to-payload.mjs` (`npm run payload:sync-posts`) to import/upsert local MDX posts from `content/posts/*.mdx` into Payload CMS `posts` collection in PostgreSQL.
+- Implemented auto-generated English URLs (`slug_en`) from `title_en` for posts when browsing in `/en` locale, while supporting post resolution by either Vietnamese slug or English slug for full backward compatibility.
+- Updated `sitemap.ts`, `generateMetadata`, and `localizePost` so English localized post URLs render English slugs cleanly.
 
 Validation:
 
-- `bash -n scripts/deploy.sh scripts/rollback.sh` passes.
-- `npm run lint` passes.
-- `npm test` passes with 64 tests.
-- `npm run build` passes with the expected local Postgres fallback warnings.
-- Docker Compose validation could not run locally because Docker is not installed in this environment.
+- `npm run lint` passes with 0 errors and 1 pre-existing warning.
+- `npm test` passes (66 tests).
+- `npm run build` completes successfully.
 
 ## 2026-08-06
 

@@ -54,12 +54,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const posts = await getCmsPublishedPosts("vi");
+  const postsVi = await getCmsPublishedPosts("vi");
+  const postsEn = await getCmsPublishedPosts("en");
 
-  posts.forEach((post) => {
-    const viUrl = absoluteUrl(`/blog/${post.slug}`);
-    const enUrl = absoluteUrl(`/en/blog/${post.slug}`);
-    const lastModified = post.date ? new Date(post.date) : new Date();
+  postsVi.forEach((postVi, index) => {
+    const postEn = postsEn[index] || postVi;
+    const viUrl = absoluteUrl(`/blog/${postVi.slug}`);
+    const enUrl = absoluteUrl(`/en/blog/${postEn.slug}`);
+    const lastModified = postVi.date ? new Date(postVi.date) : new Date();
 
     entries.push({
       url: viUrl,

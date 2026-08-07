@@ -518,7 +518,24 @@ async function getPayloadPostBySlug(
         },
       });
 
-      const doc = result.docs[0];
+      let doc = result.docs[0];
+      if (!doc) {
+        const allDocs = await payload.find({
+          collection: "posts",
+          depth: 2,
+          limit: 100,
+          overrideAccess: allowDraft,
+          where: allowDraft ? {} : { status: { equals: "published" } },
+        });
+        for (const candidateDoc of allDocs.docs) {
+          const candidatePost = await mapPayloadPost(asPayloadDoc(candidateDoc), locale);
+          if (candidatePost.slug === slug || candidatePost.slug_en === slug) {
+            doc = candidateDoc;
+            break;
+          }
+        }
+      }
+
       if (!doc) return filePost ? withLocalView(filePost) : null;
       return withLocalView(await mapPayloadPost(asPayloadDoc(doc), locale));
     } catch (error) {

@@ -12,7 +12,6 @@ import {
 import { getComments } from "@/lib/comments/store";
 import { highlightCodeBlocks } from "@/lib/content/highlight";
 import { hasLocale } from "@/i18n/config";
-import { localizedAlternates } from "@/i18n/metadata";
 import { localePath } from "@/i18n/config";
 import { siteUrl } from "@/i18n/metadata";
 import { getChapterNavigation } from "@/lib/utils/chapter";
@@ -80,18 +79,29 @@ function legacyAssetOrigins() {
     .filter(Boolean);
 }
 
-// Generate metadata dynamically for SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
   if (!hasLocale(lang)) return {};
 
-  const post = await getCmsPostBySlug(slug, lang);
+  const postVi = await getCmsPostBySlug(slug, "vi");
+  const postEn = await getCmsPostBySlug(slug, "en");
+  const post = lang === "vi" ? postVi : postEn;
   if (!post) return {};
+
+  const viSlug = postVi?.slug || slug;
+  const enSlug = postEn?.slug || slug;
 
   return {
     title: post.seo.title || post.title,
     description: post.seo.description || post.description,
-    alternates: localizedAlternates(lang, `/blog/${slug}`),
+    alternates: {
+      canonical: localePath(lang, `/blog/${post.slug}`),
+      languages: {
+        vi: localePath("vi", `/blog/${viSlug}`),
+        en: localePath("en", `/blog/${enSlug}`),
+        "x-default": localePath("vi", `/blog/${viSlug}`),
+      },
+    },
     openGraph: {
       title: post.title,
       description: post.description,

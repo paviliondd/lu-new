@@ -32,25 +32,6 @@ function escapeAddress(value: string) {
   return value.replace(/[<>\r\n]/g, "").trim();
 }
 
-function messageBody(to: string, from: string) {
-  const subject = "LinuxUnity newsletter subscription";
-  const body = [
-    "Thanks for subscribing to LinuxUnity DevOps newsletter.",
-    "",
-    "You will receive notifications when new posts or hands-on labs are published.",
-  ].join("\n");
-
-  return [
-    `From: ${from}`,
-    `To: ${to}`,
-    `Subject: ${subject}`,
-    "MIME-Version: 1.0",
-    "Content-Type: text/plain; charset=UTF-8",
-    "",
-    body,
-  ].join("\r\n");
-}
-
 function readLine(socket: net.Socket) {
   return new Promise<string>((resolve, reject) => {
     let buffer = "";
@@ -121,9 +102,178 @@ export function isSmtpConfigured() {
   return Boolean(smtpConfig());
 }
 
-export async function sendRawEmail(to: string, subject: string, bodyText: string) {
+export function getWelcomeEmailFrom() {
+  return process.env.SMTP_FROM_WELCOME?.trim() || process.env.SMTP_FROM?.trim() || "welcome@linuxunity.com";
+}
+
+export function getNewsletterEmailFrom() {
+  return process.env.SMTP_FROM_NEWSLETTER?.trim() || process.env.SMTP_FROM?.trim() || "newsletter@linuxunity.com";
+}
+
+export function getWelcomeHtmlTemplate() {
+  const currentYear = new Date().getFullYear();
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chào mừng bạn đến với LinuxUnity</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #090d16; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #090d16; padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: #0f172a; border-radius: 16px; border: 1px solid #1e293b; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+          <!-- Header Branding -->
+          <tr>
+            <td style="padding: 32px 32px 24px 32px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-bottom: 1px solid #1e293b;">
+              <table role="presentation" width="100%">
+                <tr>
+                  <td style="vertical-align: middle;">
+                    <div style="display: inline-block; vertical-align: middle; width: 44px; height: 44px; background-color: #ffffff; border-radius: 12px; text-align: center; line-height: 44px; margin-right: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                      <img src="https://linuxunity.com/images/linuxunity-penguin-logo.png" alt="LinuxUnity Logo" width="32" height="32" style="vertical-align: middle; margin-top: 6px; border: 0;" />
+                    </div>
+                    <span style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; vertical-align: middle;">Linux<span style="color: #14b8a6;">Unity</span></span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 32px; line-height: 1.65; font-size: 15px; color: #cbd5e1;">
+              <h1 style="font-size: 22px; font-weight: 700; color: #ffffff; margin-top: 0; margin-bottom: 16px; letter-spacing: -0.3px;">
+                Đăng ký nhận tin thành công! 🎉
+              </h1>
+              <p style="margin-top: 0; margin-bottom: 20px; color: #94a3b8;">
+                Xin chào! Cảm ơn bạn đã đăng ký theo dõi <strong style="color: #2dd4bf;">LinuxUnity DevOps</strong>.
+              </p>
+              
+              <div style="background-color: #1e293b; border-left: 4px solid #0d9488; border-radius: 8px; padding: 18px 20px; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 14px; color: #e2e8f0; line-height: 1.6;">
+                  Chúng mình sẽ định kỳ cập nhật và thông báo tới bạn những bài viết hướng dẫn chuyên sâu, kiến thức thực tế về <strong>Linux, DevOps, Cloud Architecture, Docker & Kubernetes</strong>.
+                </p>
+              </div>
+
+              <!-- CTA Button -->
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 28px; margin-bottom: 12px;">
+                <tr>
+                  <td style="border-radius: 8px; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); text-align: center;">
+                    <a href="https://linuxunity.com/vi/blog" target="_blank" style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); border: 1px solid #14b8a6; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; display: inline-block;">
+                      Khám phá bài viết ngay →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 32px; background-color: #0b0f19; border-top: 1px solid #1e293b; font-size: 12px; color: #64748b; line-height: 1.5;">
+              <p style="margin: 0 0 4px 0;">© ${currentYear} LinuxUnity. Chia sẻ kiến thức Cloud & DevOps.</p>
+              <p style="margin: 0;">Email này được gửi tự động từ <code>welcome@linuxunity.com</code>. Ghé thăm <a href="https://linuxunity.com" style="color: #2dd4bf; text-decoration: none;">linuxunity.com</a>.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function getNewPostHtmlTemplate({ title, slug, excerpt }: { title: string; slug: string; excerpt?: string }) {
+  const currentYear = new Date().getFullYear();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://linuxunity.com";
+  const postUrl = `${siteUrl}/vi/blog/${slug}`;
+
+  return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #090d16; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #090d16; padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: #0f172a; border-radius: 16px; border: 1px solid #1e293b; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+          <!-- Header Branding -->
+          <tr>
+            <td style="padding: 24px 32px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-bottom: 1px solid #1e293b;">
+              <table role="presentation" width="100%">
+                <tr>
+                  <td style="vertical-align: middle;">
+                    <div style="display: inline-block; vertical-align: middle; width: 36px; height: 36px; background-color: #ffffff; border-radius: 10px; text-align: center; line-height: 36px; margin-right: 10px;">
+                      <img src="https://linuxunity.com/images/linuxunity-penguin-logo.png" alt="LinuxUnity Logo" width="26" height="26" style="vertical-align: middle; margin-top: 5px; border: 0;" />
+                    </div>
+                    <span style="font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; vertical-align: middle;">Linux<span style="color: #14b8a6;">Unity</span> <span style="font-size: 12px; font-weight: 600; color: #0d9488; text-transform: uppercase; margin-left: 6px;">Newsletter</span></span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 32px; line-height: 1.65; font-size: 15px; color: #cbd5e1;">
+              <span style="display: inline-block; background-color: rgba(13, 148, 136, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; margin-bottom: 16px;">
+                Bài viết mới xuất bản
+              </span>
+              <h1 style="font-size: 22px; font-weight: 700; color: #ffffff; margin-top: 0; margin-bottom: 16px; line-height: 1.35;">
+                ${title}
+              </h1>
+              ${
+                excerpt
+                  ? `<p style="margin-top: 0; margin-bottom: 24px; color: #94a3b8; font-size: 15px; line-height: 1.6;">${excerpt}</p>`
+                  : ""
+              }
+              <!-- CTA Button -->
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 20px; margin-bottom: 12px;">
+                <tr>
+                  <td style="border-radius: 8px; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); text-align: center;">
+                    <a href="${postUrl}" target="_blank" style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); border: 1px solid #14b8a6; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; display: inline-block;">
+                      Đọc bài viết chi tiết →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 32px; background-color: #0b0f19; border-top: 1px solid #1e293b; font-size: 12px; color: #64748b; line-height: 1.5;">
+              <p style="margin: 0 0 4px 0;">© ${currentYear} LinuxUnity. Bạn nhận được email này vì đã đăng ký nhận tin từ LinuxUnity.</p>
+              <p style="margin: 0;">Gửi từ <code>newsletter@linuxunity.com</code>.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export async function sendHtmlEmail({
+  to,
+  from,
+  fromName = "LinuxUnity",
+  subject,
+  htmlContent,
+}: {
+  to: string;
+  from?: string;
+  fromName?: string;
+  subject: string;
+  htmlContent: string;
+}) {
   const config = smtpConfig();
   if (!config) return false;
+
+  const senderAddress = from || config.from;
+  const cleanSender = escapeAddress(senderAddress);
+  const cleanRecipient = escapeAddress(to);
 
   let socket = await connect(config);
   try {
@@ -142,22 +292,25 @@ export async function sendRawEmail(to: string, subject: string, bodyText: string
       await command(socket, Buffer.from(config.password).toString("base64"), /^235/);
     }
 
-    const from = escapeAddress(config.from);
-    const recipient = escapeAddress(to);
-    const message = [
-      `From: ${from}`,
-      `To: ${recipient}`,
-      `Subject: ${subject}`,
-      "MIME-Version: 1.0",
-      "Content-Type: text/plain; charset=UTF-8",
-      "",
-      bodyText,
-    ].join("\r\n");
+    const encodedSubject = `=?UTF-8?B?${Buffer.from(subject).toString("base64")}?=`;
+    const fromHeader = `${fromName} <${cleanSender}>`;
+    const base64Body = Buffer.from(htmlContent, "utf8").toString("base64");
 
-    await command(socket, `MAIL FROM:<${from}>`);
-    await command(socket, `RCPT TO:<${recipient}>`);
+    const messageLines = [
+      `From: ${fromHeader}`,
+      `To: ${cleanRecipient}`,
+      `Subject: ${encodedSubject}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/html; charset=UTF-8",
+      "Content-Transfer-Encoding: base64",
+      "",
+      base64Body,
+    ];
+
+    await command(socket, `MAIL FROM:<${cleanSender}>`);
+    await command(socket, `RCPT TO:<${cleanRecipient}>`);
     await command(socket, "DATA", /^354/);
-    await command(socket, `${message}\r\n.`, /^250/);
+    await command(socket, `${messageLines.join("\r\n")}\r\n.`, /^250/);
     await command(socket, "QUIT", /^221/).catch(() => "");
     return true;
   } finally {
@@ -166,7 +319,13 @@ export async function sendRawEmail(to: string, subject: string, bodyText: string
 }
 
 export async function sendNewsletterConfirmation(email: string) {
-  return sendRawEmail(email, "LinuxUnity newsletter subscription", messageBody(email, smtpConfig()?.from || ""));
+  return sendHtmlEmail({
+    to: email,
+    from: getWelcomeEmailFrom(),
+    fromName: "LinuxUnity",
+    subject: "Chào mừng bạn đến với LinuxUnity!",
+    htmlContent: getWelcomeHtmlTemplate(),
+  });
 }
 
 export async function broadcastNewPostNotification({
@@ -183,23 +342,20 @@ export async function broadcastNewPostNotification({
   const subscribers = await getNewsletterSubscribers();
   if (!subscribers.length) return { sent: 0, total: 0 };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://linuxunity.com";
-  const postUrl = `${siteUrl}/vi/blog/${slug}`;
   const subject = `[LinuxUnity] Bài viết mới: ${title}`;
-  const bodyText = [
-    "Xin chào,",
-    "",
-    `LinuxUnity vừa xuất bản bài viết mới: "${title}"`,
-    excerpt ? `\nTóm tắt: ${excerpt}\n` : "",
-    `Đọc bài viết chi tiết tại: ${postUrl}`,
-    "",
-    "Cảm ơn bạn đã đăng ký nhận tin từ LinuxUnity!",
-  ].join("\n");
+  const htmlContent = getNewPostHtmlTemplate({ title, slug, excerpt });
+  const fromEmail = getNewsletterEmailFrom();
 
   let sentCount = 0;
   for (const subscriber of subscribers) {
     try {
-      const success = await sendRawEmail(subscriber.email, subject, bodyText);
+      const success = await sendHtmlEmail({
+        to: subscriber.email,
+        from: fromEmail,
+        fromName: "LinuxUnity Newsletter",
+        subject,
+        htmlContent,
+      });
       if (success) sentCount++;
     } catch (err) {
       console.error(`Failed to send newsletter email to ${subscriber.email}`, err);

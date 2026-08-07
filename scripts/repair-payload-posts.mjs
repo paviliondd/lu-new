@@ -175,9 +175,9 @@ async function repairPosts(client) {
     SELECT id, content_vi, content_en
     FROM posts
     WHERE
-      (
-        status <> 'published'
-        OR published_at IS NULL
+      status = 'published'
+      AND (
+        published_at IS NULL
         OR read_time_vi IS NULL
         OR read_time_en IS NULL
         OR read_time_vi = 'Draft'
@@ -197,7 +197,6 @@ async function repairPosts(client) {
       `
         UPDATE posts
         SET
-          status = 'published',
           published_at = coalesce(published_at, created_at, now()),
           read_time_vi = $2,
           read_time_en = $3,

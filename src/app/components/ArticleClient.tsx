@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Eye, Clock, Link2 } from "lucide-react";
 import { Post, Author, team } from "../data";
@@ -88,10 +88,24 @@ export default function ArticleClient({
       });
   }, [post.slug]);
 
+  const isFirstMount = useRef(true);
+  const prevSlugRef = useRef(post.slug);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.location.hash && window.location.hash.length > 1) return;
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      prevSlugRef.current = post.slug;
+      return;
+    }
+
+    if (prevSlugRef.current !== post.slug) {
+      prevSlugRef.current = post.slug;
+      if (!window.location.hash || window.location.hash.length <= 1) {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      }
+    }
   }, [post.slug]);
 
   const copyLink = () => {

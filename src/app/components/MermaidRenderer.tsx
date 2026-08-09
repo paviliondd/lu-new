@@ -29,6 +29,7 @@ export default function MermaidRenderer({
         startOnLoad: false,
         securityLevel: "strict",
         theme: isDarkMode() ? "dark" : "default",
+        suppressErrorRendering: true,
       });
 
       const blocks = Array.from(

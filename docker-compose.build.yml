@@ -9,5 +9,8 @@ services:
   media-permissions:
     image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}
 
+  runtime-data-permissions:
+    image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}
+
   translation-work-permissions:
     image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}

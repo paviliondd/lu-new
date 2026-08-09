@@ -10,13 +10,14 @@
   max-width: 100% !important;
 }
 
-/* Main editing canvas styled as WordPress paper card */
+/* Main editing canvas expanded full-width (tràn viền) */
 .collection-edit--posts .document-fields__main {
   display: flex !important;
   flex-direction: column !important;
-  max-width: 940px !important;
-  margin: 0 auto !important;
-  padding: 2.25rem 2rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 2.25rem 2.5rem !important;
   background: var(--theme-elevation-0, #ffffff) !important;
   border: 1px solid var(--theme-elevation-150, #e2e8f0) !important;
   border-radius: 0.75rem !important;

@@ -6,16 +6,17 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
-- Expanded Payload Admin post editor into a full-screen WordPress Gutenberg canvas layout (`max-width: 940px`), with Gutenberg title styling and custom editor CSS in `custom-admin.css`.
+- Expanded Payload Admin post editor main canvas to full width (`width: 100%`, `max-width: 100%`) in `custom-admin.css` for spacious editing ("tràn viền").
+- Fixed Preview language switching and EN slug lookup in `payload.ts` and `LanguageProvider.tsx`: preserved query search parameters (`?preview=true`) when switching locales and added fallback slug matching for Vietnamese/English title slugs in Payload queries.
+- Added `suppressErrorRendering: true` to `MermaidRenderer.tsx` `mermaid.initialize` options to prevent global Mermaid error banner injection on missing diagrams or 404 pages.
+- Fixed Newsletter API in `route.ts` & `store.ts` to dispatch welcome email ONLY on first-time subscription (`created === true`), avoiding duplicate welcome emails on resubmission, and added explicit error logging for subscriber file persistence.
+- Translated newsletter welcome email template and confirmation subject line in `smtp.ts` to 100% English, incorporating the requested DevOps/Cloud journey welcome message.
+- Added `runtime-data-permissions` helper service to `docker-compose.yml` and `docker-compose.build.yml` (`chown -R 1001:1001 /app/data`) to guarantee non-root `node` container file write permissions for `/app/data/newsletter_subscribers.json`.
 - Removed `livePreview` split-screen iframe mode from `Posts` collection in `payload.config.ts` so clicking **Preview** opens post previews directly in a **new browser tab** (`target="_blank"`).
 - Styled right Document Inspector sidebar in Payload Admin matching Image 1 layout (Status & Publish -> Article URL / Slug -> Featured Image -> Excerpt -> Category & Series -> Tags -> SEO).
 - Streamlined duplicate fields in SEO group (Meta Title, Meta Description, OG Image) so they default automatically to Title, Excerpt, and Featured Image without double entry.
 - Unified Code Block background, header, and border colors with Table styling variables (`--article-panel-body`, `--article-panel-header`, `--article-panel-border`) in `code-theme.css`.
 - Fixed table block layout in Payload Lexical admin editor with `width: 100%`, `table-layout: auto`, cell `min-width: 120px`, and padded headers to prevent text column squishing.
-- Removed auto language detection ("tự nhận dạng") in `syntax.ts` and enforced lowercase display casing across all code language labels (e.g. `bash`, `typescript`, `hcl`, `python`, `dockerfile`).
-- Expanded supported languages in `payload.config.ts` and `syntax.ts` to include popular languages like `hcl` (Terraform), `go`, `rust`, `java`, `cpp`, `csharp`, `php`, `powershell`, `markdown`, `nginx`, etc.
-- Removed `Filename` and `Code explanation` input options from Lexical Code Block popup in `payload.config.ts`.
-- Updated test assertions in `tests/code-syntax.test.mjs` for lowercase language casing and manual language selection.
 
 Validation:
 

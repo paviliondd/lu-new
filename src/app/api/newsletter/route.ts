@@ -28,8 +28,8 @@ export async function POST(request: Request) {
   const { subscriber, created } = await addNewsletterSubscriber(email);
   const confirmationSent = isSmtpConfigured();
 
-  if (confirmationSent) {
-    // Dispatch SMTP confirmation in background so browser gets instant response
+  if (created && confirmationSent) {
+    // Dispatch SMTP confirmation in background only for NEW subscribers
     sendNewsletterConfirmation(subscriber.email).catch((error) => {
       console.error("Newsletter confirmation email background send failed", { email: subscriber.email, error });
     });
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       confirmed_at: subscriber.confirmed_at,
     },
     created,
-    confirmationSent,
+    confirmationSent: created ? confirmationSent : false,
+    message: created ? "Subscription successful" : "You are already subscribed",
   });
 }

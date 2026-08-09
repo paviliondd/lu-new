@@ -207,7 +207,8 @@ export function LanguageProvider({
     if (lang === language) return;
     localStorage.setItem("language", lang);
     document.cookie = `linuxunity-locale=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    router.replace(switchLocalePath(pathname, lang));
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    router.replace(`${switchLocalePath(pathname, lang)}${search}`);
   };
 
   const t = (key: keyof typeof translations.vi) => {

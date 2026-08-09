@@ -113,11 +113,11 @@ export function getNewsletterEmailFrom() {
 export function getWelcomeHtmlTemplate() {
   const currentYear = new Date().getFullYear();
   return `<!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chào mừng bạn đến với LinuxUnity</title>
+  <title>Welcome to LinuxUnity</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #090d16; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc; -webkit-font-smoothing: antialiased;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #090d16; padding: 40px 16px;">
@@ -143,15 +143,15 @@ export function getWelcomeHtmlTemplate() {
           <tr>
             <td style="padding: 32px; line-height: 1.65; font-size: 15px; color: #cbd5e1;">
               <h1 style="font-size: 22px; font-weight: 700; color: #ffffff; margin-top: 0; margin-bottom: 16px; letter-spacing: -0.3px;">
-                Đăng ký nhận tin thành công! 🎉
+                Successfully Subscribed! 🎉
               </h1>
               <p style="margin-top: 0; margin-bottom: 20px; color: #94a3b8;">
-                Xin chào! Cảm ơn bạn đã đăng ký theo dõi <strong style="color: #2dd4bf;">LinuxUnity DevOps</strong>.
+                Hello! Thank you for subscribing to <strong style="color: #2dd4bf;">LinuxUnity DevOps</strong>.
               </p>
               
               <div style="background-color: #1e293b; border-left: 4px solid #0d9488; border-radius: 8px; padding: 18px 20px; margin-bottom: 24px;">
                 <p style="margin: 0; font-size: 14px; color: #e2e8f0; line-height: 1.6;">
-                  Chúng mình sẽ định kỳ cập nhật và thông báo tới bạn những bài viết hướng dẫn chuyên sâu, kiến thức thực tế về <strong>Linux, DevOps, Cloud Architecture, Docker & Kubernetes</strong>.
+                  We will regularly update and send you notifications for new articles. We hope these articles will be helpful on your DevOps and Cloud learning and career journey.
                 </p>
               </div>
 
@@ -159,8 +159,8 @@ export function getWelcomeHtmlTemplate() {
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 28px; margin-bottom: 12px;">
                 <tr>
                   <td style="border-radius: 8px; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); text-align: center;">
-                    <a href="https://linuxunity.com/vi/blog" target="_blank" style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); border: 1px solid #14b8a6; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; display: inline-block;">
-                      Khám phá bài viết ngay →
+                    <a href="https://linuxunity.com/en/blog" target="_blank" style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); border: 1px solid #14b8a6; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; display: inline-block;">
+                      Explore Articles →
                     </a>
                   </td>
                 </tr>
@@ -170,8 +170,8 @@ export function getWelcomeHtmlTemplate() {
           <!-- Footer -->
           <tr>
             <td style="padding: 20px 32px; background-color: #0b0f19; border-top: 1px solid #1e293b; font-size: 12px; color: #64748b; line-height: 1.5;">
-              <p style="margin: 0 0 4px 0;">© ${currentYear} LinuxUnity. Chia sẻ kiến thức Cloud & DevOps.</p>
-              <p style="margin: 0;">Email này được gửi tự động từ <code>welcome@linuxunity.com</code>. Ghé thăm <a href="https://linuxunity.com" style="color: #2dd4bf; text-decoration: none;">linuxunity.com</a>.</p>
+              <p style="margin: 0 0 4px 0;">© ${currentYear} LinuxUnity. Sharing Cloud & DevOps Knowledge.</p>
+              <p style="margin: 0;">This email was sent automatically from <code>welcome@linuxunity.com</code>. Visit <a href="https://linuxunity.com" style="color: #2dd4bf; text-decoration: none;">linuxunity.com</a>.</p>
             </td>
           </tr>
         </table>
@@ -323,7 +323,7 @@ export async function sendNewsletterConfirmation(email: string) {
     to: email,
     from: getWelcomeEmailFrom(),
     fromName: "LinuxUnity",
-    subject: "Chào mừng bạn đến với LinuxUnity!",
+    subject: "Welcome to LinuxUnity!",
     htmlContent: getWelcomeHtmlTemplate(),
   });
 }

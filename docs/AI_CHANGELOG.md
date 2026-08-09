@@ -6,6 +6,8 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Optimized language switcher performance (`LanguageProvider.tsx` & `LanguageToggle.tsx`): added optimistic language state and React `useTransition` for instant zero-delay UI feedback on click with non-blocking async route transitions and spinning globe indicator.
+- Added in-memory file post caching (`postFileCache`) in `localized-posts.ts` to eliminate disk read I/O delays during server-side post translation and locale rendering.
 - Expanded Payload Admin post editor main canvas to full width (`width: 100%`, `max-width: 100%`) in `custom-admin.css` for spacious editing ("tràn viền").
 - Fixed Preview language switching and EN slug lookup in `payload.ts` and `LanguageProvider.tsx`: preserved query search parameters (`?preview=true`) when switching locales and added fallback slug matching for Vietnamese/English title slugs in Payload queries.
 - Added `suppressErrorRendering: true` to `MermaidRenderer.tsx` `mermaid.initialize` options to prevent global Mermaid error banner injection on missing diagrams or 404 pages.

@@ -828,12 +828,6 @@ const Posts: CollectionConfig = {
       const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
       return data?.slug ? `${site}/vi/blog/${data.slug}?preview=true` : site;
     },
-    livePreview: {
-      url: ({ data }) => {
-        const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
-        return data?.slug ? `${site}/vi/blog/${data.slug}?preview=true` : site;
-      },
-    },
   },
   access: {
     read: publishedOrAuthenticated,
@@ -975,6 +969,45 @@ const Posts: CollectionConfig = {
       },
     },
     {
+      name: "slug",
+      label: "Đường dẫn (Slug)",
+      type: "text",
+      required: true,
+      unique: true,
+      index: true,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      validate: async (value: unknown, options: any) => {
+        if (!value || typeof value !== "string" || !value.trim()) {
+          return "Bắt buộc phải nhập hoặc tạo Slug cho bài viết.";
+        }
+        const cleanSlug = slugify(value);
+        try {
+          const id = options?.id;
+          const req = options?.req;
+          if (req?.payload?.find) {
+            const existing = await req.payload.find({
+              collection: "posts",
+              where: {
+                slug: { equals: cleanSlug },
+                ...(id ? { id: { not_equals: id } } : {}),
+              },
+              limit: 1,
+            });
+            if (existing?.docs && existing.docs.length > 0) {
+              return `Slug "${cleanSlug}" đã bị trùng với bài viết khác trong CSDL. Vui lòng đổi Slug khác.`;
+            }
+          }
+        } catch {
+          // Fallback if query error
+        }
+        return true;
+      },
+      admin: {
+        position: "sidebar",
+        description: "Generated from Title VI when left blank.",
+      },
+    },
+    {
       name: "author",
       type: "relationship",
       relationTo: "authors",
@@ -1047,43 +1080,6 @@ const Posts: CollectionConfig = {
             { name: "titleVi", type: "text", label: "Title VI", required: true },
             { name: "titleEn", type: "text", label: "Title EN" },
             {
-              name: "slug",
-              type: "text",
-              required: true,
-              unique: true,
-              index: true,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              validate: async (value: unknown, options: any) => {
-                if (!value || typeof value !== "string" || !value.trim()) {
-                  return "Bắt buộc phải nhập hoặc tạo Slug cho bài viết.";
-                }
-                const cleanSlug = slugify(value);
-                try {
-                  const id = options?.id;
-                  const req = options?.req;
-                  if (req?.payload?.find) {
-                    const existing = await req.payload.find({
-                      collection: "posts",
-                      where: {
-                        slug: { equals: cleanSlug },
-                        ...(id ? { id: { not_equals: id } } : {}),
-                      },
-                      limit: 1,
-                    });
-                    if (existing?.docs && existing.docs.length > 0) {
-                      return `Slug "${cleanSlug}" đã bị trùng với bài viết khác trong CSDL. Vui lòng đổi Slug khác.`;
-                    }
-                  }
-                } catch {
-                  // Fallback if query error
-                }
-                return true;
-              },
-              admin: {
-                description: "Generated from Title VI when left blank.",
-              },
-            },
-            {
               name: "contentRichVi",
               type: "richText",
               label: "Content Editor VI (WordPress Gutenberg-style)",
@@ -1109,12 +1105,15 @@ const Posts: CollectionConfig = {
             {
               name: "seo",
               type: "group",
+              admin: {
+                description: "Meta title, description, and OG image are automatically derived from Title, Excerpt, and Featured Image.",
+              },
               fields: [
-                { name: "titleVi", type: "text", label: "Meta title VI" },
-                { name: "titleEn", type: "text", label: "Meta title EN" },
-                { name: "descriptionVi", type: "textarea", label: "Meta description VI" },
-                { name: "descriptionEn", type: "textarea", label: "Meta description EN" },
-                { name: "ogImage", type: "relationship", label: "OG Image", relationTo: "media" },
+                { name: "titleVi", type: "text", label: "Meta title VI", admin: { hidden: true } },
+                { name: "titleEn", type: "text", label: "Meta title EN", admin: { hidden: true } },
+                { name: "descriptionVi", type: "textarea", label: "Meta description VI", admin: { hidden: true } },
+                { name: "descriptionEn", type: "textarea", label: "Meta description EN", admin: { hidden: true } },
+                { name: "ogImage", type: "relationship", label: "OG Image", relationTo: "media", admin: { hidden: true } },
               ],
             },
           ],

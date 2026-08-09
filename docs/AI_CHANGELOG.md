@@ -6,8 +6,11 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Expanded Payload Admin post editor into a full-screen WordPress Gutenberg canvas layout (`max-width: 940px`), with Gutenberg title styling and custom editor CSS in `custom-admin.css`.
+- Removed `livePreview` split-screen iframe mode from `Posts` collection in `payload.config.ts` so clicking **Preview** opens post previews directly in a **new browser tab** (`target="_blank"`).
+- Styled right Document Inspector sidebar in Payload Admin matching Image 1 layout (Status & Publish -> Article URL / Slug -> Featured Image -> Excerpt -> Category & Series -> Tags -> SEO).
+- Streamlined duplicate fields in SEO group (Meta Title, Meta Description, OG Image) so they default automatically to Title, Excerpt, and Featured Image without double entry.
 - Unified Code Block background, header, and border colors with Table styling variables (`--article-panel-body`, `--article-panel-header`, `--article-panel-border`) in `code-theme.css`.
-- Created `custom-admin.css` and imported it in Payload Admin `layout.tsx` and `payload.config.ts` to transform the Payload CMS post writing interface into a WordPress Gutenberg style editor (centered paper canvas `max-width: 900px`, Gutenberg title styling, right inspector sidebar).
 - Fixed table block layout in Payload Lexical admin editor with `width: 100%`, `table-layout: auto`, cell `min-width: 120px`, and padded headers to prevent text column squishing.
 - Removed auto language detection ("tự nhận dạng") in `syntax.ts` and enforced lowercase display casing across all code language labels (e.g. `bash`, `typescript`, `hcl`, `python`, `dockerfile`).
 - Expanded supported languages in `payload.config.ts` and `syntax.ts` to include popular languages like `hcl` (Terraform), `go`, `rust`, `java`, `cpp`, `csharp`, `php`, `powershell`, `markdown`, `nginx`, etc.
@@ -18,6 +21,7 @@ Validation:
 
 - Ran `npm run lint` - 0 errors, 0 warnings.
 - Ran `npm test` - 66 passing tests.
+- Ran `npm run build` - successful Next.js production build.
 
 ## 2026-08-07
 

@@ -1,7 +1,7 @@
 /* Custom Payload CMS Admin Styles - WordPress Gutenberg Look & Feel */
 
 /* -------------------------------------------------------------------------- */
-/* 1. WordPress Gutenberg Canvas Layout                                       */
+/* 1. WordPress Gutenberg Canvas & Full-Width Layout                          */
 /* -------------------------------------------------------------------------- */
 
 .collection-edit--posts .document-fields,
@@ -10,28 +10,28 @@
   max-width: 100% !important;
 }
 
-/* Center main content container like WordPress Gutenberg canvas */
+/* Main editing canvas styled as WordPress paper card */
 .collection-edit--posts .document-fields__main {
   display: flex !important;
   flex-direction: column !important;
-  max-width: 900px !important;
+  max-width: 940px !important;
   margin: 0 auto !important;
-  padding: 2rem 1.5rem !important;
-  background: var(--theme-elevation-50, #ffffff) !important;
+  padding: 2.25rem 2rem !important;
+  background: var(--theme-elevation-0, #ffffff) !important;
   border: 1px solid var(--theme-elevation-150, #e2e8f0) !important;
   border-radius: 0.75rem !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03) !important;
 }
 
 [data-theme="dark"] .collection-edit--posts .document-fields__main {
   background: var(--theme-elevation-100, #141a23) !important;
   border-color: var(--theme-elevation-200, #222d3d) !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* WordPress Title field styling */
+/* WordPress Gutenberg Title field */
 .collection-edit--posts .field-type.text[class*="field-name-title"] input {
-  font-size: 1.85rem !important;
+  font-size: 2rem !important;
   font-weight: 800 !important;
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
@@ -39,8 +39,8 @@
   border-bottom: 2px solid var(--theme-elevation-200, #e2e8f0) !important;
   border-radius: 0 !important;
   background: transparent !important;
-  padding: 0.5rem 0 !important;
-  margin-bottom: 1.5rem !important;
+  padding: 0.65rem 0 !important;
+  margin-bottom: 1.75rem !important;
   box-shadow: none !important;
   color: var(--theme-elevation-900, #0f172a) !important;
 }
@@ -147,31 +147,49 @@
 }
 
 /* -------------------------------------------------------------------------- */
-/* 4. WordPress Gutenberg Floating Toolbar & Right Inspector Sidebar           */
+/* 4. WordPress Gutenberg Document Inspector Right Sidebar (Image 1)           */
 /* -------------------------------------------------------------------------- */
 
-/* Gutenberg Toolbar */
-.payload-richtext__fixed-toolbar,
-[class*="FixedToolbar"],
-[class*="InlineToolbar"] {
-  border-radius: 0.5rem !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid var(--theme-elevation-200, #e2e8f0) !important;
-  background: var(--theme-elevation-0, #ffffff) !important;
-}
-
-[data-theme="dark"] .payload-richtext__fixed-toolbar,
-[data-theme="dark"] [class*="FixedToolbar"],
-[data-theme="dark"] [class*="InlineToolbar"] {
-  border-color: var(--theme-elevation-200, #334155) !important;
-  background: var(--theme-elevation-100, #1e293b) !important;
-}
-
-/* Right Inspector Sidebar */
 .collection-edit--posts .document-fields__sidebar {
+  min-width: 310px !important;
+  max-width: 340px !important;
+  border-left: 1px solid var(--theme-elevation-150, #e2e8f0) !important;
   padding-left: 1.5rem !important;
 }
 
+[data-theme="dark"] .collection-edit--posts .document-fields__sidebar {
+  border-left-color: var(--theme-elevation-200, #222d3d) !important;
+}
+
 .collection-edit--posts .document-fields__sidebar .field-type {
-  margin-bottom: 1.25rem !important;
+  margin-bottom: 1.35rem !important;
+  padding: 0.85rem 1rem !important;
+  border: 1px solid var(--theme-elevation-150, #e2e8f0) !important;
+  border-radius: 0.65rem !important;
+  background: var(--theme-elevation-50, #f8fafc) !important;
+}
+
+[data-theme="dark"] .collection-edit--posts .document-fields__sidebar .field-type {
+  border-color: var(--theme-elevation-200, #222d3d) !important;
+  background: var(--theme-elevation-100, #141a23) !important;
+}
+
+.collection-edit--posts .document-fields__sidebar label {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  color: var(--theme-elevation-800, #334155) !important;
+  margin-bottom: 0.45rem !important;
+}
+
+[data-theme="dark"] .collection-edit--posts .document-fields__sidebar label {
+  color: var(--theme-elevation-300, #94a3b8) !important;
+}
+
+/* Custom Preview Button styling to indicate New Tab */
+a[href*="preview=true"],
+button[class*="preview"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
 }

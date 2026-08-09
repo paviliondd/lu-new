@@ -2,6 +2,23 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-09
+
+Added & Fixed:
+
+- Unified Code Block background, header, and border colors with Table styling variables (`--article-panel-body`, `--article-panel-header`, `--article-panel-border`) in `code-theme.css`.
+- Created `custom-admin.css` and imported it in Payload Admin `layout.tsx` and `payload.config.ts` to transform the Payload CMS post writing interface into a WordPress Gutenberg style editor (centered paper canvas `max-width: 900px`, Gutenberg title styling, right inspector sidebar).
+- Fixed table block layout in Payload Lexical admin editor with `width: 100%`, `table-layout: auto`, cell `min-width: 120px`, and padded headers to prevent text column squishing.
+- Removed auto language detection ("tự nhận dạng") in `syntax.ts` and enforced lowercase display casing across all code language labels (e.g. `bash`, `typescript`, `hcl`, `python`, `dockerfile`).
+- Expanded supported languages in `payload.config.ts` and `syntax.ts` to include popular languages like `hcl` (Terraform), `go`, `rust`, `java`, `cpp`, `csharp`, `php`, `powershell`, `markdown`, `nginx`, etc.
+- Removed `Filename` and `Code explanation` input options from Lexical Code Block popup in `payload.config.ts`.
+- Updated test assertions in `tests/code-syntax.test.mjs` for lowercase language casing and manual language selection.
+
+Validation:
+
+- Ran `npm run lint` - 0 errors, 0 warnings.
+- Ran `npm test` - 66 passing tests.
+
 ## 2026-08-07
 
 Added & Fixed:

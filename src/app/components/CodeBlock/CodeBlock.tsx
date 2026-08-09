@@ -60,7 +60,7 @@ export default function CodeBlock({
   const cardRef = useRef<HTMLElement>(null);
   const lineNumbers = Array.from({ length: totalLines }, (_, index) => index + 1);
   const isMarkdown = language?.toLowerCase() === "markdown" || language?.toLowerCase() === "md";
-  const displayLanguage = formatLanguageLabel(language, code);
+  const displayLanguage = formatLanguageLabel(language);
   const isDuplicateFilename =
     Boolean(filename) &&
     (filename?.trim().toLowerCase() === (language || "").trim().toLowerCase() ||

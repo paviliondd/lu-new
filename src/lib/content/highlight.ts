@@ -37,7 +37,7 @@ export async function highlightCodeBlocks(html: string) {
       continue;
     }
 
-    const detectedLang = detectCodeLanguage(code.text(), originalLanguage);
+    const detectedLang = detectCodeLanguage(originalLanguage);
     const language = normalizeLanguage(detectedLang || originalLanguage);
 
     try {

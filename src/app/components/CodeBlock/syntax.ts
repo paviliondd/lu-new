@@ -46,57 +46,19 @@ export function normalizeLanguage(language = "") {
   return languageAliases[normalized] || DEFAULT_CODE_LANGUAGE;
 }
 
-export function detectCodeLanguage(code = "", explicitLanguage = ""): string {
-  if (!code || !code.trim()) return "";
-  const trimmed = code.trim();
+export function detectCodeLanguage(explicitLanguage = ""): string {
   const lowerExplicit = explicitLanguage.trim().toLowerCase();
-
-  if (lowerExplicit === "plaintext" || lowerExplicit === "text" || lowerExplicit === "plain") {
-    return "plaintext";
-  }
-
-  const hasYamlDocStart = /^---/m.test(trimmed);
-  const hasAnsibleName = /^\s*-\s+name\s*:/mi.test(trimmed);
-  const hasAnsibleTasks = /^\s*tasks\s*:/mi.test(trimmed);
-  const hasYamlListItems = /^\s*-\s+[\w\d_-]+\s*:/m.test(trimmed) || /^\s*-\s+[a-z0-9_-]+/m.test(trimmed);
-  const hasAnsibleModules = /^\s*(apt|service|yum|dnf|copy|file|template|lineinfile|git|docker_container|pip)\s*:/m.test(trimmed);
-  const hasYamlKeys = /^\s*[\w\d_-]+\s*:\s*.+$/m.test(trimmed);
-  const isCode = /^(const|let|var|function|import|export|class|interface|type|package|public|private)\b/m.test(trimmed);
-
-  if ((hasYamlDocStart || hasAnsibleName || hasAnsibleTasks || hasYamlKeys || (hasYamlListItems && (hasAnsibleModules || /state\s*:/m.test(trimmed))) || (hasAnsibleModules && /state\s*:/m.test(trimmed))) && !isCode) {
-    return "yaml";
-  }
-
-  if (hasYamlKeys && hasYamlListItems && !isCode) {
-    return "yaml";
-  }
-
-  const hasShebang = /^\s*#!\/(bin|usr\/bin)\/(bash|sh|zsh)/m.test(trimmed);
-  const hasBashCmds = /^\s*(eval\s|ssh-add\s|sudo\s|apt-get\s|apt\s+install|yum\s+install|dnf\s+install|systemctl\s|ansible-playbook\b|docker\s|docker-compose\s|kubectl\s|git\s|npm\s|yarn\s|pnpm\s|npx\s|pip\s|curl\s|wget\s)/m.test(trimmed);
-  const hasPrompt = /^\s*[$#]\s+\w+/m.test(trimmed);
-
-  if (hasShebang || hasBashCmds || hasPrompt) {
-    return "bash";
-  }
-
-  if (hasAnsibleName || hasAnsibleTasks || hasYamlListItems) {
-    return "yaml";
-  }
-
-  if (lowerExplicit && !plainTextLanguages.includes(lowerExplicit)) {
-    return languageAliases[lowerExplicit] || lowerExplicit;
-  }
-
-  return "";
-}
-
-export function normalizeCodeLabel(value = "", code = "") {
-  const normalized = value.trim();
-  if (!normalized || plainTextLanguages.includes(normalized.toLowerCase())) {
-    if (code) return detectCodeLanguage(code, normalized);
+  if (!lowerExplicit || plainTextLanguages.includes(lowerExplicit)) {
     return "";
   }
+  return languageAliases[lowerExplicit] || lowerExplicit;
+}
 
+export function normalizeCodeLabel(value = "") {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || plainTextLanguages.includes(normalized)) {
+    return "";
+  }
   return normalized;
 }
 
@@ -105,45 +67,65 @@ export function normalizeCodeLanguageLabel(value = "") {
 }
 
 const languageDisplayNames: Record<string, string> = {
-  html: "HTML",
-  css: "CSS",
-  javascript: "JavaScript",
-  js: "JavaScript",
-  json: "JSON",
-  jsx: "JSX",
-  go: "Go",
-  golang: "Go",
-  markdown: "Markdown",
-  md: "Markdown",
-  python: "Python",
-  py: "Python",
-  sql: "SQL",
-  typescript: "TypeScript",
-  ts: "TypeScript",
-  tsx: "TSX",
-  yaml: "YAML",
-  yml: "YAML",
-  bash: "Bash",
-  shell: "Bash",
-  sh: "Bash",
-  plaintext: "Plaintext",
-  text: "Plaintext",
-  plain: "Plaintext",
+  bash: "bash",
+  sh: "bash",
+  shell: "bash",
+  zsh: "bash",
+  aws: "bash",
+  awscli: "bash",
+  console: "bash",
+  c: "c",
+  cpp: "cpp",
+  csharp: "csharp",
+  css: "css",
+  diff: "diff",
+  docker: "dockerfile",
+  dockerfile: "dockerfile",
+  go: "go",
+  golang: "go",
+  graphql: "graphql",
+  hcl: "hcl",
+  html: "html",
+  ini: "ini",
+  java: "java",
+  javascript: "javascript",
+  js: "javascript",
+  json: "json",
+  jsx: "jsx",
+  markdown: "markdown",
+  md: "markdown",
+  mermaid: "mermaid",
+  nginx: "nginx",
+  php: "php",
+  plain: "plaintext",
+  plaintext: "plaintext",
+  text: "plaintext",
+  powershell: "powershell",
+  ps1: "powershell",
+  py: "python",
+  python: "python",
+  ruby: "ruby",
+  rust: "rust",
+  scss: "scss",
+  sql: "sql",
+  terraform: "terraform",
+  tf: "terraform",
+  toml: "toml",
+  ts: "typescript",
+  tsx: "tsx",
+  typescript: "typescript",
+  xml: "xml",
+  yaml: "yaml",
+  yml: "yaml",
 };
 
-export function formatLanguageLabel(language = "", code = "") {
-  let normalized = language.trim().toLowerCase();
-  const detected = code ? detectCodeLanguage(code, normalized) : "";
-
-  if (detected) {
-    normalized = detected;
-  } else if (!normalized || plainTextLanguages.includes(normalized)) {
-    normalized = "";
+export function formatLanguageLabel(language = "") {
+  const normalized = language.trim().toLowerCase();
+  if (!normalized || plainTextLanguages.includes(normalized)) {
+    return "";
   }
-
-  if (!normalized) return "";
   const resolvedLang = languageAliases[normalized] || normalized;
-  return languageDisplayNames[normalized] || languageDisplayNames[resolvedLang] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
+  return (languageDisplayNames[normalized] || languageDisplayNames[resolvedLang] || resolvedLang).toLowerCase();
 }
 
 export function shouldShowLanguage(_language?: unknown) {

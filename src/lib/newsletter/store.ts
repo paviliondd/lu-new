@@ -17,11 +17,15 @@ interface NewsletterSubscriber {
 const subscribersFile = path.join(process.cwd(), "data", "newsletter_subscribers.json");
 
 async function ensureStore() {
-  await fs.mkdir(path.dirname(subscribersFile), { recursive: true });
   try {
-    await fs.access(subscribersFile);
-  } catch {
-    await fs.writeFile(subscribersFile, "[]\n", "utf8");
+    await fs.mkdir(path.dirname(subscribersFile), { recursive: true });
+    try {
+      await fs.access(subscribersFile);
+    } catch {
+      await fs.writeFile(subscribersFile, "[]\n", "utf8");
+    }
+  } catch (error) {
+    console.error("Failed to ensure newsletter subscriber store file", { subscribersFile, error });
   }
 }
 
@@ -36,9 +40,11 @@ export function isValidEmail(email: string) {
 export async function getNewsletterSubscribers() {
   await ensureStore();
   try {
-    const parsed = JSON.parse(await fs.readFile(subscribersFile, "utf8")) as unknown;
+    const content = await fs.readFile(subscribersFile, "utf8");
+    const parsed = JSON.parse(content) as unknown;
     return Array.isArray(parsed) ? (parsed as NewsletterSubscriber[]) : [];
-  } catch {
+  } catch (error) {
+    console.error("Failed to read newsletter subscribers file", { subscribersFile, error });
     return [];
   }
 }
@@ -62,7 +68,11 @@ export async function addNewsletterSubscriber(email: string) {
   };
 
   subscribers.push(subscriber);
-  await fs.writeFile(subscribersFile, `${JSON.stringify(subscribers, null, 2)}\n`, "utf8");
+  try {
+    await fs.writeFile(subscribersFile, `${JSON.stringify(subscribers, null, 2)}\n`, "utf8");
+  } catch (error) {
+    console.error("Failed to save newsletter subscriber to file", { subscribersFile, subscriber, error });
+  }
 
   return { subscriber, created: true };
 }

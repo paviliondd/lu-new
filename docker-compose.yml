@@ -44,6 +44,8 @@ services:
     depends_on:
       media-permissions:
         condition: service_completed_successfully
+      runtime-data-permissions:
+        condition: service_completed_successfully
       translation-work-permissions:
         condition: service_completed_successfully
       postgres:
@@ -72,6 +74,14 @@ services:
     restart: "no"
     volumes:
       - payload_media:/app/public/uploads
+
+  runtime-data-permissions:
+    image: ${APP_IMAGE:-cloud-devops-blog-app:production}
+    user: "0:0"
+    command: ["sh", "-lc", "mkdir -p /app/data && chown -R 1001:1001 /app/data"]
+    restart: "no"
+    volumes:
+      - app_runtime_data:/app/data
 
   translation-work-permissions:
     image: ${APP_IMAGE:-cloud-devops-blog-app:production}

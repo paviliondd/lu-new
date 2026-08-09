@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   localePath,
@@ -179,6 +179,7 @@ const translations = {
 
 interface LanguageContextType {
   language: Language;
+  isPending: boolean;
   setLanguage: (lang: Language) => void;
   t: (key: keyof typeof translations.vi) => string;
   localePath: (pathname?: string) => string;
@@ -195,32 +196,46 @@ export function LanguageProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const language = initialLanguage;
+  const [isPending, startTransition] = React.useTransition();
+  const [prevInitialLanguage, setPrevInitialLanguage] = React.useState<Language>(initialLanguage);
+  const [optimisticLanguage, setOptimisticLanguage] = React.useState<Language>(initialLanguage);
 
-  useEffect(() => {
-    document.documentElement.lang = language;
-    localStorage.setItem("language", language);
-    document.cookie = `linuxunity-locale=${language}; Path=/; Max-Age=31536000; SameSite=Lax`;
-  }, [language]);
+  if (prevInitialLanguage !== initialLanguage) {
+    setPrevInitialLanguage(initialLanguage);
+    setOptimisticLanguage(initialLanguage);
+  }
 
-  const setLanguage = (lang: Language) => {
-    if (lang === language) return;
-    localStorage.setItem("language", lang);
-    document.cookie = `linuxunity-locale=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    router.replace(switchLocalePath(pathname, lang));
+  React.useEffect(() => {
+    document.documentElement.lang = optimisticLanguage;
+    localStorage.setItem("language", optimisticLanguage);
+    document.cookie = `linuxunity-locale=${optimisticLanguage}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  }, [optimisticLanguage]);
+
+  const setLanguage = (nextLang: Language) => {
+    if (nextLang === optimisticLanguage) return;
+    setOptimisticLanguage(nextLang);
+    localStorage.setItem("language", nextLang);
+    document.cookie = `linuxunity-locale=${nextLang}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const targetPath = `${switchLocalePath(pathname, nextLang)}${search}`;
+
+    startTransition(() => {
+      router.replace(targetPath);
+    });
   };
 
   const t = (key: keyof typeof translations.vi) => {
-    return translations[language][key] || translations["vi"][key] || String(key);
+    return translations[optimisticLanguage][key] || translations["vi"][key] || String(key);
   };
 
   return (
     <LanguageContext.Provider
       value={{
-        language,
+        language: optimisticLanguage,
+        isPending,
         setLanguage,
         t,
-        localePath: (pathname = "/") => localePath(language, pathname),
+        localePath: (pathname = "/") => localePath(optimisticLanguage, pathname),
       }}
     >
       {children}

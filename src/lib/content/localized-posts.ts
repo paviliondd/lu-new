@@ -53,10 +53,17 @@ async function findBaseSlug(slug: string): Promise<string> {
   return slug;
 }
 
+const postFileCache = new Map<string, Post | null>();
+
 export async function getLocalizedFilePost(
   slugInput: string,
   locale: Locale
 ): Promise<Post | null> {
+  const cacheKey = `${slugInput}:${locale}`;
+  if (postFileCache.has(cacheKey)) {
+    return postFileCache.get(cacheKey) || null;
+  }
+
   const slug = await findBaseSlug(slugInput);
   const requestedFilePath = path.join(postsDirectory, `${slug}.${locale}.mdx`);
   const fallbackViFilePath = path.join(postsDirectory, `${slug}.vi.mdx`);
@@ -152,13 +159,17 @@ export async function getLocalizedFilePost(
     };
 
     const localized = localizePost(post, locale);
-    if (locale === "en" && sourceLocale === "vi") {
-      return translateLegacyPostToEnglish(localized, "full");
-    }
+    const finalPost = locale === "en" && sourceLocale === "vi"
+      ? await translateLegacyPostToEnglish(localized, "full")
+      : localized;
 
-    return localized;
+    postFileCache.set(cacheKey, finalPost);
+    return finalPost;
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      postFileCache.set(cacheKey, null);
+      return null;
+    }
     throw error;
   }
 }

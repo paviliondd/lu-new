@@ -6,7 +6,7 @@ import { marked } from "marked";
 import { getPayload, type Where } from "payload";
 import { FilterXSS } from "xss";
 import { allPosts, series as fileSeries, team, type HeroMedia, type Post, type Series } from "@/app/data";
-import { localizePost, type Locale } from "@/i18n/config";
+import { localizePost, slugifyText, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { normalizeExcerpt } from "@/lib/content/excerpt";
 import { preferredMediaURL as mediaUrl } from "@/lib/cms/media-url";
@@ -518,7 +518,16 @@ async function getPayloadPostBySlug(
         });
         for (const candidateDoc of allDocs.docs) {
           const candidatePost = await mapPayloadPost(asPayloadDoc(candidateDoc), locale);
-          if (candidatePost.slug === slug || candidatePost.slug_en === slug) {
+          const rawSlug = asString(candidateDoc.slug);
+          const titleViSlug = slugifyText(asString(candidateDoc.titleVi));
+          const titleEnSlug = slugifyText(asString(candidateDoc.titleEn));
+          if (
+            candidatePost.slug === slug ||
+            candidatePost.slug_en === slug ||
+            rawSlug === slug ||
+            (titleViSlug && titleViSlug === slug) ||
+            (titleEnSlug && titleEnSlug === slug)
+          ) {
             doc = candidateDoc;
             break;
           }

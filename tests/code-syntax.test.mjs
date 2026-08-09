@@ -20,12 +20,14 @@ test("code language aliases resolve to Shiki languages", () => {
   assert.equal(languageFromClass("foo language-json bar"), "json");
 });
 
-test("code language labels use familiar display casing automatically", () => {
-  assert.equal(formatLanguageLabel("html"), "HTML");
-  assert.equal(formatLanguageLabel("python"), "Python");
-  assert.equal(formatLanguageLabel("golang"), "Go");
-  assert.equal(formatLanguageLabel("markdown"), "Markdown");
-  assert.equal(formatLanguageLabel("bash"), "Bash");
+test("code language labels use lowercase display casing", () => {
+  assert.equal(formatLanguageLabel("html"), "html");
+  assert.equal(formatLanguageLabel("python"), "python");
+  assert.equal(formatLanguageLabel("golang"), "go");
+  assert.equal(formatLanguageLabel("markdown"), "markdown");
+  assert.equal(formatLanguageLabel("bash"), "bash");
+  assert.equal(formatLanguageLabel("hcl"), "hcl");
+  assert.equal(formatLanguageLabel("terraform"), "terraform");
 });
 
 test("valid JSON is formatted with two-space indentation", () => {
@@ -40,18 +42,15 @@ test("invalid JSON and non-JSON code are preserved", () => {
   assert.equal(formatCodeSource("echo hello", "bash"), "echo hello");
 });
 
-test("code auto-detection identifies YAML and Bash snippets or stays blank", () => {
-  assert.equal(detectCodeLanguage("name: Install httpd\nname: Copy Site Files"), "yaml");
-  assert.equal(detectCodeLanguage("tasks:\n  - install httpd\n  - start httpd"), "yaml");
-  assert.equal(detectCodeLanguage("- name: Ensure that Apache is installed\n  apt:\n    name: apache2\n    state: present"), "yaml");
-  assert.equal(detectCodeLanguage('eval "$(ssh-agent -s)"'), "bash");
-  assert.equal(detectCodeLanguage("ssh-add <path_to_private_key>"), "bash");
-  assert.equal(formatLanguageLabel("bash", "- name: Ensure that Apache is installed\n  apt:\n    name: apache2"), "YAML");
-  assert.equal(formatLanguageLabel("plaintext", "just regular text"), "Plaintext");
-  assert.equal(formatLanguageLabel("", "name: Install httpd"), "YAML");
-  assert.equal(formatLanguageLabel("", 'eval "$(ssh-agent -s)"'), "Bash");
-  assert.equal(formatLanguageLabel("", "just regular text"), "");
-  assert.equal(normalizeCodeLabel("plaintext", "just regular text"), "plaintext");
+test("code language selection relies on explicit language input without auto-detection", () => {
+  assert.equal(detectCodeLanguage("yaml"), "yaml");
+  assert.equal(detectCodeLanguage("bash"), "bash");
+  assert.equal(detectCodeLanguage("hcl"), "hcl");
+  assert.equal(formatLanguageLabel("bash"), "bash");
+  assert.equal(formatLanguageLabel("hcl"), "hcl");
+  assert.equal(formatLanguageLabel("plaintext"), "");
+  assert.equal(formatLanguageLabel(""), "");
+  assert.equal(normalizeCodeLabel("plaintext"), "");
 });
 
 test("configured Shiki light and dark themes render together", async () => {

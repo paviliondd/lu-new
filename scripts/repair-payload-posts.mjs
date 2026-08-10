@@ -11,19 +11,7 @@ function connectionString() {
   return process.env.DATABASE_URL;
 }
 
-function wordCount(value = "") {
-  return String(value)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-}
 
-function readTimeLabel(value = "", locale = "vi") {
-  const minutes = Math.max(1, Math.ceil(wordCount(value) / 220));
-  return locale === "vi" ? `${minutes} phút đọc` : `${minutes} min read`;
-}
 
 function encodeRedisCommand(command) {
   return `*${command.length}\r\n${command
@@ -172,8 +160,12 @@ async function printStats(client, label) {
 async function repairPosts(client) {
   await client.query('ALTER TABLE "posts" ADD COLUMN IF NOT EXISTS "chapter_order" numeric;');
   const result = await client.query(`
-    SELECT id, content_vi, content_en
-    FROM posts
+    UPDATE posts
+    SET
+      published_at = coalesce(published_at, created_at, now()),
+      read_time_vi = coalesce(nullif(read_time_vi, 'Draft'), '3 phút đọc'),
+      read_time_en = coalesce(nullif(read_time_en, 'Draft'), '3 min read'),
+      updated_at = now()
     WHERE
       status = 'published'
       AND (
@@ -183,32 +175,10 @@ async function repairPosts(client) {
         OR read_time_vi = 'Draft'
         OR read_time_en = 'Draft'
       )
-      AND coalesce(nullif(trim(content_vi), ''), nullif(trim(content_en), '')) IS NOT NULL
+    RETURNING id;
   `);
 
-  let repaired = 0;
-  for (const row of result.rows) {
-    const viContent = row.content_vi || row.content_en || "";
-    const enContent = row.content_en || row.content_vi || "";
-    if (wordCount(viContent) === 0 && wordCount(enContent) === 0) {
-      continue;
-    }
-    await client.query(
-      `
-        UPDATE posts
-        SET
-          published_at = coalesce(published_at, created_at, now()),
-          read_time_vi = $2,
-          read_time_en = $3,
-          updated_at = now()
-        WHERE id = $1
-      `,
-      [row.id, readTimeLabel(viContent, "vi"), readTimeLabel(enContent, "en")]
-    );
-    repaired++;
-  }
-
-  return repaired;
+  return result.rowCount || 0;
 }
 
 async function main() {

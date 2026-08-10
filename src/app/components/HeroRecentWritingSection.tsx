@@ -95,8 +95,17 @@ function FeatureColumns() {
 
 export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWritingSectionProps) {
   const { language, localePath, t } = useLanguage();
-  const posts = usePublishedPosts(initialPosts, 6)
-    .filter((post) => post.status === "published")
+  const fetchedPosts = usePublishedPosts(initialPosts, 6);
+  
+  // Prefer published posts; fallback to initialPosts to always guarantee 3 cards
+  let availablePosts = fetchedPosts.filter((post) => post.status === "published");
+  if (availablePosts.length < 3) {
+    const existingSlugs = new Set(availablePosts.map((p) => p.slug));
+    const fallbackList = (initialPosts || []).filter((p) => !existingSlugs.has(p.slug));
+    availablePosts = [...availablePosts, ...fallbackList];
+  }
+
+  const posts = availablePosts
     .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime())
     .slice(0, 3); // Exactly 3 posts
 
@@ -184,8 +193,10 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
                       className="object-cover transition duration-500 group-hover:scale-[1.03]"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center bg-slate-800 p-4 text-center text-sm font-bold text-white">
-                      [Thumbnail 16:9]
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 p-4 text-center">
+                      <span className="text-sm font-bold text-teal-300 tracking-wide">
+                        {featuredPost.title}
+                      </span>
                     </div>
                   )}
 
@@ -256,8 +267,10 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
                         className="object-cover transition duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center bg-slate-800 p-2 text-center text-[11px] font-semibold text-white">
-                        [Thumb 16:9]
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 p-2 text-center">
+                        <span className="text-[11px] font-bold text-teal-300 line-clamp-2">
+                          {post.title}
+                        </span>
                       </div>
                     )}
                     <div className="absolute left-2 top-2">

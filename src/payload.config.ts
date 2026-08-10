@@ -10,6 +10,14 @@ import { legacyImportedMediaURL } from "./lib/cms/media-url";
 import { revalidatePath } from "next/cache";
 import { invalidateCache } from "./lib/server/redis-cache";
 
+function safeRevalidatePath(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {
+    // Ignore static generation store missing error when run from CLI scripts outside Next.js request context
+  }
+}
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const mediaDimensionsCache = new Map<string, { height: number; width: number }>();
@@ -891,18 +899,18 @@ const Posts: CollectionConfig = {
       async ({ doc, previousDoc }) => {
         try {
           await invalidateCache(["posts:published:*", "posts:detail:*", "series:list:*"]);
-          revalidatePath("/");
-          revalidatePath("/vi");
-          revalidatePath("/en");
-          revalidatePath("/blog");
-          revalidatePath("/vi/blog");
-          revalidatePath("/en/blog");
-          revalidatePath("/sitemap.xml");
+          safeRevalidatePath("/");
+          safeRevalidatePath("/vi");
+          safeRevalidatePath("/en");
+          safeRevalidatePath("/blog");
+          safeRevalidatePath("/vi/blog");
+          safeRevalidatePath("/en/blog");
+          safeRevalidatePath("/sitemap.xml");
           const slug = (doc as { slug?: string })?.slug || (previousDoc as { slug?: string })?.slug;
           if (slug) {
-            revalidatePath(`/blog/${slug}`);
-            revalidatePath(`/vi/blog/${slug}`);
-            revalidatePath(`/en/blog/${slug}`);
+            safeRevalidatePath(`/blog/${slug}`);
+            safeRevalidatePath(`/vi/blog/${slug}`);
+            safeRevalidatePath(`/en/blog/${slug}`);
           }
           const isNewlyPublished = (doc as { status?: string })?.status === "published" && (previousDoc as { status?: string })?.status !== "published";
           if (isNewlyPublished && slug) {
@@ -924,18 +932,18 @@ const Posts: CollectionConfig = {
       async ({ doc }) => {
         try {
           await invalidateCache(["posts:published:*", "posts:detail:*", "series:list:*"]);
-          revalidatePath("/");
-          revalidatePath("/vi");
-          revalidatePath("/en");
-          revalidatePath("/blog");
-          revalidatePath("/vi/blog");
-          revalidatePath("/en/blog");
-          revalidatePath("/sitemap.xml");
+          safeRevalidatePath("/");
+          safeRevalidatePath("/vi");
+          safeRevalidatePath("/en");
+          safeRevalidatePath("/blog");
+          safeRevalidatePath("/vi/blog");
+          safeRevalidatePath("/en/blog");
+          safeRevalidatePath("/sitemap.xml");
           const slug = (doc as { slug?: string })?.slug;
           if (slug) {
-            revalidatePath(`/blog/${slug}`);
-            revalidatePath(`/vi/blog/${slug}`);
-            revalidatePath(`/en/blog/${slug}`);
+            safeRevalidatePath(`/blog/${slug}`);
+            safeRevalidatePath(`/vi/blog/${slug}`);
+            safeRevalidatePath(`/en/blog/${slug}`);
           }
         } catch (error) {
           console.error("[Payload afterDelete Error]:", error);

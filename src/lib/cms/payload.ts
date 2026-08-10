@@ -423,6 +423,9 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
         },
       });
       const payloadPosts = await Promise.all(result.docs.map((doc) => mapPayloadPost(asPayloadDoc(doc), locale)));
+      if (payloadPosts.length === 0) {
+        return (await withLocalViews(filePosts)).slice(0, limit);
+      }
       return (await withLocalViews(payloadPosts)).slice(0, limit);
     } catch (error) {
       console.error("Unable to fetch Payload published posts", { locale, error });

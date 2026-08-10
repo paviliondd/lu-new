@@ -101,55 +101,27 @@ export interface Post {
 }
 
 export const team: Record<string, Author> = {
-  philong: {
-    name: "Trần Phi Long",
-    role: "Admin",
-    role_en: "Admin",
-    avatar: "A",
-    description: "Một kỹ sư Cloud & DevOps đầy tò mò, đam mê khám phá, thử nghiệm và xây dựng hạ tầng tự động hóa quy mô lớn.",
-    description_en: "A curious Cloud and DevOps engineer focused on experimentation and large-scale infrastructure automation.",
-    linkedin: "https://linkedin.com",
-    github: "https://github"
-  },
-  nhatnghia: {
-    name: "Trần Phi Long",
-    role: "Admin",
-    role_en: "Admin",
-    avatar: "P",
-    description: "Kỹ sư Cloud & DevOps với đam mê xây dựng hạ tầng tự động hóa.",
-    description_en: "A Cloud and DevOps engineer passionate about infrastructure automation.",
+  peterparker: {
+    name: "Peter Parker",
+    role: "System Engineer",
+    role_en: "System Engineer",
+    avatar: "/images/peter-parker.jpg",
+    avatarUrl: "/images/peter-parker.jpg",
+    description: "Kỹ sư hệ thống với đam mê tự động hóa hạ tầng và bảo vệ hệ thống.",
+    description_en: "A System engineer passionate about infrastructure automation and security.",
     linkedin: "https://linkedin.com",
     github: "https://github.com"
   },
-  vanthao: {
-    name: "Trần Văn Thảo",
-    role: "Cloud & DevOps Engineer",
-    role_en: "Cloud & DevOps Engineer",
-    avatar: "T",
-    description: "Kỹ sư chuyên trách tự động hóa hạ tầng (IaC) và xây dựng hệ thống CI/CD thông suốt.",
-    description_en: "An engineer specializing in infrastructure as code and reliable CI/CD systems.",
-    linkedin: "https://linkedin.com",
-    github: "https://github"
-  },
-  ngovi: {
-    name: "Ngô Tường Vy",
-    role: "Security Engineer",
-    role_en: "Security Engineer",
-    avatar: "V",
-    description: "Chuyên gia bảo mật tập trung vào kiểm thử xâm nhập (Pentest) và tăng cường bảo mật cho các ứng dụng Cloud Native.",
-    description_en: "A security engineer focused on penetration testing and hardening cloud-native applications.",
-    linkedin: "https://linkedin.com",
-    github: "https://github"
-  },
-  hathu: {
-    name: "Hà Thu",
-    role: "Content Creator",
-    role_en: "Content Creator",
+  huynhminhthai: {
+    name: "Huỳnh Minh Thái",
+    role: "System Engineer",
+    role_en: "System Engineer",
     avatar: "H",
-    description: "Người kết nối kỹ thuật và cộng đồng, chịu trách nhiệm truyền tải các bài học phức tạp thành các bài viết dễ tiếp cận.",
-    description_en: "A technical communicator who turns complex engineering lessons into approachable articles.",
+    avatarUrl: null,
+    description: "Kỹ sư hệ thống chuyên về hạ tầng tự động hóa và kiến trúc Cloud Native.",
+    description_en: "A System engineer specializing in infrastructure automation and cloud-native architecture.",
     linkedin: "https://linkedin.com",
-    github: "https://github"
+    github: "https://github.com"
   }
 };
 

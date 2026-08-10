@@ -262,6 +262,10 @@ export interface Post {
    */
   publishedAt?: string | null;
   /**
+   * Generated from Title VI when left blank.
+   */
+  slug: string;
+  /**
    * Article author.
    */
   author?: (number | null) | Author;
@@ -293,10 +297,6 @@ export interface Post {
   excerptEn?: string | null;
   titleVi: string;
   titleEn?: string | null;
-  /**
-   * Generated from Title VI when left blank.
-   */
-  slug: string;
   /**
    * WordPress Gutenberg-style block editor for Vietnamese content.
    */
@@ -333,6 +333,9 @@ export interface Post {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Meta title, description, and OG image are automatically derived from Title, Excerpt, and Featured Image.
+   */
   seo?: {
     titleVi?: string | null;
     titleEn?: string | null;
@@ -737,6 +740,7 @@ export interface SeriesSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   status?: T;
   publishedAt?: T;
+  slug?: T;
   author?: T;
   coverImage?: T;
   category?: T;
@@ -751,7 +755,6 @@ export interface PostsSelect<T extends boolean = true> {
   excerptEn?: T;
   titleVi?: T;
   titleEn?: T;
-  slug?: T;
   contentRichVi?: T;
   contentRichEn?: T;
   seo?:

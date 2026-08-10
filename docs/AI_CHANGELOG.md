@@ -2,6 +2,25 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-10
+
+Added & Fixed:
+
+- Redesigned home page layout (`HomePage.tsx`) according to user-provided wireframe mockups across 4 core sections:
+  - **Section 1 (Hero + Recent Writing):** Created `HeroRecentWritingSection.tsx` featuring brand title/journey with line-broken `Journey` starting under letter `n/i` of `Unity`, inline `Start exploring ->` CTA, and 3-node connected pipeline (`explore`, `learn`, `share`) on the left, paired with a 3-post grid (1 large featured post + 2 sub-cards) on the right with a `Latest articles` header and `View All ->` link.
+  - **Section 2 (Popular Series):** Preserved existing `SeriesRow` compact row design and section headers (`collectionsLabel` & `exploreBySeries`) while arranging 3 series in a responsive grid layout with progress indicators.
+  - **Section 3 (Meet the Team):** Created `MeetTheTeamSection.tsx` with a 2-person team frame featuring **Peter Parker** and **Huỳnh Minh Thái**.
+  - **Section 4 (Newsletter):** Created `NewsletterSection.tsx` with theme-adaptive styling for both Dark and Light modes (`#0f172a` container, high-contrast dark/slate input, vibrant teal/emerald CTA button) integrated with `/api/newsletter`.
+- Updated team members data in `src/app/data.ts`:
+  - Replaced legacy authors with Peter Parker and Huỳnh Minh Thái, updating both roles to **System Engineer**.
+  - Updated Peter Parker's avatar image with a high-resolution Spider-Man photo saved to `/public/images/peter-parker.jpg`.
+
+Validation:
+
+- Ran `npm run lint` - 0 errors, 0 warnings.
+- Ran `npm test` - 66/66 passing tests.
+- Ran `npm run build` - successful Next.js production build.
+
 ## 2026-08-09
 
 Added & Fixed:

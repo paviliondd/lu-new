@@ -414,7 +414,7 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
         collection: "posts",
         depth: 2,
         limit,
-        sort: "-publishedAt",
+        sort: "-createdAt",
         overrideAccess: true,
         where: {
           status: {

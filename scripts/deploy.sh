@@ -14,6 +14,21 @@ PULL_RETRY_DELAY="${DEPLOY_PULL_RETRY_DELAY:-15}"
 log() { printf '[deploy] %s\n' "$*"; }
 fail() { printf '[deploy] ERROR: %s\n' "$*" >&2; exit 1; }
 
+retry_ecr_login() {
+  for attempt in $(seq 1 "$PULL_RETRY_ATTEMPTS"); do
+    if aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$AWS_ECR_REGISTRY"; then
+      return 0
+    fi
+
+    if [ "$attempt" -eq "$PULL_RETRY_ATTEMPTS" ]; then
+      fail "Failed to log Docker into ECR registry ${AWS_ECR_REGISTRY} after ${PULL_RETRY_ATTEMPTS} attempts."
+    fi
+
+    log "Docker login to ECR failed; retrying in ${PULL_RETRY_DELAY}s (${attempt}/${PULL_RETRY_ATTEMPTS})"
+    sleep "$PULL_RETRY_DELAY"
+  done
+}
+
 retry_docker_compose_pull() {
   local description="$1"
   shift
@@ -110,8 +125,7 @@ if [ "$DEPLOY_CREATE_BACKUP" = true ] && [ -n "$CURRENT_CONTAINER" ]; then
 fi
 
 log "Logging Docker into ${AWS_ECR_REGISTRY}"
-aws ecr get-login-password --region "$AWS_DEFAULT_REGION" |
-  docker login --username AWS --password-stdin "$AWS_ECR_REGISTRY"
+retry_ecr_login
 
 log "Validating Compose and pulling immutable image ${APP_IMAGE}"
 docker compose config >/dev/null

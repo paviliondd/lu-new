@@ -183,7 +183,6 @@ async function repairPosts(client) {
         OR read_time_vi = 'Draft'
         OR read_time_en = 'Draft'
       )
-      AND coalesce(nullif(trim(content_vi), ''), nullif(trim(content_en), '')) IS NOT NULL
   `);
 
   let repaired = 0;

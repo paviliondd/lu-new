@@ -52,7 +52,7 @@ export default function NewsletterSection({ compact = false }: NewsletterSection
 
   if (compact) {
     return (
-      <section className="w-full" aria-labelledby="footer-newsletter-title">
+      <section className="w-full lg:max-w-[17rem] lg:justify-self-end" aria-labelledby="footer-newsletter-title">
         <h2 id="footer-newsletter-title" className="text-xs font-bold uppercase tracking-[0.16em] text-slate-950 dark:text-white">
           Newsletter
         </h2>
@@ -66,7 +66,7 @@ export default function NewsletterSection({ compact = false }: NewsletterSection
             Subscribed successfully!
           </div>
         ) : (
-          <form onSubmit={handleSubscribe} noValidate className="mt-4 flex items-center gap-2">
+          <form onSubmit={handleSubscribe} noValidate className="mt-4 flex max-w-[15rem] items-center gap-2">
             <label htmlFor={emailInputId} className="sr-only">
               Email address
             </label>

@@ -131,7 +131,7 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
           {/* Header Bar: "Latest articles" + "View All →" */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
-              {language === "vi" ? "Bài viết mới nhất" : "Latest articles"}
+              Latest articles
             </h2>
 
             <Link

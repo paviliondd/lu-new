@@ -47,6 +47,7 @@ const labels: Record<"vi" | "en", CodeBlockLabels> = {
   },
 };
 
-export function getCodeBlockLabels(language: string) {
-  return labels[language === "en" ? "en" : "vi"];
+export function getCodeBlockLabels(language?: string) {
+  void language;
+  return labels.en;
 }

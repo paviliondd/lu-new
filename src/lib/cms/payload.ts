@@ -5,7 +5,7 @@ import config from "@payload-config";
 import { marked } from "marked";
 import { getPayload, type Where } from "payload";
 import { FilterXSS } from "xss";
-import { allPosts, series as fileSeries, team, type HeroMedia, type Post, type Series } from "@/app/data";
+import { allPosts, posts as fallbackPosts, series as fileSeries, team, type HeroMedia, type Post, type Series } from "@/app/data";
 import { localizePost, slugifyText, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { normalizeExcerpt } from "@/lib/content/excerpt";
@@ -401,13 +401,33 @@ async function withLocalView(post: Post) {
   return (await withLocalViews([post]))[0];
 }
 
+async function getFallbackPosts(locale: Locale) {
+  const filePosts = await getLocalizedFilePosts(locale);
+  const filePostsBySlug = new Map(filePosts.map((post) => [post.slug, post]));
+  const fallback = fallbackPosts.map((post) => localizePost(post, locale));
+  const fallbackSlugs = new Set(fallback.map((post) => post.slug));
+
+  return [
+    ...fallback.map((post) => filePostsBySlug.get(post.slug) || post),
+    ...filePosts.filter((post) => !fallbackSlugs.has(post.slug)),
+  ]
+    .filter((post) => post.status === "published")
+    .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime());
+}
+
+async function getFallbackPostBySlug(slug: string, locale: Locale) {
+  const filePost = await getLocalizedFilePost(slug, locale);
+  if (filePost) return filePost;
+
+  return (await getFallbackPosts(locale)).find((post) => post.slug === slug || post.slug_en === slug) || null;
+}
+
 async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 100): Promise<Post[]> {
   const limit = Math.min(Math.max(Math.floor(requestedLimit) || 1, 1), 100);
 
   return cachedJson(`posts:published:${locale}:${limit}`, 30, async () => {
-    const filePosts = await getLocalizedFilePosts(locale);
     const payload = await getPayloadClient();
-    if (!payload) return (await withLocalViews(filePosts)).slice(0, limit);
+    if (!payload) return (await withLocalViews(await getFallbackPosts(locale))).slice(0, limit);
 
     try {
       const result = await payload.find({
@@ -423,13 +443,10 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
         },
       });
       const payloadPosts = await Promise.all(result.docs.map((doc) => mapPayloadPost(asPayloadDoc(doc), locale)));
-      if (payloadPosts.length === 0) {
-        return (await withLocalViews(filePosts)).slice(0, limit);
-      }
       return (await withLocalViews(payloadPosts)).slice(0, limit);
     } catch (error) {
       console.error("Unable to fetch Payload published posts", { locale, error });
-      return (await withLocalViews(filePosts)).slice(0, limit);
+      return (await withLocalViews(await getFallbackPosts(locale))).slice(0, limit);
     }
   });
 }
@@ -480,9 +497,11 @@ async function getPayloadPostBySlug(
   allowDraft = false
 ): Promise<Post | null> {
   const fetchPost = async () => {
-    const filePost = await getLocalizedFilePost(slug, locale);
     const payload = await getPayloadClient();
-    if (!payload) return filePost ? withLocalView(filePost) : null;
+    if (!payload) {
+      const fallbackPost = await getFallbackPostBySlug(slug, locale);
+      return fallbackPost ? withLocalView(fallbackPost) : null;
+    }
 
     try {
       const whereConditions: Where[] = [
@@ -537,11 +556,12 @@ async function getPayloadPostBySlug(
         }
       }
 
-      if (!doc) return allowDraft ? (filePost ? withLocalView(filePost) : null) : null;
+      if (!doc) return null;
       return withLocalView(await mapPayloadPost(asPayloadDoc(doc), locale));
     } catch (error) {
       console.error("Unable to resolve Payload post by slug", { slug, locale, error });
-      return filePost ? withLocalView(filePost) : null;
+      const fallbackPost = await getFallbackPostBySlug(slug, locale);
+      return fallbackPost ? withLocalView(fallbackPost) : null;
     }
   };
 

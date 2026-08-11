@@ -152,7 +152,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               onClick={onClose}
               className="hidden min-h-10 rounded-lg border theme-border px-3 py-2 text-xs font-bold transition hover:border-teal-500 dark:hover:border-emerald-400 sm:inline-flex"
             >
-              {language === "vi" ? "Tất cả" : "All"}
+              All
             </Link>
           )}
           <button
@@ -262,7 +262,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-t theme-border px-4 py-3 text-[11px] text-slate-400">
           <span>{t("closeSearch")}</span>
-          <span>{language === "vi" ? "↑ ↓ để chọn, Enter để mở" : "Use ↑ ↓ to select, Enter to open"}</span>
+          <span>Use ↑ ↓ to select, Enter to open</span>
         </div>
       </div>
     </div>,

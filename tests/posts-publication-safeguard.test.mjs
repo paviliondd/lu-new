@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
 import { hasArticleContent } from "../src/payload.config.ts";
 
 test("hasArticleContent detects empty vs valid post content", () => {
@@ -34,4 +35,22 @@ test("hasArticleContent detects empty vs valid post content", () => {
     }),
     true
   );
+});
+
+test("post detail rendering has a valid fallback author and keeps Payload authoritative", async () => {
+  const [cms, articlePage, data] = await Promise.all([
+    readFile("src/lib/cms/payload.ts", "utf8"),
+    readFile("src/app/[lang]/blog/[slug]/page.tsx", "utf8"),
+    readFile("src/app/data.ts", "utf8"),
+  ]);
+
+  const detailLoader = cms.slice(
+    cms.indexOf("async function getPayloadPostBySlug"),
+    cms.indexOf("export const getCmsPostBySlug"),
+  );
+
+  assert.match(data, /nhatnghia:\s*\{/);
+  assert.match(articlePage, /team\[post\.author\] \|\| team\.nhatnghia/);
+  assert.match(detailLoader, /if \(!payload\) \{\s*const fallbackPost = await getFallbackPostBySlug/);
+  assert.match(detailLoader, /if \(!doc\) return null/);
 });

@@ -6,36 +6,28 @@ import { Cloud, Code, Shield, Cpu, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/app/components/LanguageProvider";
 
 export default function AboutPage() {
-  const { t, language, localePath } = useLanguage();
+  const { t, localePath } = useLanguage();
 
   const missionItems = [
     {
       icon: <Cloud className="h-5 w-5" />,
       title: "Cloud Computing",
-      desc: language === "vi" 
-        ? "Nghiên cứu sâu các dịch vụ trên AWS, Azure, Google Cloud để xây dựng các giải pháp tối ưu chi phí và hiệu năng."
-        : "Deep dive into AWS, Azure, and Google Cloud services to build cost-effective and high-performance solutions.",
+      desc: "Deep dive into AWS, Azure, and Google Cloud services to build cost-effective and high-performance solutions.",
     },
     {
       icon: <Code className="h-5 w-5" />,
       title: "Automation & IaC",
-      desc: language === "vi"
-        ? "Thay thế các thao tác cấu hình thủ công bằng Code (Terraform, Ansible, CloudFormation), kiểm soát phiên bản qua Git."
-        : "Replace manual configuration tasks with Code (Terraform, Ansible, CloudFormation), version controlled via Git.",
+      desc: "Replace manual configuration tasks with Code (Terraform, Ansible, CloudFormation), version controlled via Git.",
     },
     {
       icon: <Shield className="h-5 w-5" />,
       title: "DevSecOps",
-      desc: language === "vi"
-        ? "Tích hợp bảo mật vào quy trình CI/CD từ sớm (Shift-Left Security), kiểm thử mã nguồn tĩnh (SAST), động (DAST)."
-        : "Integrate security early in the CI/CD pipeline (Shift-Left), scanning static (SAST) and dynamic (DAST) code.",
+      desc: "Integrate security early in the CI/CD pipeline (Shift-Left), scanning static (SAST) and dynamic (DAST) code.",
     },
     {
       icon: <Cpu className="h-5 w-5" />,
       title: "Platform Engineering",
-      desc: language === "vi"
-        ? "Xây dựng các Cổng thông tin tự phục vụ dành cho lập trình viên (Developer Portals), giảm tải vận hành hạ tầng."
-        : "Build internal developer self-service portals (Developer Portals) to reduce infrastructure operations load.",
+      desc: "Build internal developer self-service portals (Developer Portals) to reduce infrastructure operations load.",
     },
   ];
 
@@ -76,9 +68,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-lg font-bold text-slate-950 dark:text-white">{t("exploreBuildShare")}</h3>
                 <p className="mx-auto max-w-xs text-sm leading-6 theme-muted">
-                  {language === "vi"
-                    ? "Khám phá công nghệ mới, xây dựng dự án thật và chia sẻ bài học kinh nghiệm."
-                    : "Discover new technologies, build real-world projects, and share lessons learned."}
+                  Discover new technologies, build real-world projects, and share lessons learned.
                 </p>
               </div>
             </div>

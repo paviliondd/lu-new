@@ -2,10 +2,8 @@
 
 import React, { useState } from "react";
 import { CheckCircle2, Send } from "lucide-react";
-import { useLanguage } from "@/app/components/LanguageProvider";
 
 export default function NewsletterSection() {
-  const { language } = useLanguage();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [error, setError] = useState("");
@@ -55,18 +53,14 @@ export default function NewsletterSection() {
               Stay in the loop
             </h2>
             <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300">
-              {language === "vi"
-                ? "Nhận bài viết mới về Linux & DevOps mỗi tuần."
-                : "Get notified when a new Linux & DevOps guide is published."}
+              Get notified when a new Linux & DevOps guide is published.
             </p>
 
             {subscribed ? (
               <div className="mt-6 flex items-center justify-center gap-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4 text-emerald-800 dark:text-emerald-300">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-sm font-semibold">
-                  {language === "vi"
-                    ? "Đăng ký thành công! Cảm ơn bạn đã theo dõi."
-                    : "Subscribed successfully! Thank you for following."}
+                  Subscribed successfully! Thank you for following.
                 </span>
               </div>
             ) : (
@@ -84,7 +78,7 @@ export default function NewsletterSection() {
                   disabled={isSubmitting}
                   className="w-full sm:w-auto shrink-0 h-11 px-6 rounded-lg bg-[#0f9c98] hover:bg-teal-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold text-sm shadow-md transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait"
                 >
-                  <span>{language === "vi" ? "Đăng ký" : "Subscribe"}</span>
+                  <span>Subscribe</span>
                   <Send className="h-4 w-4" />
                 </button>
               </form>

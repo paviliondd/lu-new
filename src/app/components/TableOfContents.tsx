@@ -156,17 +156,16 @@ export default function TableOfContents({
   }, [activeId]);
 
   return (
-    <aside className="order-3 hidden w-60 xl:block">
-      <div className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-xl border theme-border bg-white/70 p-4 backdrop-blur dark:bg-slate-900/45">
-        <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-950 dark:text-slate-100">
-          <List className="h-4 w-4 text-teal-700 dark:text-emerald-300" />
+    <aside className="order-3 hidden w-52 xl:block">
+      <div className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto py-1">
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
           {title}
         </h3>
 
         {tocHeadings.length === 0 ? (
           <p className="mt-4 text-xs text-gray-400">{emptyLabel}</p>
         ) : (
-          <ul className="mt-4 space-y-2.5 border-l theme-border py-1 pl-4 text-xs">
+          <ul className="mt-3 space-y-1 border-l border-slate-200 py-1 text-sm dark:border-slate-700">
             {tocHeadings.map((heading) => (
               <li key={heading.id}>
                 <a
@@ -187,12 +186,12 @@ export default function TableOfContents({
                       element.getBoundingClientRect().top + window.pageYOffset + yOffset;
                     window.scrollTo({ top: y, behavior: "smooth" });
                   }}
-                  className={`block leading-5 transition-colors duration-200 hover:text-teal-700 dark:hover:text-emerald-300 ${
-                    heading.level === 3 ? "pl-3" : ""
+                  className={`-ml-px block border-l-2 py-1.5 pl-4 leading-5 transition-colors duration-200 hover:border-teal-400 hover:text-teal-700 dark:hover:border-emerald-400 dark:hover:text-emerald-300 ${
+                    heading.level === 3 ? "pl-7 text-[13px]" : ""
                   } ${
                     activeId === heading.id
-                      ? "font-semibold text-teal-700 dark:text-emerald-300"
-                      : "text-slate-500 dark:text-slate-400"
+                      ? "border-teal-600 font-semibold text-teal-700 dark:border-emerald-400 dark:text-emerald-300"
+                      : "border-transparent text-slate-500 dark:text-slate-400"
                   }`}
                 >
                   {heading.text}

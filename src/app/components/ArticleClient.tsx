@@ -127,7 +127,7 @@ export default function ArticleClient({
 
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1120px] px-4 sm:px-6">
         {/* Draft Preview Banner */}
         {post.status === "draft" && (
           <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
@@ -141,8 +141,8 @@ export default function ArticleClient({
           </div>
         )}
 
-        {/* 3-Column Layout */}
-        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,820px)_15rem] xl:justify-center">
+        {/* Reading column with a companion table of contents on wide screens. */}
+        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,46rem)_13rem] xl:justify-center xl:gap-x-16">
           
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
@@ -228,7 +228,7 @@ export default function ArticleClient({
           </div>
 
           {/* Center Column: Main Content */}
-          <div className="order-1 mx-auto min-w-0 w-full max-w-[820px] space-y-8">
+          <div className="order-1 mx-auto min-w-0 w-full max-w-[46rem] space-y-8">
             {/* Header info */}
             <header className="article-reading-frame space-y-5">
               <h1 className="article-title break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">

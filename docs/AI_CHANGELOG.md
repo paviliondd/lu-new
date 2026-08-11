@@ -586,3 +586,17 @@ Changed:
 
 - Rebalanced the child-page footer into proportional Logo, Explore, and Newsletter columns.
 - Aligned the Explore heading with its Blog, Series, and About links, and reduced the compact Newsletter form to a more restrained reading-width control.
+
+# 2026-08-11 - Centered footer navigation and aligned newsletter form
+
+Changed:
+
+- Used equal outer footer columns so Explore sits centrally between the brand and Newsletter sections.
+- Matched the compact email-input-plus-submit-control width to the Newsletter description line while preserving 44px controls.
+
+# 2026-08-11 - Article reading layout and table of contents
+
+Changed:
+
+- Resized the wide-screen article layout into a consistent 46rem reading column with a compact companion TOC, inspired by the supplied DevOps VN reading pattern.
+- Redesigned the desktop table of contents into a minimal `On this page`-style rail with a clear active-section marker; retained the responsive mobile disclosure and observer-based scroll tracking.

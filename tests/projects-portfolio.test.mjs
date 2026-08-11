@@ -60,6 +60,8 @@ test("project subdomain uses clean English routes and the shared theme controls"
   assert.match(proxy, /projectUrl\.pathname = `\/projects\$\{pathname\}`/);
   assert.match(layout, /<html lang="en"/);
   assert.match(layout, /suppressHydrationWarning/);
+  assert.match(layout, /import \{ Inter, Geist_Mono \}/);
+  assert.match(layout, /--font-site-sans/);
   assert.match(layout, /<ThemeScript \/>/);
   assert.match(styles, /html\.dark \.projects-site/);
   assert.match(styles, /color-scheme: dark/);

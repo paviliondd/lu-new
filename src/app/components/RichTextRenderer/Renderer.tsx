@@ -9,6 +9,7 @@ import CodeBlock, { type CodeBlockLabels } from "../CodeBlock";
 import MermaidRenderer from "../MermaidRenderer";
 import { languageFromClass, normalizeCodeLabel } from "../CodeBlock/syntax";
 import ArticleTable from "../ArticleTable/ArticleTable";
+import { isAsciiTopology, unwrapMarkdownCodeFence } from "@/lib/content/ascii-topology";
 
 interface RichTextRendererProps {
   assetBase?: string;
@@ -70,13 +71,23 @@ export default function RichTextRenderer({
           child instanceof Element && child.attribs.class?.split(/\s+/).includes("line"),
       );
 
-      const language = normalizeCodeLabel(
+      const rawLanguage =
         domNode.attribs["data-language"] ||
           codeElement.attribs["data-language"] ||
           languageFromClass(codeElement.attribs.class) ||
-          languageFromClass(domNode.attribs.class),
-      ).toLowerCase();
+          languageFromClass(domNode.attribs.class);
+      const language = normalizeCodeLabel(rawLanguage).toLowerCase();
       if (language === "mermaid" || domNode.attribs["data-mermaid"] === "true") return undefined;
+
+      const fencedCode = unwrapMarkdownCodeFence(nodeText(codeElement));
+      const topologyLanguage = fencedCode.language || rawLanguage;
+      if (isAsciiTopology(fencedCode.source, topologyLanguage)) {
+        return (
+          <figure className="topology-shell topology-shell--ascii">
+            <pre data-topology-ascii="true">{fencedCode.source}</pre>
+          </figure>
+        );
+      }
 
       const parentFigure =
         domNode.parent instanceof Element && domNode.parent.name === "figure" ? domNode.parent : null;
@@ -98,7 +109,7 @@ export default function RichTextRenderer({
 
       return (
         <CodeBlock
-          code={nodeText(codeElement)}
+          code={fencedCode.source}
           language={language || undefined}
           showLineNumbers={false}
           highlightedCode={domToReact(

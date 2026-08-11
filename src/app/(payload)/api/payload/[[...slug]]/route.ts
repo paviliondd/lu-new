@@ -73,11 +73,13 @@ async function legacyImportedMediaResponse(mediaFilename: string) {
   });
 }
 
-function legacyImportedMediaRedirect(request: Request, mediaFilename: string) {
-  const redirectURL = new URL(request.url);
-  redirectURL.pathname = `/uploads/imported/${encodeURIComponent(mediaFilename)}`;
-  redirectURL.search = "";
-  return Response.redirect(redirectURL, 307);
+function legacyImportedMediaRedirect(mediaFilename: string) {
+  return new Response(null, {
+    status: 307,
+    headers: {
+      Location: `/uploads/imported/${encodeURIComponent(mediaFilename)}`,
+    },
+  });
 }
 
 export const DELETE = REST_DELETE(config);
@@ -88,7 +90,7 @@ export async function GET(...args: Parameters<typeof payloadGET>) {
     if (!(await mediaFileStats(rootPath))) {
       const importedResponse = await legacyImportedMediaResponse(mediaFilename);
       if (importedResponse) return importedResponse;
-      return legacyImportedMediaRedirect(args[0], mediaFilename);
+      return legacyImportedMediaRedirect(mediaFilename);
     }
   }
 

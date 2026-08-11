@@ -44,7 +44,8 @@ test("legacy media fallback and rename guards stay wired", async () => {
   assert.match(route, /"uploads", "imported", mediaFilename/);
   assert.match(route, /path\.posix\.basename/);
   assert.match(route, /path\.win32\.basename/);
-  assert.match(route, /return Response\.redirect\(redirectURL, 307\)/);
+  assert.match(route, /Location: `\/uploads\/imported\/\$\{encodeURIComponent\(mediaFilename\)\}`/);
+  assert.doesNotMatch(route, /redirectURL|Response\.redirect|0\.0\.0\.0/);
   assert.match(payloadCms, /preferredMediaURL as mediaUrl/);
 });
 
@@ -119,6 +120,9 @@ test("Payload Admin import map includes the S3 client handler and avoids the res
   ]);
 
   assert.match(payloadConfig, /slug: "codeSnippet"/);
+  assert.match(payloadConfig, /disableBlockName: true/);
+  assert.match(payloadConfig, /blocks: \[codeBlock\]/);
+  assert.doesNotMatch(payloadConfig, /const (?:noteBlock|topologyBlock)/);
   assert.doesNotMatch(payloadConfig, /slug: "Code"/);
   assert.match(importMap, /@payloadcms\/storage-s3\/client#S3ClientUploadHandler/);
   assert.doesNotMatch(importMap, /CodeBlockBlockComponent/);

@@ -18,6 +18,8 @@ test("homepage fetches six posts, three series, and CMS authors without renderin
   assert.match(homepage, /collectionsLabel|Collections/);
   assert.match(publishedPosts, /&limit=\$\{requestedLimit\}/);
   assert.match(payloadCms, /sort: requestedLimit === undefined \? "titleVi" : "-createdAt"/);
+  assert.match(payloadCms, /Thành viên LinuxUnity chia sẻ kinh nghiệm thực tế/);
+  assert.match(payloadCms, /A LinuxUnity team member sharing practical Cloud and DevOps experience/);
 });
 
 test("table of contents uses observer-based scroll spy and keeps active links visible", async () => {
@@ -36,7 +38,7 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
   assert.doesNotMatch(toc, /addEventListener\("scroll"/);
 });
 
-test("media deployment uses S3 instead of a local volume and shares x64-v1 Sharp with Next", async () => {
+test("media deployment keeps the migration volume until S3 cutover and shares x64-v1 Sharp with Next", async () => {
   const [compose, dockerfile, packageJson] = await Promise.all([
     readFile("docker-compose.yml", "utf8"),
     readFile("Dockerfile", "utf8"),
@@ -45,7 +47,8 @@ test("media deployment uses S3 instead of a local volume and shares x64-v1 Sharp
 
   assert.match(compose, /S3_MEDIA_BUCKET/);
   assert.match(compose, /MEDIA_CDN_URL/);
-  assert.doesNotMatch(compose, /payload_media|media-permissions/);
+  assert.match(compose, /payload_media:\/app\/public\/uploads/);
+  assert.match(compose, /media-permissions:[\s\S]*chown -R 1001:1001 \/app\/public\/uploads/);
   assert.match(compose, /translation-work-permissions:[\s\S]*chown -R 1001:1001 \/app\/\.translation-work/);
   assert.match(compose, /condition: service_completed_successfully/);
   assert.doesNotMatch(dockerfile, /sharp-wasm32|versions\.emscripten/);

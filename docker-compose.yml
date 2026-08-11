@@ -48,6 +48,8 @@ services:
       S3_MEDIA_ACCESS_KEY_ID: ${S3_MEDIA_ACCESS_KEY_ID}
       S3_MEDIA_SECRET_ACCESS_KEY: ${S3_MEDIA_SECRET_ACCESS_KEY}
     depends_on:
+      media-permissions:
+        condition: service_completed_successfully
       runtime-data-permissions:
         condition: service_completed_successfully
       translation-work-permissions:
@@ -57,6 +59,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
+      - payload_media:/app/public/uploads
       - app_runtime_data:/app/data
       - ./.translation-work:/app/.translation-work
     healthcheck:
@@ -69,6 +72,14 @@ services:
       - "3000"
     networks:
       - internal
+
+  media-permissions:
+    image: ${APP_IMAGE:-cloud-devops-blog-app:production}
+    user: "0:0"
+    command: ["sh", "-lc", "mkdir -p /app/public/uploads && chown -R 1001:1001 /app/public/uploads"]
+    restart: "no"
+    volumes:
+      - payload_media:/app/public/uploads
 
   runtime-data-permissions:
     image: ${APP_IMAGE:-cloud-devops-blog-app:production}
@@ -142,6 +153,7 @@ services:
 
 volumes:
   payload_postgres_data:
+  payload_media:
   app_runtime_data:
   uptime_kuma_data:
   redis_data:

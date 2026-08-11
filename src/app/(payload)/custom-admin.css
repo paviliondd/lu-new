@@ -1,5 +1,10 @@
 /* Custom Payload CMS Admin Styles - WordPress Gutenberg Look & Feel */
 
+/* The simplified code snippet starts directly with Language and Code fields. */
+[class~="LexicalEditorTheme__block-codeSnippet"] [class*="__block-pill"] {
+  display: none !important;
+}
+
 /* -------------------------------------------------------------------------- */
 /* 1. WordPress Gutenberg Canvas & Full-Width Layout                          */
 /* -------------------------------------------------------------------------- */

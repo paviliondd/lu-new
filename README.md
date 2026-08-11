@@ -78,7 +78,7 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d
 - `uptime-kuma`: monitoring data on `uptime_kuma_data`.
 - permission services: initialize writable runtime/translation paths.
 
-Media is absent from production volumes because it belongs in S3/CDN. This keeps deployments image-only and prevents VPS disk loss from deleting uploads.
+The legacy `payload_media` volume remains mounted temporarily so existing images stay available before the S3 migration is complete. After every existing object has been copied to S3 and its CDN URL verified, remove that volume in a dedicated cutover. New production uploads should use S3 once `S3_MEDIA_BUCKET` is configured.
 
 ## Why CI/CD is structured this way
 

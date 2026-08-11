@@ -9,6 +9,7 @@ import { allPosts, posts as fallbackPosts, series as fileSeries, team, type Auth
 import { localizePost, slugifyText, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { normalizeExcerpt } from "@/lib/content/excerpt";
+import { isAsciiTopology, unwrapMarkdownCodeFence } from "@/lib/content/ascii-topology";
 import { preferredMediaURL as mediaUrl } from "@/lib/cms/media-url";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 import { cachedJson } from "@/lib/server/redis-cache";
@@ -145,15 +146,23 @@ async function renderLexicalContent(value: unknown) {
   const { convertLexicalToHTML } = await import("@payloadcms/richtext-lexical/html");
   const renderCodeSnippet = ({ node }: { node: { fields?: Record<string, unknown> } }) => {
     const fields = node.fields || {};
-    const language = escapeHtml(fields.language || "text").toLowerCase();
+    const configuredLanguage = asString(fields.language, "text").toLowerCase();
+    const fenced = unwrapMarkdownCodeFence(asString(fields.code));
+    const language = fenced.language || configuredLanguage;
+    if (isAsciiTopology(fenced.source, language)) {
+      return `<figure class="topology-shell topology-shell--ascii"><pre data-topology-ascii="true">${escapeHtml(
+        fenced.source,
+      )}</pre></figure>`;
+    }
     const explanation = escapeHtml(fields.explanation).trim();
     const explanationPanel = explanation
       ? `<aside data-code-explanation><p>${explanation
           .replace(/\n{2,}/g, "</p><p>")
           .replace(/\n/g, "<br>")}</p></aside>`
       : "";
-    return `<pre data-language="${language}"><code class="language-${language}">${escapeHtml(
-      fields.code
+    const escapedLanguage = escapeHtml(language);
+    return `<pre data-language="${escapedLanguage}"><code class="language-${escapedLanguage}">${escapeHtml(
+      fenced.source
     )}</code></pre>${explanationPanel}`;
   };
 
@@ -171,7 +180,7 @@ async function renderLexicalContent(value: unknown) {
           const source = escapeHtml(fields.source);
           const caption = escapeHtml(fields.caption);
           if (fields.format === "ascii") {
-            return `<figure class="topology-shell topology-shell--ascii"><div class="topology-shell__toolbar">Topology</div><pre data-topology-ascii="true">${source}</pre>${caption ? `<figcaption>${caption}</figcaption>` : ""}</figure>`;
+            return `<figure class="topology-shell topology-shell--ascii"><pre data-topology-ascii="true">${source}</pre>${caption ? `<figcaption>${caption}</figcaption>` : ""}</figure>`;
           }
           return `<pre data-mermaid="true"${caption ? ` data-topology-caption="${caption}"` : ""}><code class="language-mermaid">${source}</code></pre>`;
         },
@@ -247,6 +256,10 @@ function mapPayloadSeries(doc: PayloadDoc): Series {
 function mapPayloadAuthor(doc: PayloadDoc): Author {
   const name = asString(doc.name, "LinuxUnity");
   const roleVi = asString(doc.roleVi);
+  const descriptionVi = asString(
+    doc.descriptionVi,
+    "Thành viên LinuxUnity chia sẻ kinh nghiệm thực tế về Cloud và DevOps.",
+  );
 
   return {
     name,
@@ -254,8 +267,11 @@ function mapPayloadAuthor(doc: PayloadDoc): Author {
     role_en: asString(doc.roleEn, roleVi),
     avatar: name.trim().charAt(0).toUpperCase() || "L",
     avatarUrl: mediaUrl(doc.avatar) || null,
-    description: asString(doc.descriptionVi),
-    description_en: asString(doc.descriptionEn, asString(doc.descriptionVi)),
+    description: descriptionVi,
+    description_en: asString(
+      doc.descriptionEn,
+      "A LinuxUnity team member sharing practical Cloud and DevOps experience.",
+    ),
     linkedin: asString(doc.linkedin),
     github: asString(doc.github),
   };

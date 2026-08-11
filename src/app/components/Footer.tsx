@@ -20,9 +20,8 @@ export default function Footer() {
 
   return (
     <footer className="theme-surface border-t theme-border">
-      {!isHome && <NewsletterSection compact />}
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+        <div className={isHome ? "flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between" : "flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(18rem,24rem)] lg:items-center lg:gap-x-10"}>
           <Link href={localePath("/")} className="group flex w-fit items-center gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl border theme-border bg-white p-1 transition group-hover:border-teal-500 group-hover:shadow-sm dark:bg-slate-900 dark:group-hover:border-emerald-400">
               <Image src="/images/linuxunity-penguin-logo.png" alt="LinuxUnity Logo" width={40} height={40} className="object-contain" />
@@ -32,9 +31,9 @@ export default function Footer() {
             </span>
           </Link>
 
-          <nav aria-label="Footer navigation" className="sm:text-right">
+          <nav aria-label="Footer navigation" className={isHome ? "sm:text-right" : "lg:text-center"}>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-950 dark:text-white">Explore</p>
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 sm:justify-end">
+            <div className={`mt-3 flex flex-wrap gap-x-5 gap-y-2 ${isHome ? "sm:justify-end" : "lg:justify-center"}`}>
               {links.map((link) => (
                 <Link
                   key={link.href}
@@ -46,6 +45,8 @@ export default function Footer() {
               ))}
             </div>
           </nav>
+
+          {!isHome && <NewsletterSection compact />}
         </div>
 
         <div className="mt-8 border-t theme-border pt-5 text-center text-xs theme-muted">

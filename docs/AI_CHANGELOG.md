@@ -571,3 +571,11 @@ Changed:
 
 - Replaced the oversized child-page signup card with a compact footer Newsletter row: a short description, email field, and an accessible 44px icon submit control.
 - Kept the full-size `Stay in the loop` signup exclusive to the homepage, including its existing success and error feedback.
+
+# 2026-08-11 - Footer newsletter positioning and email validation
+
+Changed:
+
+- Moved the compact Newsletter into the right footer column on child pages and centered the Explore navigation at large breakpoints.
+- Replaced browser-native required-field messaging with an English inline error state that has clear icon, text, focus styling, and screen-reader support.
+- Updated the welcome-email article call to action to open the Vietnamese blog at `/vi/blog` by default.

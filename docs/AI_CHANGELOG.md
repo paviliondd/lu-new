@@ -6,6 +6,8 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Temporarily made S3 backup upload optional and commented its workflow exports so production deploys continue while the backup bucket is being configured; local VPS backups remain enabled.
+
 - Fixed intermittent draft previews by requesting Payload draft versions explicitly for both direct and fallback slug lookups.
 
 - Simplified the CMS Code block to a free-text language field plus code textarea; removed filename and language dropdown behavior.

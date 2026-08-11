@@ -56,7 +56,8 @@ test("deployment backs up persistent data and records ECR rollback state", async
   assert.match(backupScript, /app-runtime-data\.tgz/);
   assert.match(backupScript, /uptime-kuma-data\.tgz/);
   assert.match(backupScript, /aws s3 cp/);
-  assert.match(backupScript, /BACKUP_S3_URI is required/);
+  assert.match(backupScript, /if \[ -n "\$BACKUP_S3_URI" \]/);
+  assert.match(backupScript, /keeping this backup on the VPS temporarily/);
   assert.match(rollbackScript, /CONFIRM_ROLLBACK/);
   assert.match(rollbackScript, /scripts\/restore\.sh/);
   assert.match(rollbackScript, /retry_docker_compose_pull "rollback app image \$\{target\}" app/);

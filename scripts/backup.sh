@@ -57,12 +57,15 @@ fi
 
 tar czf "$ARCHIVE" -C "$BACKUP_ROOT" "$STAMP"
 
-[ -n "$BACKUP_S3_URI" ] || { echo "BACKUP_S3_URI is required; production backups must leave the VPS." >&2; exit 1; }
-command -v aws >/dev/null 2>&1 || { echo "aws CLI is required for BACKUP_S3_URI" >&2; exit 1; }
-echo "Uploading encrypted backup archive to ${BACKUP_S3_URI%/}/..."
-aws s3 cp "$ARCHIVE" "${BACKUP_S3_URI%/}/$(basename "$ARCHIVE")" \
-  --sse AES256 \
-  --storage-class "$BACKUP_S3_STORAGE_CLASS"
+if [ -n "$BACKUP_S3_URI" ]; then
+  command -v aws >/dev/null 2>&1 || { echo "aws CLI is required for BACKUP_S3_URI" >&2; exit 1; }
+  echo "Uploading encrypted backup archive to ${BACKUP_S3_URI%/}/..."
+  aws s3 cp "$ARCHIVE" "${BACKUP_S3_URI%/}/$(basename "$ARCHIVE")" \
+    --sse AES256 \
+    --storage-class "$BACKUP_S3_STORAGE_CLASS"
+else
+  echo "BACKUP_S3_URI is not configured; keeping this backup on the VPS temporarily."
+fi
 
 if [ "$BACKUP_RETENTION_DAYS" -gt 0 ] 2>/dev/null; then
   find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -mtime "+$BACKUP_RETENTION_DAYS" -exec rm -rf -- {} +

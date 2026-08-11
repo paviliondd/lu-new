@@ -63,7 +63,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden items-center overflow-hidden rounded-xl border theme-border bg-white/70 p-1 dark:bg-slate-950/35 md:flex">
+          <ul className="hidden items-center overflow-hidden rounded-xl border theme-border bg-white/70 p-1 dark:bg-slate-950/35 lg:flex">
             {navLinks.map((link) => {
               const isActive = link.href === activeNavHref;
               return (
@@ -88,7 +88,7 @@ export default function Header() {
             <button
               type="button"
               onClick={openSearch}
-              className="grid h-10 w-10 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="grid h-11 w-11 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
               aria-label={t("search")}
               title={t("search")}
             >
@@ -102,7 +102,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="grid h-10 w-10 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white md:hidden"
+              className="grid h-11 w-11 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white lg:hidden"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -116,7 +116,7 @@ export default function Header() {
 
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
-          <div className="theme-surface border-t theme-border px-4 py-4 shadow-xl shadow-slate-950/5 transition-all md:hidden">
+          <div className="theme-surface border-t theme-border px-4 py-4 shadow-xl shadow-slate-950/5 transition-all lg:hidden">
             <ul className="space-y-1">
               {navLinks.map((link) => {
                 const isActive = link.href === activeNavHref;

@@ -510,3 +510,16 @@ Never break:
 - Included placeholders for the system overview, reading, publishing, authentication/comment, and deployment-topology diagrams.
 - Covered current components, data boundaries, dependencies, failure boundaries, strengths, limitations, and protected architectural decisions.
 - Reserved Docker guidance, AWS mappings, certification coverage, and migration roadmaps for later articles.
+# 2026-08-10 — Responsive UX stabilization
+
+Fixed:
+
+- Removed the default-locale redirect branch that re-entered the `/vi` rewrite and caused a local redirect loop.
+- Stabilized the homepage hero: it now uses dynamic viewport height, keeps the tablet layout stacked, and switches to one consistent two-column ratio only at the extra-large breakpoint.
+- Removed automatic cycling from the homepage journey indicator and blog featured carousel; carousel navigation is now fully user controlled.
+- Increased carousel and shared-header icon controls to 44px touch targets and retained visible carousel controls on touch layouts.
+- Delayed desktop navigation until the large breakpoint to prevent a cramped tablet header.
+
+Never break:
+
+- Vietnamese default routing, optional English `/en` routing, dark/light theme, shared responsive series row, and blog carousel navigation.

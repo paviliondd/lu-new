@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { ArrowRight, Calendar, Eye, Compass, BookOpen, Share2 } from "lucide-react";
 import type { Post } from "@/app/data";
@@ -24,15 +24,6 @@ function formatDate(value: string, locale: "vi" | "en") {
 }
 
 function FeatureColumns() {
-  const [activeStep, setActiveStep] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % 3);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
-
   const features = [
     { id: 0, label: "explore", icon: Compass },
     { id: 1, label: "learn", icon: BookOpen },
@@ -44,31 +35,18 @@ function FeatureColumns() {
       <div className="flex items-start justify-between">
         {features.map((item, idx) => {
           const Icon = item.icon;
-          const isActive = activeStep === item.id;
-          const isPassed = activeStep >= item.id;
-
           return (
             <React.Fragment key={item.label}>
               {/* Node Item */}
               <div className="flex flex-col items-center justify-start text-center shrink-0">
                 <div
-                  className={`relative flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-full border transition-all duration-500 ${
-                    isActive
-                      ? "border-teal-500 bg-teal-100/90 text-teal-700 ring-4 ring-teal-500/20 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500 dark:ring-emerald-400/20"
-                      : isPassed
-                      ? "border-teal-400/50 bg-teal-50/50 text-teal-600 dark:border-teal-600/40 dark:bg-teal-950/40 dark:text-teal-300"
-                      : "border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400"
-                  }`}
+                  className="relative flex h-9 w-9 items-center justify-center rounded-full border border-teal-400/50 bg-teal-50/50 text-teal-700 dark:border-teal-600/40 dark:bg-teal-950/40 dark:text-teal-300 sm:h-10 sm:w-10"
                 >
                   <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
 
                 <span
-                  className={`mt-2 text-xs sm:text-sm font-bold lowercase tracking-wide transition-colors duration-300 ${
-                    isActive
-                      ? "text-[#0f9c98] dark:text-emerald-400"
-                      : "text-slate-700 dark:text-slate-300"
-                  }`}
+                  className="mt-2 text-xs font-bold lowercase tracking-wide text-slate-700 dark:text-slate-300 sm:text-sm"
                 >
                   {item.label}
                 </span>
@@ -77,12 +55,7 @@ function FeatureColumns() {
               {/* Connecting Pipeline Line aligned with badge center */}
               {idx < features.length - 1 && (
                 <div className="relative flex-1 h-[3px] rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 my-4 sm:my-5 mx-2">
-                  <div
-                    className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 transition-all duration-700 ease-in-out"
-                    style={{
-                      width: activeStep > idx ? "100%" : "0%",
-                    }}
-                  />
+                  <div className="h-full w-full bg-gradient-to-r from-teal-500 to-emerald-400" />
                 </div>
               )}
             </React.Fragment>
@@ -113,7 +86,7 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
   const subPosts = posts.slice(1, 3);
 
   return (
-    <section className="relative flex min-h-[calc(100vh-4.5rem)] lg:h-[calc(100vh-4.5rem)] flex-col justify-center border-b theme-border py-6 px-4 sm:py-8 sm:px-6 lg:px-8">
+    <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col justify-center border-b theme-border px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       {/* Background ambient light */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-[5%] h-[280px] w-[280px] rounded-full bg-teal-400/20 blur-3xl dark:bg-teal-400/15" />
@@ -121,7 +94,7 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
       </div>
 
       {/* Grid Layout */}
-      <div className="mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[2fr_3fr] xl:grid-cols-[1fr_2fr] items-stretch h-full py-2">
+      <div className="mx-auto grid w-full max-w-7xl gap-6 py-2 xl:grid-cols-[minmax(21rem,0.9fr)_minmax(0,1.35fr)] xl:items-stretch">
         {/* Left Column: Hero Brand & Connecting Feature Pipeline */}
         <div className="flex flex-col justify-between items-start text-left p-6 sm:p-8 rounded-2xl border theme-border theme-surface h-full">
           <div className="w-full text-left my-auto">

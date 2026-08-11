@@ -94,6 +94,11 @@ export default function MermaidRenderer({
 
         preElement.parentNode?.insertBefore(shell, preElement);
         shell.append(toolbar, stage);
+        if (preElement.dataset.topologyCaption) {
+          const caption = document.createElement("figcaption");
+          caption.textContent = preElement.dataset.topologyCaption;
+          shell.append(caption);
+        }
         preElement.remove();
 
         const handleZoomIn = () => setScale(scale + 0.15);

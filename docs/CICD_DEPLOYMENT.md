@@ -140,5 +140,5 @@ Xác nhận thêm trong CMS: đăng nhập admin, mở bài mới nhất, kiểm
 
 Sơ đồ kèm theo:
 
-- `docs/cicd-backup-workflow.drawio` và PNG.
-- `docs/rollback-workflow.drawio` và PNG.
+- `docs/cicd-backup-workflow.md` chứa Mermaid và phần giải thích.
+- `docs/rollback-workflow.md` chứa Mermaid và phần giải thích.

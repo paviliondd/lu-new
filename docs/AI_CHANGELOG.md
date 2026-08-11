@@ -2,6 +2,27 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-11
+
+Added & Fixed:
+
+- Fixed intermittent draft previews by requesting Payload draft versions explicitly for both direct and fallback slug lookups.
+
+- Simplified the CMS Code block to a free-text language field plus code textarea; removed filename and language dropdown behavior.
+- Added a dedicated Topology block supporting Mermaid SVG diagrams and compact ASCII topology figures.
+- Removed Terminal and FileTree from new-editor choices while preserving legacy frontend rendering.
+- Unified Code block and Table panel colors, reduced excess spacing around tables, code, quotes, notes, and topology.
+- Standardized site typography on sans-serif, retained monospace for code/topology, and anchored the Journey word below the `i` in Unity.
+
+- Made the homepage Team section read Payload `authors`, with local authors only as an outage/development fallback.
+- Removed the visible `Editorial Team` fallback label.
+- Added the official Payload S3 adapter and CDN URLs; removed production local-media volumes.
+- Required off-host S3 backup uploads and retained compatibility with legacy local-media archives.
+- Gated ECR build/push on lint, tests, and the production build.
+- Replaced Draw.io/PNG topology pairs with Markdown Mermaid documents.
+- Removed three source files confirmed unused by static analysis; retained fixtures and scripts that have active consumers.
+- Rewrote README with architecture, Compose, CI/CD, S3, backup, and rollback rationale.
+
 ## 2026-08-10
 
 Added & Fixed:

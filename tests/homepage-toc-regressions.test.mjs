@@ -2,22 +2,20 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 
-test("homepage fetches only six posts and three series without rendering the carousel", async () => {
-  const [route, homepage, recent, publishedPosts, payloadCms] = await Promise.all([
+test("homepage fetches six posts, three series, and CMS authors without rendering the carousel", async () => {
+  const [route, homepage, publishedPosts, payloadCms] = await Promise.all([
     readFile("src/app/[lang]/page.tsx", "utf8"),
     readFile("src/app/components/pages/HomePage.tsx", "utf8"),
-    readFile("src/app/components/RecentWritingSection.tsx", "utf8"),
     readFile("src/app/components/usePublishedPosts.ts", "utf8"),
     readFile("src/lib/cms/payload.ts", "utf8"),
   ]);
 
   assert.match(route, /getCmsPublishedPosts\(lang, 6\)/);
   assert.match(route, /getCmsSeries\(lang, 3\)/);
+  assert.match(route, /getCmsAuthors\(\)/);
   assert.doesNotMatch(homepage, /FeaturedPostsCarousel/);
   assert.match(homepage, /localePath\("\/blog\/series"\)/);
   assert.match(homepage, /collectionsLabel|Collections/);
-  assert.match(recent, /usePublishedPosts\(initialPosts, 6\)/);
-  assert.match(recent, /\.slice\(0, 6\)/);
   assert.match(publishedPosts, /&limit=\$\{requestedLimit\}/);
   assert.match(payloadCms, /sort: requestedLimit === undefined \? "titleVi" : "-createdAt"/);
 });
@@ -38,15 +36,16 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
   assert.doesNotMatch(toc, /addEventListener\("scroll"/);
 });
 
-test("media deployment initializes volume ownership and shares x64-v1 Sharp with Next", async () => {
+test("media deployment uses S3 instead of a local volume and shares x64-v1 Sharp with Next", async () => {
   const [compose, dockerfile, packageJson] = await Promise.all([
     readFile("docker-compose.yml", "utf8"),
     readFile("Dockerfile", "utf8"),
     readFile("package.json", "utf8"),
   ]);
 
-  assert.match(compose, /media-permissions:[\s\S]*user: "0:0"/);
-  assert.match(compose, /chown -R 1001:1001 \/app\/public\/uploads/);
+  assert.match(compose, /S3_MEDIA_BUCKET/);
+  assert.match(compose, /MEDIA_CDN_URL/);
+  assert.doesNotMatch(compose, /payload_media|media-permissions/);
   assert.match(compose, /translation-work-permissions:[\s\S]*chown -R 1001:1001 \/app\/\.translation-work/);
   assert.match(compose, /condition: service_completed_successfully/);
   assert.doesNotMatch(dockerfile, /sharp-wasm32|versions\.emscripten/);

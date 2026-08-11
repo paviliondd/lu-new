@@ -102,9 +102,9 @@ export interface Post {
 
 export const team: Record<string, Author> = {
   nhatnghia: {
-    name: "LinuxUnity Editorial Team",
-    role: "Editorial Team",
-    role_en: "Editorial Team",
+    name: "LinuxUnity",
+    role: "",
+    role_en: "",
     avatar: "L",
     avatarUrl: null,
     description: "The LinuxUnity team publishes practical guides for cloud infrastructure and DevOps.",

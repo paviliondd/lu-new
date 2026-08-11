@@ -6,7 +6,7 @@ The current production workflow builds an immutable ECR image and deploys it ove
 
 This is cost-efficient and matches the repository, but the host, database, cache, and media volume share one failure domain. GitHub Actions also uses long-lived AWS credentials for ECR and an SSH key for deployment.
 
-Diagram: `docs/current-website-workflow.drawio`.
+Diagram and explanation: `docs/current-website-workflow.md`.
 
 ## Recommended serverless-container target
 
@@ -23,7 +23,7 @@ Use serverless managed infrastructure around the existing container rather than 
 
 This retains Next.js App Router, Payload CMS, PostgreSQL, Redis-compatible cache, and the bilingual/fallback behavior. It requires a media storage adapter before horizontal scaling because Fargate task storage is ephemeral.
 
-Diagram: `docs/aws-serverless-workflow.drawio`.
+Diagram and explanation: `docs/aws-serverless-workflow.md`.
 
 ## EKS target
 
@@ -38,7 +38,7 @@ Use EKS only when at least one of these becomes true:
 
 For this single blog/CMS, EKS is primarily a learning/platform choice, not the cost-optimal production choice. Standard-support EKS has a control-plane charge before worker nodes and other infrastructure. EKS Auto Mode adds management charges on top of EC2 capacity.
 
-Diagram: `docs/aws-eks-workflow.drawio`.
+Diagram and explanation: `docs/aws-eks-workflow.md`.
 
 ## Migration order
 
@@ -49,4 +49,3 @@ Diagram: `docs/aws-eks-workflow.drawio`.
 5. Deploy one Fargate task in staging, then two tasks across AZs.
 6. Add CloudFront/WAF, alarms, budgets, audit logs, and disaster-recovery exercises.
 7. Evaluate EKS later using the same ECR image after the application is stateless.
-

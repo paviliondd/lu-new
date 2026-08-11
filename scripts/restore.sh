@@ -38,8 +38,11 @@ else
   $COMPOSE exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" "$POSTGRES_DB"' < "${BACKUP_DIR}/payload-postgres.sql"
 fi
 
-echo "Restoring Payload media and runtime data..."
-$COMPOSE run --rm --no-deps --entrypoint sh app -c 'rm -rf /app/public/uploads/* /app/data/*; tar xzf - -C /app/public' < "${BACKUP_DIR}/payload-media.tgz"
+echo "Restoring runtime data..."
+if [ -f "${BACKUP_DIR}/payload-media.tgz" ]; then
+  echo "Legacy local-media archive detected; restore it before enabling S3 media."
+  $COMPOSE run --rm --no-deps --entrypoint sh app -c 'mkdir -p /app/public/uploads; tar xzf - -C /app/public' < "${BACKUP_DIR}/payload-media.tgz"
+fi
 if [ -f "${BACKUP_DIR}/app-runtime-data.tgz" ]; then
   $COMPOSE run --rm --no-deps --entrypoint sh app -c 'tar xzf - -C /app' < "${BACKUP_DIR}/app-runtime-data.tgz"
 fi

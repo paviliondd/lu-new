@@ -30,7 +30,7 @@ This project is a Next.js App Router blog and Payload CMS application deployed a
 
 1. Editors create content in Payload `/admin`.
 2. Payload stores posts, media, authors, series, comments, and users in Postgres.
-3. Media uploads are stored under `public/uploads` and mounted as `payload_media` in Docker.
+3. Media uploads use the official Payload S3 adapter and are served through the configured CDN in production.
 4. Frontend routes call `getCmsPublishedPosts`, `getCmsPostBySlug`, and `getCmsSeries`.
 5. Payload content is mapped into the existing `Post` and `Series` shapes.
 6. If Payload or Postgres is unavailable or a query fails, frontend data falls back to local sources. Successful CMS results remain authoritative, including empty results after deletion.

@@ -1,10 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, FileText } from "lucide-react";
-import { marked } from "marked";
-import xss from "xss";
+import { useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { formatLanguageLabel } from "./syntax";
 import CopyCodeButton, { type CopyButtonLabels } from "./CopyButton";
 
@@ -28,9 +26,7 @@ export interface CodeBlockLabels {
 export interface CodeBlockProps {
   code: string;
   language?: string;
-  filename?: string;
   showLineNumbers?: boolean;
-  downloadable?: boolean;
   initiallyExpanded?: boolean;
   highlightedCode?: ReactNode;
   explanation?: ReactNode;
@@ -46,7 +42,6 @@ export function countCodeLines(value: string) {
 export default function CodeBlock({
   code,
   language,
-  filename,
   showLineNumbers = false,
   initiallyExpanded = false,
   highlightedCode,
@@ -56,19 +51,9 @@ export default function CodeBlock({
   const totalLines = countCodeLines(code);
   const isLong = totalLines > 20;
   const [expanded, setExpanded] = useState(initiallyExpanded || !isLong);
-  const [view, setView] = useState<"code" | "preview">("code");
   const cardRef = useRef<HTMLElement>(null);
   const lineNumbers = Array.from({ length: totalLines }, (_, index) => index + 1);
-  const isMarkdown = language?.toLowerCase() === "markdown" || language?.toLowerCase() === "md";
   const displayLanguage = formatLanguageLabel(language);
-  const isDuplicateFilename =
-    Boolean(filename) &&
-    (filename?.trim().toLowerCase() === (language || "").trim().toLowerCase() ||
-      filename?.trim().toLowerCase() === displayLanguage.trim().toLowerCase());
-  const previewHtml = useMemo(
-    () => (isMarkdown ? xss(String(marked.parse(code))) : ""),
-    [code, isMarkdown],
-  );
 
   const toggleExpanded = () => {
     const nextExpanded = !expanded;
@@ -87,34 +72,22 @@ export default function CodeBlock({
       className="code-card"
       data-long={isLong || undefined}
       data-expanded={expanded}
-      aria-label={filename || displayLanguage || "Code"}
+      aria-label={displayLanguage || "Code"}
     >
       <header
         className="code-card__header"
-        data-compact={!filename && !displayLanguage ? "true" : undefined}
+        data-compact={!displayLanguage ? "true" : undefined}
       >
         <div className="code-card__identity">
           {displayLanguage && <span className="code-card__language">{displayLanguage}</span>}
-          {filename && !isDuplicateFilename && (
-            <span className="code-card__filename" title={filename}>
-              <FileText className="code-action-icon" aria-hidden="true" />
-              <span>{filename}</span>
-            </span>
-          )}
         </div>
 
         <div className="code-card__actions">
           <CopyCodeButton code={code} labels={labels.copy} />
-          {isMarkdown && (
-            <div className="code-card__view-switch" aria-label={`${labels.code}/${labels.preview}`}>
-              <button type="button" data-active={view === "code"} aria-pressed={view === "code"} onClick={() => setView("code")}>{labels.code}</button>
-              <button type="button" data-active={view === "preview"} aria-pressed={view === "preview"} onClick={() => setView("preview")}>{labels.preview}</button>
-            </div>
-          )}
         </div>
       </header>
 
-      <div className="code-card__viewport" hidden={view !== "code"} data-collapsed={isLong && !expanded ? "true" : undefined}>
+      <div className="code-card__viewport" data-collapsed={isLong && !expanded ? "true" : undefined}>
         <pre>
           <code className="code-card__code">
             {showLineNumbers && (
@@ -128,10 +101,6 @@ export default function CodeBlock({
           </code>
         </pre>
       </div>
-
-      {isMarkdown && view === "preview" && (
-        <div className="code-card__preview" dangerouslySetInnerHTML={{ __html: previewHtml }} />
-      )}
 
       {explanation && (
         <details className="code-card__explanation">

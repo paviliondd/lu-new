@@ -27,9 +27,23 @@ test("code toolbar is present in the initial React render", () => {
   assert.match(html, /class="code-card"/);
   assert.match(html, /lucide-copy/);
   assert.match(html, /Copy/);
-  assert.match(html, /inventory\.ini/);
+  assert.doesNotMatch(html, /inventory\.ini/);
   assert.match(html, /echo &lt;LinuxUnity&gt; &amp;&amp; printf/);
   assert.doesNotMatch(html, /data-enhanced|code-shell/);
+});
+
+test("ASCII topology renders as a dedicated topology figure instead of a code card", () => {
+  const html = renderToStaticMarkup(
+    React.createElement(RichTextRenderer, {
+      content: '<figure class="topology-shell topology-shell--ascii"><div class="topology-shell__toolbar">Topology</div><pre data-topology-ascii="true">Internet\n  |\n  IGW</pre></figure>',
+      contentKey: "topology-test",
+      labels: getCodeBlockLabels("vi"),
+    }),
+  );
+
+  assert.match(html, /topology-shell--ascii/);
+  assert.match(html, /data-topology-ascii="true"/);
+  assert.doesNotMatch(html, /class="code-card"/);
 });
 
 test("article tables render with a separate toolbar and accessible actions", () => {

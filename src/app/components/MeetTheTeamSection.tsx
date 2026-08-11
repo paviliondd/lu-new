@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { team } from "@/app/data";
+import type { Author } from "@/app/data";
 import AuthorAvatar from "@/app/components/AuthorAvatar";
 
-export default function MeetTheTeamSection() {
-  const members = [team.peterparker, team.huynhminhthai].filter(Boolean);
+export default function MeetTheTeamSection({ members }: { members: Author[] }) {
 
   return (
     <section className="py-12 sm:py-16 border-b theme-border">
@@ -15,12 +14,12 @@ export default function MeetTheTeamSection() {
             <h2 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
               Meet the team behind the journey
             </h2>
-            <p className="mt-2 text-base font-serif italic text-slate-600 dark:text-slate-400">
+            <p className="mt-2 text-base italic text-slate-600 dark:text-slate-400">
               &ldquo;We write what we use every day&rdquo;
             </p>
           </div>
 
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 max-w-2xl mx-auto items-center">
+          <div className="mt-10 grid gap-8 sm:grid-cols-2 max-w-4xl mx-auto items-stretch">
             {members.map((member) => (
               <div
                 key={member.name}

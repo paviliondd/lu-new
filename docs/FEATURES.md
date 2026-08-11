@@ -47,7 +47,8 @@ Requirement:
 
 - WordPress-style Gutenberg block editing
 - Floating toolbar & inline formatting (Bold, Italic, Link, Strikethrough, Underline, Subscript/Superscript, Inline Code)
-- Gutenberg blocks: Paragraph, Heading, List, Checklist, Quote, Image, simplified Code block, Table, Separator, Note, and Topology
+- Gutenberg blocks: Paragraph, Heading, List, Checklist, Quote, Image, simplified Code block, Table, and Separator
+- ASCII network topology rendering from fenced `text` code without a separate Topology block
 - Right sidebar document controls
 - Mandatory publish validation (Title VI, Category, and content before publishing)
 - DB-safe Payload configuration (Zero Postgres schema alterations required)

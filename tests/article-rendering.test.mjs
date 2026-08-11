@@ -33,9 +33,10 @@ test("code toolbar is present in the initial React render", () => {
 });
 
 test("ASCII topology renders as a dedicated topology figure instead of a code card", () => {
+  const source = "Internet\n  |\n  IGW\n  |\n  |________|\nPublic     Private\n  |          |\nEC2        RDS";
   const html = renderToStaticMarkup(
     React.createElement(RichTextRenderer, {
-      content: '<figure class="topology-shell topology-shell--ascii"><div class="topology-shell__toolbar">Topology</div><pre data-topology-ascii="true">Internet\n  |\n  IGW</pre></figure>',
+      content: `<pre><code class="language-text">${source}</code></pre>`,
       contentKey: "topology-test",
       labels: getCodeBlockLabels("vi"),
     }),
@@ -44,6 +45,7 @@ test("ASCII topology renders as a dedicated topology figure instead of a code ca
   assert.match(html, /topology-shell--ascii/);
   assert.match(html, /data-topology-ascii="true"/);
   assert.doesNotMatch(html, /class="code-card"/);
+  assert.doesNotMatch(html, />Topology</);
 });
 
 test("article tables render with a separate toolbar and accessible actions", () => {

@@ -315,7 +315,7 @@ iframe {
 .article-content figure {
   display: block;
   max-width: var(--article-column-width);
-  margin: 2rem auto 2.5rem;
+  margin: 1rem auto 1.2rem;
   overflow: visible;
   text-align: center;
 }
@@ -353,12 +353,12 @@ iframe {
 }
 
 .article-content blockquote {
-  margin-top: 0.9rem;
-  margin-bottom: 1rem;
+  margin-top: 0.6rem;
+  margin-bottom: 0.7rem;
   border-left: 3px solid var(--site-accent);
   border-radius: 0 0.75rem 0.75rem 0;
   background: color-mix(in srgb, var(--site-accent) 10%, transparent);
-  padding: 0.65rem 0.85rem;
+  padding: 0.45rem 0.65rem;
   color: var(--site-muted);
 }
 
@@ -367,7 +367,7 @@ iframe {
 
 .article-table {
   width: min(100%, var(--article-column-width));
-  margin: 0.9rem auto 1.1rem;
+  margin: 0.65rem auto 0.8rem;
   overflow: hidden;
   border: 1px solid var(--article-panel-border);
   border-radius: 0.75rem;
@@ -376,13 +376,13 @@ iframe {
 
 .article-table__header {
   display: flex;
-  min-height: 2.25rem;
+  min-height: 2rem;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   border-bottom: 1px solid var(--article-panel-border);
   background: var(--article-panel-header);
-  padding: 0.35rem 0.7rem;
+  padding: 0.25rem 0.55rem;
 }
 
 .article-table__title {
@@ -435,7 +435,7 @@ iframe {
   border: 0;
   border-right: 1px solid var(--article-panel-border);
   border-bottom: 1px solid var(--article-panel-border);
-  padding: 0.55rem 0.75rem;
+  padding: 0.4rem 0.6rem;
   text-align: left;
 }
 
@@ -621,13 +621,13 @@ iframe {
 }
 
 .richtext-block {
-  margin: 0.9rem 0 1rem;
+  margin: 0.6rem 0 0.7rem;
 }
 
 .richtext-block figcaption,
 .richtext-block > strong {
   display: block;
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.35rem;
   color: #4b5563;
   font-size: 0.78rem;
   font-weight: 700;
@@ -638,7 +638,7 @@ iframe {
 .richtext-block--warning {
   border-left: 3px solid var(--site-border);
   background: var(--site-panel);
-  padding: 0.65rem 0.85rem;
+  padding: 0.45rem 0.65rem;
 }
 
 .richtext-block > :first-child { margin-top: 0; }
@@ -710,22 +710,12 @@ iframe {
 
 .topology-shell {
   width: min(100%, var(--article-column-width));
-  margin: 0.9rem auto 1.1rem;
+  margin: 0.65rem auto 0.8rem;
   overflow: hidden;
   border: 1px solid var(--article-panel-border);
   border-radius: 0.75rem;
   background: var(--article-panel-body);
   text-align: left;
-}
-
-.topology-shell__toolbar {
-  min-height: 2.25rem;
-  border-bottom: 1px solid var(--article-panel-border);
-  background: var(--article-panel-header);
-  padding: 0.45rem 0.7rem;
-  color: var(--site-fg);
-  font-size: 0.8rem;
-  font-weight: 750;
 }
 
 .article-content .topology-shell > pre[data-topology-ascii="true"] {
@@ -764,7 +754,7 @@ iframe {
   margin-right: -0.08em;
   color: var(--site-accent);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.5em;
+  font-size: 0.7em;
   font-style: italic;
   font-weight: 400;
   line-height: 1;

@@ -49,35 +49,6 @@ const listField = (name: string, label: string) => ({
   ],
 });
 
-const noteBlock: Block = {
-  slug: "note",
-  labels: {
-    singular: "Note",
-    plural: "Notes",
-  },
-  fields: [
-    {
-      name: "variant",
-      type: "select",
-      defaultValue: "note",
-      options: [
-        { label: "Note", value: "note" },
-        { label: "Warning", value: "warning" },
-        { label: "Tip", value: "tip" },
-      ],
-    },
-    {
-      name: "title",
-      type: "text",
-    },
-    {
-      name: "body",
-      type: "textarea",
-      required: true,
-    },
-  ],
-};
-
 const codeBlock: Block = {
   // `Code` is reserved by Payload's built-in CodeBlock feature. A distinct
   // slug keeps this intentionally simple textarea block on the generic block UI.
@@ -85,6 +56,9 @@ const codeBlock: Block = {
   labels: {
     singular: "Code block",
     plural: "Code blocks",
+  },
+  admin: {
+    disableBlockName: true,
   },
   fields: [
     {
@@ -94,32 +68,6 @@ const codeBlock: Block = {
       admin: { description: "Nhập ngôn ngữ, ví dụ: bash, yaml, json, typescript." },
     },
     { name: "code", type: "textarea", required: true, admin: { rows: 14 } },
-  ],
-};
-
-const topologyBlock: Block = {
-  slug: "topology",
-  labels: {
-    singular: "Topology",
-    plural: "Topologies",
-  },
-  fields: [
-    {
-      name: "format",
-      type: "select",
-      defaultValue: "mermaid",
-      options: [
-        { label: "Mermaid diagram", value: "mermaid" },
-        { label: "ASCII topology", value: "ascii" },
-      ],
-    },
-    { name: "caption", type: "text", label: "Caption (optional)" },
-    {
-      name: "source",
-      type: "textarea",
-      required: true,
-      admin: { rows: 16, description: "Dán Mermaid hoặc sơ đồ ASCII. Không dùng Markdown code fence." },
-    },
   ],
 };
 
@@ -187,11 +135,7 @@ const postEditor: RichTextAdapterProvider<
       }),
       EXPERIMENTAL_TableFeature(),
       BlocksFeature({
-        blocks: [
-          codeBlock,
-          noteBlock,
-          topologyBlock,
-        ],
+        blocks: [codeBlock],
       }),
       AlignFeature(),
     ],

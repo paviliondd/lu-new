@@ -91,11 +91,11 @@ Media is absent from production volumes because it belongs in S3/CDN. This keeps
 
 This ordering prevents unverified images entering deployment, keeps compilation off the VPS, makes rollback deterministic, and retains the prior image until health checks pass.
 
-Required GitHub secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_ECR_REGISTRY`, `AWS_ECR_REPOSITORY`, `VPS_HOST`, `VPS_USER`, `VPS_PORT`, `VPS_SSH_KEY`, `APP_DIR`, and `BACKUP_S3_URI`. Optional variable `BACKUP_S3_STORAGE_CLASS` defaults to `STANDARD_IA`.
+Required GitHub secrets currently are `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_ECR_REGISTRY`, `AWS_ECR_REPOSITORY`, `VPS_HOST`, `VPS_USER`, `VPS_PORT`, `VPS_SSH_KEY`, and `APP_DIR`. `BACKUP_S3_URI` and `BACKUP_S3_STORAGE_CLASS` are temporarily disabled in the workflow until the production backup bucket is configured.
 
 ## Backup and rollback
 
-ECR protects application images only. `scripts/backup.sh` captures PostgreSQL, runtime JSON, Uptime Kuma, translation work, a manifest, and checksums, then requires an encrypted upload to `BACKUP_S3_URI`.
+ECR protects application images only. `scripts/backup.sh` captures PostgreSQL, runtime JSON, Uptime Kuma, translation work, a manifest, and checksums. It uploads an encrypted archive when `BACKUP_S3_URI` is configured; temporarily, an empty value keeps the archive on the VPS so deployment is not blocked.
 
 ```bash
 BACKUP_REASON=manual sh scripts/backup.sh

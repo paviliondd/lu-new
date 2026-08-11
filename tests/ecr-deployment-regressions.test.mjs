@@ -52,10 +52,11 @@ test("deployment backs up persistent data and records ECR rollback state", async
   assert.match(deployScript, /retry_docker_compose_pull "Compose images" --ignore-buildable/);
   assert.match(deployScript, /retry_docker_compose_pull "app image \$\{APP_IMAGE\}" app/);
   assert.match(backupScript, /payload-postgres\.dump/);
-  assert.match(backupScript, /payload-media\.tgz/);
+  assert.doesNotMatch(backupScript, /payload-media\.tgz/);
   assert.match(backupScript, /app-runtime-data\.tgz/);
   assert.match(backupScript, /uptime-kuma-data\.tgz/);
   assert.match(backupScript, /aws s3 cp/);
+  assert.match(backupScript, /BACKUP_S3_URI is required/);
   assert.match(rollbackScript, /CONFIRM_ROLLBACK/);
   assert.match(rollbackScript, /scripts\/restore\.sh/);
   assert.match(rollbackScript, /retry_docker_compose_pull "rollback app image \$\{target\}" app/);

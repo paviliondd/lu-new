@@ -5,6 +5,7 @@ COMPOSE="${COMPOSE:-docker compose}"
 BACKUP_ROOT="${BACKUP_ROOT:-backups}"
 BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 BACKUP_S3_URI="${BACKUP_S3_URI:-}"
+BACKUP_S3_STORAGE_CLASS="${BACKUP_S3_STORAGE_CLASS:-STANDARD_IA}"
 STAMP="$(date -u +%Y%m%d-%H%M%S)"
 TARGET="${BACKUP_ROOT}/${STAMP}"
 ARCHIVE="${TARGET}.tgz"
@@ -23,9 +24,6 @@ EOF
 
 echo "Creating consistent Postgres custom-format dump..."
 $COMPOSE exec -T postgres sh -c 'pg_dump --format=custom --no-owner --no-acl -U "$POSTGRES_USER" "$POSTGRES_DB"' > "${TARGET}/payload-postgres.dump"
-
-echo "Creating Payload media backup..."
-$COMPOSE exec -T app sh -c 'mkdir -p /app/public/uploads && tar czf - -C /app/public uploads' > "${TARGET}/payload-media.tgz"
 
 echo "Creating persistent runtime-data backup..."
 $COMPOSE exec -T app sh -c 'mkdir -p /app/data && tar czf - -C /app data' > "${TARGET}/app-runtime-data.tgz"
@@ -59,11 +57,12 @@ fi
 
 tar czf "$ARCHIVE" -C "$BACKUP_ROOT" "$STAMP"
 
-if [ -n "$BACKUP_S3_URI" ]; then
-  command -v aws >/dev/null 2>&1 || { echo "aws CLI is required for BACKUP_S3_URI" >&2; exit 1; }
-  echo "Uploading encrypted backup archive to ${BACKUP_S3_URI%/}/..."
-  aws s3 cp "$ARCHIVE" "${BACKUP_S3_URI%/}/$(basename "$ARCHIVE")" --sse AES256
-fi
+[ -n "$BACKUP_S3_URI" ] || { echo "BACKUP_S3_URI is required; production backups must leave the VPS." >&2; exit 1; }
+command -v aws >/dev/null 2>&1 || { echo "aws CLI is required for BACKUP_S3_URI" >&2; exit 1; }
+echo "Uploading encrypted backup archive to ${BACKUP_S3_URI%/}/..."
+aws s3 cp "$ARCHIVE" "${BACKUP_S3_URI%/}/$(basename "$ARCHIVE")" \
+  --sse AES256 \
+  --storage-class "$BACKUP_S3_STORAGE_CLASS"
 
 if [ "$BACKUP_RETENTION_DAYS" -gt 0 ] 2>/dev/null; then
   find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -mtime "+$BACKUP_RETENTION_DAYS" -exec rm -rf -- {} +

@@ -37,7 +37,7 @@ test("legacy media fallback and rename guards stay wired", async () => {
   assert.match(config, /Không thể đổi tên tệp media/);
   assert.match(config, /afterRead:[\s\S]*hydrateLegacyMediaDocument/);
   assert.match(config, /normalizeLegacyMediaDocumentURL\(doc\)/);
-  assert.match(config, /if \(findMany\) return normalizedDoc/);
+  assert.match(config, /if \(findMany \|\| s3MediaEnabled\) return normalizedDoc/);
   assert.match(config, /renamedFiles\.reverse\(\)/);
   assert.match(route, /if \(!\(await mediaFileStats\(rootPath\)\)\)/);
   assert.match(route, /if \(importedResponse\) return importedResponse/);
@@ -103,7 +103,10 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.match(renderer, /<CodeBlock/);
   assert.match(payloadCms, /Code:\s*\(\{ node \}/);
   assert.match(payloadCms, /data-code-explanation/);
-  assert.match(payloadCms, /data-filename/);
+  assert.doesNotMatch(payloadCms, /data-filename/);
+  assert.match(payloadCms, /topology-shell--ascii/);
+  assert.match(payloadCms, /data-mermaid="true"/);
+  assert.match(payloadCms, /fileTree:[\s\S]*terminal:/);
   assert.match(carousel, /w-full shrink-0/);
   assert.doesNotMatch(carousel, /min-w-full/);
 });

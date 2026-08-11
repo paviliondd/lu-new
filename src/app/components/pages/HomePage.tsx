@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import type { Post, Series } from "@/app/data";
+import type { Author, Post, Series } from "@/app/data";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import HeroRecentWritingSection from "@/app/components/HeroRecentWritingSection";
 import SeriesRow from "@/app/components/SeriesRow";
@@ -13,9 +13,10 @@ import NewsletterSection from "@/app/components/NewsletterSection";
 interface HomePageProps {
   initialPosts: Post[];
   seriesItems: Series[];
+  teamMembers: Author[];
 }
 
-export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
+export default function HomePage({ initialPosts, seriesItems, teamMembers }: HomePageProps) {
   const { t, localePath } = useLanguage();
 
   return (
@@ -53,7 +54,7 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
       </section>
 
       {/* SECTION 3 — Meet the Team (~40vh) */}
-      <MeetTheTeamSection />
+      <MeetTheTeamSection members={teamMembers} />
 
       <NewsletterSection />
 

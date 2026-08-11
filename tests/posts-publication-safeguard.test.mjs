@@ -54,3 +54,11 @@ test("post detail rendering has a valid fallback author and keeps Payload author
   assert.match(detailLoader, /if \(!payload\) \{\s*const fallbackPost = await getFallbackPostBySlug/);
   assert.match(detailLoader, /if \(!doc\) return null/);
 });
+
+test("draft preview requests the latest Payload draft in both slug lookup paths", async () => {
+  const payloadCms = await readFile("src/lib/cms/payload.ts", "utf8");
+  const draftFlags = payloadCms.match(/draft: allowDraft/g) || [];
+
+  assert.equal(draftFlags.length, 2);
+  assert.match(payloadCms, /if \(allowDraft\) return fetchPost\(\)/);
+});

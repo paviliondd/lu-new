@@ -36,8 +36,9 @@ Components:
 
 - Payload Lexical editor (WordPress Gutenberg-like block editor)
 - Upload feature
-- Code block feature
-- Custom terminal, note, and file tree blocks
+- Simplified code block with one free-text language field
+- Dedicated Mermaid/ASCII topology block
+- Compact note block; legacy Terminal and FileTree rendering remains read-compatible
 - Frontend rich text renderer
 - Code block enhancer
 - Gutenberg right sidebar layout (Status, Category, Series, Tags, Featured Image, Excerpt, Author)
@@ -46,7 +47,7 @@ Requirement:
 
 - WordPress-style Gutenberg block editing
 - Floating toolbar & inline formatting (Bold, Italic, Link, Strikethrough, Underline, Subscript/Superscript, Inline Code)
-- Gutenberg blocks: Paragraph, Heading, List, Checklist, Quote, Image, Code block, Table, Separator, Custom blocks (Terminal, Note, FileTree)
+- Gutenberg blocks: Paragraph, Heading, List, Checklist, Quote, Image, simplified Code block, Table, Separator, Note, and Topology
 - Right sidebar document controls
 - Mandatory publish validation (Title VI, Category, and content before publishing)
 - DB-safe Payload configuration (Zero Postgres schema alterations required)
@@ -56,7 +57,7 @@ Regression:
 
 - Create article in `/admin`
 - Edit with Gutenberg floating toolbar and right sidebar controls
-- Add heading, bold text, image, code block, terminal block, note, and file tree
+- Add heading, bold text, image, code block, note, Mermaid topology, and ASCII topology
 - Publish (verifying mandatory title & category validation)
 - Reload frontend
 - Copy code
@@ -68,8 +69,8 @@ Status: Production
 Components:
 
 - Payload `media` collection
-- Upload folder `public/uploads`
-- Docker volume `payload_media`
+- Official Payload S3 storage adapter
+- S3 media bucket and CDN URL in production
 - Next image remote patterns
 
 Requirement:
@@ -84,7 +85,7 @@ Regression:
 - Upload image with alt text
 - Use it as cover image
 - Use it inside rich text
-- Confirm URLs render after container restart
+- Confirm CDN URLs render after container restart
 
 ## Categories, Tags, Series
 

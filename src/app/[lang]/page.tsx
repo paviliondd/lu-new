@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import HomePage from "@/app/components/pages/HomePage";
 import { hasLocale } from "@/i18n/config";
 import { localizedMetadata } from "@/i18n/metadata";
-import { getCmsPublishedPosts, getCmsSeries } from "@/lib/cms/payload";
+import { getCmsAuthors, getCmsPublishedPosts, getCmsSeries } from "@/lib/cms/payload";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +30,10 @@ export async function generateMetadata({
 export default async function HomeRoute({ params }: HomeRouteProps) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  const [posts, seriesItems] = await Promise.all([getCmsPublishedPosts(lang, 6), getCmsSeries(lang, 3)]);
-  return <HomePage initialPosts={posts} seriesItems={seriesItems} />;
+  const [posts, seriesItems, teamMembers] = await Promise.all([
+    getCmsPublishedPosts(lang, 6),
+    getCmsSeries(lang, 3),
+    getCmsAuthors(),
+  ]);
+  return <HomePage initialPosts={posts} seriesItems={seriesItems} teamMembers={teamMembers} />;
 }

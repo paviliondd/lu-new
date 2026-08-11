@@ -83,15 +83,7 @@ export default function RichTextRenderer({
       const caption = parentFigure?.children.find(
         (child): child is Element => child instanceof Element && child.name === "figcaption",
       );
-      const filename = normalizeCodeLabel(
-        domNode.attribs["data-filename"] ||
-          domNode.attribs["data-file"] ||
-          domNode.attribs["data-title"] ||
-          codeElement.attribs["data-filename"] ||
-          (caption ? nodeText(caption) : ""),
-      );
-
-      if (caption && filename) consumed.add(caption);
+      if (caption) consumed.add(caption);
 
       const explanationElement = nextElement(domNode.next as DOMNode | null);
       const explanation =
@@ -108,9 +100,7 @@ export default function RichTextRenderer({
         <CodeBlock
           code={nodeText(codeElement)}
           language={language || undefined}
-          filename={filename || undefined}
           showLineNumbers={false}
-          downloadable={Boolean(filename)}
           highlightedCode={domToReact(
             (highlightedLines.length ? highlightedLines : codeElement.children) as DOMNode[],
             options,

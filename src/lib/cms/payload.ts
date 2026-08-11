@@ -5,7 +5,7 @@ import config from "@payload-config";
 import { marked } from "marked";
 import { getPayload, type Where } from "payload";
 import { FilterXSS } from "xss";
-import { allPosts, posts as fallbackPosts, series as fileSeries, team, type HeroMedia, type Post, type Series } from "@/app/data";
+import { allPosts, posts as fallbackPosts, series as fileSeries, team, type Author, type HeroMedia, type Post, type Series } from "@/app/data";
 import { localizePost, slugifyText, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { normalizeExcerpt } from "@/lib/content/excerpt";
@@ -153,16 +153,24 @@ async function renderLexicalContent(value: unknown) {
         Code: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
           const fields = node.fields || {};
           const language = escapeHtml(fields.language || "text").toLowerCase();
-          const filename = escapeHtml(fields.filename).trim();
           const explanation = escapeHtml(fields.explanation).trim();
           const explanationPanel = explanation
             ? `<aside data-code-explanation><p>${explanation
                 .replace(/\n{2,}/g, "</p><p>")
                 .replace(/\n/g, "<br>")}</p></aside>`
             : "";
-          return `<pre data-language="${language}"${filename ? ` data-filename="${filename}"` : ""}><code class="language-${language}">${escapeHtml(
+          return `<pre data-language="${language}"><code class="language-${language}">${escapeHtml(
             fields.code
           )}</code></pre>${explanationPanel}`;
+        },
+        topology: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
+          const fields = node.fields || {};
+          const source = escapeHtml(fields.source);
+          const caption = escapeHtml(fields.caption);
+          if (fields.format === "ascii") {
+            return `<figure class="topology-shell topology-shell--ascii"><div class="topology-shell__toolbar">Topology</div><pre data-topology-ascii="true">${source}</pre>${caption ? `<figcaption>${caption}</figcaption>` : ""}</figure>`;
+          }
+          return `<pre data-mermaid="true"${caption ? ` data-topology-caption="${caption}"` : ""}><code class="language-mermaid">${source}</code></pre>`;
         },
         fileTree: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
           const fields = node.fields || {};
@@ -231,6 +239,44 @@ function mapPayloadSeries(doc: PayloadDoc): Series {
     tag: asString(doc.tag),
     color: asString(doc.color, "#2563eb"),
   };
+}
+
+function mapPayloadAuthor(doc: PayloadDoc): Author {
+  const name = asString(doc.name, "LinuxUnity");
+  const roleVi = asString(doc.roleVi);
+
+  return {
+    name,
+    role: roleVi,
+    role_en: asString(doc.roleEn, roleVi),
+    avatar: name.trim().charAt(0).toUpperCase() || "L",
+    avatarUrl: mediaUrl(doc.avatar) || null,
+    description: asString(doc.descriptionVi),
+    description_en: asString(doc.descriptionEn, asString(doc.descriptionVi)),
+    linkedin: asString(doc.linkedin),
+    github: asString(doc.github),
+  };
+}
+
+export async function getCmsAuthors(): Promise<Author[]> {
+  const fallback = Object.entries(team)
+    .filter(([slug]) => slug !== "nhatnghia")
+    .map(([, author]) => author);
+  const payload = await getPayloadClient();
+  if (!payload) return fallback;
+
+  try {
+    const result = await payload.find({
+      collection: "authors",
+      depth: 1,
+      limit: 100,
+      sort: "name",
+    });
+    return result.docs.map((doc) => mapPayloadAuthor(asPayloadDoc(doc)));
+  } catch (error) {
+    console.error("Unable to fetch Payload authors", { error });
+    return fallback;
+  }
 }
 
 async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
@@ -521,6 +567,7 @@ async function getPayloadPostBySlug(
 
       const result = await payload.find({
         collection: "posts",
+        draft: allowDraft,
         depth: 2,
         limit: 1,
         overrideAccess: allowDraft,
@@ -533,6 +580,7 @@ async function getPayloadPostBySlug(
       if (!doc) {
         const allDocs = await payload.find({
           collection: "posts",
+          draft: allowDraft,
           depth: 2,
           limit: 100,
           overrideAccess: allowDraft,

@@ -2,6 +2,7 @@ import path from "node:path";
 import { access, rename } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
+import { s3Storage } from "@payloadcms/storage-s3";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
 import { APIError, buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
 import sharp from "sharp";
@@ -21,6 +22,8 @@ function safeRevalidatePath(path: string) {
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const mediaDimensionsCache = new Map<string, { height: number; width: number }>();
+const s3MediaEnabled = Boolean(process.env.S3_MEDIA_BUCKET);
+const mediaCdnUrl = process.env.MEDIA_CDN_URL?.replace(/\/$/, "");
 
 const publicRead = () => true;
 const authenticated = ({ req: { user } }: { req: { user?: unknown } }) => Boolean(user);
@@ -75,27 +78,46 @@ const noteBlock: Block = {
   ],
 };
 
-const terminalBlock: Block = {
-  slug: "terminal",
+const codeBlock: Block = {
+  slug: "Code",
   labels: {
-    singular: "Terminal",
-    plural: "Terminal blocks",
+    singular: "Code block",
+    plural: "Code blocks",
   },
   fields: [
-    { name: "title", type: "text", defaultValue: "Terminal" },
-    { name: "commands", type: "textarea", required: true, admin: { rows: 8 } },
+    {
+      name: "language",
+      type: "text",
+      defaultValue: "bash",
+      admin: { description: "Nhập ngôn ngữ, ví dụ: bash, yaml, json, typescript." },
+    },
+    { name: "code", type: "textarea", required: true, admin: { rows: 14 } },
   ],
 };
 
-const fileTreeBlock: Block = {
-  slug: "fileTree",
+const topologyBlock: Block = {
+  slug: "topology",
   labels: {
-    singular: "File tree",
-    plural: "File trees",
+    singular: "Topology",
+    plural: "Topologies",
   },
   fields: [
-    { name: "title", type: "text", defaultValue: "Project structure" },
-    { name: "tree", type: "textarea", required: true, admin: { rows: 8 } },
+    {
+      name: "format",
+      type: "select",
+      defaultValue: "mermaid",
+      options: [
+        { label: "Mermaid diagram", value: "mermaid" },
+        { label: "ASCII topology", value: "ascii" },
+      ],
+    },
+    { name: "caption", type: "text", label: "Caption (optional)" },
+    {
+      name: "source",
+      type: "textarea",
+      required: true,
+      admin: { rows: 16, description: "Dán Mermaid hoặc sơ đồ ASCII. Không dùng Markdown code fence." },
+    },
   ],
 };
 
@@ -109,7 +131,6 @@ const postEditor: RichTextAdapterProvider<
     BlocksFeature,
     BoldFeature,
     ChecklistFeature,
-    CodeBlock,
     AlignFeature,
     EXPERIMENTAL_TableFeature,
     FixedToolbarFeature,
@@ -129,50 +150,6 @@ const postEditor: RichTextAdapterProvider<
     UploadFeature,
     lexicalEditor,
   } = await import("@payloadcms/richtext-lexical");
-
-  const codeBlock = CodeBlock({
-    defaultLanguage: "bash",
-    languages: {
-      bash: "bash",
-      c: "c",
-      cpp: "cpp",
-      csharp: "csharp",
-      css: "css",
-      diff: "diff",
-      dockerfile: "dockerfile",
-      go: "go",
-      graphql: "graphql",
-      hcl: "hcl",
-      html: "html",
-      ini: "ini",
-      java: "java",
-      javascript: "javascript",
-      json: "json",
-      jsx: "jsx",
-      markdown: "markdown",
-      mermaid: "mermaid",
-      nginx: "nginx",
-      php: "php",
-      plaintext: "plaintext",
-      powershell: "powershell",
-      python: "python",
-      ruby: "ruby",
-      rust: "rust",
-      sql: "sql",
-      terraform: "terraform",
-      toml: "toml",
-      typescript: "typescript",
-      tsx: "tsx",
-      xml: "xml",
-      yaml: "yaml",
-    },
-    fieldOverrides: {
-      labels: {
-        singular: "Code block",
-        plural: "Code blocks",
-      },
-    },
-  });
 
   return lexicalEditor({
     features: ({ defaultFeatures }) => [
@@ -210,9 +187,8 @@ const postEditor: RichTextAdapterProvider<
       BlocksFeature({
         blocks: [
           codeBlock,
-          terminalBlock,
           noteBlock,
-          fileTreeBlock,
+          topologyBlock,
         ],
       }),
       AlignFeature(),
@@ -559,7 +535,7 @@ const Media: CollectionConfig = {
         if (!isRecord(doc)) return doc;
 
         const normalizedDoc = normalizeLegacyMediaDocumentURL(doc);
-        if (findMany) return normalizedDoc;
+        if (findMany || s3MediaEnabled) return normalizedDoc;
 
         try {
           return await hydrateLegacyMediaDocument(normalizedDoc);
@@ -583,6 +559,7 @@ const Media: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc, operation, previousDoc, req }) => {
+        if (s3MediaEnabled) return doc;
         if (req.context?.mediaRenameInProgress) return doc;
         if (!doc || typeof doc !== "object") return doc;
 
@@ -1240,6 +1217,32 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Authors, Series, Posts, Comments, Projects],
+  plugins: [
+    s3Storage({
+      enabled: s3MediaEnabled,
+      bucket: process.env.S3_MEDIA_BUCKET || "local-disabled",
+      collections: {
+        media: {
+          prefix: process.env.S3_MEDIA_PREFIX || "media",
+          disablePayloadAccessControl: true,
+          generateFileURL: mediaCdnUrl
+            ? ({ filename, prefix }) => `${mediaCdnUrl}/${prefix ? `${prefix}/` : ""}${filename}`
+            : undefined,
+        },
+      },
+      config: {
+        region: process.env.S3_MEDIA_REGION || process.env.AWS_DEFAULT_REGION,
+        ...(process.env.S3_MEDIA_ACCESS_KEY_ID && process.env.S3_MEDIA_SECRET_ACCESS_KEY
+          ? {
+              credentials: {
+                accessKeyId: process.env.S3_MEDIA_ACCESS_KEY_ID,
+                secretAccessKey: process.env.S3_MEDIA_SECRET_ACCESS_KEY,
+              },
+            }
+          : {}),
+      },
+    }),
+  ],
   db: postgresAdapter({
     migrationDir: path.resolve(dirname, "migrations"),
     pool: {

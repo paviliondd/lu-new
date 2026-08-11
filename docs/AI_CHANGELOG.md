@@ -533,3 +533,26 @@ Fixed:
 - Restored article-detail rendering for historical `nhatnghia` posts by registering the missing editorial author profile instead of allowing an undefined author to crash server rendering.
 - Deferred local fallback lookup for a post detail until Payload is unavailable or its query fails, avoiding unnecessary fallback reads while the CMS is healthy.
 - Added regression coverage for the author fallback and Payload-authoritative post detail path.
+
+# 2026-08-11 — Footer simplification and learning pipeline
+
+Changed:
+
+- Removed newsletter signup surfaces from the homepage and footer, avoiding duplicate calls to action.
+- Removed the footer social icon controls and increased the logo treatment for a cleaner, brand-led footer.
+- Consolidated Blog, Series, and About into a single accessible `Explore` navigation group.
+- Restored a lightweight directional visual flow for the Explore → Learn → Share pipeline, with the existing reduced-motion safeguard preserved.
+
+# 2026-08-11 — Blog pagination state sync
+
+Fixed:
+
+- Synchronized the client-side Blog pagination state with the route `page` query parameter, so direct navigation and the Page 2 control render the correct page.
+- Updated pagination controls optimistically on click and added a regression test for route-state synchronization.
+
+# 2026-08-11 — Newsletter placement correction
+
+Changed:
+
+- Kept the newsletter hidden on the homepage, while restoring it as a compact footer call to action on Blog, Series, and About pages.
+- Updated the email field example to `Your email address...` and retained submit success and error feedback.

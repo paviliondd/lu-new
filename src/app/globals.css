@@ -769,6 +769,26 @@ iframe {
   animation: liveBubble3 8.5s ease-in-out infinite;
 }
 
+@keyframes pipelineFlow {
+  0%, 12% { transform: translateX(-160%); opacity: 0; }
+  20% { opacity: 0.95; }
+  46% { transform: translateX(230%); opacity: 0.95; }
+  58%, 100% { transform: translateX(230%); opacity: 0; }
+}
+
+@keyframes pipelineNode {
+  0%, 18%, 100% { box-shadow: 0 0 0 0 rgb(20 184 166 / 0); }
+  26%, 38% { box-shadow: 0 0 0 6px rgb(20 184 166 / 0.12); }
+}
+
+.pipeline-flow {
+  animation: pipelineFlow 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.pipeline-node {
+  animation: pipelineNode 3.2s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

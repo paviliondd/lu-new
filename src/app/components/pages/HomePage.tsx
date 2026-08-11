@@ -8,7 +8,6 @@ import { useLanguage } from "@/app/components/LanguageProvider";
 import HeroRecentWritingSection from "@/app/components/HeroRecentWritingSection";
 import SeriesRow from "@/app/components/SeriesRow";
 import MeetTheTeamSection from "@/app/components/MeetTheTeamSection";
-import NewsletterSection from "@/app/components/NewsletterSection";
 
 interface HomePageProps {
   initialPosts: Post[];
@@ -55,8 +54,6 @@ export default function HomePage({ initialPosts, seriesItems }: HomePageProps) {
       {/* SECTION 3 — Meet the Team (~40vh) */}
       <MeetTheTeamSection />
 
-      {/* SECTION 4 — Newsletter (~25vh) */}
-      <NewsletterSection />
     </div>
   );
 }

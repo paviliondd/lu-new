@@ -35,6 +35,7 @@ export default async function BlogRoute({ params, searchParams }: BlogRouteProps
   const posts = await getCmsPublishedPosts(lang);
   return (
     <BlogListPage
+      key={`blog:${query?.page || "1"}:${query?.tag || ""}:${query?.topic || ""}`}
       initialPosts={posts}
       initialPage={Math.max(1, Number(query?.page || 1))}
       initialTag={query?.tag || ""}

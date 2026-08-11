@@ -218,6 +218,7 @@ export default function BlogListPage({
                 <Link
                   href={pageHref(Math.max(1, safePage - 1))}
                   scroll={false}
+                  onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
                   aria-disabled={safePage === 1}
                   className={`inline-flex h-10 items-center justify-center rounded-lg border px-3.5 leading-none ${
                     safePage === 1
@@ -245,6 +246,7 @@ export default function BlogListPage({
                       key={page}
                       href={pageHref(page)}
                       scroll={false}
+                      onClick={() => setCurrentPage(page)}
                       className={`inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-3 leading-none ${
                         page === safePage
                           ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
@@ -258,6 +260,7 @@ export default function BlogListPage({
                 <Link
                   href={pageHref(Math.min(totalPages, safePage + 1))}
                   scroll={false}
+                  onClick={() => setCurrentPage(Math.min(totalPages, safePage + 1))}
                   aria-disabled={safePage === totalPages}
                   className={`inline-flex h-10 items-center justify-center rounded-lg border px-3.5 leading-none ${
                     safePage === totalPages

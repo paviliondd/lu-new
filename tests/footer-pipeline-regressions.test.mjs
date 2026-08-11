@@ -16,6 +16,9 @@ test("footer stays focused and the journey pipeline remains motion-safe", async 
   assert.match(footer, /<NewsletterSection compact \/>/);
   assert.doesNotMatch(footer, /GitHub|LinkedIn|RSS/);
   assert.match(home, /<NewsletterSection \/>/);
+  assert.match(newsletter, /if \(compact\) \{/);
+  assert.match(newsletter, />\s*Newsletter\s*<\/h2>/);
+  assert.match(newsletter, /aria-label="Subscribe"/);
   assert.match(newsletter, /placeholder="Your email address\.\.\."/);
   assert.match(hero, /pipeline-flow/);
   assert.match(styles, /@keyframes pipelineFlow/);

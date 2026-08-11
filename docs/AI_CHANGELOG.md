@@ -564,3 +564,10 @@ Changed:
 - Restored the full `Stay in the loop` email signup on the homepage while retaining the compact Newsletter on child pages.
 - Centered the footer copyright, removed the Explore · Learn · Share tagline and brand subtitle, and increased the logo and wordmark scale.
 - Shortened the homepage content header from `Latest articles` to `Latest`.
+
+# 2026-08-11 - Compact child-page newsletter footer
+
+Changed:
+
+- Replaced the oversized child-page signup card with a compact footer Newsletter row: a short description, email field, and an accessible 44px icon submit control.
+- Kept the full-size `Stay in the loop` signup exclusive to the homepage, including its existing success and error feedback.

@@ -159,7 +159,7 @@ export function getWelcomeHtmlTemplate() {
               <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 28px; margin-bottom: 12px;">
                 <tr>
                   <td style="border-radius: 8px; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); text-align: center;">
-                    <a href="https://linuxunity.com/en/blog" target="_blank" style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); border: 1px solid #14b8a6; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; display: inline-block;">
+                    <a href="https://linuxunity.com/vi/blog" target="_blank" style="background: linear-gradient(135deg, #0d9488 0%, #059669 100%); border: 1px solid #14b8a6; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; display: inline-block;">
                       Explore Articles →
                     </a>
                   </td>

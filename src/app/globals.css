@@ -6,7 +6,7 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-site-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 
   --color-brand-50: #ecfdf5;
@@ -24,6 +24,7 @@
 }
 
 html {
+  --font-sans: var(--font-site-sans), ui-sans-serif, system-ui, sans-serif;
   --article-column-width: 46rem;
   --site-bg: #f7f8fb;
   --site-surface: #ffffff;
@@ -752,26 +753,23 @@ iframe {
 }
 
 .hero-unity-lockup {
-  display: inline-block;
-  padding-bottom: 0.85em;
-}
-
-.hero-unity-anchor {
-  position: relative;
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .hero-journey-word {
-  position: absolute;
-  top: 0.95em;
-  left: 50%;
+  width: 4.4em;
+  margin-top: 0.18em;
+  margin-right: -0.08em;
   color: var(--site-accent);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.62em;
+  font-size: 0.5em;
   font-style: italic;
   font-weight: 400;
+  line-height: 1;
   letter-spacing: 0;
-  transform: translateX(-50%);
+  text-align: center;
   white-space: nowrap;
 }
 

@@ -84,7 +84,6 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
   const featuredPost = posts[0];
   const subPosts = posts.slice(1, 3);
   const heroUnityTitle = t("heroTitleUnity");
-  const unityIIndex = heroUnityTitle.toLowerCase().lastIndexOf("i");
 
   return (
     <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col justify-center border-b theme-border px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -100,14 +99,8 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
         <div className="flex flex-col justify-between items-start text-left p-6 sm:p-8 rounded-2xl border theme-border theme-surface h-full">
           <div className="w-full text-left my-auto">
             <h1 className="hero-unity-lockup text-4xl sm:text-5xl lg:text-5xl font-extrabold tracking-tight leading-none text-left text-slate-950 dark:text-white">
-              {unityIIndex >= 0 ? heroUnityTitle.slice(0, unityIIndex) : heroUnityTitle}
-              {unityIIndex >= 0 && (
-                <span className="hero-unity-anchor">
-                  {heroUnityTitle[unityIIndex]}
-                  <span className="hero-journey-word">{t("heroTitleJourney")}</span>
-                </span>
-              )}
-              {unityIIndex >= 0 && heroUnityTitle.slice(unityIIndex + 1)}
+              <span>{heroUnityTitle}</span>
+              <span className="hero-journey-word">{t("heroTitleJourney")}</span>
             </h1>
 
             <p className="mt-4 text-xs sm:text-sm leading-relaxed theme-muted max-w-md">

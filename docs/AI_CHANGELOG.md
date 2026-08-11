@@ -6,6 +6,9 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Fixed the blank Payload Admin/login page by regenerating the Admin import map with the S3 upload handler and moving the simplified code block away from Payload's reserved `Code` slug; existing `Code` content remains render-compatible.
+- Switched the frontend's global sans font from Geist to Inter, retained Geist Mono for code, and placed `Journey` on a stable centered line below `Unity` without overlap.
+
 - Temporarily made S3 backup upload optional and commented its workflow exports so production deploys continue while the backup bucket is being configured; local VPS backups remain enabled.
 
 - Fixed intermittent draft previews by requesting Payload draft versions explicitly for both direct and fallback slug lookups.

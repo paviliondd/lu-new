@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/app/components/Header";
@@ -9,8 +9,8 @@ import ThemeScript from "@/app/components/ThemeScript";
 import { hasLocale, locales } from "@/i18n/config";
 import { localizedAlternates, siteUrl } from "@/i18n/metadata";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const interSans = Inter({
+  variable: "--font-site-sans",
   subsets: ["latin"],
 });
 
@@ -58,7 +58,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
     <html
       lang={lang}
       data-scroll-behavior="auto"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${interSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-[var(--site-bg)] text-[var(--site-fg)]">

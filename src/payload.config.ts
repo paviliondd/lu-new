@@ -79,7 +79,9 @@ const noteBlock: Block = {
 };
 
 const codeBlock: Block = {
-  slug: "Code",
+  // `Code` is reserved by Payload's built-in CodeBlock feature. A distinct
+  // slug keeps this intentionally simple textarea block on the generic block UI.
+  slug: "codeSnippet",
   labels: {
     singular: "Code block",
     plural: "Code blocks",

@@ -87,7 +87,7 @@ export default function PostListRow({
           <span className="flex items-center gap-1">
             <Eye className="h-3.5 w-3.5" />
             {formatCompactViews(post.views || 0, language)}{" "}
-            {language === "vi" ? "lượt xem" : "views"}
+            views
           </span>
           <span className="sm:ml-auto">{formatReadTime(post.readTime)}</span>
         </div>

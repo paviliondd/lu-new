@@ -523,3 +523,13 @@ Fixed:
 Never break:
 
 - Vietnamese default routing, optional English `/en` routing, dark/light theme, shared responsive series row, and blog carousel navigation.
+
+# 2026-08-11 — English interface and article-rendering recovery
+
+Fixed:
+
+- Standardized public interface copy, forms, buttons, code-block actions, and article controls in English on both `/vi` and `/en`; the active locale still selects Vietnamese or English article content and metadata.
+- Restored the local-content fallback list when Payload is unavailable, while retaining Payload as the sole authority when its query succeeds, including an empty result.
+- Restored article-detail rendering for historical `nhatnghia` posts by registering the missing editorial author profile instead of allowing an undefined author to crash server rendering.
+- Deferred local fallback lookup for a post detail until Payload is unavailable or its query fails, avoiding unnecessary fallback reads while the CMS is healthy.
+- Added regression coverage for the author fallback and Payload-authoritative post detail path.

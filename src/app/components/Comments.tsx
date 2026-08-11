@@ -141,11 +141,7 @@ export default function Comments({
       if (!response.ok) throw new Error(payload.error || "Unable to submit comment");
       setBody("");
       setReplyTo(null);
-      setMessage(
-        language === "vi"
-          ? "Bình luận đã được gửi và đang chờ duyệt."
-          : "Your comment was submitted and is waiting for approval."
-      );
+      setMessage("Your comment was submitted and is waiting for approval.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to submit comment");
     } finally {
@@ -167,10 +163,10 @@ export default function Comments({
     <section className="mt-12 border-t border-slate-200 pt-8 dark:border-slate-800" id="comments">
       <div className="mb-6">
         <h2 className="text-sm font-black uppercase tracking-[0.18em] text-slate-950 dark:text-white">
-          {language === "vi" ? "Bình luận" : "Comments"}
+          Comments
         </h2>
         <p className="mt-1 text-sm text-slate-500">
-          {comments.length} {language === "vi" ? "bình luận" : comments.length === 1 ? "comment" : "comments"}
+          {comments.length} {comments.length === 1 ? "comment" : "comments"}
         </p>
       </div>
 
@@ -180,11 +176,11 @@ export default function Comments({
             <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-950/35">
               <div className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-200">
                 <MessageCircle className="h-4 w-4 text-emerald-400" />
-                {language === "vi" ? "Đăng nhập để tham gia bình luận" : "Sign in to join the conversation"}
+                Sign in to join the conversation
               </div>
               <textarea
                 disabled
-                placeholder={language === "vi" ? "Đăng nhập để bình luận" : "Sign in to comment"}
+                placeholder="Sign in to comment"
                 className="min-h-24 w-full resize-none rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm text-slate-500 outline-none dark:border-slate-700"
               />
             </div>
@@ -227,7 +223,7 @@ export default function Comments({
             {replyTo && (
               <div className="flex items-center justify-between gap-3 rounded-lg border theme-border bg-slate-50 px-3 py-2 text-xs dark:bg-slate-900">
                 <span className="min-w-0 truncate theme-muted">
-                  {language === "vi" ? "Đang trả lời" : "Replying to"}{" "}
+                  Replying to{" "}
                   <strong className="text-slate-800 dark:text-slate-100">{replyTo.name}</strong>
                 </span>
                 <button
@@ -235,14 +231,14 @@ export default function Comments({
                   onClick={() => setReplyTo(null)}
                   className="shrink-0 rounded-md px-2 py-1 font-bold text-slate-500 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
                 >
-                  {language === "vi" ? "Hủy" : "Cancel"}
+                  Cancel
                 </button>
               </div>
             )}
             <textarea
               value={body}
               onChange={(event) => setBody(event.target.value)}
-              placeholder={language === "vi" ? "Viết bình luận" : "Write a comment"}
+              placeholder="Write a comment"
               className="min-h-28 w-full resize-none rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-teal-500 dark:border-slate-700 dark:focus:border-emerald-400"
               required
             />
@@ -259,13 +255,7 @@ export default function Comments({
                 disabled={isSubmitting || body.trim().length < 2}
                 className="min-h-11 rounded-lg bg-slate-950 px-4 py-2 text-sm font-extrabold text-white transition hover:bg-slate-800 disabled:opacity-60 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
               >
-                {isSubmitting
-                  ? language === "vi"
-                    ? "Đang gửi..."
-                    : "Submitting..."
-                  : language === "vi"
-                    ? "Gửi bình luận"
-                    : "Submit comment"}
+                {isSubmitting ? "Submitting..." : "Submit comment"}
               </button>
             </div>
           </form>
@@ -278,12 +268,10 @@ export default function Comments({
         <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center dark:border-slate-800">
           <MessageCircle className="mx-auto mb-2 h-5 w-5 text-slate-400" />
           <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-            {language === "vi" ? "Chưa có bình luận được duyệt" : "No approved comments yet"}
+            No approved comments yet
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            {language === "vi"
-              ? "Hãy đăng nhập và để lại bình luận đầu tiên. Bình luận mới sẽ hiển thị sau khi duyệt."
-              : "Be the first to comment. New comments appear after approval."}
+            Be the first to comment. New comments appear after approval.
           </p>
         </div>
       ) : (
@@ -306,7 +294,7 @@ export default function Comments({
                     onClick={() => startReply(comment)}
                     className="mt-3 inline-flex min-h-9 items-center rounded-lg px-2 text-xs font-bold text-slate-500 transition hover:bg-slate-100 hover:text-teal-700 dark:hover:bg-slate-800 dark:hover:text-emerald-300"
                   >
-                    {language === "vi" ? "Trả lời" : "Reply"}
+                    Reply
                   </button>
                 )}
               </div>

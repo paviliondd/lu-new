@@ -225,7 +225,9 @@ export function LanguageProvider({
   };
 
   const t = (key: keyof typeof translations.vi) => {
-    return translations[optimisticLanguage][key] || translations["vi"][key] || String(key);
+    // Interface copy stays English; the active language continues to select
+    // post content and its locale-specific route.
+    return translations.en[key] || String(key);
   };
 
   return (

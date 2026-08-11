@@ -3,10 +3,8 @@
 import React from "react";
 import { team } from "@/app/data";
 import AuthorAvatar from "@/app/components/AuthorAvatar";
-import { useLanguage } from "@/app/components/LanguageProvider";
 
 export default function MeetTheTeamSection() {
-  const { language } = useLanguage();
   const members = [team.peterparker, team.huynhminhthai].filter(Boolean);
 
   return (
@@ -18,9 +16,7 @@ export default function MeetTheTeamSection() {
               Meet the team behind the journey
             </h2>
             <p className="mt-2 text-base font-serif italic text-slate-600 dark:text-slate-400">
-              {language === "vi"
-                ? '"Chúng tôi viết những gì đang dùng mỗi ngày"'
-                : '"We write what we use every day"'}
+              &ldquo;We write what we use every day&rdquo;
             </p>
           </div>
 
@@ -41,10 +37,10 @@ export default function MeetTheTeamSection() {
                   {member.name}
                 </h3>
                 <p className="mt-1 text-sm font-medium text-teal-700 dark:text-emerald-400">
-                  {language === "vi" ? member.role : member.role_en || member.role}
+                  {member.role_en || member.role}
                 </p>
                 <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400 line-clamp-2">
-                  {language === "vi" ? member.description : member.description_en || member.description}
+                  {member.description_en || member.description}
                 </p>
               </div>
             ))}

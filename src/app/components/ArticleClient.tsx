@@ -27,11 +27,11 @@ interface ArticleClientProps {
 }
 
 function formatPostDate(value: string, language: string) {
-  if (!value) return language === "vi" ? "Chưa xuất bản" : "Unpublished";
+  if (!value) return "Unpublished";
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return language === "vi" ? "Ngày không hợp lệ" : "Invalid date";
+    return "Invalid date";
   }
 
   return date.toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {
@@ -133,10 +133,10 @@ export default function ArticleClient({
           <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
             <div className="flex items-center gap-2.5 text-sm font-bold">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
-              <span>{language === "vi" ? "BẢN NHÁP — BẠN ĐANG XEM TRƯỚC BÀI VIẾT" : "DRAFT — PREVIEW MODE"}</span>
+              <span>DRAFT — PREVIEW MODE</span>
             </div>
             <span className="text-xs font-semibold opacity-80">
-              {language === "vi" ? "Chưa xuất bản công khai" : "Not published yet"}
+              Not published yet
             </span>
           </div>
         )}
@@ -168,14 +168,12 @@ export default function ArticleClient({
                     {author.name}
                   </h4>
                   <p className="mt-0.5 text-[10px] font-medium text-teal-700 dark:text-emerald-300">
-                    {language === "en" ? author.role_en || author.role : author.role}
+                    {author.role_en || author.role}
                   </p>
                 </div>
               </div>
               <p className="text-[11px] leading-relaxed text-gray-500 dark:text-gray-400 mb-4">
-                {language === "en"
-                  ? author.description_en || author.description
-                  : author.description}
+                {author.description_en || author.description}
               </p>
               
               {/* Author socials */}
@@ -246,7 +244,7 @@ export default function ArticleClient({
                       {post.authorName || author.name}
                     </p>
                     <p className="text-xs theme-muted">
-                      {language === "en" ? author.role_en || author.role : author.role}
+                      {author.role_en || author.role}
                     </p>
                   </div>
                 </div>

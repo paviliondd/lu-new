@@ -556,3 +556,11 @@ Changed:
 
 - Kept the newsletter hidden on the homepage, while restoring it as a compact footer call to action on Blog, Series, and About pages.
 - Updated the email field example to `Your email address...` and retained submit success and error feedback.
+
+# 2026-08-11 — Homepage newsletter and footer polish
+
+Changed:
+
+- Restored the full `Stay in the loop` email signup on the homepage while retaining the compact Newsletter on child pages.
+- Centered the footer copyright, removed the Explore · Learn · Share tagline and brand subtitle, and increased the logo and wordmark scale.
+- Shortened the homepage content header from `Latest articles` to `Latest`.

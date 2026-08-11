@@ -127,10 +127,10 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
 
         {/* Right Column: Section Header Bar + Recent Writing Grid */}
         <div className="flex flex-col justify-between h-full space-y-4">
-          {/* Header Bar: "Latest articles" + "View All →" */}
+          {/* Header Bar: "Latest" + "View All →" */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
-              Latest articles
+              Latest
             </h2>
 
             <Link

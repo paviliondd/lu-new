@@ -12,10 +12,10 @@ test("footer stays focused and the journey pipeline remains motion-safe", async 
   ]);
 
   assert.match(footer, /<p[^>]*>Explore<\/p>/);
-  assert.match(footer, /Cloud infrastructure notes/);
+  assert.doesNotMatch(footer, /Cloud infrastructure notes|Explore · Learn · Share/);
   assert.match(footer, /<NewsletterSection compact \/>/);
   assert.doesNotMatch(footer, /GitHub|LinkedIn|RSS/);
-  assert.doesNotMatch(home, /NewsletterSection/);
+  assert.match(home, /<NewsletterSection \/>/);
   assert.match(newsletter, /placeholder="Your email address\.\.\."/);
   assert.match(hero, /pipeline-flow/);
   assert.match(styles, /@keyframes pipelineFlow/);

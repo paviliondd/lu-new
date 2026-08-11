@@ -579,3 +579,10 @@ Changed:
 - Moved the compact Newsletter into the right footer column on child pages and centered the Explore navigation at large breakpoints.
 - Replaced browser-native required-field messaging with an English inline error state that has clear icon, text, focus styling, and screen-reader support.
 - Updated the welcome-email article call to action to open the Vietnamese blog at `/vi/blog` by default.
+
+# 2026-08-11 - Footer column balance
+
+Changed:
+
+- Rebalanced the child-page footer into proportional Logo, Explore, and Newsletter columns.
+- Aligned the Explore heading with its Blog, Series, and About links, and reduced the compact Newsletter form to a more restrained reading-width control.

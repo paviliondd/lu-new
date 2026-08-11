@@ -15,14 +15,14 @@ test("footer stays focused and the journey pipeline remains motion-safe", async 
   assert.match(footer, /<p[^>]*>Explore<\/p>/);
   assert.doesNotMatch(footer, /Cloud infrastructure notes|Explore · Learn · Share/);
   assert.match(footer, /<NewsletterSection compact \/>/);
-  assert.match(footer, /lg:grid-cols-\[2fr_0\.5fr_1fr\]/);
+  assert.match(footer, /lg:grid-cols-\[minmax\(0,1fr\)_10rem_minmax\(0,1fr\)\]/);
   assert.match(footer, /lg:text-left/);
   assert.doesNotMatch(footer, /GitHub|LinkedIn|RSS/);
   assert.match(home, /<NewsletterSection \/>/);
   assert.match(newsletter, /if \(compact\) \{/);
   assert.match(newsletter, />\s*Newsletter\s*<\/h2>/);
   assert.match(newsletter, /aria-label="Subscribe"/);
-  assert.match(newsletter, /max-w-\[15rem\]/);
+  assert.match(newsletter, /max-w-\[17rem\]/);
   assert.match(newsletter, /Enter your email address to subscribe\./);
   assert.doesNotMatch(newsletter, /required/);
   assert.match(newsletter, /placeholder="Your email address\.\.\."/);

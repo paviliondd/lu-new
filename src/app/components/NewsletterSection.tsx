@@ -66,7 +66,7 @@ export default function NewsletterSection({ compact = false }: NewsletterSection
             Subscribed successfully!
           </div>
         ) : (
-          <form onSubmit={handleSubscribe} noValidate className="mt-4 flex max-w-[15rem] items-center gap-2">
+          <form onSubmit={handleSubscribe} noValidate className="mt-4 flex max-w-[17rem] items-center gap-2">
             <label htmlFor={emailInputId} className="sr-only">
               Email address
             </label>

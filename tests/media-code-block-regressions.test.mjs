@@ -127,7 +127,7 @@ test("article title, hero, headings, media, and code share the reading column", 
     globalStyles,
     /\.article-content__body :where\(h1, h2, h3, h4\)[\s\S]*margin-inline: auto/,
   );
-  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,820px\)_15rem\]/);
+  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,46rem\)_13rem\]/);
   assert.doesNotMatch(articleClient, /980px|1100px|1480px/);
 });
 

@@ -101,7 +101,8 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.match(downloadButton, /sanitizeFilename/);
   assert.match(renderer, /from "html-react-parser"/);
   assert.match(renderer, /<CodeBlock/);
-  assert.match(payloadCms, /Code:\s*\(\{ node \}/);
+  assert.match(payloadCms, /Code: renderCodeSnippet/);
+  assert.match(payloadCms, /codeSnippet: renderCodeSnippet/);
   assert.match(payloadCms, /data-code-explanation/);
   assert.doesNotMatch(payloadCms, /data-filename/);
   assert.match(payloadCms, /topology-shell--ascii/);
@@ -109,6 +110,18 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.match(payloadCms, /fileTree:[\s\S]*terminal:/);
   assert.match(carousel, /w-full shrink-0/);
   assert.doesNotMatch(carousel, /min-w-full/);
+});
+
+test("Payload Admin import map includes the S3 client handler and avoids the reserved Code block UI", async () => {
+  const [payloadConfig, importMap] = await Promise.all([
+    readFile("src/payload.config.ts", "utf8"),
+    readFile("src/app/(payload)/admin/importMap.js", "utf8"),
+  ]);
+
+  assert.match(payloadConfig, /slug: "codeSnippet"/);
+  assert.doesNotMatch(payloadConfig, /slug: "Code"/);
+  assert.match(importMap, /@payloadcms\/storage-s3\/client#S3ClientUploadHandler/);
+  assert.doesNotMatch(importMap, /CodeBlockBlockComponent/);
 });
 
 test("article title, hero, headings, media, and code share the reading column", async () => {

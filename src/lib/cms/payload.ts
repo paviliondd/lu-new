@@ -143,6 +143,20 @@ async function renderLexicalContent(value: unknown) {
   if (!isLexicalContent(value)) return "";
 
   const { convertLexicalToHTML } = await import("@payloadcms/richtext-lexical/html");
+  const renderCodeSnippet = ({ node }: { node: { fields?: Record<string, unknown> } }) => {
+    const fields = node.fields || {};
+    const language = escapeHtml(fields.language || "text").toLowerCase();
+    const explanation = escapeHtml(fields.explanation).trim();
+    const explanationPanel = explanation
+      ? `<aside data-code-explanation><p>${explanation
+          .replace(/\n{2,}/g, "</p><p>")
+          .replace(/\n/g, "<br>")}</p></aside>`
+      : "";
+    return `<pre data-language="${language}"><code class="language-${language}">${escapeHtml(
+      fields.code
+    )}</code></pre>${explanationPanel}`;
+  };
+
   const html = convertLexicalToHTML({
     data: value as Parameters<typeof convertLexicalToHTML>[0]["data"],
     disableContainer: true,
@@ -150,19 +164,8 @@ async function renderLexicalContent(value: unknown) {
       ...defaultConverters,
       blocks: {
         ...(defaultConverters.blocks || {}),
-        Code: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
-          const fields = node.fields || {};
-          const language = escapeHtml(fields.language || "text").toLowerCase();
-          const explanation = escapeHtml(fields.explanation).trim();
-          const explanationPanel = explanation
-            ? `<aside data-code-explanation><p>${explanation
-                .replace(/\n{2,}/g, "</p><p>")
-                .replace(/\n/g, "<br>")}</p></aside>`
-            : "";
-          return `<pre data-language="${language}"><code class="language-${language}">${escapeHtml(
-            fields.code
-          )}</code></pre>${explanationPanel}`;
-        },
+        Code: renderCodeSnippet,
+        codeSnippet: renderCodeSnippet,
         topology: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
           const fields = node.fields || {};
           const source = escapeHtml(fields.source);

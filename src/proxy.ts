@@ -61,9 +61,9 @@ export function proxy(request: NextRequest) {
   }
 
   if (hasVietnamesePrefix) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = pathname.replace(/^\/vi(?=\/|$)/, "") || "/";
-    return NextResponse.redirect(redirectUrl, 308);
+    // The default locale is also rewritten internally to `/vi`. Redirecting
+    // this path back to `/` makes the proxy re-enter that rewrite and loops.
+    return NextResponse.next();
   }
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {

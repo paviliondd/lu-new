@@ -131,7 +131,7 @@ test("article title, hero, headings, media, and code share the reading column", 
   assert.doesNotMatch(articleClient, /980px|1100px|1480px/);
 });
 
-test("featured carousel keeps autoplay and shows distinct following posts below", async () => {
+test("featured carousel is user controlled and shows distinct following posts below", async () => {
   const [blogList, carousel] = await Promise.all([
     readFile("src/app/components/pages/BlogListPage.tsx", "utf8"),
     readFile("src/app/components/FeaturedPostsCarousel.tsx", "utf8"),
@@ -139,6 +139,7 @@ test("featured carousel keeps autoplay and shows distinct following posts below"
 
   assert.match(blogList, /const featuredPosts = useMemo\(\(\) => allPublishedPosts\.slice\(0, 3\)/);
   assert.match(blogList, /<FeaturedPostsCarousel posts=\{featuredPosts\}/);
-  assert.match(carousel, /window\.setInterval/);
-  assert.match(carousel, /5500/);
+  assert.doesNotMatch(carousel, /window\.setInterval/);
+  assert.match(carousel, /aria-label="Previous featured post"/);
+  assert.match(carousel, /aria-label="Next featured post"/);
 });

@@ -14,7 +14,7 @@ export default function LanguageToggle() {
     <button
       type="button"
       onClick={toggleLanguage}
-      className={`inline-flex h-10 items-center gap-1.5 rounded-lg border theme-border bg-white px-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer ${
+      className={`inline-flex h-11 items-center gap-1.5 rounded-lg border theme-border bg-white px-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer ${
         isPending ? "opacity-75" : ""
       }`}
       aria-label={`Switch language (Current: ${language.toUpperCase()})`}

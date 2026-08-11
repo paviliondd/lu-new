@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Calendar, Clock } from "lucide-react";
 import type { Post } from "@/app/data";
@@ -27,8 +27,6 @@ export default function FeaturedPostsCarousel({
 }: FeaturedPostsCarouselProps) {
   const { language, localePath } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isManuallyPaused, setIsManuallyPaused] = useState(false);
   const featuredPosts = posts
     .filter((post) => post.status === "published")
     .sort((left, right) => new Date(right.date || 0).getTime() - new Date(left.date || 0).getTime())
@@ -36,29 +34,13 @@ export default function FeaturedPostsCarousel({
   const safeActiveIndex = featuredPosts.length ? activeIndex % featuredPosts.length : 0;
   const activePost = featuredPosts[safeActiveIndex];
 
-  useEffect(() => {
-    if (featuredPosts.length < 2 || isHovered || isManuallyPaused) return;
-    const timer = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % featuredPosts.length);
-    }, 5500);
-    return () => window.clearInterval(timer);
-  }, [featuredPosts.length, isHovered, isManuallyPaused]);
-
-  useEffect(() => {
-    if (!isManuallyPaused) return;
-    const timer = window.setTimeout(() => setIsManuallyPaused(false), 6000);
-    return () => window.clearTimeout(timer);
-  }, [isManuallyPaused]);
-
   if (!activePost) return null;
 
   const changeSlide = (offset: number) => {
-    setIsManuallyPaused(true);
     setActiveIndex((current) => (current + offset + featuredPosts.length) % featuredPosts.length);
   };
 
   const selectSlide = (index: number) => {
-    setIsManuallyPaused(true);
     setActiveIndex(index);
   };
 
@@ -71,8 +53,6 @@ export default function FeaturedPostsCarousel({
       </div>
       <div
         className="group relative overflow-hidden rounded-xl border theme-border bg-slate-900 shadow-sm"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         <div
           className="flex transition-transform duration-500 ease-in-out"
@@ -157,7 +137,7 @@ export default function FeaturedPostsCarousel({
                 changeSlide(-1);
               }}
               aria-label="Previous featured post"
-              className="absolute left-4 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-slate-800 opacity-0 shadow-sm transition hover:bg-white group-hover:opacity-100 focus:opacity-100 cursor-pointer"
+              className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-slate-800 shadow-sm transition hover:bg-white lg:left-4 lg:opacity-0 lg:group-hover:opacity-100 lg:focus:opacity-100"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
@@ -169,11 +149,11 @@ export default function FeaturedPostsCarousel({
                 changeSlide(1);
               }}
               aria-label="Next featured post"
-              className="absolute right-4 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-slate-800 opacity-0 shadow-sm transition hover:bg-white group-hover:opacity-100 focus:opacity-100 cursor-pointer"
+              className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-slate-800 shadow-sm transition hover:bg-white lg:right-4 lg:opacity-0 lg:group-hover:opacity-100 lg:focus:opacity-100"
             >
               <ArrowRight className="h-5 w-5" />
             </button>
-            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+            <div className="absolute bottom-1 left-1/2 z-10 flex -translate-x-1/2 items-center">
               {featuredPosts.map((post, index) => (
                 <button
                   key={post.slug}
@@ -185,8 +165,10 @@ export default function FeaturedPostsCarousel({
                   }}
                   aria-label={`Show featured post ${index + 1}`}
                   aria-current={index === safeActiveIndex}
-                  className={`h-2 rounded-full transition cursor-pointer ${index === safeActiveIndex ? "w-7 bg-white" : "w-2 bg-white/50 hover:bg-white/80"}`}
-                />
+                  className="grid h-11 w-11 cursor-pointer place-items-center"
+                >
+                  <span className={`h-2 rounded-full transition ${index === safeActiveIndex ? "w-7 bg-white" : "w-2 bg-white/50 hover:bg-white/80"}`} />
+                </button>
               ))}
             </div>
           </>

@@ -15,7 +15,7 @@ COPY package.json package-lock.json ./
 COPY patches ./patches
 RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
   && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
-  && node -e "const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = require('sharp/package.json').version; const nested = nextRequire('sharp/package.json').version; if (direct !== '0.33.5' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.33.5')"
+  && node -e "const { readFileSync } = require('node:fs'); const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = JSON.parse(readFileSync('node_modules/sharp/package.json', 'utf8')).version; const nested = nextRequire('sharp').versions.sharp; if (direct !== '0.35.3' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.35.3')"
 
 FROM base AS deps-prod
 
@@ -24,7 +24,7 @@ COPY patches ./patches
 RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
   && npm prune --omit=dev \
   && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
-  && node -e "const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = require('sharp/package.json').version; const nested = nextRequire('sharp/package.json').version; if (direct !== '0.33.5' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.33.5')"
+  && node -e "const { readFileSync } = require('node:fs'); const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = JSON.parse(readFileSync('node_modules/sharp/package.json', 'utf8')).version; const nested = nextRequire('sharp').versions.sharp; if (direct !== '0.35.3' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.35.3')"
 
 FROM base AS builder
 

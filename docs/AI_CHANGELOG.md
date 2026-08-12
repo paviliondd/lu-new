@@ -6,6 +6,10 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Upgraded Next.js to 16.3.0, the Payload CMS suite to 3.88.0, Sharp to 0.35.3, Mermaid to 11.16.1, and DOMPurify to 3.4.13, eliminating all high and critical production dependency advisories.
+- Rebased the Payload Lexical missing-schema hotfix onto `@payloadcms/richtext-lexical@3.88.0` and added regression floors for the security-patched production versions.
+- Updated both Docker dependency stages to validate Sharp 0.35.3 without importing its newly restricted `package.json` export, while still forcing Next and Payload to share one native Sharp installation.
+- Reduced `npm audit --omit=dev` from 15 high and 7 moderate findings to 5 moderate findings; the residual chain is upstream `@payloadcms/db-postgres -> drizzle-kit -> @esbuild-kit/esm-loader -> esbuild`, for which npm currently reports no compatible fix.
 - Patched the upstream Payload Lexical block renderer to handle a missing client schema entry without crashing on `blockReferences`; the patch is re-applied after every local, CI, and production dependency install.
 - Temporarily disabled the Payload S3 adapter and S3 Compose variables so production media remains on the persistent local `payload_media` volume until a dedicated migration can be completed.
 - Normalized malformed protocol-relative Payload media URLs in legacy article HTML so browsers no longer resolve the internal `/api/payload/...` path against an invalid `api` hostname.

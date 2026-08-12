@@ -38,7 +38,7 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
   assert.doesNotMatch(toc, /addEventListener\("scroll"/);
 });
 
-test("media deployment uses persistent local storage while S3 is disabled and shares x64-v1 Sharp with Next", async () => {
+test("media deployment uses persistent local storage while S3 is disabled and shares secure Sharp with Next", async () => {
   const [compose, dockerfile, packageJson] = await Promise.all([
     readFile("docker-compose.yml", "utf8"),
     readFile("Dockerfile", "utf8"),
@@ -55,8 +55,10 @@ test("media deployment uses persistent local storage while S3 is disabled and sh
     (dockerfile.match(/rm -rf node_modules\/next\/node_modules\/sharp/g) || []).length,
     2,
   );
-  assert.equal((dockerfile.match(/Next and Payload must share Sharp 0\.33\.5/g) || []).length, 2);
+  assert.equal((dockerfile.match(/Next and Payload must share Sharp 0\.35\.3/g) || []).length, 2);
+  assert.equal((dockerfile.match(/readFileSync\('node_modules\/sharp\/package\.json'/g) || []).length, 2);
+  assert.doesNotMatch(dockerfile, /require\('sharp\/package\.json'\)/);
   const parsedPackage = JSON.parse(packageJson);
   const dependencies = parsedPackage.dependencies;
-  assert.equal(dependencies.sharp, "0.33.5");
+  assert.equal(dependencies.sharp, "0.35.3");
 });

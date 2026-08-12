@@ -138,7 +138,7 @@ test("Payload Admin keeps local media and safely renders Lexical blocks when cli
     readFile("package.json", "utf8"),
     readFile("Dockerfile", "utf8"),
     readFile("src/app/(payload)/admin/importMap.js", "utf8"),
-    readFile("patches/@payloadcms+richtext-lexical+3.85.2.patch", "utf8"),
+    readFile("patches/@payloadcms+richtext-lexical+3.88.0.patch", "utf8"),
   ]);
   const packageJson = JSON.parse(packageJsonSource);
 
@@ -152,11 +152,26 @@ test("Payload Admin keeps local media and safely renders Lexical blocks when cli
   assert.doesNotMatch(importMap, /@payloadcms\/storage-s3/);
   assert.equal(packageJson.scripts.postinstall, "patch-package");
   assert.equal(packageJson.dependencies["patch-package"], undefined);
-  assert.equal(packageJson.devDependencies["patch-package"], "^8.0.0");
+  assert.equal(packageJson.devDependencies["patch-package"], "8.0.1");
   assert.equal((dockerfile.match(/COPY patches \.\/patches/g) || []).length, 2);
   assert.match(dockerfile, /npm ci --include=optional[\s\S]*npm prune --omit=dev/);
   assert.doesNotMatch(dockerfile, /npm ci --omit=dev/);
   assert.match(lexicalPatch, /blocksField\?\.blockReferences/);
+});
+
+test("production dependencies stay above audited security floors", async () => {
+  const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+  const dependencies = packageJson.dependencies;
+
+  assert.equal(dependencies.next, "16.3.0");
+  assert.equal(dependencies.payload, "3.88.0");
+  assert.equal(dependencies["@payloadcms/db-postgres"], "3.88.0");
+  assert.equal(dependencies["@payloadcms/next"], "3.88.0");
+  assert.equal(dependencies["@payloadcms/richtext-lexical"], "3.88.0");
+  assert.equal(dependencies["@payloadcms/ui"], "3.88.0");
+  assert.equal(dependencies.sharp, "0.35.3");
+  assert.equal(dependencies.mermaid, "11.16.1");
+  assert.equal(packageJson.overrides.dompurify, "3.4.13");
 });
 
 test("article title, hero, headings, media, and code share the reading column", async () => {

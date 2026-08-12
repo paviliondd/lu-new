@@ -2,15 +2,13 @@
 
 ```mermaid
 flowchart TB
-  Internet --> CDN[CDN for public media]
   Internet --> VPS[VPS: Nginx + app + workers]
   VPS --> ECR[(Amazon ECR images)]
-  VPS --> Media[(S3 media bucket)]
-  VPS --> Backup[(S3 backup bucket)]
+  VPS --> Media[(payload_media volume)]
+  VPS -. optional off-host backup .-> Backup[(S3 backup bucket)]
   VPS --> DB[(Postgres volume)]
   VPS --> Cache[(Redis volume)]
   VPS --> Kuma[(Uptime Kuma volume)]
-  Media --> CDN
 ```
 
-The current production target keeps compute and databases on the VPS. S3 removes uploaded media and backup durability from the VPS failure domain; ECR provides immutable application rollback artifacts.
+The current production target keeps compute, databases, and Payload media on the VPS. Pre-deploy backups include the media volume; an optional S3 backup target can move encrypted archives off-host when configured. ECR provides immutable application rollback artifacts.

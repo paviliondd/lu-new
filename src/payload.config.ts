@@ -2,7 +2,6 @@ import path from "node:path";
 import { access, rename } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { s3Storage } from "@payloadcms/storage-s3";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
 import { APIError, buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
 import sharp from "sharp";
@@ -22,8 +21,6 @@ function safeRevalidatePath(path: string) {
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const mediaDimensionsCache = new Map<string, { height: number; width: number }>();
-const s3MediaEnabled = Boolean(process.env.S3_MEDIA_BUCKET);
-const mediaCdnUrl = process.env.MEDIA_CDN_URL?.replace(/\/$/, "");
 
 const publicRead = () => true;
 const authenticated = ({ req: { user } }: { req: { user?: unknown } }) => Boolean(user);
@@ -449,7 +446,7 @@ const Media: CollectionConfig = {
         if (!isRecord(doc)) return doc;
 
         const normalizedDoc = normalizeLegacyMediaDocumentURL(doc);
-        if (findMany || s3MediaEnabled) return normalizedDoc;
+        if (findMany) return normalizedDoc;
 
         try {
           return await hydrateLegacyMediaDocument(normalizedDoc);
@@ -473,7 +470,6 @@ const Media: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc, operation, previousDoc, req }) => {
-        if (s3MediaEnabled) return doc;
         if (req.context?.mediaRenameInProgress) return doc;
         if (!doc || typeof doc !== "object") return doc;
 
@@ -1131,32 +1127,6 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Authors, Series, Posts, Comments, Projects],
-  plugins: [
-    s3Storage({
-      enabled: s3MediaEnabled,
-      bucket: process.env.S3_MEDIA_BUCKET || "local-disabled",
-      collections: {
-        media: {
-          prefix: process.env.S3_MEDIA_PREFIX || "media",
-          disablePayloadAccessControl: true,
-          generateFileURL: mediaCdnUrl
-            ? ({ filename, prefix }) => `${mediaCdnUrl}/${prefix ? `${prefix}/` : ""}${filename}`
-            : undefined,
-        },
-      },
-      config: {
-        region: process.env.S3_MEDIA_REGION || process.env.AWS_DEFAULT_REGION,
-        ...(process.env.S3_MEDIA_ACCESS_KEY_ID && process.env.S3_MEDIA_SECRET_ACCESS_KEY
-          ? {
-              credentials: {
-                accessKeyId: process.env.S3_MEDIA_ACCESS_KEY_ID,
-                secretAccessKey: process.env.S3_MEDIA_SECRET_ACCESS_KEY,
-              },
-            }
-          : {}),
-      },
-    }),
-  ],
   db: postgresAdapter({
     migrationDir: path.resolve(dirname, "migrations"),
     pool: {

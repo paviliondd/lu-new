@@ -6,9 +6,8 @@ flowchart LR
   Nginx --> Next[Next.js App Router]
   Next --> Payload[Payload CMS]
   Payload --> Postgres[(Postgres)]
-  Payload --> S3[(S3 media)]
-  S3 --> CDN[CDN]
-  CDN --> Reader
+  Payload --> Media[(payload_media volume)]
+  Payload --> Reader
   Next --> Redis[(Redis cache)]
   Next -. CMS unavailable .-> Fallback[Local fallback content]
 ```

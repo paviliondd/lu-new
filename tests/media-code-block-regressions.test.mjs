@@ -24,6 +24,25 @@ test("legacy WordPress table of contents is removed while article headings remai
   assert.match(stdout, /<h2 id="section">Section<\/h2>/);
 });
 
+test("malformed protocol-relative Payload media URLs become same-origin paths", async () => {
+  const script = `
+    const { sanitizeArticleHtml } = require("./src/lib/utils/security.ts");
+    process.stdout.write(sanitizeArticleHtml(
+      '<img src=//api/payload/media/file/example.png srcset="/uploads/imported/example.png 320w, //api/payload/media/file/example.png 640w"><source src=//api/payload/media/file/source.png>'
+    ));
+  `;
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    ["--require", "tsx/cjs", "--eval", script],
+    { cwd: process.cwd() },
+  );
+
+  assert.match(stdout, /src="\/api\/payload\/media\/file\/example\.png"/);
+  assert.match(stdout, /srcset="\/uploads\/imported\/example\.png 320w, \/api\/payload\/media\/file\/example\.png 640w"/);
+  assert.match(stdout, /src="\/api\/payload\/media\/file\/source\.png"/);
+  assert.doesNotMatch(stdout, /\/\/api\/payload/);
+});
+
 test("legacy media fallback and rename guards stay wired", async () => {
   const [config, route, payloadCms] = await Promise.all([
     readFile("src/payload.config.ts", "utf8"),
@@ -37,7 +56,7 @@ test("legacy media fallback and rename guards stay wired", async () => {
   assert.match(config, /Không thể đổi tên tệp media/);
   assert.match(config, /afterRead:[\s\S]*hydrateLegacyMediaDocument/);
   assert.match(config, /normalizeLegacyMediaDocumentURL\(doc\)/);
-  assert.match(config, /if \(findMany \|\| s3MediaEnabled\) return normalizedDoc/);
+  assert.match(config, /if \(findMany\) return normalizedDoc/);
   assert.match(config, /renamedFiles\.reverse\(\)/);
   assert.match(route, /if \(!\(await mediaFileStats\(rootPath\)\)\)/);
   assert.match(route, /if \(importedResponse\) return importedResponse/);
@@ -113,19 +132,46 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.doesNotMatch(carousel, /min-w-full/);
 });
 
-test("Payload Admin import map includes the S3 client handler and avoids the reserved Code block UI", async () => {
-  const [payloadConfig, importMap] = await Promise.all([
+test("Payload Admin keeps local media and safely renders Lexical blocks when client schema is missing", async () => {
+  const [payloadConfig, packageJsonSource, dockerfile, importMap, lexicalPatch] = await Promise.all([
     readFile("src/payload.config.ts", "utf8"),
+    readFile("package.json", "utf8"),
+    readFile("Dockerfile", "utf8"),
     readFile("src/app/(payload)/admin/importMap.js", "utf8"),
+    readFile("patches/@payloadcms+richtext-lexical+3.88.0.patch", "utf8"),
   ]);
+  const packageJson = JSON.parse(packageJsonSource);
 
   assert.match(payloadConfig, /slug: "codeSnippet"/);
   assert.match(payloadConfig, /disableBlockName: true/);
   assert.match(payloadConfig, /blocks: \[codeBlock\]/);
   assert.doesNotMatch(payloadConfig, /const (?:noteBlock|topologyBlock)/);
   assert.doesNotMatch(payloadConfig, /slug: "Code"/);
-  assert.match(importMap, /@payloadcms\/storage-s3\/client#S3ClientUploadHandler/);
-  assert.doesNotMatch(importMap, /CodeBlockBlockComponent/);
+  assert.doesNotMatch(payloadConfig, /s3Storage|S3_MEDIA_|MEDIA_CDN_URL/);
+  assert.equal(packageJson.dependencies["@payloadcms/storage-s3"], undefined);
+  assert.doesNotMatch(importMap, /@payloadcms\/storage-s3/);
+  assert.equal(packageJson.scripts.postinstall, "patch-package");
+  assert.equal(packageJson.dependencies["patch-package"], undefined);
+  assert.equal(packageJson.devDependencies["patch-package"], "8.0.1");
+  assert.equal((dockerfile.match(/COPY patches \.\/patches/g) || []).length, 2);
+  assert.match(dockerfile, /npm ci --include=optional[\s\S]*npm prune --omit=dev/);
+  assert.doesNotMatch(dockerfile, /npm ci --omit=dev/);
+  assert.match(lexicalPatch, /blocksField\?\.blockReferences/);
+});
+
+test("production dependencies stay above audited security floors", async () => {
+  const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+  const dependencies = packageJson.dependencies;
+
+  assert.equal(dependencies.next, "16.3.0");
+  assert.equal(dependencies.payload, "3.88.0");
+  assert.equal(dependencies["@payloadcms/db-postgres"], "3.88.0");
+  assert.equal(dependencies["@payloadcms/next"], "3.88.0");
+  assert.equal(dependencies["@payloadcms/richtext-lexical"], "3.88.0");
+  assert.equal(dependencies["@payloadcms/ui"], "3.88.0");
+  assert.equal(dependencies.sharp, "0.35.3");
+  assert.equal(dependencies.mermaid, "11.16.1");
+  assert.equal(packageJson.overrides.dompurify, "3.4.13");
 });
 
 test("article title, hero, headings, media, and code share the reading column", async () => {

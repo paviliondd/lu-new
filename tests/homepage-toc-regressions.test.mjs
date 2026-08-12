@@ -38,15 +38,14 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
   assert.doesNotMatch(toc, /addEventListener\("scroll"/);
 });
 
-test("media deployment keeps the migration volume until S3 cutover and shares x64-v1 Sharp with Next", async () => {
+test("media deployment uses persistent local storage while S3 is disabled and shares secure Sharp with Next", async () => {
   const [compose, dockerfile, packageJson] = await Promise.all([
     readFile("docker-compose.yml", "utf8"),
     readFile("Dockerfile", "utf8"),
     readFile("package.json", "utf8"),
   ]);
 
-  assert.match(compose, /S3_MEDIA_BUCKET/);
-  assert.match(compose, /MEDIA_CDN_URL/);
+  assert.doesNotMatch(compose, /S3_MEDIA_BUCKET|S3_MEDIA_REGION|S3_MEDIA_PREFIX|MEDIA_CDN_URL|S3_MEDIA_ACCESS_KEY_ID|S3_MEDIA_SECRET_ACCESS_KEY/);
   assert.match(compose, /payload_media:\/app\/public\/uploads/);
   assert.match(compose, /media-permissions:[\s\S]*chown -R 1001:1001 \/app\/public\/uploads/);
   assert.match(compose, /translation-work-permissions:[\s\S]*chown -R 1001:1001 \/app\/\.translation-work/);
@@ -56,8 +55,10 @@ test("media deployment keeps the migration volume until S3 cutover and shares x6
     (dockerfile.match(/rm -rf node_modules\/next\/node_modules\/sharp/g) || []).length,
     2,
   );
-  assert.equal((dockerfile.match(/Next and Payload must share Sharp 0\.33\.5/g) || []).length, 2);
+  assert.equal((dockerfile.match(/Next and Payload must share Sharp 0\.35\.3/g) || []).length, 2);
+  assert.equal((dockerfile.match(/readFileSync\('node_modules\/sharp\/package\.json'/g) || []).length, 2);
+  assert.doesNotMatch(dockerfile, /require\('sharp\/package\.json'\)/);
   const parsedPackage = JSON.parse(packageJson);
   const dependencies = parsedPackage.dependencies;
-  assert.equal(dependencies.sharp, "0.33.5");
+  assert.equal(dependencies.sharp, "0.35.3");
 });

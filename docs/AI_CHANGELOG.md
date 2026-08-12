@@ -6,6 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Fixed the Payload Lexical post editor crash (`Cannot read properties of undefined (reading 'blockReferences')`) by preventing duplicate default feature registration while preserving the customized heading/upload features, fixed toolbar, table, and custom code block.
 - Restored the legacy Payload media volume until the S3 migration is complete and changed missing-media redirects to relative public URLs instead of the internal `0.0.0.0:3000` origin.
 - Removed Note and Topology from new-editor choices, hid the simplified Code block name controls, and render fenced `text` network diagrams as compact headerless ASCII topology while preserving legacy block converters.
 - Applied Inter to the projects site, enlarged the homepage Journey word, restored a localized author-description fallback for incomplete CMS profiles, and tightened quote, note, table, figure, and topology spacing.

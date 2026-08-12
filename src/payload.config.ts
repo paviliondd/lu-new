@@ -77,50 +77,19 @@ const postEditor: RichTextAdapterProvider<
   object
 > = async (args) => {
   const {
-    BlockquoteFeature,
     BlocksFeature,
-    BoldFeature,
-    ChecklistFeature,
-    AlignFeature,
     EXPERIMENTAL_TableFeature,
     FixedToolbarFeature,
     HeadingFeature,
-    HorizontalRuleFeature,
-    IndentFeature,
-    InlineCodeFeature,
-    InlineToolbarFeature,
-    ItalicFeature,
-    LinkFeature,
-    OrderedListFeature,
-    StrikethroughFeature,
-    SubscriptFeature,
-    SuperscriptFeature,
-    UnderlineFeature,
-    UnorderedListFeature,
     UploadFeature,
     lexicalEditor,
   } = await import("@payloadcms/richtext-lexical");
 
   return lexicalEditor({
     features: ({ defaultFeatures }) => [
-      ...defaultFeatures,
+      ...defaultFeatures.filter(({ key }) => !["heading", "upload"].includes(key)),
       FixedToolbarFeature(),
-      InlineToolbarFeature(),
       HeadingFeature({ enabledHeadingSizes: ["h1", "h2", "h3", "h4", "h5", "h6"] }),
-      BoldFeature(),
-      ItalicFeature(),
-      UnderlineFeature(),
-      StrikethroughFeature(),
-      SubscriptFeature(),
-      SuperscriptFeature(),
-      InlineCodeFeature(),
-      BlockquoteFeature(),
-      HorizontalRuleFeature(),
-      OrderedListFeature(),
-      UnorderedListFeature(),
-      ChecklistFeature(),
-      IndentFeature(),
-      LinkFeature(),
       UploadFeature({
         enabledCollections: ["media"],
         collections: {
@@ -137,7 +106,6 @@ const postEditor: RichTextAdapterProvider<
       BlocksFeature({
         blocks: [codeBlock],
       }),
-      AlignFeature(),
     ],
   })(args);
 };

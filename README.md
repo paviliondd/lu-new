@@ -12,8 +12,7 @@ flowchart LR
   Nginx --> App[Next.js + Payload]
   App --> Postgres[(PostgreSQL)]
   App --> Redis[(Redis)]
-  App --> S3[(S3 media)]
-  S3 --> CDN[CDN]
+  App --> Media[(payload_media volume)]
   App -. query failure .-> Local[Local fallback]
 ```
 
@@ -24,7 +23,7 @@ The homepage Team section reads the Payload `authors` collection directly. Creat
 - Node.js 24 and npm
 - Docker Engine with Compose v2
 - PostgreSQL and Redis
-- Production: an S3 media bucket/CDN and an S3 backup location
+- Production: a persistent `payload_media` volume and an optional off-host S3 backup location
 
 ```bash
 cp .env.example .env
@@ -32,7 +31,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000` and `http://localhost:3000/admin`. Configure `DATABASE_URL`, `PAYLOAD_SECRET`, PostgreSQL values, and OAuth values when testing comment login. With no `S3_MEDIA_BUCKET`, Payload keeps local storage for development; production should always configure S3.
+Open `http://localhost:3000` and `http://localhost:3000/admin`. Configure `DATABASE_URL`, `PAYLOAD_SECRET`, PostgreSQL values, and OAuth values when testing comment login. Payload currently stores media in the persistent local `payload_media` volume; S3 is intentionally disabled until a separate migration is scheduled.
 
 Quality gates:
 
@@ -42,18 +41,9 @@ npm test
 npm run build
 ```
 
-## Media on S3 and CDN
+## Media storage
 
-The official `@payloadcms/storage-s3` adapter manages Payload uploads. Setting `S3_MEDIA_BUCKET` disables local media storage.
-
-```dotenv
-S3_MEDIA_BUCKET=linuxunity-media
-S3_MEDIA_REGION=ap-southeast-1
-S3_MEDIA_PREFIX=media
-MEDIA_CDN_URL=https://cdn.example.com
-```
-
-Prefer an IAM role. Use `S3_MEDIA_ACCESS_KEY_ID` and `S3_MEDIA_SECRET_ACCESS_KEY` only where role credentials are unavailable. The CDN/bucket must serve public media reads; grant write/delete only to the app identity. Existing local uploads require a one-time object migration and URL verification before the old volume is removed.
+Payload uploads are currently stored in the persistent `payload_media` Docker volume and served through the Payload media route. The S3 adapter and S3 deployment variables are intentionally disabled. Before enabling S3 later, migrate every existing object, verify its public URL, and retain a recoverable local backup through the cutover.
 
 ## Why Compose is structured this way
 
@@ -78,7 +68,7 @@ docker compose -f docker-compose.yml -f docker-compose.build.yml up -d
 - `uptime-kuma`: monitoring data on `uptime_kuma_data`.
 - permission services: initialize writable runtime/translation paths.
 
-The legacy `payload_media` volume remains mounted temporarily so existing images stay available before the S3 migration is complete. After every existing object has been copied to S3 and its CDN URL verified, remove that volume in a dedicated cutover. New production uploads should use S3 once `S3_MEDIA_BUCKET` is configured.
+The `payload_media` volume is the active media store. Keep it mounted, included in backups, and owned by the non-root app user. Do not remove it until a separately verified S3 migration is complete.
 
 ## Why CI/CD is structured this way
 
@@ -103,7 +93,7 @@ CONFIRM_ROLLBACK=yes sh scripts/rollback.sh image <ecr-sha-image>
 CONFIRM_ROLLBACK=yes sh scripts/rollback.sh full ./backups/<timestamp>
 ```
 
-Use S3 bucket versioning and lifecycle policies for media and backup retention. Image-only rollback never mutates data. Full rollback requires explicit confirmation and restores the image named by the backup manifest with its persistent data. Legacy archives containing `payload-media.tgz` remain readable; current media recovery uses S3 versioning/bucket recovery.
+Use lifecycle policies when off-host backup storage is configured. Image-only rollback never mutates data. Full rollback requires explicit confirmation and restores the image named by the backup manifest with its PostgreSQL, media, and runtime data.
 
 ## Repository layout
 

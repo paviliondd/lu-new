@@ -6,6 +6,10 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Patched the upstream Payload Lexical block renderer to handle a missing client schema entry without crashing on `blockReferences`; the patch is re-applied after every local, CI, and production dependency install.
+- Temporarily disabled the Payload S3 adapter and S3 Compose variables so production media remains on the persistent local `payload_media` volume until a dedicated migration can be completed.
+- Normalized malformed protocol-relative Payload media URLs in legacy article HTML so browsers no longer resolve the internal `/api/payload/...` path against an invalid `api` hostname.
+- Added the active local Payload media volume to pre-deploy backups and full restores while local storage remains enabled.
 - Fixed the Payload Lexical post editor crash (`Cannot read properties of undefined (reading 'blockReferences')`) by preventing duplicate default feature registration while preserving the customized heading/upload features, fixed toolbar, table, and custom code block.
 - Restored the legacy Payload media volume until the S3 migration is complete and changed missing-media redirects to relative public URLs instead of the internal `0.0.0.0:3000` origin.
 - Removed Note and Topology from new-editor choices, hid the simplified Code block name controls, and render fenced `text` network diagrams as compact headerless ASCII topology while preserving legacy block converters.

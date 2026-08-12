@@ -45,6 +45,7 @@ test("deployment backs up persistent data and records ECR rollback state", async
   const deployScript = await readFile("scripts/deploy.sh", "utf8");
   const backupScript = await readFile("scripts/backup.sh", "utf8");
   const rollbackScript = await readFile("scripts/rollback.sh", "utf8");
+  const restoreScript = await readFile("scripts/restore.sh", "utf8");
 
   assert.match(deployScript, /BACKUP_REASON=pre-deploy sh scripts\/backup\.sh/);
   assert.match(deployScript, /previous-image/);
@@ -52,7 +53,10 @@ test("deployment backs up persistent data and records ECR rollback state", async
   assert.match(deployScript, /retry_docker_compose_pull "Compose images" --ignore-buildable/);
   assert.match(deployScript, /retry_docker_compose_pull "app image \$\{APP_IMAGE\}" app/);
   assert.match(backupScript, /payload-postgres\.dump/);
-  assert.doesNotMatch(backupScript, /payload-media\.tgz/);
+  assert.match(backupScript, /payload-media\.tgz/);
+  assert.match(backupScript, /tar czf - -C \/app\/public uploads/);
+  assert.match(restoreScript, /rm -rf \/app\/public\/uploads/);
+  assert.match(restoreScript, /tar xzf - -C \/app\/public/);
   assert.match(backupScript, /app-runtime-data\.tgz/);
   assert.match(backupScript, /uptime-kuma-data\.tgz/);
   assert.match(backupScript, /aws s3 cp/);

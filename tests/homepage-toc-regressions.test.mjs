@@ -38,15 +38,14 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
   assert.doesNotMatch(toc, /addEventListener\("scroll"/);
 });
 
-test("media deployment keeps the migration volume until S3 cutover and shares x64-v1 Sharp with Next", async () => {
+test("media deployment uses persistent local storage while S3 is disabled and shares x64-v1 Sharp with Next", async () => {
   const [compose, dockerfile, packageJson] = await Promise.all([
     readFile("docker-compose.yml", "utf8"),
     readFile("Dockerfile", "utf8"),
     readFile("package.json", "utf8"),
   ]);
 
-  assert.match(compose, /S3_MEDIA_BUCKET/);
-  assert.match(compose, /MEDIA_CDN_URL/);
+  assert.doesNotMatch(compose, /S3_MEDIA_BUCKET|S3_MEDIA_REGION|S3_MEDIA_PREFIX|MEDIA_CDN_URL|S3_MEDIA_ACCESS_KEY_ID|S3_MEDIA_SECRET_ACCESS_KEY/);
   assert.match(compose, /payload_media:\/app\/public\/uploads/);
   assert.match(compose, /media-permissions:[\s\S]*chown -R 1001:1001 \/app\/public\/uploads/);
   assert.match(compose, /translation-work-permissions:[\s\S]*chown -R 1001:1001 \/app\/\.translation-work/);

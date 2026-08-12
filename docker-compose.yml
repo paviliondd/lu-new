@@ -41,12 +41,6 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
-      S3_MEDIA_BUCKET: ${S3_MEDIA_BUCKET}
-      S3_MEDIA_REGION: ${S3_MEDIA_REGION:-ap-southeast-1}
-      S3_MEDIA_PREFIX: ${S3_MEDIA_PREFIX:-media}
-      MEDIA_CDN_URL: ${MEDIA_CDN_URL}
-      S3_MEDIA_ACCESS_KEY_ID: ${S3_MEDIA_ACCESS_KEY_ID}
-      S3_MEDIA_SECRET_ACCESS_KEY: ${S3_MEDIA_SECRET_ACCESS_KEY}
     depends_on:
       media-permissions:
         condition: service_completed_successfully

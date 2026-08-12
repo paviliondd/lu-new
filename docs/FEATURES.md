@@ -70,9 +70,9 @@ Status: Production
 Components:
 
 - Payload `media` collection
-- Official Payload S3 storage adapter
-- S3 media bucket and CDN URL in production
-- Next image remote patterns
+- Persistent local `payload_media` volume
+- Payload media route and generated image sizes
+- Pre-deploy media archive and full-restore support
 
 Requirement:
 
@@ -86,7 +86,7 @@ Regression:
 - Upload image with alt text
 - Use it as cover image
 - Use it inside rich text
-- Confirm CDN URLs render after container restart
+- Confirm media URLs render after container restart
 
 ## Categories, Tags, Series
 

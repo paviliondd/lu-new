@@ -7,6 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "node .next/standalone/server.js",
+    "postinstall": "patch-package",
     "lint": "eslint",
     "test": "node --import tsx --test",
     "payload": "payload",
@@ -32,7 +33,6 @@
     "@payloadcms/db-postgres": "^3.85.2",
     "@payloadcms/next": "^3.85.2",
     "@payloadcms/richtext-lexical": "^3.85.2",
-    "@payloadcms/storage-s3": "3.85.2",
     "@payloadcms/ui": "3.85.2",
     "cheerio": "^1.2.0",
     "fast-xml-parser": "^5.8.0",
@@ -61,6 +61,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "happy-dom": "^20.10.6",
+    "patch-package": "^8.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

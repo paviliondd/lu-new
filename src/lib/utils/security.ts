@@ -94,6 +94,10 @@ const blockedDynamicAttributes = new Set([
   "data-srcset",
 ]);
 
+function normalizePayloadMediaURL(value: string) {
+  return value.replace(/^\/\/api\/payload\//i, "/api/payload/");
+}
+
 function sanitizeSrcSet(tag: string, value: string, cssFilter: ICSSFilter) {
   return value
     .split(",")
@@ -101,7 +105,7 @@ function sanitizeSrcSet(tag: string, value: string, cssFilter: ICSSFilter) {
       const [url, ...descriptors] = candidate.trim().split(/\s+/);
       if (!url) return "";
 
-      const safeUrl = safeAttrValue(tag, "src", url, cssFilter);
+      const safeUrl = safeAttrValue(tag, "src", normalizePayloadMediaURL(url), cssFilter);
       if (!safeUrl) return "";
 
       const safeDescriptors = descriptors.filter((descriptor) =>
@@ -123,6 +127,10 @@ const articleXssOptions: IFilterXSSOptions = {
   safeAttrValue(tag, name, value, cssFilter) {
     if (name === "srcset") {
       return sanitizeSrcSet(tag, value, cssFilter);
+    }
+
+    if (name === "src") {
+      return safeAttrValue(tag, name, normalizePayloadMediaURL(value), cssFilter);
     }
 
     return safeAttrValue(tag, name, value, cssFilter);

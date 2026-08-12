@@ -40,8 +40,8 @@ fi
 
 echo "Restoring runtime data..."
 if [ -f "${BACKUP_DIR}/payload-media.tgz" ]; then
-  echo "Legacy local-media archive detected; restore it before enabling S3 media."
-  $COMPOSE run --rm --no-deps --entrypoint sh app -c 'mkdir -p /app/public/uploads; tar xzf - -C /app/public' < "${BACKUP_DIR}/payload-media.tgz"
+  echo "Restoring persistent Payload media..."
+  $COMPOSE run --rm --no-deps --entrypoint sh app -c 'rm -rf /app/public/uploads; mkdir -p /app/public/uploads; tar xzf - -C /app/public' < "${BACKUP_DIR}/payload-media.tgz"
 fi
 if [ -f "${BACKUP_DIR}/app-runtime-data.tgz" ]; then
   $COMPOSE run --rm --no-deps --entrypoint sh app -c 'tar xzf - -C /app' < "${BACKUP_DIR}/app-runtime-data.tgz"

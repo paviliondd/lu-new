@@ -10,7 +10,7 @@ Public data flow:
 
 1. Editors create or update content in Payload collections.
 2. Payload stores structured records in Postgres.
-3. Uploaded images are saved through the `media` collection to S3 and served by the configured CDN in production; local storage is only a development fallback when S3 is not configured.
+3. Uploaded images are saved through the `media` collection to the persistent local `payload_media` volume and served by the Payload media route. The S3 adapter is temporarily disabled.
 4. Frontend pages call `getCmsPublishedPosts` and `getCmsPostBySlug`.
 5. Those functions read from Payload first, map documents into the existing `Post` shape, and fall back to local MDX files when Payload is unavailable.
 6. `/vi` and `/en` render the same Payload document using `titleVi/contentVi` or `titleEn/contentEn`.

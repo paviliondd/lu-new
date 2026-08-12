@@ -28,6 +28,9 @@ $COMPOSE exec -T postgres sh -c 'pg_dump --format=custom --no-owner --no-acl -U 
 echo "Creating persistent runtime-data backup..."
 $COMPOSE exec -T app sh -c 'mkdir -p /app/data && tar czf - -C /app data' > "${TARGET}/app-runtime-data.tgz"
 
+echo "Creating persistent Payload media backup..."
+$COMPOSE exec -T app sh -c 'mkdir -p /app/public/uploads && tar czf - -C /app/public uploads' > "${TARGET}/payload-media.tgz"
+
 KUMA_RESTART=false
 restart_kuma() {
   if [ "$KUMA_RESTART" = true ]; then

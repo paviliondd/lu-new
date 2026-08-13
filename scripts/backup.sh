@@ -12,7 +12,8 @@ ARCHIVE="${TARGET}.tgz"
 
 mkdir -p "$TARGET"
 
-CURRENT_APP_IMAGE="$(docker inspect --format '{{.Config.Image}}' "$($COMPOSE ps -q app)" 2>/dev/null || true)"
+CURRENT_APP_CONTAINER="$($COMPOSE ps -q app 2>/dev/null || true)"
+CURRENT_APP_IMAGE="$(docker inspect --format '{{.Config.Image}}' "$CURRENT_APP_CONTAINER" 2>/dev/null || true)"
 
 cat > "${TARGET}/manifest.env" <<EOF
 BACKUP_FORMAT_VERSION=2
@@ -26,10 +27,12 @@ echo "Creating consistent Postgres custom-format dump..."
 $COMPOSE exec -T postgres sh -c 'pg_dump --format=custom --no-owner --no-acl -U "$POSTGRES_USER" "$POSTGRES_DB"' > "${TARGET}/payload-postgres.dump"
 
 echo "Creating persistent runtime-data backup..."
-$COMPOSE exec -T app sh -c 'mkdir -p /app/data && tar czf - -C /app data' > "${TARGET}/app-runtime-data.tgz"
+[ -n "$CURRENT_APP_CONTAINER" ] || { echo "Current app container is required for volume backup." >&2; exit 1; }
+[ -n "$CURRENT_APP_IMAGE" ] || { echo "Current app image is required for volume backup." >&2; exit 1; }
+docker run --rm --volumes-from "$CURRENT_APP_CONTAINER" --entrypoint sh "$CURRENT_APP_IMAGE" -c 'mkdir -p /app/data && tar czf - -C /app data' > "${TARGET}/app-runtime-data.tgz"
 
 echo "Creating persistent Payload media backup..."
-$COMPOSE exec -T app sh -c 'mkdir -p /app/public/uploads && tar czf - -C /app/public uploads' > "${TARGET}/payload-media.tgz"
+docker run --rm --volumes-from "$CURRENT_APP_CONTAINER" --entrypoint sh "$CURRENT_APP_IMAGE" -c 'mkdir -p /app/public/uploads && tar czf - -C /app/public uploads' > "${TARGET}/payload-media.tgz"
 
 KUMA_RESTART=false
 restart_kuma() {

@@ -5,7 +5,7 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install build dependencies required to compile sharp from source
+# Install dependencies used by the application build
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
      ca-certificates \
@@ -20,25 +20,21 @@ FROM base AS deps
 COPY package.json package-lock.json ./
 COPY patches ./patches
 
-# Force npm to compile sharp from source for host CPU architecture
-ENV npm_config_build_from_source=true
-
 RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
-  && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
-  && node -e "const { readFileSync } = require('node:fs'); const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = JSON.parse(readFileSync('node_modules/sharp/package.json', 'utf8')).version; const nested = nextRequire('sharp').versions.sharp; if (direct !== '0.35.3' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.35.3')"
+  && npm install --no-save --package-lock=false --force @img/sharp-wasm32@0.35.3 \
+  && rm -rf node_modules/@img/sharp-linux-x64 node_modules/@img/sharp-libvips-linux-x64 node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
+  && node -e "const sharp = require('sharp'); if (sharp.versions.sharp !== '0.35.3' || !sharp.versions.emscripten) throw new Error('Sharp 0.35.3 must use WASM on legacy x64')"
 
 FROM base AS deps-prod
 
 COPY package.json package-lock.json ./
 COPY patches ./patches
 
-# Force npm to compile sharp from source for host CPU architecture
-ENV npm_config_build_from_source=true
-
 RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
   && npm prune --omit=dev \
-  && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
-  && node -e "const { readFileSync } = require('node:fs'); const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = JSON.parse(readFileSync('node_modules/sharp/package.json', 'utf8')).version; const nested = nextRequire('sharp').versions.sharp; if (direct !== '0.35.3' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.35.3')"
+  && npm install --omit=dev --no-save --package-lock=false --force @img/sharp-wasm32@0.35.3 \
+  && rm -rf node_modules/@img/sharp-linux-x64 node_modules/@img/sharp-libvips-linux-x64 node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
+  && node -e "const sharp = require('sharp'); if (sharp.versions.sharp !== '0.35.3' || !sharp.versions.emscripten) throw new Error('Sharp 0.35.3 must use WASM on legacy x64')"
 
 FROM base AS builder
 
@@ -73,7 +69,10 @@ COPY --from=builder --chown=nextjs:nextjs /app/src/migrations ./src/migrations
 COPY --from=builder --chown=nextjs:nextjs /app/tsconfig.json ./tsconfig.json
 COPY --from=builder --chown=nextjs:nextjs /app/package.json ./package.json
 
-RUN mkdir -p /app/public/uploads && chown -R nextjs:nextjs /app/public/uploads
+RUN rm -rf node_modules/@img/sharp-linux-x64 node_modules/@img/sharp-libvips-linux-x64 node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
+  && node -e "const sharp = require('sharp'); if (sharp.versions.sharp !== '0.35.3' || !sharp.versions.emscripten) throw new Error('Runner must use Sharp 0.35.3 WASM on legacy x64')" \
+  && mkdir -p /app/public/uploads \
+  && chown -R nextjs:nextjs /app/public/uploads
 
 USER nextjs
 

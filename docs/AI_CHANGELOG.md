@@ -6,6 +6,8 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Forced Sharp 0.35.3 to use its WebAssembly backend in dependency and final runner stages so the production image works on the VPS's x86-64-v1 CPU; native Linux x64 binaries now require x86-64-v2.
+- Made runtime-data and Payload-media backups use a temporary container with the current app container's volumes, allowing pre-deploy backup to complete even when the existing app is in a restart loop.
 - Pinned `sharp` dependency strictly to `0.35.3` in `package.json` and `package-lock.json`, removing the caret prefix `^` to satisfy strict equality checks in regression test suites and Docker build assertions.
 
 ## 2026-08-12

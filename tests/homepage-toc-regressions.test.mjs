@@ -50,13 +50,22 @@ test("media deployment uses persistent local storage while S3 is disabled and sh
   assert.match(compose, /media-permissions:[\s\S]*chown -R 1001:1001 \/app\/public\/uploads/);
   assert.match(compose, /translation-work-permissions:[\s\S]*chown -R 1001:1001 \/app\/\.translation-work/);
   assert.match(compose, /condition: service_completed_successfully/);
-  assert.doesNotMatch(dockerfile, /sharp-wasm32|versions\.emscripten/);
   assert.equal(
-    (dockerfile.match(/rm -rf node_modules\/next\/node_modules\/sharp/g) || []).length,
+    (dockerfile.match(/@img\/sharp-wasm32@0\.35\.3/g) || []).length,
     2,
   );
-  assert.equal((dockerfile.match(/Next and Payload must share Sharp 0\.35\.3/g) || []).length, 2);
-  assert.equal((dockerfile.match(/readFileSync\('node_modules\/sharp\/package\.json'/g) || []).length, 2);
+  assert.equal(
+    (dockerfile.match(/rm -rf node_modules\/@img\/sharp-linux-x64 node_modules\/@img\/sharp-libvips-linux-x64/g) || []).length,
+    3,
+  );
+  assert.equal((dockerfile.match(/versions\.emscripten/g) || []).length, 3);
+  assert.equal(
+    (dockerfile.match(/node_modules\/next\/node_modules\/sharp/g) || []).length,
+    3,
+  );
+  assert.equal((dockerfile.match(/Sharp 0\.35\.3 must use WASM on legacy x64/g) || []).length, 2);
+  assert.equal((dockerfile.match(/sharp\.versions\.sharp !== '0\.35\.3'/g) || []).length, 3);
+  assert.match(dockerfile, /Runner must use Sharp 0\.35\.3 WASM on legacy x64/);
   assert.doesNotMatch(dockerfile, /require\('sharp\/package\.json'\)/);
   const parsedPackage = JSON.parse(packageJson);
   const dependencies = parsedPackage.dependencies;

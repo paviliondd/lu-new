@@ -623,8 +623,10 @@ const Media: CollectionConfig = {
 
 const Authors: CollectionConfig = {
   slug: "authors",
+  labels: { singular: "Team Member", plural: "Team Members" },
   admin: {
     useAsTitle: "name",
+    defaultColumns: ["name", "roleEn", "order"],
   },
   access: {
     read: publicRead,
@@ -645,8 +647,18 @@ const Authors: CollectionConfig = {
     { name: "descriptionVi", type: "textarea", label: "Description VI" },
     { name: "descriptionEn", type: "textarea", label: "Description EN" },
     { name: "avatar", type: "relationship", relationTo: "media" },
-    { name: "linkedin", type: "text" },
-    { name: "github", type: "text" },
+    {
+      name: "socials",
+      type: "group",
+      label: "Social links",
+      fields: [
+        { name: "linkedin", type: "text", label: "LinkedIn URL" },
+        { name: "github", type: "text", label: "GitHub URL" },
+        { name: "twitter", type: "text", label: "Twitter / X URL" },
+        { name: "website", type: "text", label: "Personal website" },
+      ],
+    },
+    { name: "order", type: "number", defaultValue: 0, admin: { position: "sidebar" } },
   ],
 };
 

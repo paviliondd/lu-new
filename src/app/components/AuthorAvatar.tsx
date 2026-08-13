@@ -8,6 +8,7 @@ interface AuthorAvatarProps {
   post?: Pick<Post, "authorAvatar" | "authorName">;
   className?: string;
   imageClassName?: string;
+  sizes?: string;
 }
 
 function isImageSource(value?: string | null) {
@@ -32,6 +33,7 @@ export default function AuthorAvatar({
   post,
   className = "h-8 w-8",
   imageClassName = "",
+  sizes = "48px",
 }: AuthorAvatarProps) {
   const display = getAuthorDisplay(author, post);
 
@@ -42,7 +44,8 @@ export default function AuthorAvatar({
           src={display.avatar}
           alt={display.name}
           fill
-          sizes="48px"
+          sizes={sizes}
+          quality={90}
           className={`object-cover ${imageClassName}`}
         />
       </span>

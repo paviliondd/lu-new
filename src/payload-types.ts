@@ -222,13 +222,8 @@ export interface Author {
   descriptionVi?: string | null;
   descriptionEn?: string | null;
   avatar?: (number | null) | Media;
-  socials?: {
-    linkedin?: string | null;
-    github?: string | null;
-    twitter?: string | null;
-    website?: string | null;
-  };
-  order?: number | null;
+  linkedin?: string | null;
+  github?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -717,15 +712,8 @@ export interface AuthorsSelect<T extends boolean = true> {
   descriptionVi?: T;
   descriptionEn?: T;
   avatar?: T;
-  socials?:
-    | T
-    | {
-        linkedin?: T;
-        github?: T;
-        twitter?: T;
-        website?: T;
-      };
-  order?: T;
+  linkedin?: T;
+  github?: T;
   updatedAt?: T;
   createdAt?: T;
 }

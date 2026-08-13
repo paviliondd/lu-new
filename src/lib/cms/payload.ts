@@ -260,7 +260,6 @@ function mapPayloadSeries(doc: PayloadDoc): Series {
 function mapPayloadAuthor(doc: PayloadDoc): Author {
   const name = asString(doc.name, "LinuxUnity");
   const roleVi = asString(doc.roleVi);
-  const socials = relationDoc(doc.socials) || {};
   const descriptionVi = asString(
     doc.descriptionVi,
     "Thành viên LinuxUnity chia sẻ kinh nghiệm thực tế về Cloud và DevOps.",
@@ -277,15 +276,8 @@ function mapPayloadAuthor(doc: PayloadDoc): Author {
       doc.descriptionEn,
       "A LinuxUnity team member sharing practical Cloud and DevOps experience.",
     ),
-    linkedin: asString(socials.linkedin, asString(doc.linkedin)),
-    github: asString(socials.github, asString(doc.github)),
-    socials: {
-      linkedin: asString(socials.linkedin, asString(doc.linkedin)) || undefined,
-      github: asString(socials.github, asString(doc.github)) || undefined,
-      twitter: asString(socials.twitter) || undefined,
-      website: asString(socials.website) || undefined,
-    },
-    order: asNumber(doc.order, 0),
+    linkedin: asString(doc.linkedin),
+    github: asString(doc.github),
   };
 }
 
@@ -301,7 +293,7 @@ export async function getCmsAuthors(): Promise<Author[]> {
       collection: "authors",
       depth: 1,
       limit: 100,
-      sort: "order",
+      sort: "name",
     });
     return result.docs.map((doc) => mapPayloadAuthor(asPayloadDoc(doc)));
   } catch (error) {

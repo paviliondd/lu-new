@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Link as Website } from "lucide-react";
 import type { Author } from "@/app/data";
 import AuthorAvatar from "@/app/components/AuthorAvatar";
 
@@ -17,26 +16,16 @@ const GithubIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const TwitterIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-);
-
 function MemberCard({ member }: { member: Author }) {
   const socials = {
-    linkedin: member.socials?.linkedin || member.linkedin || undefined,
-    github: member.socials?.github || member.github || undefined,
-    twitter: member.socials?.twitter,
-    website: member.socials?.website,
+    linkedin: member.linkedin || undefined,
+    github: member.github || undefined,
   };
   const hasSocials = Object.values(socials).some(Boolean);
 
   const socialLinks = [
     { key: "linkedin", href: socials.linkedin, label: "LinkedIn", Icon: LinkedinIcon },
     { key: "github", href: socials.github, label: "GitHub", Icon: GithubIcon },
-    { key: "twitter", href: socials.twitter, label: "Twitter / X", Icon: TwitterIcon },
-    { key: "website", href: socials.website, label: "Website", Icon: Website },
   ];
 
   return (
@@ -46,6 +35,7 @@ function MemberCard({ member }: { member: Author }) {
           author={member}
           className="h-[88px] w-[88px] border-[2.5px] border-white bg-slate-100 shadow-sm dark:border-slate-900 dark:bg-slate-800"
           imageClassName="object-cover"
+          sizes="88px"
         />
       </div>
 

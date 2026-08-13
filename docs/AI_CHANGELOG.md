@@ -6,6 +6,11 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- **Hotfix — Payload schema compatibility and UI alignment:** restored the deployed flat `authors.linkedin` and `authors.github` schema after the preceding UI feature introduced an unmigrated `socials` group and `order` field. Production read-only probes showed `/api/payload/posts` and `/api/payload/authors` returning HTTP 500 while `/api/posts` continued serving fallback content. No seed, sync, repair, rollback, migration, database write, or record deletion was executed during this hotfix.
+- Repositioned the homepage `Journey` lockup so its left edge starts below the `i` in `Unity`, retaining the requested larger size, and set the equal desktop footer columns to logo left, Explore plus Blog/Series/About centered, and Subscribe plus its email form right-aligned.
+- Fixed blurred Team author avatars by allowing `AuthorAvatar` callers to declare the rendered image size, requesting an 88px optimized source for the 88px Team card instead of upscaling the previous fixed 48px source, and raising avatar encoding quality to 90; no media record or original upload was modified.
+- Added regression coverage that locks the existing Payload author schema, the Journey offset, and centered footer alignment; regenerated Payload TypeScript types from the restored compatible schema.
+- Updated `README.md` and `docs/PAYLOAD_CMS_FLOW.md` with explicit backup-first schema rules, UI-only data protections, direct Payload health checks, and mandatory feature/hotfix documentation requirements.
 - Added server-side code-language detection that preserves explicit fence tags, keeps `plain`/`text` unhighlighted, uses strong YAML/HCL/Bash and common-language heuristics first, then a constrained highlight.js relevance fallback before safely returning plaintext; Shiki remains the only renderer.
 - Updated the Payload code block default to `auto`, retained manual language overrides, and added unit plus server-pipeline regression coverage for detected YAML and indentation-preserving plaintext topology.
 - Tightened article table sizing to content, preserved Markdown left/center/right alignment, top-aligned multi-line cells, normalized ASCII topology tab spacing, and made the homepage `Journey` word slightly larger and farther right for a more balanced lockup.

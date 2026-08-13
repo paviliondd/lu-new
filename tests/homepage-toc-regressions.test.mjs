@@ -22,12 +22,12 @@ test("homepage fetches six posts, three series, and CMS authors without renderin
   assert.match(payloadCms, /A LinuxUnity team member sharing practical Cloud and DevOps experience/);
 });
 
-test("homepage Journey word is larger and centered below Unity", async () => {
+test("homepage Journey word is larger and starts below the i in Unity", async () => {
   const globalStyles = await readFile("src/app/globals.css", "utf8");
 
-  assert.match(globalStyles, /\.hero-unity-lockup\s*\{[\s\S]*align-items: center/);
+  assert.match(globalStyles, /\.hero-unity-lockup\s*\{[\s\S]*align-items: flex-start/);
   assert.match(globalStyles, /\.hero-journey-word\s*\{[\s\S]*font-size: 0\.875em/);
-  assert.match(globalStyles, /\.hero-journey-word\s*\{[\s\S]*margin-left: 1\.9em/);
+  assert.match(globalStyles, /\.hero-journey-word\s*\{[\s\S]*margin-left: 3\.7em/);
 });
 
 test("table of contents uses observer-based scroll spy and keeps active links visible", async () => {

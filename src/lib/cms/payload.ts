@@ -9,7 +9,11 @@ import { allPosts, posts as fallbackPosts, series as fileSeries, team, type Auth
 import { localizePost, slugifyText, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { normalizeExcerpt } from "@/lib/content/excerpt";
-import { isAsciiTopology, unwrapMarkdownCodeFence } from "@/lib/content/ascii-topology";
+import {
+  isAsciiTopology,
+  resolveCodeBlockLanguage,
+  unwrapMarkdownCodeFence,
+} from "@/lib/content/ascii-topology";
 import { preferredMediaURL as mediaUrl } from "@/lib/cms/media-url";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 import { cachedJson } from "@/lib/server/redis-cache";
@@ -146,9 +150,9 @@ async function renderLexicalContent(value: unknown) {
   const { convertLexicalToHTML } = await import("@payloadcms/richtext-lexical/html");
   const renderCodeSnippet = ({ node }: { node: { fields?: Record<string, unknown> } }) => {
     const fields = node.fields || {};
-    const configuredLanguage = asString(fields.language, "text").toLowerCase();
+    const configuredLanguage = asString(fields.language, "auto").toLowerCase();
     const fenced = unwrapMarkdownCodeFence(asString(fields.code));
-    const language = fenced.language || configuredLanguage;
+    const language = resolveCodeBlockLanguage(configuredLanguage, fenced.language);
     if (isAsciiTopology(fenced.source, language)) {
       return `<figure class="topology-shell topology-shell--ascii"><pre data-topology-ascii="true">${escapeHtml(
         fenced.source,

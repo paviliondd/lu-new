@@ -6,6 +6,9 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- Added server-side code-language detection that preserves explicit fence tags, keeps `plain`/`text` unhighlighted, uses strong YAML/HCL/Bash and common-language heuristics first, then a constrained highlight.js relevance fallback before safely returning plaintext; Shiki remains the only renderer.
+- Updated the Payload code block default to `auto`, retained manual language overrides, and added unit plus server-pipeline regression coverage for detected YAML and indentation-preserving plaintext topology.
+- Tightened article table sizing to content, preserved Markdown left/center/right alignment, top-aligned multi-line cells, normalized ASCII topology tab spacing, and made the homepage `Journey` word slightly larger and farther right for a more balanced lockup.
 - Replaced the incompatible Sharp WebAssembly fallback with a native Sharp 0.35.3 addon linked against libvips 8.18.3 built from source for the baseline `x86-64` ISA, allowing production to run without x86-64-v2 or WebAssembly SIMD.
 - Added pinned libvips source checksum verification, final-runner image processing probes, regression coverage that prevents prebuilt Linux x64 or WASM Sharp backends from returning, and a pull-request workflow that builds and smoke-tests the real runner image before merge.
 - Patched Sharp's diagnostic formatter to preserve the original exception when an error has no `code`, instead of crashing on `err.code.endsWith`, and run Sharp's source-build script through `npm explore` so both its working directory and local `node-gyp` binary resolve correctly.

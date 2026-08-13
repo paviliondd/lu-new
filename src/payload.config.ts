@@ -61,8 +61,8 @@ const codeBlock: Block = {
     {
       name: "language",
       type: "text",
-      defaultValue: "bash",
-      admin: { description: "Nhập ngôn ngữ, ví dụ: bash, yaml, json, typescript." },
+      defaultValue: "auto",
+      admin: { description: "Dùng auto để nhận diện, hoặc nhập bash, yaml, hcl, json, typescript, plain/text." },
     },
     { name: "code", type: "textarea", required: true, admin: { rows: 14 } },
   ],

@@ -3,12 +3,11 @@ import "server-only";
 import { load } from "cheerio";
 import { codeToHtml } from "shiki";
 import {
-  detectCodeLanguage,
   formatCodeSource,
   languageFromClass,
-  normalizeLanguage,
   shouldShowLanguage,
 } from "@/app/components/CodeBlock/syntax";
+import { detectCodeLanguageFromSource } from "@/lib/content/detect-code-language";
 
 export async function highlightCodeBlocks(html: string) {
   if (!html || !html.includes("<pre")) return html;
@@ -22,13 +21,13 @@ export async function highlightCodeBlocks(html: string) {
     if (!code.length) continue;
 
     const originalLanguage = (
-      languageFromClass(code.attr("class")) ||
       code.attr("data-language") ||
       pre.attr("data-language") ||
+      languageFromClass(code.attr("class")) ||
       languageFromClass(pre.attr("class")) ||
-      "text"
+      "auto"
     ).toLowerCase();
-    const source = formatCodeSource(code.text(), originalLanguage);
+    const rawSource = code.text();
 
     if (originalLanguage === "mermaid") {
       pre.addClass("mermaid-source");
@@ -37,8 +36,9 @@ export async function highlightCodeBlocks(html: string) {
       continue;
     }
 
-    const detectedLang = detectCodeLanguage(originalLanguage);
-    const language = normalizeLanguage(detectedLang || originalLanguage);
+    const detection = detectCodeLanguageFromSource(rawSource, originalLanguage);
+    const language = detection.language;
+    const source = formatCodeSource(rawSource, language);
 
     try {
       let highlighted: string;

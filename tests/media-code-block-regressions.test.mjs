@@ -95,13 +95,15 @@ test("legacy imported media URLs take priority without changing native media URL
 });
 
 test("code blocks render as stable React components with accessible copy and download", async () => {
-  const [codeBlock, copyButton, copyUtility, downloadButton, renderer, payloadCms, carousel] = await Promise.all([
+  const [codeBlock, copyButton, copyUtility, downloadButton, renderer, payloadCms, payloadConfig, highlighter, carousel] = await Promise.all([
     readFile("src/app/components/CodeBlock/CodeBlock.tsx", "utf8"),
     readFile("src/app/components/CodeBlock/CopyButton.tsx", "utf8"),
     readFile("src/app/components/CodeBlock/copyText.ts", "utf8"),
     readFile("src/app/components/CodeBlock/DownloadButton.tsx", "utf8"),
     readFile("src/app/components/RichTextRenderer/Renderer.tsx", "utf8"),
     readFile("src/lib/cms/payload.ts", "utf8"),
+    readFile("src/payload.config.ts", "utf8"),
+    readFile("src/lib/content/highlight.ts", "utf8"),
     readFile("src/app/components/FeaturedPostsCarousel.tsx", "utf8"),
   ]);
 
@@ -127,7 +129,14 @@ test("code blocks render as stable React components with accessible copy and dow
   assert.doesNotMatch(payloadCms, /data-filename/);
   assert.match(payloadCms, /topology-shell--ascii/);
   assert.match(payloadCms, /data-mermaid="true"/);
+  assert.match(payloadCms, /resolveCodeBlockLanguage\(configuredLanguage, fenced\.language\)/);
+  assert.match(payloadCms, /asString\(fields\.language, "auto"\)/);
+  assert.doesNotMatch(payloadCms, /asString\(fields\.language, "text"\)/);
   assert.match(payloadCms, /fileTree:[\s\S]*terminal:/);
+  assert.match(payloadConfig, /name: "language",[\s\S]*defaultValue: "auto"/);
+  assert.match(highlighter, /detectCodeLanguageFromSource\(rawSource, originalLanguage\)/);
+  assert.match(highlighter, /const language = detection\.language/);
+  assert.doesNotMatch(highlighter, /\|\|\s*"text"/);
   assert.match(carousel, /w-full shrink-0/);
   assert.doesNotMatch(carousel, /min-w-full/);
 });
@@ -196,6 +205,22 @@ test("article title, hero, headings, media, and code share the reading column", 
   );
   assert.match(articleClient, /xl:grid-cols-\[minmax\(0,46rem\)_13rem\]/);
   assert.doesNotMatch(articleClient, /980px|1100px|1480px/);
+});
+
+test("plain topology preserves alignment and article tables honor Markdown column alignment", async () => {
+  const [globalStyles, renderer] = await Promise.all([
+    readFile("src/app/globals.css", "utf8"),
+    readFile("src/app/components/RichTextRenderer/Renderer.tsx", "utf8"),
+  ]);
+
+  assert.match(renderer, /isAsciiTopology\(fencedCode\.source, topologyLanguage\)/);
+  assert.match(renderer, /data-topology-ascii="true"/);
+  assert.match(globalStyles, /\.article-content \.topology-shell > pre\[data-topology-ascii="true"\][\s\S]*white-space: pre/);
+  assert.match(globalStyles, /\.article-content \.topology-shell > pre\[data-topology-ascii="true"\][\s\S]*tab-size: 2/);
+  assert.match(globalStyles, /\.article-content \.article-table table\s*\{[\s\S]*width: max-content;[\s\S]*min-width: 100%/);
+  assert.match(globalStyles, /vertical-align: top/);
+  assert.match(globalStyles, /:where\(th, td\)\[align="center"\][\s\S]*text-align: center/);
+  assert.match(globalStyles, /:where\(th, td\)\[align="right"\][\s\S]*text-align: right/);
 });
 
 test("featured carousel is user controlled and shows distinct following posts below", async () => {

@@ -2,6 +2,12 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-13
+
+Added & Fixed:
+
+- Pinned `sharp` dependency strictly to `0.35.3` in `package.json` and `package-lock.json`, removing the caret prefix `^` to satisfy strict equality checks in regression test suites and Docker build assertions.
+
 ## 2026-08-12
 
 Added & Fixed:

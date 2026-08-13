@@ -29,7 +29,7 @@ function MemberCard({ member }: { member: Author }) {
   ];
 
   return (
-    <article className="theme-card group flex h-full flex-col items-center rounded-[20px] border theme-border px-5 pb-5 pt-7 text-center transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+    <article className="author-card-glow theme-card group relative flex h-full flex-col items-center overflow-hidden rounded-[20px] border theme-border px-5 pb-5 pt-7 text-center transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
       <div className="mb-4 rounded-full bg-gradient-to-br from-sky-400/55 to-teal-400/15 p-[3px]">
         <AuthorAvatar
           author={member}

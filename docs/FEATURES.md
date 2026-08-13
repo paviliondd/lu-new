@@ -14,7 +14,8 @@ Components:
 Requirements:
 
 - `Journey` starts below the `i` in `Unity` without changing stored CMS data.
-- Explore, Learn, and Share run as a 30-second sequential status pipeline: each node blinks orange before becoming green, and a connector appears only when its destination node is green; reduced-motion mode shows the completed pipeline without animation.
+- Explore, Learn, and Share run as a 30-second status pipeline: a node blinks yellow, turns green, its outgoing connector fills for about 3 seconds, and only then does the next node begin blinking. The completed three-node pipeline pulses green for the final 15 seconds; reduced-motion mode shows it completed without animation.
+- Latest `View All` uses the same unboxed teal/emerald text-link treatment as Explore by series, while Author cards carry a subtle teal/emerald ambient glow consistent with Stay in the loop.
 - Desktop footer columns are equal: the logo is left-aligned, Explore with Blog/Series/About is centered, and Subscribe with its email form is right-aligned.
 - Team avatars request an optimized source matching their rendered size; the 88px Team avatar must not upscale a fixed 48px source.
 - The Team grid uses a single left-aligned `Our crew` label with the same teal/emerald visual treatment as `COLLECTIONS`; it has no secondary title or subtitle.

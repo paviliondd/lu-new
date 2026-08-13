@@ -3,10 +3,11 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("footer stays focused and the journey pipeline remains motion-safe", async () => {
-  const [footer, home, hero, styles, newsletter, smtp] = await Promise.all([
+  const [footer, home, hero, team, styles, newsletter, smtp] = await Promise.all([
     readFile("src/app/components/Footer.tsx", "utf8"),
     readFile("src/app/components/pages/HomePage.tsx", "utf8"),
     readFile("src/app/components/HeroRecentWritingSection.tsx", "utf8"),
+    readFile("src/app/components/MeetTheTeamSection.tsx", "utf8"),
     readFile("src/app/globals.css", "utf8"),
     readFile("src/app/components/NewsletterSection.tsx", "utf8"),
     readFile("src/lib/newsletter/smtp.ts", "utf8"),
@@ -36,11 +37,18 @@ test("footer stays focused and the journey pipeline remains motion-safe", async 
   assert.match(styles, /@keyframes pipelineNodeExplore/);
   assert.match(styles, /@keyframes pipelineNodeLearn/);
   assert.match(styles, /@keyframes pipelineNodeShare/);
-  assert.match(styles, /@keyframes pipelineConnectorLearn/);
-  assert.match(styles, /@keyframes pipelineConnectorShare/);
-  assert.match(styles, /30s[^;]*infinite/);
-  assert.doesNotMatch(styles, /15s[^;]*infinite/);
+  assert.match(styles, /@keyframes pipelineConnectorToLearn/);
+  assert.match(styles, /@keyframes pipelineConnectorToShare/);
+  assert.match(styles, /@keyframes pipelineCompletedPulse/);
+  assert.match(styles, /--pipeline-cycle:\s*30s/);
+  assert.match(styles, /50%, 100%/);
+  assert.match(hero, /pipeline-sequence/);
+  assert.match(styles, /pipelineCompletedPulse var\(--pipeline-cycle\)/);
   assert.match(styles, /#f97316|rgb\(249 115 22/);
   assert.match(styles, /#10b981|rgb\(16 185 129/);
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.doesNotMatch(hero, /rounded-full border border-teal-500\/30/);
+  assert.match(hero, /inline-flex items-center gap-1 text-sm font-bold text-teal-700/);
+  assert.match(team, /author-card-glow/);
+  assert.match(styles, /\.author-card-glow::before/);
 });

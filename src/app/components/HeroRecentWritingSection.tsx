@@ -32,7 +32,7 @@ function FeatureColumns() {
 
   return (
     <div className="pt-6 mt-6 border-t theme-border w-full">
-      <div className="flex items-start justify-between">
+      <div className="pipeline-sequence flex items-start justify-between">
         {features.map((item, idx) => {
           const Icon = item.icon;
           return (
@@ -131,7 +131,7 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
 
             <Link
               href={localePath("/blog")}
-              className="group inline-flex items-center gap-1.5 rounded-full border border-teal-500/30 bg-teal-50/50 dark:bg-teal-950/40 px-3.5 py-1 text-xs sm:text-sm font-semibold text-teal-700 dark:text-emerald-300 transition hover:border-teal-500 hover:bg-teal-100/70 dark:hover:bg-teal-900/60"
+              className="group inline-flex items-center gap-1 text-sm font-bold text-teal-700 transition-colors hover:text-teal-900 dark:text-emerald-300 dark:hover:text-emerald-200"
             >
               <span>{t("viewAll")}</span>
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />

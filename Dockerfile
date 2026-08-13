@@ -5,14 +5,24 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Install build dependencies required to compile sharp from source
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates \
+  && apt-get install -y --no-install-recommends \
+     ca-certificates \
+     build-essential \
+     python3 \
+     pkg-config \
+     libvips-dev \
   && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
 
 COPY package.json package-lock.json ./
 COPY patches ./patches
+
+# Force npm to compile sharp from source for host CPU architecture
+ENV npm_config_build_from_source=true
+
 RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
   && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
   && node -e "const { readFileSync } = require('node:fs'); const { createRequire } = require('node:module'); const nextRequire = createRequire(require.resolve('next/package.json')); const direct = JSON.parse(readFileSync('node_modules/sharp/package.json', 'utf8')).version; const nested = nextRequire('sharp').versions.sharp; if (direct !== '0.35.3' || nested !== direct) throw new Error('Next and Payload must share Sharp 0.35.3')"
@@ -21,6 +31,10 @@ FROM base AS deps-prod
 
 COPY package.json package-lock.json ./
 COPY patches ./patches
+
+# Force npm to compile sharp from source for host CPU architecture
+ENV npm_config_build_from_source=true
+
 RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
   && npm prune --omit=dev \
   && rm -rf node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
@@ -38,8 +52,9 @@ ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
+# Install runtime libvips library along with wget
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends wget \
+  && apt-get install -y --no-install-recommends wget libvips \
   && rm -rf /var/lib/apt/lists/* \
   && groupadd --system --gid 1001 nextjs \
   && useradd --system --uid 1001 --gid nextjs --home-dir /app --shell /usr/sbin/nologin nextjs

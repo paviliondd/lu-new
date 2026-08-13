@@ -8,7 +8,7 @@ Added & Fixed:
 
 - Replaced the incompatible Sharp WebAssembly fallback with a native Sharp 0.35.3 addon linked against libvips 8.18.3 built from source for the baseline `x86-64` ISA, allowing production to run without x86-64-v2 or WebAssembly SIMD.
 - Added pinned libvips source checksum verification, final-runner image processing probes, regression coverage that prevents prebuilt Linux x64 or WASM Sharp backends from returning, and a pull-request workflow that builds and smoke-tests the real runner image before merge.
-- Patched Sharp's diagnostic formatter to preserve the original exception when an error has no `code`, instead of crashing on `err.code.endsWith`, and exposed the lockfile-installed `node-gyp` binary explicitly during the source-build step.
+- Patched Sharp's diagnostic formatter to preserve the original exception when an error has no `code`, instead of crashing on `err.code.endsWith`, and run Sharp's source-build script through `npm explore` so both its working directory and local `node-gyp` binary resolve correctly.
 - Made runtime-data and Payload-media backups use a temporary container with the current app container's volumes, allowing pre-deploy backup to complete even when the existing app is in a restart loop.
 - Pinned `sharp` dependency strictly to `0.35.3` in `package.json` and `package-lock.json`, removing the caret prefix `^` to satisfy strict equality checks in regression test suites and Docker build assertions.
 

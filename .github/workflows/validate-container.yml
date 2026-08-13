@@ -48,6 +48,7 @@ jobs:
             .toBuffer()
             .then((output) => {
               if (sharp.versions.sharp !== "0.35.3") throw new Error(`Unexpected Sharp ${sharp.versions.sharp}`);
+              if (sharp.versions.vips !== "8.18.3") throw new Error(`Unexpected libvips ${sharp.versions.vips}`);
               if (sharp.versions.emscripten) throw new Error("WASM Sharp must not be used");
               if (!output.length) throw new Error("Sharp image probe returned no output");
               console.log({ sharp: sharp.versions.sharp, vips: sharp.versions.vips, bytes: output.length });

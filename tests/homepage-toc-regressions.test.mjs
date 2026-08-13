@@ -54,6 +54,11 @@ test("media deployment uses persistent local storage while S3 is disabled and sh
   assert.match(compose, /condition: service_completed_successfully/);
   assert.match(dockerfile, /ARG LIBVIPS_VERSION=8\.18\.3/);
   assert.match(dockerfile, /-march=x86-64 -mtune=generic/);
+  assert.match(dockerfile, /-mno-ssse3 -mno-sse4\.1 -mno-sse4\.2 -mno-popcnt -mno-avx -mno-avx2/);
+  assert.match(dockerfile, /xz-utils/);
+  assert.match(dockerfile, /-Dauto_features=disabled/);
+  assert.match(dockerfile, /-Dhighway=disabled/);
+  assert.match(dockerfile, /-Dorc=disabled/);
   assert.match(dockerfile, /SHARP_FORCE_GLOBAL_LIBVIPS=1/);
   assert.match(dockerfile, /node node_modules\/sharp\/install\/build\.js/);
   assert.match(dockerfile, /COPY --from=libvips-builder \/opt\/vips-legacy \/opt\/vips-legacy/);
@@ -72,6 +77,7 @@ test("media deployment uses persistent local storage while S3 is disabled and sh
     3,
   );
   assert.match(dockerfile, /sharp\.versions\.sharp !== '0\.35\.3'/);
+  assert.match(dockerfile, /sharp\.versions\.vips !== '8\.18\.3'/);
   assert.match(dockerfile, /sharp\(input,[\s\S]*?\.png\(\)\.toBuffer\(\)/);
   assert.doesNotMatch(sharpPatch, /loadedPrebuilt/);
   assert.match(sharpPatch, /err\.code\?\.endsWith/);

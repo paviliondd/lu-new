@@ -60,7 +60,7 @@ test("media deployment uses persistent local storage while S3 is disabled and sh
   assert.match(dockerfile, /-Dhighway=disabled/);
   assert.match(dockerfile, /-Dorc=disabled/);
   assert.match(dockerfile, /SHARP_FORCE_GLOBAL_LIBVIPS=1/);
-  assert.match(dockerfile, /node node_modules\/sharp\/install\/build\.js/);
+  assert.match(dockerfile, /PATH="\/app\/node_modules\/\.bin:\$\{PATH\}" node node_modules\/sharp\/install\/build\.js/);
   assert.match(dockerfile, /COPY --from=libvips-builder \/opt\/vips-legacy \/opt\/vips-legacy/);
   assert.match(dockerfile, /LD_LIBRARY_PATH=\/opt\/vips-legacy\/lib/);
   assert.doesNotMatch(dockerfile, /sharp-wasm32/);

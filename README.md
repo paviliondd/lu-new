@@ -18,6 +18,8 @@ flowchart LR
 
 The homepage Team section reads the Payload `authors` collection directly. Creating an Author in `/admin` therefore adds that person to Team without a frontend code change.
 
+Payload schema changes are data changes, not presentation-only changes. Do not rename, remove, regroup, or sort by a new database-backed field unless a reviewed migration and a recoverable production backup are included in the same change. UI-only work must preserve the deployed collection schema and must not run seed, sync, import, repair, rollback, or migration commands against production.
+
 ## Requirements and local setup
 
 - Node.js 24 and npm
@@ -113,7 +115,9 @@ tests/               Node tests and actively referenced fixtures
 - Never build production on the VPS or use mutable application tags for deploy.
 - Never treat ECR as database/media backup.
 - Run off-host backups before Payload migrations.
+- For UI-only features and hotfixes, do not modify Payload collection fields or execute data-writing scripts.
 - Preserve the Payload-first fallback model.
+- Update `docs/AI_CHANGELOG.md` for every feature or hotfix and update the README/runbook governing any data path touched by the change.
 - Never commit `.env` or credentials.
 - Use `feature/*`, `bugfix/*`, `hotfix/*`, or `codex/*`; `main` is production only.
 

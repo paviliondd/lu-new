@@ -15,8 +15,11 @@ test("footer stays focused and the journey pipeline remains motion-safe", async 
   assert.match(footer, /<p[^>]*>Explore<\/p>/);
   assert.doesNotMatch(footer, /Cloud infrastructure notes|Explore · Learn · Share/);
   assert.match(footer, /<NewsletterSection compact \/>/);
-  assert.match(footer, /lg:grid-cols-\[minmax\(0,1fr\)_10rem_17rem\]/);
-  assert.match(footer, /lg:text-left/);
+  assert.match(footer, /lg:grid-cols-3/);
+  assert.match(footer, /lg:justify-self-start/);
+  assert.match(footer, /lg:justify-self-center lg:text-center/);
+  assert.match(footer, /lg:justify-center/);
+  assert.match(newsletter, /lg:justify-self-end lg:text-left/);
   assert.doesNotMatch(footer, /GitHub|LinkedIn|RSS/);
   assert.match(home, /<NewsletterSection \/>/);
   assert.match(newsletter, /if \(compact\) \{/);

@@ -1,5 +1,28 @@
 # Feature Registry
 
+## Homepage identity and footer
+
+Status: Production
+
+Components:
+
+- `HeroRecentWritingSection` and the `hero-unity-lockup` styles
+- `MeetTheTeamSection` and shared `AuthorAvatar`
+- `Footer` and compact `NewsletterSection`
+- Payload `authors` collection using the deployed flat `linkedin` and `github` fields
+
+Requirements:
+
+- `Journey` starts below the `i` in `Unity` without changing stored CMS data.
+- Desktop footer columns are equal: the logo is left-aligned, Explore with Blog/Series/About is centered, and Subscribe with its email form is right-aligned.
+- Team avatars request an optimized source matching their rendered size; the 88px Team avatar must not upscale a fixed 48px source.
+- UI-only work must preserve the deployed Payload author schema and must not run data-writing commands.
+
+Regression checks:
+
+- Run `tests/homepage-design-regressions.test.mjs`, `tests/footer-pipeline-regressions.test.mjs`, and `tests/homepage-toc-regressions.test.mjs`.
+- Verify `/api/payload/authors` directly after deployment; frontend fallback content is not proof that Payload is healthy.
+
 ## Blog Post
 
 Status: Production

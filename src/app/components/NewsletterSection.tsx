@@ -52,7 +52,7 @@ export default function NewsletterSection({ compact = false }: NewsletterSection
 
   if (compact) {
     return (
-      <section className="w-full lg:max-w-[17rem] lg:justify-self-end" aria-labelledby="footer-newsletter-title">
+      <section className="w-full lg:max-w-[17rem] lg:justify-self-end lg:text-left" aria-labelledby="footer-newsletter-title">
         <h2 id="footer-newsletter-title" className="text-xs font-bold uppercase tracking-[0.16em] text-slate-950 dark:text-white">
           Subscribe for updates
         </h2>

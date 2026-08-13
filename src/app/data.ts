@@ -8,13 +8,6 @@ export interface Author {
   description_en?: string;
   linkedin: string;
   github: string;
-  socials?: {
-    linkedin?: string;
-    github?: string;
-    twitter?: string;
-    website?: string;
-  };
-  order?: number;
 }
 
 export interface Series {

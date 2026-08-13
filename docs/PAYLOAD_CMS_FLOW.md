@@ -24,6 +24,14 @@ Collections:
 - `series`: series metadata shown on listing pages.
 - `users`: Payload admin users.
 
+## Schema and data safety
+
+- PostgreSQL records and the `payload_postgres_data` volume are authoritative; application images do not contain CMS data.
+- Presentation changes must not alter collection fields. In particular, do not replace existing flat author fields such as `linkedin` and `github` with a group unless a reviewed, backup-first migration copies every existing value.
+- Never run `payload:seed-projects`, `payload:sync-posts`, `payload:sync-series`, repair scripts, Payload migrations, or full rollback as part of a UI-only change.
+- Before any intentional schema migration: capture and verify a database backup, record collection counts, add a forward migration and rollback plan, deploy, then verify the same counts and representative records through Payload APIs.
+- A public frontend response can come from local fallback after a Payload query failure. For CMS health, inspect `/api/payload/<collection>` directly; HTTP 500 means Payload/Postgres is unhealthy even if `/api/posts` still returns fallback articles.
+
 Publishing rule:
 
 Only posts with `status=published` are returned to the public site. Draft posts remain available in `/admin` for authenticated users.

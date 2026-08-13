@@ -39,7 +39,7 @@ function FeatureColumns() {
             <React.Fragment key={item.label}>
               {/* Node Item */}
               <div className="flex flex-col items-center justify-start text-center shrink-0">
-                <div className="pipeline-node relative flex h-9 w-9 items-center justify-center rounded-full border border-teal-400/50 bg-teal-50/50 text-teal-700 dark:border-teal-600/40 dark:bg-teal-950/40 dark:text-teal-300 sm:h-10 sm:w-10">
+                <div className={`pipeline-node pipeline-node--${idx} relative flex h-9 w-9 items-center justify-center rounded-full border sm:h-10 sm:w-10`}>
                   <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
 
@@ -52,9 +52,8 @@ function FeatureColumns() {
 
               {/* Connecting Pipeline Line aligned with badge center */}
               {idx < features.length - 1 && (
-                <div className="relative flex-1 h-[3px] rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 my-4 sm:my-5 mx-2">
-                  <div className="h-full w-full bg-gradient-to-r from-teal-500/70 to-emerald-400/70" />
-                  <span aria-hidden="true" className="pipeline-flow absolute inset-y-0 w-1/2 rounded-full bg-gradient-to-r from-transparent via-white to-transparent dark:via-emerald-100" />
+                <div className="relative mx-2 my-4 h-[3px] flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 sm:my-5">
+                  <span aria-hidden="true" className={`pipeline-connector pipeline-connector--${idx} absolute inset-0 origin-left rounded-full bg-gradient-to-r from-teal-500 to-emerald-400`} />
                 </div>
               )}
             </React.Fragment>

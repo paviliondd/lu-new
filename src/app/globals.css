@@ -850,24 +850,52 @@ iframe {
   animation: liveBubble3 8.5s ease-in-out infinite;
 }
 
-@keyframes pipelineFlow {
-  0%, 12% { transform: translateX(-160%); opacity: 0; }
-  20% { opacity: 0.95; }
-  46% { transform: translateX(230%); opacity: 0.95; }
-  58%, 100% { transform: translateX(230%); opacity: 0; }
-}
-
-@keyframes pipelineNode {
-  0%, 18%, 100% { box-shadow: 0 0 0 0 rgb(20 184 166 / 0); }
-  26%, 38% { box-shadow: 0 0 0 6px rgb(20 184 166 / 0.12); }
-}
-
-.pipeline-flow {
-  animation: pipelineFlow 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-
 .pipeline-node {
-  animation: pipelineNode 3.2s ease-out infinite;
+  border-color: rgb(148 163 184 / 0.55);
+  background: rgb(248 250 252 / 0.8);
+  color: rgb(100 116 139);
+}
+
+@keyframes pipelineNodeExplore {
+  0%, 6%, 12%, 18% { border-color: #f97316; background: rgb(255 237 213 / 0.9); color: #c2410c; box-shadow: 0 0 0 0 rgb(249 115 22 / 0.15); }
+  3%, 9%, 15%, 21% { border-color: #fb923c; background: rgb(255 247 237); color: #ea580c; box-shadow: 0 0 0 6px rgb(249 115 22 / 0.18); }
+  24%, 100% { border-color: #10b981; background: rgb(209 250 229 / 0.85); color: #047857; box-shadow: 0 0 0 3px rgb(16 185 129 / 0.12); }
+}
+
+@keyframes pipelineNodeLearn {
+  0%, 25% { border-color: rgb(148 163 184 / 0.55); background: rgb(248 250 252 / 0.8); color: rgb(100 116 139); box-shadow: none; }
+  28%, 34%, 40%, 46% { border-color: #f97316; background: rgb(255 237 213 / 0.9); color: #c2410c; box-shadow: 0 0 0 0 rgb(249 115 22 / 0.15); }
+  31%, 37%, 43%, 49% { border-color: #fb923c; background: rgb(255 247 237); color: #ea580c; box-shadow: 0 0 0 6px rgb(249 115 22 / 0.18); }
+  52%, 100% { border-color: #10b981; background: rgb(209 250 229 / 0.85); color: #047857; box-shadow: 0 0 0 3px rgb(16 185 129 / 0.12); }
+}
+
+@keyframes pipelineNodeShare {
+  0%, 53% { border-color: rgb(148 163 184 / 0.55); background: rgb(248 250 252 / 0.8); color: rgb(100 116 139); box-shadow: none; }
+  56%, 62%, 68%, 74% { border-color: #f97316; background: rgb(255 237 213 / 0.9); color: #c2410c; box-shadow: 0 0 0 0 rgb(249 115 22 / 0.15); }
+  59%, 65%, 71%, 77% { border-color: #fb923c; background: rgb(255 247 237); color: #ea580c; box-shadow: 0 0 0 6px rgb(249 115 22 / 0.18); }
+  80%, 100% { border-color: #10b981; background: rgb(209 250 229 / 0.85); color: #047857; box-shadow: 0 0 0 3px rgb(16 185 129 / 0.12); }
+}
+
+@keyframes pipelineConnectorLearn {
+  0%, 51% { transform: scaleX(0); opacity: 0; }
+  52%, 100% { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes pipelineConnectorShare {
+  0%, 79% { transform: scaleX(0); opacity: 0; }
+  80%, 100% { transform: scaleX(1); opacity: 1; }
+}
+
+.pipeline-node--0 { animation: pipelineNodeExplore 30s linear infinite; }
+.pipeline-node--1 { animation: pipelineNodeLearn 30s linear infinite; }
+.pipeline-node--2 { animation: pipelineNodeShare 30s linear infinite; }
+.pipeline-connector--0 { animation: pipelineConnectorLearn 30s ease-out infinite; }
+.pipeline-connector--1 { animation: pipelineConnectorShare 30s ease-out infinite; }
+
+.dark .pipeline-node {
+  border-color: rgb(71 85 105 / 0.8);
+  background: rgb(15 23 42 / 0.75);
+  color: rgb(148 163 184);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -878,5 +906,17 @@ iframe {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .pipeline-node {
+    border-color: #10b981 !important;
+    background: rgb(209 250 229 / 0.85) !important;
+    color: #047857 !important;
+    box-shadow: none !important;
+  }
+
+  .pipeline-connector {
+    opacity: 1 !important;
+    transform: scaleX(1) !important;
   }
 }

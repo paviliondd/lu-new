@@ -31,7 +31,16 @@ test("footer stays focused and the journey pipeline remains motion-safe", async 
   assert.doesNotMatch(newsletter, /required/);
   assert.match(newsletter, /placeholder="Your email address\.\.\."/);
   assert.match(smtp, /https:\/\/linuxunity\.com\/vi\/blog/);
-  assert.match(hero, /pipeline-flow/);
-  assert.match(styles, /@keyframes pipelineFlow/);
+  assert.match(hero, /pipeline-node--\$\{idx\}/);
+  assert.match(hero, /pipeline-connector--\$\{idx\}/);
+  assert.match(styles, /@keyframes pipelineNodeExplore/);
+  assert.match(styles, /@keyframes pipelineNodeLearn/);
+  assert.match(styles, /@keyframes pipelineNodeShare/);
+  assert.match(styles, /@keyframes pipelineConnectorLearn/);
+  assert.match(styles, /@keyframes pipelineConnectorShare/);
+  assert.match(styles, /30s[^;]*infinite/);
+  assert.doesNotMatch(styles, /15s[^;]*infinite/);
+  assert.match(styles, /#f97316|rgb\(249 115 22/);
+  assert.match(styles, /#10b981|rgb\(16 185 129/);
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 });

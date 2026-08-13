@@ -10,6 +10,14 @@ import {
   formatLanguageLabel,
   normalizeLanguage,
 } from "../src/app/components/CodeBlock/syntax.ts";
+import {
+  detectCodeLanguageFromSource,
+  heuristicDetectCodeLanguage,
+} from "../src/lib/content/detect-code-language.ts";
+import {
+  resolveCodeBlockLanguage,
+  unwrapMarkdownCodeFence,
+} from "../src/lib/content/ascii-topology.ts";
 
 test("code language aliases resolve to Shiki languages", () => {
   assert.equal(normalizeLanguage("js"), "javascript");
@@ -18,6 +26,8 @@ test("code language aliases resolve to Shiki languages", () => {
   assert.equal(normalizeLanguage("md"), "markdown");
   assert.equal(normalizeLanguage("golang"), "go");
   assert.equal(languageFromClass("foo language-json bar"), "json");
+  assert.equal(normalizeLanguage("plain"), "text");
+  assert.equal(normalizeLanguage("text"), "text");
 });
 
 test("code language labels use lowercase display casing", () => {
@@ -51,6 +61,64 @@ test("code language selection relies on explicit language input without auto-det
   assert.equal(formatLanguageLabel("plaintext"), "");
   assert.equal(formatLanguageLabel(""), "");
   assert.equal(normalizeCodeLabel("plaintext"), "");
+});
+
+test("explicit code language wins and plaintext opt-out is preserved", () => {
+  assert.deepEqual(detectCodeLanguageFromSource("echo hello", "python"), {
+    language: "python",
+    source: "explicit",
+  });
+  assert.deepEqual(detectCodeLanguageFromSource("const ready = true", "plain"), {
+    language: "text",
+    source: "explicit",
+  });
+});
+
+test("code language heuristics identify YAML HCL and Bash without a fence tag", () => {
+  assert.equal(
+    heuristicDetectCodeLanguage("apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web"),
+    "yaml",
+  );
+  assert.equal(
+    heuristicDetectCodeLanguage('resource "aws_instance" "web" {\n  instance_type = "t3.micro"\n}'),
+    "hcl",
+  );
+  assert.equal(heuristicDetectCodeLanguage('export APP_ENV=prod\necho "$APP_ENV"'), "bash");
+  assert.equal(heuristicDetectCodeLanguage("npm install highlight.js"), "bash");
+  assert.equal(heuristicDetectCodeLanguage("cd /srv/app\nls -la"), "bash");
+  assert.equal(
+    heuristicDetectCodeLanguage(
+      'module "vpc" {\n  source = "terraform-aws-modules/vpc/aws"\n  version = "5.0"\n}',
+    ),
+    "hcl",
+  );
+  assert.equal(heuristicDetectCodeLanguage("version=2\necho $version"), "bash");
+  assert.equal(heuristicDetectCodeLanguage("source = documentation"), null);
+});
+
+test("Payload explicit language wins over an embedded fence while auto defers to it", () => {
+  assert.equal(resolveCodeBlockLanguage("plain", "javascript"), "plain");
+  assert.equal(resolveCodeBlockLanguage("text", "python"), "text");
+  assert.equal(resolveCodeBlockLanguage("yaml", "bash"), "yaml");
+  assert.equal(resolveCodeBlockLanguage("auto", "typescript"), "typescript");
+  assert.equal(resolveCodeBlockLanguage("", "hcl"), "hcl");
+  assert.equal(resolveCodeBlockLanguage("auto", ""), "auto");
+});
+
+test("automatic code detection uses a safe plaintext fallback for weak prose", () => {
+  assert.deepEqual(detectCodeLanguageFromSource("This is a short explanatory sentence."), {
+    language: "text",
+    source: "fallback",
+  });
+});
+
+test("plain fenced topology keeps meaningful leading spaces", () => {
+  const topology = "```plain\n    ┌──────┐\n    │ web  │\n    └──────┘\n       │\n    database\n```";
+
+  assert.deepEqual(unwrapMarkdownCodeFence(topology), {
+    language: "plain",
+    source: "    ┌──────┐\n    │ web  │\n    └──────┘\n       │\n    database",
+  });
 });
 
 test("configured Shiki light and dark themes render together", async () => {

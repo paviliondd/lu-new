@@ -42,7 +42,8 @@ export function languageFromClass(className = "") {
 
 export function normalizeLanguage(language = "") {
   const normalized = language.trim().toLowerCase();
-  if (!normalized || plainTextLanguages.includes(normalized)) return DEFAULT_CODE_LANGUAGE;
+  if (!normalized) return DEFAULT_CODE_LANGUAGE;
+  if (plainTextLanguages.includes(normalized)) return "text";
   return languageAliases[normalized] || DEFAULT_CODE_LANGUAGE;
 }
 
@@ -129,7 +130,7 @@ export function formatLanguageLabel(language = "") {
 }
 
 export function shouldShowLanguage(_language?: unknown) {
-  return Boolean(_language) || true;
+  return Boolean(formatLanguageLabel(typeof _language === "string" ? _language : ""));
 }
 
 export function formatCodeSource(source: string, language: string) {

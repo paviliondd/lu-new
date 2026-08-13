@@ -424,8 +424,8 @@ iframe {
 }
 
 .article-content .article-table table {
-  width: 100%;
-  min-width: 32rem;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
@@ -437,6 +437,15 @@ iframe {
   border-bottom: 1px solid var(--article-panel-border);
   padding: 0.4rem 0.6rem;
   text-align: left;
+  vertical-align: top;
+}
+
+.article-content .article-table :where(th, td)[align="center"] {
+  text-align: center;
+}
+
+.article-content .article-table :where(th, td)[align="right"] {
+  text-align: right;
 }
 
 .article-content th {
@@ -732,6 +741,7 @@ iframe {
   font-size: 0.875rem;
   line-height: 1.5;
   text-align: left;
+  tab-size: 2;
   white-space: pre;
 }
 
@@ -751,10 +761,10 @@ iframe {
 .hero-journey-word {
   width: 4.4em;
   margin-top: 0.18em;
-  margin-right: -0.08em;
+  margin-right: -0.16em;
   color: var(--site-accent);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.7em;
+  font-size: 0.76em;
   font-style: italic;
   font-weight: 400;
   line-height: 1;

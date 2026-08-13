@@ -1,0 +1,56 @@
+name: Validate Container
+
+on:
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - "package.json"
+      - "package-lock.json"
+      - "patches/**"
+      - ".github/workflows/validate-container.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-runner:
+    name: Build production runner image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build production runner
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          target: runner
+          push: false
+          load: true
+          tags: linuxunity-blog:pr-${{ github.event.pull_request.number || github.run_id }}
+          cache-from: type=gha,scope=container-validation
+          cache-to: type=gha,scope=container-validation,mode=min
+
+      - name: Verify final image as the production user
+        shell: bash
+        run: |
+          IMAGE="linuxunity-blog:pr-${{ github.event.pull_request.number || github.run_id }}"
+          docker run --rm --entrypoint node "$IMAGE" -e '
+          const sharp = require("sharp");
+          const input = Buffer.from([255, 0, 0, 255]);
+          sharp(input, { raw: { width: 1, height: 1, channels: 4 } })
+            .png()
+            .toBuffer()
+            .then((output) => {
+              if (sharp.versions.sharp !== "0.35.3") throw new Error(`Unexpected Sharp ${sharp.versions.sharp}`);
+              if (sharp.versions.vips !== "8.18.3") throw new Error(`Unexpected libvips ${sharp.versions.vips}`);
+              if (sharp.versions.emscripten) throw new Error("WASM Sharp must not be used");
+              if (!output.length) throw new Error("Sharp image probe returned no output");
+              console.log({ sharp: sharp.versions.sharp, vips: sharp.versions.vips, bytes: output.length });
+            });
+          '

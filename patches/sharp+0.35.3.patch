@@ -1,0 +1,26 @@
+diff --git a/node_modules/sharp/dist/sharp.cjs b/node_modules/sharp/dist/sharp.cjs
+index 8ee4301..5ef3621 100644
+--- a/node_modules/sharp/dist/sharp.cjs
++++ b/node_modules/sharp/dist/sharp.cjs
+@@ -112,7 +112,7 @@ if (!sharp) {
+ 
+   const help = [`Could not load the "sharp" module using the ${runtimePlatform} runtime`];
+   errors.forEach((err) => {
+-    if (!err.code.endsWith("MODULE_NOT_FOUND")) {
++    if (!err.code?.endsWith("MODULE_NOT_FOUND")) {
+       help.push(`${err.code}: ${err.message}`);
+     }
+   });
+diff --git a/node_modules/sharp/dist/sharp.mjs b/node_modules/sharp/dist/sharp.mjs
+index d1b6bd4..a94fc06 100644
+--- a/node_modules/sharp/dist/sharp.mjs
++++ b/node_modules/sharp/dist/sharp.mjs
+@@ -112,7 +112,7 @@ if (!sharp) {
+ 
+   const help = [`Could not load the "sharp" module using the ${runtimePlatform} runtime`];
+   errors.forEach((err) => {
+-    if (!err.code.endsWith("MODULE_NOT_FOUND")) {
++    if (!err.code?.endsWith("MODULE_NOT_FOUND")) {
+       help.push(`${err.code}: ${err.message}`);
+     }
+   });

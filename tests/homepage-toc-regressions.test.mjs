@@ -39,10 +39,12 @@ test("table of contents uses observer-based scroll spy and keeps active links vi
 });
 
 test("media deployment uses persistent local storage while S3 is disabled and shares secure Sharp with Next", async () => {
-  const [compose, dockerfile, packageJson] = await Promise.all([
+  const [compose, dockerfile, packageJson, sharpPatch, containerWorkflow] = await Promise.all([
     readFile("docker-compose.yml", "utf8"),
     readFile("Dockerfile", "utf8"),
     readFile("package.json", "utf8"),
+    readFile("patches/sharp+0.35.3.patch", "utf8"),
+    readFile(".github/workflows/validate-container.yml", "utf8"),
   ]);
 
   assert.doesNotMatch(compose, /S3_MEDIA_BUCKET|S3_MEDIA_REGION|S3_MEDIA_PREFIX|MEDIA_CDN_URL|S3_MEDIA_ACCESS_KEY_ID|S3_MEDIA_SECRET_ACCESS_KEY/);
@@ -50,24 +52,43 @@ test("media deployment uses persistent local storage while S3 is disabled and sh
   assert.match(compose, /media-permissions:[\s\S]*chown -R 1001:1001 \/app\/public\/uploads/);
   assert.match(compose, /translation-work-permissions:[\s\S]*chown -R 1001:1001 \/app\/\.translation-work/);
   assert.match(compose, /condition: service_completed_successfully/);
+  assert.match(dockerfile, /ARG LIBVIPS_VERSION=8\.18\.3/);
+  assert.match(dockerfile, /-march=x86-64 -mtune=generic/);
+  assert.match(dockerfile, /-mno-ssse3 -mno-sse4\.1 -mno-sse4\.2 -mno-popcnt -mno-avx -mno-avx2/);
+  assert.match(dockerfile, /xz-utils/);
+  assert.match(dockerfile, /-Dauto_features=disabled/);
+  assert.match(dockerfile, /-Dhighway=disabled/);
+  assert.match(dockerfile, /-Dorc=disabled/);
+  assert.match(dockerfile, /SHARP_FORCE_GLOBAL_LIBVIPS=1/);
+  assert.match(dockerfile, /node node_modules\/sharp\/install\/build\.js/);
+  assert.match(dockerfile, /COPY --from=libvips-builder \/opt\/vips-legacy \/opt\/vips-legacy/);
+  assert.match(dockerfile, /LD_LIBRARY_PATH=\/opt\/vips-legacy\/lib/);
+  assert.doesNotMatch(dockerfile, /sharp-wasm32/);
   assert.equal(
-    (dockerfile.match(/@img\/sharp-wasm32@0\.35\.3/g) || []).length,
-    2,
+    (dockerfile.match(/node_modules\/@img\/sharp-linux-x64/g) || []).length,
+    6,
   );
   assert.equal(
-    (dockerfile.match(/rm -rf node_modules\/@img\/sharp-linux-x64 node_modules\/@img\/sharp-libvips-linux-x64/g) || []).length,
-    3,
+    (dockerfile.match(/node_modules\/@img\/sharp-libvips-linux-x64/g) || []).length,
+    6,
   );
-  assert.equal((dockerfile.match(/versions\.emscripten/g) || []).length, 3);
   assert.equal(
     (dockerfile.match(/node_modules\/next\/node_modules\/sharp/g) || []).length,
     3,
   );
-  assert.equal((dockerfile.match(/Sharp 0\.35\.3 must use WASM on legacy x64/g) || []).length, 2);
-  assert.equal((dockerfile.match(/sharp\.versions\.sharp !== '0\.35\.3'/g) || []).length, 3);
-  assert.match(dockerfile, /Runner must use Sharp 0\.35\.3 WASM on legacy x64/);
-  assert.doesNotMatch(dockerfile, /require\('sharp\/package\.json'\)/);
+  assert.match(dockerfile, /sharp\.versions\.sharp !== '0\.35\.3'/);
+  assert.match(dockerfile, /sharp\.versions\.vips !== '8\.18\.3'/);
+  assert.match(dockerfile, /sharp\(input,[\s\S]*?\.png\(\)\.toBuffer\(\)/);
+  assert.doesNotMatch(sharpPatch, /loadedPrebuilt/);
+  assert.match(sharpPatch, /err\.code\?\.endsWith/);
+  assert.match(containerWorkflow, /pull_request:/);
+  assert.match(containerWorkflow, /target: runner/);
+  assert.match(containerWorkflow, /push: false/);
+  assert.match(containerWorkflow, /docker run --rm --entrypoint node/);
   const parsedPackage = JSON.parse(packageJson);
   const dependencies = parsedPackage.dependencies;
+  const devDependencies = parsedPackage.devDependencies;
   assert.equal(dependencies.sharp, "0.35.3");
+  assert.equal(devDependencies["node-addon-api"], "8.9.0");
+  assert.equal(devDependencies["node-gyp"], "12.4.0");
 });

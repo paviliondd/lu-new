@@ -153,7 +153,8 @@ test("Payload Admin keeps local media and safely renders Lexical blocks when cli
   assert.equal(packageJson.scripts.postinstall, "patch-package");
   assert.equal(packageJson.dependencies["patch-package"], undefined);
   assert.equal(packageJson.devDependencies["patch-package"], "8.0.1");
-  assert.equal((dockerfile.match(/COPY patches \.\/patches/g) || []).length, 2);
+  assert.equal((dockerfile.match(/COPY patches \.\/patches/g) || []).length, 1);
+  assert.match(dockerfile, /FROM deps AS deps-prod/);
   assert.match(dockerfile, /npm ci --include=optional[\s\S]*npm prune --omit=dev/);
   assert.doesNotMatch(dockerfile, /npm ci --omit=dev/);
   assert.match(lexicalPatch, /blocksField\?\.blockReferences/);

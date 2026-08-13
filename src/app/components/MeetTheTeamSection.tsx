@@ -75,20 +75,11 @@ export default function MeetTheTeamSection({ members }: { members: Author[] }) {
   return (
     <section className="border-b theme-border px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <header className="mb-10 text-center">
-          <div className="mb-3 inline-flex items-center gap-3">
-            <span className="h-px w-8 bg-slate-300 dark:bg-slate-700" aria-hidden="true" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-sky-400">
-              Our People
-            </span>
-            <span className="h-px w-8 bg-slate-300 dark:bg-slate-700" aria-hidden="true" />
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white">
-            The Team Behind LinuxUnity
+        <header className="mb-10">
+          <h2 className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.16em] text-teal-700 dark:text-emerald-300">
+            <span className="h-px w-9 bg-current" aria-hidden="true" />
+            Our crew
           </h2>
-          <p className="mt-2 text-[15px] text-slate-500 dark:text-slate-400">
-            Engineers, creators, and problem solvers.
-          </p>
         </header>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

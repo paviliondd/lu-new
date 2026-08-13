@@ -42,7 +42,13 @@ test("authors preserve the deployed Payload schema while the team grid remains r
   assert.doesNotMatch(dataTypes, /socials\?:\s*\{/);
   assert.match(mapper, /sort: "name"/);
   assert.doesNotMatch(mapper, /socials:\s*\{/);
-  assert.match(teamSection, /Our People/i);
+  assert.match(teamSection, /Our crew/);
+  assert.match(teamSection, /text-teal-700 dark:text-emerald-300/);
+  assert.match(teamSection, /items-center gap-3 text-xs font-bold uppercase tracking-\[0\.16em\]/);
+  assert.doesNotMatch(teamSection, /Our People|Our team/i);
+  assert.doesNotMatch(teamSection, /The Team Behind LinuxUnity/);
+  assert.doesNotMatch(teamSection, /Engineers, creators, and problem solvers\./);
+  assert.match(teamSection, /<header className="mb-10">/);
   assert.match(teamSection, /lg:grid-cols-4/);
   assert.match(teamSection, /member\.linkedin/);
   assert.match(teamSection, /member\.github/);

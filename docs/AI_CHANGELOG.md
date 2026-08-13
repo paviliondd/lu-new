@@ -6,6 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- **Homepage crew label hotfix:** renamed the Team section label to `Our crew`, matched the left-aligned teal/emerald `COLLECTIONS` label treatment, and removed `The Team Behind LinuxUnity` plus `Engineers, creators, and problem solvers.`. This presentation-only change does not modify Payload configuration, generated types, CMS records, media, or data-writing workflows.
 - **Hotfix — Payload schema compatibility and UI alignment:** restored the deployed flat `authors.linkedin` and `authors.github` schema after the preceding UI feature introduced an unmigrated `socials` group and `order` field. Production read-only probes showed `/api/payload/posts` and `/api/payload/authors` returning HTTP 500 while `/api/posts` continued serving fallback content. No seed, sync, repair, rollback, migration, database write, or record deletion was executed during this hotfix.
 - Repositioned the homepage `Journey` lockup so its left edge starts below the `i` in `Unity`, retaining the requested larger size, and set the equal desktop footer columns to logo left, Explore plus Blog/Series/About centered, and Subscribe plus its email form right-aligned.
 - Fixed blurred Team author avatars by allowing `AuthorAvatar` callers to declare the rendered image size, requesting an 88px optimized source for the 88px Team card instead of upscaling the previous fixed 48px source, and raising avatar encoding quality to 90; no media record or original upload was modified.

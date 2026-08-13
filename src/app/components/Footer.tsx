@@ -21,7 +21,7 @@ export default function Footer() {
   return (
     <footer className="theme-surface border-t theme-border">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
-        <div className={isHome ? "flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between" : "flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_10rem_minmax(0,1fr)] lg:items-center lg:gap-x-10"}>
+        <div className={isHome ? "flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between" : "flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_10rem_17rem] lg:items-center lg:gap-x-10"}>
           <Link href={localePath("/")} className="group flex w-fit items-center gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl border theme-border bg-white p-1 transition group-hover:border-teal-500 group-hover:shadow-sm dark:bg-slate-900 dark:group-hover:border-emerald-400">
               <Image src="/images/linuxunity-penguin-logo.png" alt="LinuxUnity Logo" width={40} height={40} className="object-contain" />

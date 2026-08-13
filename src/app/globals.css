@@ -457,6 +457,14 @@ iframe {
   color: var(--site-muted);
 }
 
+.article-content .article-table :where(th, td) > :first-child {
+  margin-top: 0;
+}
+
+.article-content .article-table :where(th, td) > :last-child {
+  margin-bottom: 0;
+}
+
 .article-content th:last-child,
 .article-content td:last-child {
   border-right: 0;
@@ -755,16 +763,16 @@ iframe {
 .hero-unity-lockup {
   display: inline-flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .hero-journey-word {
   width: 4.4em;
   margin-top: 0.18em;
-  margin-right: -0.16em;
+  margin-left: 1.9em;
   color: var(--site-accent);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.76em;
+  font-size: 0.875em;
   font-style: italic;
   font-weight: 400;
   line-height: 1;

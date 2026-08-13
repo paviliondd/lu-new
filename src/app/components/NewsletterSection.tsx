@@ -54,11 +54,8 @@ export default function NewsletterSection({ compact = false }: NewsletterSection
     return (
       <section className="w-full lg:max-w-[17rem] lg:justify-self-end" aria-labelledby="footer-newsletter-title">
         <h2 id="footer-newsletter-title" className="text-xs font-bold uppercase tracking-[0.16em] text-slate-950 dark:text-white">
-          Newsletter
+          Subscribe for updates
         </h2>
-        <p className="mt-2 text-sm theme-muted">
-          Get notified when a new post is published.
-        </p>
 
         {subscribed ? (
           <div className="mt-4 flex min-h-11 items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 text-sm font-medium text-emerald-800 dark:text-emerald-300">
@@ -66,7 +63,7 @@ export default function NewsletterSection({ compact = false }: NewsletterSection
             Subscribed successfully!
           </div>
         ) : (
-          <form onSubmit={handleSubscribe} noValidate className="mt-4 flex max-w-[17rem] items-center gap-2">
+          <form onSubmit={handleSubscribe} noValidate className="mt-3 flex w-full max-w-[17rem] items-center gap-2">
             <label htmlFor={emailInputId} className="sr-only">
               Email address
             </label>

@@ -98,7 +98,7 @@ COPY patches ./patches
 
 RUN --mount=type=cache,target=/root/.npm npm ci --include=optional \
   && rm -rf node_modules/@img/sharp-linux-x64 node_modules/@img/sharp-libvips-linux-x64 node_modules/next/node_modules/sharp node_modules/next/node_modules/@img/sharp-linux-x64 node_modules/next/node_modules/@img/sharp-libvips-linux-x64 \
-  && node node_modules/sharp/install/build.js \
+  && PATH="/app/node_modules/.bin:${PATH}" node node_modules/sharp/install/build.js \
   && node -e "const sharp=require('sharp'); const input=Buffer.from([255,0,0,255]); if(sharp.versions.sharp !== '0.35.3' || sharp.versions.vips !== '8.18.3' || sharp.versions.emscripten) throw new Error('Sharp must use the legacy native build'); sharp(input,{raw:{width:1,height:1,channels:4}}).png().toBuffer().then(output=>{if(!output.length) throw new Error('Sharp image probe failed')})"
 
 FROM deps AS deps-prod

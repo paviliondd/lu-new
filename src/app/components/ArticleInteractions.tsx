@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Eye, Link2 } from "lucide-react";
 
 interface ArticleViewCountProps {
+  hidden?: boolean;
   initialViews: number;
   language: string;
   slug: string;
@@ -14,7 +15,7 @@ function formatViews(value: number, language: string) {
   return value.toLocaleString(language === "vi" ? "vi-VN" : "en-US");
 }
 
-export function ArticleViewCount({ initialViews, language, slug, viewsLabel }: ArticleViewCountProps) {
+export function ArticleViewCount({ hidden = false, initialViews, language, slug, viewsLabel }: ArticleViewCountProps) {
   const [views, setViews] = useState(initialViews);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export function ArticleViewCount({ initialViews, language, slug, viewsLabel }: A
   }, [slug]);
 
   return (
-    <span className="flex items-center gap-1.5">
+    <span className={hidden ? "hidden" : "flex items-center gap-1.5"}>
       <Eye className="h-3.5 w-3.5" />
       {formatViews(views, language)} {viewsLabel}
     </span>

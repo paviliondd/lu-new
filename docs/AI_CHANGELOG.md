@@ -2,6 +2,12 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-14
+
+Added & Fixed:
+
+- **Wider technical-article layout and clearer related-post artwork:** expanded the article shell to a 1200px desktop container split into an 800px main column, 32px gap, and 320px table-of-contents sidebar. Normal prose remains capped at 760px for readability while the title, hero, code, tables, media, navigation, related posts, and comments can use the wider main column. Article and related-post view totals are now hidden, while the existing deduplicated article view tracker remains active. Related-post cover thumbnails increased to 96×64px on mobile and 128×80px from tablet upward, retaining a compact row treatment rather than copying DevOpsVN's full card size. This is presentation-only: no Payload collections, schema fields, generated types, migrations, CMS records, media, fallback content, or runtime data were modified.
+
 ## 2026-08-13
 
 Added & Fixed:

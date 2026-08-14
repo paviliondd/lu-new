@@ -48,6 +48,8 @@ Requirement:
 - Strip untrusted layout utility classes from CMS and fallback article HTML while retaining the renderer's semantic note, topology, and code classes, so preview and published content cannot escape normal document flow.
 - Give every saved Payload revision a distinct preview URL so an existing preview tab cannot reuse stale browser or Next route state while the post is being edited.
 - Keep serialized article HTML inside one atomic client island instead of passing a large server-rendered React tree through the language-provider client boundary. On slow or interrupted streams, the article body must remain absent until its complete structure is ready; tables and code blocks must never appear temporarily flattened as prose.
+- On wide desktop screens, use a 1200px article container with an 800px main column, a 32px gap, and a 320px table-of-contents sidebar. Keep normal prose capped at 760px while hero media, tables, code, and other wide article surfaces may use the full 800px main column.
+- Keep article view totals visually hidden without disabling the existing deduplicated view tracker. Related-post rows must omit view totals and use compact 96×64px mobile / 128×80px desktop cover thumbnails so the artwork remains recognizable without becoming a full-size card grid.
 
 Regression check:
 
@@ -58,6 +60,7 @@ Regression check:
 - Refresh preview and published pages and verify content remains in normal flow with no overlapping text, including content that arrived with legacy CSS classes.
 - Throttle the article route and verify that the first visible article body already contains every expected table; no intermediate plain-text table state is allowed.
 - Verify SEO title, code blocks, tables, notes, topology, and images.
+- At a desktop viewport, verify the 800px / 32px / 320px content-to-sidebar layout, 760px prose measure, hidden view totals, and larger related-post thumbnails; verify the layout collapses to one column on tablet and mobile.
 
 ## Editor
 

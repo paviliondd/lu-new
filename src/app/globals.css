@@ -25,7 +25,8 @@
 
 html {
   --font-sans: var(--font-site-sans), ui-sans-serif, system-ui, sans-serif;
-  --article-column-width: 46rem;
+  --article-column-width: 50rem;
+  --article-reading-width: 47.5rem;
   --site-bg: #f7f8fb;
   --site-surface: #ffffff;
   --site-panel: #f1f5f9;
@@ -172,7 +173,6 @@ iframe {
 }
 
 .article-content {
-  --article-reading-width: var(--article-column-width);
   --article-wide-width: min(100%, var(--article-column-width));
   font-size: 1.125rem;
   letter-spacing: 0.004em;

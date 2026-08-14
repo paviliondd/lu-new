@@ -13,7 +13,7 @@ Components:
 
 Requirements:
 
-- `Journey` starts below the `i` in `Unity` without changing stored CMS data.
+- The complete `The Unity / Journey` lockup is horizontally centered; its internal alignment stays unchanged so `Journey` still starts below the `i` in `Unity`, without changing stored CMS data.
 - Explore, Learn, and Share run as a 20-second status pipeline: each node blinks for 3 seconds, turns green, and its outgoing gradient connector fills in 1 second before the next node begins. The sequence uses 11 seconds (3 + 1 + 3 + 1 + 3); all three completed green nodes pulse together for the remaining 9 seconds. Reduced-motion mode shows the completed pipeline without animation.
 - Latest `View All` uses the same unboxed teal/emerald text-link treatment as Explore by series, while Author cards carry a subtle teal/emerald ambient glow consistent with Stay in the loop.
 - Desktop footer columns are equal: the logo is left-aligned, Explore with Blog/Series/About is centered, and Subscribe with its email form is right-aligned.
@@ -46,6 +46,7 @@ Requirement:
 - Display frontend
 - Preserve legacy fallback content
 - Strip untrusted layout utility classes from CMS and fallback article HTML while retaining the renderer's semantic note, topology, and code classes, so preview and published content cannot escape normal document flow.
+- Give every saved Payload revision a distinct preview URL so an existing preview tab cannot reuse stale browser or Next route state while the post is being edited.
 
 Regression check:
 

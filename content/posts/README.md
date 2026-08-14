@@ -33,3 +33,5 @@ The application resolves the requested locale first. Missing English MDX falls b
 ## Rendering safety
 
 Both local fallback HTML and Payload rich text pass through the same article sanitizer. Layout utility classes from imported HTML are removed before rendering to prevent positioning, negative-margin, grid, and line-height class collisions from making preview or published text overlap. Semantic classes used by code languages, notes, rich-text blocks, and topology figures are retained. This normalization is render-only and does not rewrite MDX files or Payload records.
+
+Payload preview links include the saved document revision. Save the draft before opening Preview; after each save, the changed revision parameter forces a fresh preview request instead of reusing a stale preview-tab route. This affects only the preview URL and does not modify post content.

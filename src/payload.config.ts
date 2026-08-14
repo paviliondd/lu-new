@@ -721,7 +721,12 @@ const Posts: CollectionConfig = {
     },
     preview: (data) => {
       const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
-      return data?.slug ? `${site}/vi/blog/${data.slug}?preview=true` : site;
+      if (!data?.slug) return site;
+
+      // A saved revision gets a distinct URL so the preview tab cannot reuse
+      // stale Next/browser route state while an article is being edited.
+      const previewRevision = encodeURIComponent(String(data?.updatedAt || Date.now()));
+      return `${site}/vi/blog/${data.slug}?preview=true&revision=${previewRevision}`;
     },
   },
   access: {

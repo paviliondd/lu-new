@@ -26,6 +26,8 @@ test("homepage Journey word is larger and starts below the i in Unity", async ()
   const globalStyles = await readFile("src/app/globals.css", "utf8");
 
   assert.match(globalStyles, /\.hero-unity-lockup\s*\{[\s\S]*align-items: flex-start/);
+  assert.match(globalStyles, /\.hero-unity-lockup\s*\{[\s\S]*width: fit-content/);
+  assert.match(globalStyles, /\.hero-unity-lockup\s*\{[\s\S]*margin-inline: auto/);
   assert.match(globalStyles, /\.hero-journey-word\s*\{[\s\S]*font-size: 0\.875em/);
   assert.match(globalStyles, /\.hero-journey-word\s*\{[\s\S]*margin-left: 3\.7em/);
 });

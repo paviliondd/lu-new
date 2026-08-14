@@ -62,3 +62,11 @@ test("draft preview requests the latest Payload draft in both slug lookup paths"
   assert.equal(draftFlags.length, 2);
   assert.match(payloadCms, /if \(allowDraft\) return fetchPost\(\)/);
 });
+
+test("Payload preview URL changes after each saved revision", async () => {
+  const payloadConfig = await readFile("src/payload.config.ts", "utf8");
+
+  assert.match(payloadConfig, /previewRevision/);
+  assert.match(payloadConfig, /data\?\.updatedAt/);
+  assert.match(payloadConfig, /preview=true&revision=/);
+});

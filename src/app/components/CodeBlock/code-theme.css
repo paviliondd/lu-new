@@ -288,9 +288,11 @@
 .code-card__viewport {
   position: relative;
   max-width: 100%;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-inline: contain;
   background: var(--article-panel-body);
+  touch-action: pan-x pan-y;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -527,16 +529,18 @@
   }
 
   .code-card__header {
+    min-height: 2rem;
+    flex-wrap: nowrap;
     gap: 0.4rem;
-    padding: 0.25rem 0.35rem;
+    padding: 0.2rem 0.4rem;
   }
 
   .code-card__header:not([data-compact="true"]) {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   .code-card__header:not([data-compact="true"]) .code-card__identity {
-    width: 100%;
+    width: auto;
   }
 
   .code-card__filename {
@@ -545,23 +549,28 @@
   }
 
   .code-card__language {
-    display: none;
+    display: inline-flex;
+    font-size: 0.6875rem;
   }
 
   .code-card__header:not([data-compact="true"]) .code-card__actions {
-    width: 100%;
+    width: auto;
     justify-content: flex-end;
-    margin-left: 0;
+    margin-left: auto;
   }
 
   .code-copy-button,
   .code-download-button {
-    min-height: 2.75rem;
+    min-height: 2rem;
   }
 
   .code-copy-button {
     width: auto;
     min-width: 0;
+  }
+
+  .code-copy-button__label {
+    display: none;
   }
 
   .code-card__view-switch button {
@@ -575,7 +584,8 @@
   }
 
   .code-card__code {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+    line-height: 1.55;
   }
 
   .code-card__line-numbers {
@@ -583,7 +593,7 @@
   }
 
   .code-card__source {
-    padding: 0.875rem;
+    padding: 0.75rem 0.65rem;
   }
 }
 

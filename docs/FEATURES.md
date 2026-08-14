@@ -14,7 +14,7 @@ Components:
 Requirements:
 
 - `Journey` starts below the `i` in `Unity` without changing stored CMS data.
-- Explore, Learn, and Share run as a 30-second status pipeline: a node blinks yellow, turns green, its outgoing connector fills for about 3 seconds, and only then does the next node begin blinking. The completed three-node pipeline pulses green for the final 15 seconds; reduced-motion mode shows it completed without animation.
+- Explore, Learn, and Share run as a 20-second status pipeline: each node blinks for 3 seconds, turns green, and its outgoing gradient connector fills in 1 second before the next node begins. The sequence uses 11 seconds (3 + 1 + 3 + 1 + 3); all three completed green nodes pulse together for the remaining 9 seconds. Reduced-motion mode shows the completed pipeline without animation.
 - Latest `View All` uses the same unboxed teal/emerald text-link treatment as Explore by series, while Author cards carry a subtle teal/emerald ambient glow consistent with Stay in the loop.
 - Desktop footer columns are equal: the logo is left-aligned, Explore with Blog/Series/About is centered, and Subscribe with its email form is right-aligned.
 - Team avatars request an optimized source matching their rendered size; the 88px Team avatar must not upscale a fixed 48px source.
@@ -45,6 +45,7 @@ Requirement:
 - Publish post
 - Display frontend
 - Preserve legacy fallback content
+- Strip untrusted layout utility classes from CMS and fallback article HTML while retaining the renderer's semantic note, topology, and code classes, so preview and published content cannot escape normal document flow.
 
 Regression check:
 
@@ -52,7 +53,8 @@ Regression check:
 - Publish it
 - Open `/vi/blog/{slug}`
 - Open `/en/blog/{slug}` when English fields exist
-- Refresh page and verify content, SEO title, code blocks, and images
+- Refresh preview and published pages and verify content remains in normal flow with no overlapping text, including content that arrived with legacy CSS classes.
+- Verify SEO title, code blocks, tables, notes, topology, and images.
 
 ## Editor
 

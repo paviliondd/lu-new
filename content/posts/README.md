@@ -29,3 +29,7 @@ ogImage: /images/example.webp
 ```
 
 The application resolves the requested locale first. Missing English MDX falls back to Vietnamese MDX in development.
+
+## Rendering safety
+
+Both local fallback HTML and Payload rich text pass through the same article sanitizer. Layout utility classes from imported HTML are removed before rendering to prevent positioning, negative-margin, grid, and line-height class collisions from making preview or published text overlap. Semantic classes used by code languages, notes, rich-text blocks, and topology figures are retained. This normalization is render-only and does not rewrite MDX files or Payload records.

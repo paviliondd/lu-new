@@ -6,12 +6,24 @@ import { renderToStaticMarkup } from "react-dom/server";
 import RichTextRenderer from "../src/app/components/RichTextRenderer/Renderer.tsx";
 import { getCodeBlockLabels } from "../src/app/components/CodeBlock/labels.ts";
 import { normalizeExcerpt } from "../src/lib/content/excerpt.ts";
+import { sanitizeArticleHtml } from "../src/lib/utils/security.ts";
 
 test("double-escaped excerpts render as plain readable text", () => {
   assert.equal(
     normalizeExcerpt("LinuxUnity &amp;hellip; Ansible &amp;amp; DevOps"),
     "LinuxUnity … Ansible & DevOps",
   );
+});
+
+test("article HTML cannot keep layout utility classes that overlap published text", () => {
+  const html = sanitizeArticleHtml(
+    '<div class="absolute -mt-16 grid leading-none richtext-block richtext-block--note"><p class="fixed translate-y-8 note-box">Stable copy</p><code class="language-bash line">echo ok</code></div>',
+  );
+
+  assert.doesNotMatch(html, /\b(?:absolute|fixed|-mt-16|grid|leading-none|translate-y-8)\b/);
+  assert.match(html, /class="richtext-block richtext-block--note"/);
+  assert.match(html, /class="note-box"/);
+  assert.match(html, /class="language-bash line"/);
 });
 
 test("code toolbar is present in the initial React render", () => {

@@ -40,9 +40,21 @@ test("footer stays focused and the journey pipeline remains motion-safe", async 
   assert.match(styles, /@keyframes pipelineConnectorToLearn/);
   assert.match(styles, /@keyframes pipelineConnectorToShare/);
   assert.match(styles, /@keyframes pipelineCompletedPulse/);
-  assert.match(styles, /--pipeline-cycle:\s*30s/);
-  assert.match(styles, /50%, 100%/);
+  const connectorToLearn = styles.match(/@keyframes pipelineConnectorToLearn \{([\s\S]*?)\n\}/)?.[1] || "";
+  const connectorToShare = styles.match(/@keyframes pipelineConnectorToShare \{([\s\S]*?)\n\}/)?.[1] || "";
+  const completedPulse = styles.match(/@keyframes pipelineCompletedPulse \{([\s\S]*?)\n\}/)?.[1] || "";
+
+  assert.match(styles, /--pipeline-cycle:\s*20s/);
+  assert.match(styles, /--pipeline-node-run:\s*3s/);
+  assert.match(styles, /--pipeline-wire-run:\s*1s/);
+  assert.match(styles, /--pipeline-completed-run:\s*9s/);
+  assert.match(connectorToLearn, /0%, 15%/);
+  assert.match(connectorToLearn, /20%, 100%/);
+  assert.match(connectorToShare, /0%, 35%/);
+  assert.match(connectorToShare, /40%, 100%/);
+  assert.match(completedPulse, /0%, 54\.99%/);
   assert.match(hero, /pipeline-sequence/);
+  assert.match(hero, /pipeline-track/);
   assert.match(styles, /pipelineCompletedPulse var\(--pipeline-cycle\)/);
   assert.match(styles, /#f97316|rgb\(249 115 22/);
   assert.match(styles, /#10b981|rgb\(16 185 129/);

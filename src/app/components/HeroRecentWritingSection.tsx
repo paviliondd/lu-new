@@ -52,8 +52,8 @@ function FeatureColumns() {
 
               {/* Connecting Pipeline Line aligned with badge center */}
               {idx < features.length - 1 && (
-                <div className="relative mx-2 my-4 h-[3px] flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 sm:my-5">
-                  <span aria-hidden="true" className={`pipeline-connector pipeline-connector--${idx} absolute inset-0 origin-left rounded-full bg-gradient-to-r from-teal-500 to-emerald-400`} />
+                <div className="pipeline-track relative mx-2 my-4 flex-1 sm:my-5">
+                  <span aria-hidden="true" className={`pipeline-connector pipeline-connector--${idx}`} />
                 </div>
               )}
             </React.Fragment>

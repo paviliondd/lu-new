@@ -94,6 +94,35 @@ const blockedDynamicAttributes = new Set([
   "data-srcset",
 ]);
 
+const safeArticleClasses = new Set([
+  "code-block-explanation",
+  "code-explanation",
+  "ez-toc-container",
+  "line",
+  "note-box",
+  "richtext-block",
+  "topology-shell",
+  "warning-box",
+]);
+
+const safeArticleClassPrefixes = [
+  "language-",
+  "richtext-block--",
+  "topology-shell--",
+];
+
+function sanitizeArticleClasses(value: string) {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter(
+      (className) =>
+        safeArticleClasses.has(className) ||
+        safeArticleClassPrefixes.some((prefix) => className.startsWith(prefix)),
+    )
+    .join(" ");
+}
+
 function normalizePayloadMediaURL(value: string) {
   return value.replace(/^\/\/api\/payload\//i, "/api/payload/");
 }
@@ -125,6 +154,10 @@ const articleXssOptions: IFilterXSSOptions = {
   allowCommentTag: false,
   css: false,
   safeAttrValue(tag, name, value, cssFilter) {
+    if (name === "class") {
+      return escapeAttrValue(sanitizeArticleClasses(value));
+    }
+
     if (name === "srcset") {
       return sanitizeSrcSet(tag, value, cssFilter);
     }

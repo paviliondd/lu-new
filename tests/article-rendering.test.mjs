@@ -93,5 +93,8 @@ test("article content crosses the language client boundary as one serializable a
   assert.doesNotMatch(articlePage, /<RichTextRenderer/);
   assert.match(articlePage, /content=\{localizedPost\.content\}/);
   assert.match(articleContent, /^\s*["']use client["'];/);
+  assert.match(articleContent, /useEffect/);
+  assert.match(articleContent, /aria-busy=\{!ready\}/);
+  assert.match(articleContent, /hidden=\{!ready\}/);
   assert.match(articleContent, /<RichTextRenderer/);
 });

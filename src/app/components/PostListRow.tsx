@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Eye } from "lucide-react";
 import type { Author, Post } from "../data";
 import { useLanguage } from "./LanguageProvider";
 import AuthorAvatar, { getAuthorDisplay } from "./AuthorAvatar";
@@ -14,13 +13,6 @@ interface PostListRowProps {
   index: number;
   language: string;
   isLast?: boolean;
-}
-
-function formatCompactViews(value: number, language: string) {
-  return new Intl.NumberFormat(language === "vi" ? "vi-VN" : "en-US", {
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format(value);
 }
 
 export default function PostListRow({
@@ -53,13 +45,13 @@ export default function PostListRow({
         {String(index + 1).padStart(2, "0")}
       </span>
 
-      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border theme-border bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300 sm:h-14 sm:w-14">
+      <div className="relative flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border theme-border bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-300 sm:h-20 sm:w-32">
         {coverImage ? (
           <CustomImage
             src={coverImage}
             alt={post.title}
             fill
-            sizes="(min-width: 640px) 56px, 48px"
+            sizes="(min-width: 640px) 128px, 96px"
             className="object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
@@ -84,11 +76,6 @@ export default function PostListRow({
             {displayAuthor.name}
           </span>
           <span>{displayDate}</span>
-          <span className="flex items-center gap-1">
-            <Eye className="h-3.5 w-3.5" />
-            {formatCompactViews(post.views || 0, language)}{" "}
-            views
-          </span>
           <span className="sm:ml-auto">{formatReadTime(post.readTime)}</span>
         </div>
       </div>

@@ -156,7 +156,7 @@ export default function TableOfContents({
   }, [activeId]);
 
   return (
-    <aside className="order-3 hidden w-52 xl:block">
+    <aside className="order-3 hidden w-full xl:block">
       <div className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto py-1">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
           {title}

@@ -184,16 +184,22 @@ test("production dependencies stay above audited security floors", async () => {
   assert.equal(packageJson.overrides.dompurify, "3.4.13");
 });
 
-test("article title, hero, headings, media, and code share the reading column", async () => {
-  const [articleClient, globalStyles] = await Promise.all([
+test("article desktop layout uses a 1200px container with wider content and a 320px sidebar", async () => {
+  const [articleClient, globalStyles, tableOfContents] = await Promise.all([
     readFile("src/app/components/ArticleClient.tsx", "utf8"),
     readFile("src/app/globals.css", "utf8"),
+    readFile("src/app/components/TableOfContents.tsx", "utf8"),
   ]);
 
   assert.match(articleClient, /<header className="article-reading-frame/);
   assert.doesNotMatch(articleClient, /\{post\.description\}/);
   assert.match(articleClient, /className="article-reading-frame relative aspect-\[2\/1\]/);
-  assert.match(globalStyles, /--article-column-width: 46rem/);
+  assert.match(articleClient, /max-w-\[1200px\]/);
+  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,50rem\)_20rem\]/);
+  assert.match(articleClient, /xl:gap-x-8/);
+  assert.match(articleClient, /max-w-\[50rem\]/);
+  assert.match(globalStyles, /--article-column-width: 50rem/);
+  assert.match(globalStyles, /--article-reading-width: 47\.5rem/);
   assert.match(globalStyles, /\.article-reading-frame\s*\{[\s\S]*max-width: var\(--article-column-width\)/);
   assert.match(
     globalStyles,
@@ -203,8 +209,23 @@ test("article title, hero, headings, media, and code share the reading column", 
     globalStyles,
     /\.article-content__body :where\(h1, h2, h3, h4\)[\s\S]*margin-inline: auto/,
   );
-  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,46rem\)_13rem\]/);
-  assert.doesNotMatch(articleClient, /980px|1100px|1480px/);
+  assert.match(tableOfContents, /className="order-3 hidden w-full xl:block"/);
+  assert.doesNotMatch(articleClient, /max-w-\[1120px\]|minmax\(0,46rem\)_13rem/);
+});
+
+test("article view totals are hidden while related-post thumbnails remain compact and readable", async () => {
+  const [articleClient, articleInteractions, postListRow] = await Promise.all([
+    readFile("src/app/components/ArticleClient.tsx", "utf8"),
+    readFile("src/app/components/ArticleInteractions.tsx", "utf8"),
+    readFile("src/app/components/PostListRow.tsx", "utf8"),
+  ]);
+
+  assert.match(articleClient, /<ArticleViewCount[\s\S]*hidden/);
+  assert.match(articleInteractions, /hidden\?: boolean/);
+  assert.match(articleInteractions, /className=\{hidden \? "hidden"/);
+  assert.doesNotMatch(postListRow, /\bEye\b|formatCompactViews|\{post\.views/);
+  assert.match(postListRow, /h-16 w-24[\s\S]*sm:h-20 sm:w-32/);
+  assert.match(postListRow, /sizes="\(min-width: 640px\) 128px, 96px"/);
 });
 
 test("plain topology preserves alignment and article tables honor Markdown column alignment", async () => {

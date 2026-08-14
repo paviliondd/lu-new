@@ -184,22 +184,23 @@ test("production dependencies stay above audited security floors", async () => {
   assert.equal(packageJson.overrides.dompurify, "3.4.13");
 });
 
-test("article desktop layout uses a 1200px container with wider content and a 320px sidebar", async () => {
-  const [articleClient, globalStyles, tableOfContents] = await Promise.all([
+test("article desktop layout follows the 900px DevOpsVN reading column with a gutter TOC", async () => {
+  const [articleClient, globalStyles, tableOfContents, renderer] = await Promise.all([
     readFile("src/app/components/ArticleClient.tsx", "utf8"),
     readFile("src/app/globals.css", "utf8"),
     readFile("src/app/components/TableOfContents.tsx", "utf8"),
+    readFile("src/app/components/RichTextRenderer/Renderer.tsx", "utf8"),
   ]);
 
   assert.match(articleClient, /<header className="article-reading-frame/);
   assert.doesNotMatch(articleClient, /\{post\.description\}/);
   assert.match(articleClient, /className="article-reading-frame relative aspect-\[2\/1\]/);
-  assert.match(articleClient, /max-w-\[1200px\]/);
-  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,50rem\)_20rem\]/);
+  assert.match(articleClient, /max-w-\[1280px\]/);
+  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,56\.25rem\)_16\.25rem\]/);
   assert.match(articleClient, /xl:gap-x-8/);
-  assert.match(articleClient, /max-w-\[50rem\]/);
-  assert.match(globalStyles, /--article-column-width: 50rem/);
-  assert.match(globalStyles, /--article-reading-width: 47\.5rem/);
+  assert.match(articleClient, /max-w-\[56\.25rem\]/);
+  assert.match(globalStyles, /--article-column-width: 56\.25rem/);
+  assert.match(globalStyles, /--article-reading-width: 53\.25rem/);
   assert.match(globalStyles, /\.article-reading-frame\s*\{[\s\S]*max-width: var\(--article-column-width\)/);
   assert.match(
     globalStyles,
@@ -210,7 +211,25 @@ test("article desktop layout uses a 1200px container with wider content and a 32
     /\.article-content__body :where\(h1, h2, h3, h4\)[\s\S]*margin-inline: auto/,
   );
   assert.match(tableOfContents, /className="order-3 hidden w-full xl:block"/);
-  assert.doesNotMatch(articleClient, /max-w-\[1120px\]|minmax\(0,46rem\)_13rem/);
+  assert.match(renderer, /article-content[\s\S]*max-w-full/);
+  assert.doesNotMatch(renderer, /max-w-\[46rem\]/);
+  assert.doesNotMatch(articleClient, /max-w-\[(?:1120|1200)px\]|minmax\(0,(?:46|50)rem\)/);
+});
+
+test("mobile code and topology panels stay compact and support touch scrolling", async () => {
+  const [codeStyles, globalStyles] = await Promise.all([
+    readFile("src/app/components/CodeBlock/code-theme.css", "utf8"),
+    readFile("src/app/globals.css", "utf8"),
+  ]);
+
+  assert.match(codeStyles, /\.code-card__viewport\s*\{[\s\S]*overflow-x: auto;[\s\S]*overflow-y: hidden;[\s\S]*touch-action: pan-x pan-y/);
+  assert.match(codeStyles, /@media \(max-width: 639px\)[\s\S]*\.code-card__header\s*\{[\s\S]*min-height: 2rem/);
+  assert.match(codeStyles, /@media \(max-width: 639px\)[\s\S]*\.code-card__language\s*\{[\s\S]*display: inline-flex/);
+  assert.match(codeStyles, /@media \(max-width: 639px\)[\s\S]*\.code-copy-button__label\s*\{[\s\S]*display: none/);
+  assert.match(codeStyles, /@media \(max-width: 639px\)[\s\S]*\.code-card__code\s*\{[\s\S]*font-size: 0\.75rem;[\s\S]*line-height: 1\.55/);
+  assert.match(globalStyles, /@media \(max-width: 640px\)[\s\S]*\.topology-shell\s*\{[\s\S]*overflow-x: auto;[\s\S]*overscroll-behavior-inline: contain/);
+  assert.match(globalStyles, /@media \(max-width: 640px\)[\s\S]*pre\[data-topology-ascii="true"\][\s\S]*font-size: 0\.75rem;[\s\S]*line-height: 1\.45/);
+  assert.match(globalStyles, /@media \(max-width: 640px\)[\s\S]*\.mermaid-shell__stage\s*\{[\s\S]*min-height: 10rem;[\s\S]*touch-action: pan-x pan-y/);
 });
 
 test("article view totals are hidden while related-post thumbnails remain compact and readable", async () => {

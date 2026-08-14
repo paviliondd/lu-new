@@ -47,6 +47,7 @@ Requirement:
 - Preserve legacy fallback content
 - Strip untrusted layout utility classes from CMS and fallback article HTML while retaining the renderer's semantic note, topology, and code classes, so preview and published content cannot escape normal document flow.
 - Give every saved Payload revision a distinct preview URL so an existing preview tab cannot reuse stale browser or Next route state while the post is being edited.
+- Keep serialized article HTML inside one atomic client island instead of passing a large server-rendered React tree through the language-provider client boundary. On slow or interrupted streams, the article body must remain absent until its complete structure is ready; tables and code blocks must never appear temporarily flattened as prose.
 
 Regression check:
 
@@ -55,6 +56,7 @@ Regression check:
 - Open `/vi/blog/{slug}`
 - Open `/en/blog/{slug}` when English fields exist
 - Refresh preview and published pages and verify content remains in normal flow with no overlapping text, including content that arrived with legacy CSS classes.
+- Throttle the article route and verify that the first visible article body already contains every expected table; no intermediate plain-text table state is allowed.
 - Verify SEO title, code blocks, tables, notes, topology, and images.
 
 ## Editor

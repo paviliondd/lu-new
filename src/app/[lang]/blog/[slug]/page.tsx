@@ -2,8 +2,6 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { team } from "@/app/data";
 import ArticleClient from "@/app/components/ArticleClient";
-import RichTextRenderer from "@/app/components/RichTextRenderer";
-import { getCodeBlockLabels } from "@/app/components/CodeBlock/labels";
 import {
   getApprovedPayloadComments,
   getCmsPostBySlug,
@@ -202,15 +200,12 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         nextPost={nextPost}
         groupTitle={groupTitle}
         initialComments={initialComments}
-      >
-        <RichTextRenderer
-          assetBase={assetBase}
-          content={localizedPost.content}
-          contentKey={`${post.slug}-${lang}`}
-          labels={getCodeBlockLabels(lang)}
-          legacyAssetOrigins={externalAssetOrigins}
-        />
-      </ArticleClient>
+        language={lang}
+        assetBase={assetBase}
+        content={localizedPost.content}
+        contentKey={`${post.slug}-${lang}`}
+        legacyAssetOrigins={externalAssetOrigins}
+      />
     </>
   );
 }

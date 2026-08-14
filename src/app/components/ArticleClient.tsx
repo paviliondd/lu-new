@@ -1,16 +1,15 @@
-"use client";
-
-import { type ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Eye, Clock, Link2 } from "lucide-react";
+import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { Post, Author, team } from "../data";
-import { useLanguage } from "./LanguageProvider";
 import PostListRow from "./PostListRow";
 import TableOfContents, { MobileTableOfContents, TocHeading } from "./TableOfContents";
 import CustomImage from "./CustomImage";
 import AuthorAvatar from "./AuthorAvatar";
 import Comments from "./Comments";
+import ArticleContent from "./ArticleContent";
+import { ArticleShareControls, ArticleViewCount } from "./ArticleInteractions";
 import type { CommentRecord } from "@/lib/comments/types";
+import { localePath as buildLocalePath, type Locale } from "@/i18n/config";
 import { formatTopicLabel } from "@/lib/utils/formatTopic";
 import { formatReadTime } from "@/lib/utils/formatReadTime";
 
@@ -23,7 +22,11 @@ interface ArticleClientProps {
   nextPost?: Post | null;
   groupTitle?: string;
   initialComments?: CommentRecord[];
-  children: ReactNode;
+  language: Locale;
+  assetBase?: string;
+  content: string;
+  contentKey: string;
+  legacyAssetOrigins?: string[];
 }
 
 function formatPostDate(value: string, language: string) {
@@ -41,10 +44,6 @@ function formatPostDate(value: string, language: string) {
   });
 }
 
-function formatViews(value: number, language: string) {
-  return value.toLocaleString(language === "vi" ? "vi-VN" : "en-US");
-}
-
 export default function ArticleClient({
   post,
   author,
@@ -54,76 +53,17 @@ export default function ArticleClient({
   nextPost,
   groupTitle,
   initialComments = [],
-  children,
+  language,
+  assetBase,
+  content,
+  contentKey,
+  legacyAssetOrigins,
 }: ArticleClientProps) {
-  const { t, language, localePath } = useLanguage();
-  const [copied, setCopied] = useState(false);
-  const [views, setViews] = useState(post.views || 0);
-
+  const localePath = (pathname: string) => buildLocalePath(language, pathname);
   const effectiveGroupTitle =
     groupTitle ||
     post.series?.title ||
     formatTopicLabel(post.category || "DevOps");
-
-  useEffect(() => {
-    const storageKey = `linuxunity:viewed:${post.slug}`;
-    const viewedAt = Number(localStorage.getItem(storageKey) || 0);
-    const viewWindowMs = 30 * 60 * 1000;
-
-    if (viewedAt && Date.now() - viewedAt < viewWindowMs) return;
-
-    localStorage.setItem(storageKey, String(Date.now()));
-
-    fetch(`/api/posts/${encodeURIComponent(post.slug)}/view`, {
-      method: "POST",
-    })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { views?: number } | null) => {
-        if (typeof payload?.views === "number") {
-          setViews(payload.views);
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem(storageKey);
-      });
-  }, [post.slug]);
-
-  const isFirstMount = useRef(true);
-  const prevSlugRef = useRef(post.slug);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      prevSlugRef.current = post.slug;
-      return;
-    }
-
-    if (prevSlugRef.current !== post.slug) {
-      prevSlugRef.current = post.slug;
-      if (!window.location.hash || window.location.hash.length <= 1) {
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      }
-    }
-  }, [post.slug]);
-
-  const copyLink = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const shareToTwitter = () => {
-    if (typeof window === "undefined") return;
-    window.open(
-      `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
-  };
 
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
@@ -147,17 +87,13 @@ export default function ArticleClient({
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
             {/* Back to Blog */}
-            <button
-              type="button"
-              onClick={(event) => {
-                event.preventDefault();
-                window.location.replace(localePath("/blog"));
-              }}
+            <Link
+              href={localePath("/blog")}
               className="group inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border theme-border bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-teal-500 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-white"
             >
-              <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition duration-200" />
-              {t("backToBlog")}
-            </button>
+              <ArrowLeft className="h-4 w-4 transition duration-200 group-hover:-translate-x-1" />
+              Back to blog
+            </Link>
 
             {/* Author Card */}
             <div className="theme-card rounded-xl border p-5">
@@ -206,33 +142,12 @@ export default function ArticleClient({
             </div>
 
             {/* Share Post */}
-            <div className="space-y-3 px-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                {t("share")}
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={copyLink}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border theme-border text-gray-500 transition hover:bg-slate-100 hover:text-slate-950 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer"
-                  title={t("copyLinkText")}
-                >
-                  <Link2 className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={shareToTwitter}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border theme-border text-gray-500 transition hover:bg-slate-100 hover:text-slate-950 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white"
-                  title={t("shareTwitter")}
-                >
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                </button>
-                {copied && (
-                  <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 animate-fade-in">
-                    {t("copiedLink")}
-                  </span>
-                )}
-              </div>
-            </div>
+            <ArticleShareControls
+              copiedLabel="Copied!"
+              copyLabel="Copy Link"
+              shareLabel="Share this post"
+              twitterLabel="Share on Twitter"
+            />
           </div>
 
           {/* Center Column: Main Content */}
@@ -265,10 +180,12 @@ export default function ArticleClient({
                     <Clock className="h-3.5 w-3.5" />
                     {formatReadTime(post.readTime)}
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <Eye className="h-3.5 w-3.5" />
-                    {formatViews(views, language)} {t("views")}
-                  </span>
+                  <ArticleViewCount
+                    initialViews={post.views || 0}
+                    language={language}
+                    slug={post.slug}
+                    viewsLabel="views"
+                  />
                 </div>
               </div>
             </header>
@@ -302,12 +219,18 @@ export default function ArticleClient({
 
             <MobileTableOfContents
               headings={headings}
-              title={t("toc")}
-              emptyLabel={t("noToc")}
+              title="Table of Contents"
+              emptyLabel="No table of contents for this post."
             />
 
-            {/* Sanitized rich text is parsed on the server and passed through this client shell. */}
-            {children}
+            {/* Serialized content renders atomically inside one client island. */}
+            <ArticleContent
+              assetBase={assetBase}
+              content={content}
+              contentKey={contentKey}
+              language={language}
+              legacyAssetOrigins={legacyAssetOrigins}
+            />
 
             {/* Chapter Navigation (Previous / Next Chapter) */}
             {(prevPost || nextPost) && (
@@ -388,8 +311,8 @@ export default function ArticleClient({
 
           <TableOfContents
             headings={headings}
-            title={t("toc")}
-            emptyLabel={t("noToc")}
+            title="Table of Contents"
+            emptyLabel="No table of contents for this post."
           />
 
         </div>

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFile } from "node:fs/promises";
 
 import RichTextRenderer from "../src/app/components/RichTextRenderer/Renderer.tsx";
 import { getCodeBlockLabels } from "../src/app/components/CodeBlock/labels.ts";
@@ -74,4 +75,23 @@ test("article tables render with a separate toolbar and accessible actions", () 
   assert.match(html, /aria-label="Copy table"/);
   assert.match(html, /aria-label="Download table"/);
   assert.match(html, /Số lượng/);
+});
+
+test("article content crosses the language client boundary as one serializable atomic body", async () => {
+  const [articleLayout, articleTable, articlePage, articleContent] = await Promise.all([
+    readFile("src/app/components/ArticleClient.tsx", "utf8"),
+    readFile("src/app/components/ArticleTable/ArticleTable.tsx", "utf8"),
+    readFile("src/app/[lang]/blog/[slug]/page.tsx", "utf8"),
+    readFile("src/app/components/ArticleContent.tsx", "utf8"),
+  ]);
+
+  assert.doesNotMatch(articleLayout, /^\s*["']use client["'];/);
+  assert.doesNotMatch(articleLayout, /children:\s*ReactNode/);
+  assert.match(articleLayout, /<ArticleContent/);
+  assert.doesNotMatch(articleTable, /^\s*["']use client["'];/);
+  assert.match(articleTable, /ArticleTableActions/);
+  assert.doesNotMatch(articlePage, /<RichTextRenderer/);
+  assert.match(articlePage, /content=\{localizedPost\.content\}/);
+  assert.match(articleContent, /^\s*["']use client["'];/);
+  assert.match(articleContent, /<RichTextRenderer/);
 });

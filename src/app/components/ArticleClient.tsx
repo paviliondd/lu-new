@@ -151,7 +151,7 @@ export default function ArticleClient({
           </div>
 
           {/* Center Column: Main Content */}
-          <div className="order-1 mx-auto min-w-0 w-full max-w-[56.25rem] space-y-8 2xl:col-start-2">
+          <div className="order-1 mx-auto min-w-0 w-full max-w-[56.25rem] space-y-8 2xl:col-start-2 2xl:row-start-1">
             {/* Header info */}
             <header className="article-reading-frame space-y-5">
               <h1 className="article-title break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">

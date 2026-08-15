@@ -185,8 +185,9 @@ test("production dependencies stay above audited security floors", async () => {
 });
 
 test("article body is centered independently while the TOC occupies the right track", async () => {
-  const [articleClient, globalStyles, tableOfContents, renderer] = await Promise.all([
+  const [articleClient, articleLoading, globalStyles, tableOfContents, renderer] = await Promise.all([
     readFile("src/app/components/ArticleClient.tsx", "utf8"),
+    readFile("src/app/[lang]/blog/[slug]/loading.tsx", "utf8"),
     readFile("src/app/globals.css", "utf8"),
     readFile("src/app/components/TableOfContents.tsx", "utf8"),
     readFile("src/app/components/RichTextRenderer/Renderer.tsx", "utf8"),
@@ -200,7 +201,9 @@ test("article body is centered independently while the TOC occupies the right tr
     articleClient,
     /2xl:grid-cols-\[minmax\(0,1fr\)_minmax\(0,56\.25rem\)_minmax\(0,1fr\)\]/,
   );
-  assert.match(articleClient, /2xl:col-start-2/);
+  assert.match(articleClient, /2xl:col-start-2 2xl:row-start-1/);
+  assert.match(articleLoading, /2xl:col-start-2 2xl:row-start-1/);
+  assert.match(articleLoading, /2xl:col-start-3 2xl:row-start-1/);
   assert.match(articleClient, /max-w-\[56\.25rem\]/);
   assert.match(globalStyles, /--article-column-width: 56\.25rem/);
   assert.match(globalStyles, /--article-reading-width: 53\.25rem/);
@@ -213,7 +216,7 @@ test("article body is centered independently while the TOC occupies the right tr
     globalStyles,
     /\.article-content__body :where\(h1, h2, h3, h4\)[\s\S]*margin-inline: auto/,
   );
-  assert.match(tableOfContents, /className="hidden w-full pl-8 2xl:col-start-3 2xl:block"/);
+  assert.match(tableOfContents, /className="hidden w-full pl-8 2xl:col-start-3 2xl:row-start-1 2xl:block"/);
   assert.match(tableOfContents, /className="article-reading-frame[^\"]*2xl:hidden"/);
   assert.match(renderer, /article-content[\s\S]*max-w-full/);
   assert.doesNotMatch(renderer, /max-w-\[46rem\]/);

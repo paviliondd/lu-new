@@ -6,6 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- **Article top-gap and reverse-scroll hotfix:** fixed the wide three-track article grid so the centered article and right-side TOC explicitly share the first row, removing the TOC-height blank area shown in `debug/Screenshot_3.png`; applied the same row constraint to the loading skeleton. Replaced TOC link `scrollIntoView` with scroll calculations scoped only to the TOC's own overflow container, preventing active-heading updates from pulling the document viewport upward while the reader scrolls. Presentation/client-navigation only: no Payload schema, migration, CMS record, media, fallback content, or runtime data was changed or written.
 - **Centered article body and fully disabled view-count feature:** changed the wide article shell to three symmetric tracks so the 900px article body is centered against the full page independently of the table of contents; the desktop TOC now occupies only the right track after the article, while narrower screens retain the collapsible inline TOC. Removed all visible view totals, client tracking, deduplication/session storage, the view POST endpoint, Payload/local increment logic, and view values from public search/post responses. The existing Payload `views` column is retained only as an unreadable, hidden legacy field to avoid a destructive schema migration or deletion of stored values. No migration, seed, sync, repair, rollback, CMS record write, or stored-data deletion was performed.
 
 ## 2026-08-14

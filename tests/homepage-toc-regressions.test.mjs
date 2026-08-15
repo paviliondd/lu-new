@@ -32,16 +32,17 @@ test("homepage Journey word is larger and starts below the i in Unity", async ()
   assert.match(globalStyles, /\.hero-journey-word\s*\{[\s\S]*margin-left: 3\.7em/);
 });
 
-test("table of contents uses observer-based scroll spy and keeps active links visible", async () => {
+test("table of contents keeps active links visible without scrolling the document", async () => {
   const toc = await readFile("src/app/components/TableOfContents.tsx", "utf8");
 
   assert.match(toc, /new IntersectionObserver/);
   assert.match(toc, /rootMargin: "-160px 0px -50% 0px"/);
-  assert.match(toc, /scrollIntoView\(\{/);
-  assert.match(toc, /block: "nearest"/);
+  assert.match(toc, /tocContainerRef/);
+  assert.match(toc, /container\.scrollTo\(\{/);
   assert.match(toc, /behavior: "smooth"/);
+  assert.doesNotMatch(toc, /scrollIntoView\(/);
   assert.match(toc, /sticky top-24 max-h-\[calc\(100vh-6rem\)\] overflow-y-auto/);
-  assert.match(toc, /w-full pl-8 2xl:col-start-3 2xl:block/);
+  assert.match(toc, /w-full pl-8 2xl:col-start-3 2xl:row-start-1 2xl:block/);
   assert.match(toc, /border-l-2 py-1\.5 pl-4/);
   assert.match(toc, /MobileTableOfContents/);
   assert.match(toc, /2xl:hidden/);

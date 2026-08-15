@@ -26,7 +26,7 @@
 html {
   --font-sans: var(--font-site-sans), ui-sans-serif, system-ui, sans-serif;
   --article-column-width: 56.25rem;
-  --article-reading-width: 53.25rem;
+  --article-reading-width: var(--article-column-width);
   --site-bg: #f7f8fb;
   --site-surface: #ffffff;
   --site-panel: #f1f5f9;

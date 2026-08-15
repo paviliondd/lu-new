@@ -184,7 +184,7 @@ test("production dependencies stay above audited security floors", async () => {
   assert.equal(packageJson.overrides.dompurify, "3.4.13");
 });
 
-test("article body is centered independently while the TOC occupies the right track", async () => {
+test("article body and technical panels share one balanced width while the TOC occupies the right track", async () => {
   const [articleClient, articleLoading, globalStyles, tableOfContents, renderer] = await Promise.all([
     readFile("src/app/components/ArticleClient.tsx", "utf8"),
     readFile("src/app/[lang]/blog/[slug]/loading.tsx", "utf8"),
@@ -206,11 +206,15 @@ test("article body is centered independently while the TOC occupies the right tr
   assert.match(articleLoading, /2xl:col-start-3 2xl:row-start-1/);
   assert.match(articleClient, /max-w-\[56\.25rem\]/);
   assert.match(globalStyles, /--article-column-width: 56\.25rem/);
-  assert.match(globalStyles, /--article-reading-width: 53\.25rem/);
+  assert.match(globalStyles, /--article-reading-width: var\(--article-column-width\)/);
   assert.match(globalStyles, /\.article-reading-frame\s*\{[\s\S]*max-width: var\(--article-column-width\)/);
   assert.match(
     globalStyles,
     /--article-wide-width: min\(100%, var\(--article-column-width\)\)/,
+  );
+  assert.match(
+    globalStyles,
+    /\.article-content__body > :where\(h1, h2, h3, h4, p, ul, ol, blockquote, hr, aside\)[\s\S]*width: min\(100%, var\(--article-reading-width\)\)/,
   );
   assert.match(
     globalStyles,

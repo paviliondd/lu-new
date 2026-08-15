@@ -69,6 +69,7 @@ export default function TableOfContents({
   const [tocHeadings, setTocHeadings] = useState<TocHeading[]>(headings);
   const [activeId, setActiveId] = useState("");
   const linkRefs = useRef(new Map<string, HTMLAnchorElement>());
+  const tocContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const contentElement = document.querySelector(contentSelector);
@@ -146,8 +147,23 @@ export default function TableOfContents({
     if (!activeId) return;
 
     const frame = window.requestAnimationFrame(() => {
-      linkRefs.current.get(activeId)?.scrollIntoView({
-        block: "nearest",
+      const container = tocContainerRef.current;
+      const link = linkRefs.current.get(activeId);
+      if (!container || !link) return;
+
+      const containerBounds = container.getBoundingClientRect();
+      const linkBounds = link.getBoundingClientRect();
+      const topOverflow = linkBounds.top - containerBounds.top;
+      const bottomOverflow = linkBounds.bottom - containerBounds.bottom;
+      const scrollDelta = topOverflow < 0
+        ? topOverflow - 8
+        : bottomOverflow > 0
+          ? bottomOverflow + 8
+          : 0;
+
+      if (scrollDelta === 0) return;
+      container.scrollTo({
+        top: container.scrollTop + scrollDelta,
         behavior: "smooth",
       });
     });
@@ -156,8 +172,8 @@ export default function TableOfContents({
   }, [activeId]);
 
   return (
-    <aside className="hidden w-full pl-8 2xl:col-start-3 2xl:block">
-      <div className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto py-1">
+    <aside className="hidden w-full pl-8 2xl:col-start-3 2xl:row-start-1 2xl:block">
+      <div ref={tocContainerRef} className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto py-1">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
           {title}
         </h3>

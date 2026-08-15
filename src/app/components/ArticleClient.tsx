@@ -7,7 +7,7 @@ import CustomImage from "./CustomImage";
 import AuthorAvatar from "./AuthorAvatar";
 import Comments from "./Comments";
 import ArticleContent from "./ArticleContent";
-import { ArticleShareControls, ArticleViewCount } from "./ArticleInteractions";
+import { ArticleShareControls } from "./ArticleInteractions";
 import type { CommentRecord } from "@/lib/comments/types";
 import { localePath as buildLocalePath, type Locale } from "@/i18n/config";
 import { formatTopicLabel } from "@/lib/utils/formatTopic";
@@ -67,7 +67,7 @@ export default function ArticleClient({
 
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6">
         {/* Draft Preview Banner */}
         {post.status === "draft" && (
           <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
@@ -81,8 +81,8 @@ export default function ArticleClient({
           </div>
         )}
 
-        {/* Reading column with a companion table of contents on wide screens. */}
-        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,56.25rem)_16.25rem] xl:justify-center xl:gap-x-8">
+        {/* The article owns the centered track; the TOC uses only the right track. */}
+        <div className="grid min-w-0 gap-y-8 2xl:grid-cols-[minmax(0,1fr)_minmax(0,56.25rem)_minmax(0,1fr)]">
           
           {/* Left Column: Back button, author details & share */}
           <div className="order-2 space-y-8 lg:hidden">
@@ -151,7 +151,7 @@ export default function ArticleClient({
           </div>
 
           {/* Center Column: Main Content */}
-          <div className="order-1 mx-auto min-w-0 w-full max-w-[56.25rem] space-y-8">
+          <div className="order-1 mx-auto min-w-0 w-full max-w-[56.25rem] space-y-8 2xl:col-start-2">
             {/* Header info */}
             <header className="article-reading-frame space-y-5">
               <h1 className="article-title break-words text-balance text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-slate-950 dark:text-white">
@@ -180,13 +180,6 @@ export default function ArticleClient({
                     <Clock className="h-3.5 w-3.5" />
                     {formatReadTime(post.readTime)}
                   </span>
-                  <ArticleViewCount
-                    hidden
-                    initialViews={post.views || 0}
-                    language={language}
-                    slug={post.slug}
-                    viewsLabel="views"
-                  />
                 </div>
               </div>
             </header>

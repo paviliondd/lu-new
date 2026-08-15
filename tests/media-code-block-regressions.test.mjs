@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { promisify } from "node:util";
 import { test } from "node:test";
 
@@ -184,7 +184,7 @@ test("production dependencies stay above audited security floors", async () => {
   assert.equal(packageJson.overrides.dompurify, "3.4.13");
 });
 
-test("article desktop layout follows the 900px DevOpsVN reading column with a gutter TOC", async () => {
+test("article body is centered independently while the TOC occupies the right track", async () => {
   const [articleClient, globalStyles, tableOfContents, renderer] = await Promise.all([
     readFile("src/app/components/ArticleClient.tsx", "utf8"),
     readFile("src/app/globals.css", "utf8"),
@@ -195,9 +195,12 @@ test("article desktop layout follows the 900px DevOpsVN reading column with a gu
   assert.match(articleClient, /<header className="article-reading-frame/);
   assert.doesNotMatch(articleClient, /\{post\.description\}/);
   assert.match(articleClient, /className="article-reading-frame relative aspect-\[2\/1\]/);
-  assert.match(articleClient, /max-w-\[1280px\]/);
-  assert.match(articleClient, /xl:grid-cols-\[minmax\(0,56\.25rem\)_16\.25rem\]/);
-  assert.match(articleClient, /xl:gap-x-8/);
+  assert.match(articleClient, /max-w-\[1536px\]/);
+  assert.match(
+    articleClient,
+    /2xl:grid-cols-\[minmax\(0,1fr\)_minmax\(0,56\.25rem\)_minmax\(0,1fr\)\]/,
+  );
+  assert.match(articleClient, /2xl:col-start-2/);
   assert.match(articleClient, /max-w-\[56\.25rem\]/);
   assert.match(globalStyles, /--article-column-width: 56\.25rem/);
   assert.match(globalStyles, /--article-reading-width: 53\.25rem/);
@@ -210,7 +213,8 @@ test("article desktop layout follows the 900px DevOpsVN reading column with a gu
     globalStyles,
     /\.article-content__body :where\(h1, h2, h3, h4\)[\s\S]*margin-inline: auto/,
   );
-  assert.match(tableOfContents, /className="order-3 hidden w-full xl:block"/);
+  assert.match(tableOfContents, /className="hidden w-full pl-8 2xl:col-start-3 2xl:block"/);
+  assert.match(tableOfContents, /className="article-reading-frame[^\"]*2xl:hidden"/);
   assert.match(renderer, /article-content[\s\S]*max-w-full/);
   assert.doesNotMatch(renderer, /max-w-\[46rem\]/);
   assert.doesNotMatch(articleClient, /max-w-\[(?:1120|1200)px\]|minmax\(0,(?:46|50)rem\)/);
@@ -232,17 +236,32 @@ test("mobile code and topology panels stay compact and support touch scrolling",
   assert.match(globalStyles, /@media \(max-width: 640px\)[\s\S]*\.mermaid-shell__stage\s*\{[\s\S]*min-height: 10rem;[\s\S]*touch-action: pan-x pan-y/);
 });
 
-test("article view totals are hidden while related-post thumbnails remain compact and readable", async () => {
-  const [articleClient, articleInteractions, postListRow] = await Promise.all([
+test("post view tracking and totals are fully disabled without dropping the legacy CMS column", async () => {
+  const [articleClient, articleInteractions, postCard, hero, postListRow, payloadAdapter, payloadConfig, searchRoute] = await Promise.all([
     readFile("src/app/components/ArticleClient.tsx", "utf8"),
     readFile("src/app/components/ArticleInteractions.tsx", "utf8"),
+    readFile("src/app/components/PostCard.tsx", "utf8"),
+    readFile("src/app/components/HeroRecentWritingSection.tsx", "utf8"),
     readFile("src/app/components/PostListRow.tsx", "utf8"),
+    readFile("src/lib/cms/payload.ts", "utf8"),
+    readFile("src/payload.config.ts", "utf8"),
+    readFile("src/app/api/search/route.ts", "utf8"),
   ]);
 
-  assert.match(articleClient, /<ArticleViewCount[\s\S]*hidden/);
-  assert.match(articleInteractions, /hidden\?: boolean/);
-  assert.match(articleInteractions, /className=\{hidden \? "hidden"/);
+  assert.doesNotMatch(articleClient, /ArticleViewCount|post\.views/);
+  assert.doesNotMatch(articleInteractions, /ArticleViewCount|\/view|\bEye\b/);
+  assert.doesNotMatch(postCard, /\bEye\b|formatCompactViews|post\.views|t\("views"\)/);
+  assert.doesNotMatch(hero, /\bEye\b|post\.views|featuredPost\.views/);
   assert.doesNotMatch(postListRow, /\bEye\b|formatCompactViews|\{post\.views/);
+  assert.doesNotMatch(payloadAdapter, /getLocalPostViews|incrementPayloadPostView|withLocalView/);
+  assert.doesNotMatch(searchRoute, /\bviews\b/);
+  assert.doesNotMatch(payloadConfig, /defaultColumns:\s*\[[^\]]*"views"/);
+  assert.match(
+    payloadConfig,
+    /name: "views", type: "number", defaultValue: 0, min: 0, access: \{ read: \(\) => false \}, admin: \{ hidden: true \}/,
+  );
+  await assert.rejects(access("src/app/api/posts/[slug]/view/route.ts"), { code: "ENOENT" });
+  await assert.rejects(access("src/lib/views/store.ts"), { code: "ENOENT" });
   assert.match(postListRow, /h-16 w-24[\s\S]*sm:h-20 sm:w-32/);
   assert.match(postListRow, /sizes="\(min-width: 640px\) 128px, 96px"/);
 });

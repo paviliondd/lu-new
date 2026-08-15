@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Calendar, Eye, Compass, BookOpen, Share2 } from "lucide-react";
+import { ArrowRight, Calendar, Compass, BookOpen, Share2 } from "lucide-react";
 import type { Post } from "@/app/data";
 import { team } from "@/app/data";
 import AuthorAvatar, { getAuthorDisplay } from "@/app/components/AuthorAvatar";
@@ -197,11 +197,7 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
                       <Calendar className="h-3 w-3" />
                       {formatDate(featuredPost.date, language)}
                     </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <Eye className="h-3 w-3" />
-                      {featuredPost.views || 0}
-                    </span>
+
                   </div>
                 </div>
               </article>
@@ -259,8 +255,7 @@ export default function HeroRecentWritingSection({ initialPosts }: HeroRecentWri
                       <span>{displayAuthor.name}</span>
                       <span>•</span>
                       <span>{formatDate(post.date, language)}</span>
-                      <span>•</span>
-                      <span>{post.views || 0}</span>
+
                     </div>
                   </div>
                 </article>

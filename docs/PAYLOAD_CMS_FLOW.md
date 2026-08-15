@@ -14,11 +14,11 @@ Public data flow:
 4. Frontend pages call `getCmsPublishedPosts` and `getCmsPostBySlug`.
 5. Those functions read from Payload first, map documents into the existing `Post` shape, and fall back to local MDX files when Payload is unavailable.
 6. `/vi` and `/en` render the same Payload document using `titleVi/contentVi` or `titleEn/contentEn`.
-7. `/api/posts/[slug]/view` increments the `views` field in Payload, with local JSON fallback for development when Postgres is not running.
+7. Post view tracking is disabled. No frontend request or public increment endpoint exists; the legacy Payload column is hidden and unreadable so existing values remain preserved without a destructive migration.
 
 Collections:
 
-- `posts`: bilingual article body, featured image, SEO, series, tags, services, labs, and views.
+- `posts`: bilingual article body, featured image, SEO, series, tags, services, and labs. The legacy view-count column is retained only for non-destructive schema compatibility and is not exposed or updated.
 - `media`: uploaded images for posts and authors.
 - `authors`: author profile data and avatar.
 - `series`: series metadata shown on listing pages.

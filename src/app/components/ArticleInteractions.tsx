@@ -1,46 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Eye, Link2 } from "lucide-react";
-
-interface ArticleViewCountProps {
-  hidden?: boolean;
-  initialViews: number;
-  language: string;
-  slug: string;
-  viewsLabel: string;
-}
-
-function formatViews(value: number, language: string) {
-  return value.toLocaleString(language === "vi" ? "vi-VN" : "en-US");
-}
-
-export function ArticleViewCount({ hidden = false, initialViews, language, slug, viewsLabel }: ArticleViewCountProps) {
-  const [views, setViews] = useState(initialViews);
-
-  useEffect(() => {
-    const storageKey = `linuxunity:viewed:${slug}`;
-    const viewedAt = Number(localStorage.getItem(storageKey) || 0);
-    const viewWindowMs = 30 * 60 * 1000;
-
-    if (viewedAt && Date.now() - viewedAt < viewWindowMs) return;
-    localStorage.setItem(storageKey, String(Date.now()));
-
-    fetch(`/api/posts/${encodeURIComponent(slug)}/view`, { method: "POST" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { views?: number } | null) => {
-        if (typeof payload?.views === "number") setViews(payload.views);
-      })
-      .catch(() => localStorage.removeItem(storageKey));
-  }, [slug]);
-
-  return (
-    <span className={hidden ? "hidden" : "flex items-center gap-1.5"}>
-      <Eye className="h-3.5 w-3.5" />
-      {formatViews(views, language)} {viewsLabel}
-    </span>
-  );
-}
+import { useState } from "react";
+import { Link2 } from "lucide-react";
 
 interface ArticleShareControlsProps {
   copiedLabel: string;

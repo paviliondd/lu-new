@@ -715,7 +715,7 @@ const Posts: CollectionConfig = {
   slug: "posts",
   admin: {
     useAsTitle: "titleVi",
-    defaultColumns: ["titleVi", "slug", "status", "publishedAt", "views"],
+    defaultColumns: ["titleVi", "slug", "status", "publishedAt"],
     components: {
       beforeListTable: ["@/app/(payload)/components/BulkPublishPosts"],
     },
@@ -747,7 +747,7 @@ const Posts: CollectionConfig = {
       },
     ],
     beforeChange: [
-      ({ data, originalDoc }) => {
+      ({ data }) => {
         if (!data) return data;
         try {
           if (isPublished(data) && !hasArticleContent(data)) {
@@ -778,7 +778,7 @@ const Posts: CollectionConfig = {
 
           data.readTimeVi = readTimeLabel(data.contentRichVi || data.contentVi, "vi");
           data.readTimeEn = readTimeLabel(data.contentRichEn || data.contentEn || data.contentRichVi || data.contentVi, "en");
-          if (typeof data.views !== "number") data.views = Number(originalDoc?.views || 0);
+
           if (isPublished(data) && !data.publishedAt) data.publishedAt = new Date().toISOString();
         } catch (error) {
           if (error instanceof APIError) throw error;
@@ -1052,7 +1052,7 @@ const Posts: CollectionConfig = {
             },
             { name: "readTimeVi", type: "text", label: "Read time VI", admin: { readOnly: true } },
             { name: "readTimeEn", type: "text", label: "Read time EN", admin: { readOnly: true } },
-            { name: "views", type: "number", defaultValue: 0, min: 0, admin: { readOnly: true } },
+            { name: "views", type: "number", defaultValue: 0, min: 0, access: { read: () => false }, admin: { hidden: true } },
             { name: "roadmapId", type: "number", admin: { hidden: true } },
             { name: "roadmapOrder", type: "number", admin: { hidden: true } },
             { name: "topicSlug", type: "text", admin: { hidden: true } },

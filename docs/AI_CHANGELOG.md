@@ -2,6 +2,12 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-15
+
+Added & Fixed:
+
+- **Centered article body and fully disabled view-count feature:** changed the wide article shell to three symmetric tracks so the 900px article body is centered against the full page independently of the table of contents; the desktop TOC now occupies only the right track after the article, while narrower screens retain the collapsible inline TOC. Removed all visible view totals, client tracking, deduplication/session storage, the view POST endpoint, Payload/local increment logic, and view values from public search/post responses. The existing Payload `views` column is retained only as an unreadable, hidden legacy field to avoid a destructive schema migration or deletion of stored values. No migration, seed, sync, repair, rollback, CMS record write, or stored-data deletion was performed.
+
 ## 2026-08-14
 
 Added & Fixed:

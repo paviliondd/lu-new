@@ -17,7 +17,7 @@ import {
 import { preferredMediaURL as mediaUrl } from "@/lib/cms/media-url";
 import { sanitizeArticleHtml } from "@/lib/utils/security";
 import { cachedJson } from "@/lib/server/redis-cache";
-import { getLocalPostViews } from "@/lib/views/store";
+
 import type { CommentRecord } from "@/lib/comments/types";
 import type { AuthUser } from "@/lib/auth/session";
 
@@ -346,7 +346,7 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
       date: publishedAt,
       readTime: estimateReadTime(contentVi),
       readTime_en: estimateReadTime(contentEn),
-      views: 0,
+
       seriesSlug: null,
       topicSlug: "",
       clusterSlug: "",
@@ -395,7 +395,7 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
     date: publishedAt,
     readTime: asString(doc.readTimeVi, fallback?.readTime || estimateReadTime(contentVi)),
     readTime_en: asString(doc.readTimeEn, fallback?.readTime_en || estimateReadTime(contentEn)),
-    views: Math.max(0, asNumber(doc.views, fallback?.views || 0)),
+
     seriesSlug: asString(series?.slug, fallback?.seriesSlug || "") || null,
     series: series
       ? {
@@ -458,17 +458,6 @@ async function mapPayloadPost(doc: PayloadDoc, locale: Locale): Promise<Post> {
   return localized;
 }
 
-async function withLocalViews(posts: Post[]) {
-  const localViews = await getLocalPostViews();
-  return posts.map((post) => ({
-    ...post,
-    views: Math.max(post.views || 0, localViews[post.slug] || 0),
-  }));
-}
-
-async function withLocalView(post: Post) {
-  return (await withLocalViews([post]))[0];
-}
 
 async function getFallbackPosts(locale: Locale) {
   const filePosts = await getLocalizedFilePosts(locale);
@@ -496,7 +485,7 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
 
   return cachedJson(`posts:published:${locale}:${limit}`, 30, async () => {
     const payload = await getPayloadClient();
-    if (!payload) return (await withLocalViews(await getFallbackPosts(locale))).slice(0, limit);
+    if (!payload) return (await getFallbackPosts(locale)).slice(0, limit);
 
     try {
       const result = await payload.find({
@@ -512,10 +501,10 @@ async function getPayloadPublishedPosts(locale: Locale = "vi", requestedLimit = 
         },
       });
       const payloadPosts = await Promise.all(result.docs.map((doc) => mapPayloadPost(asPayloadDoc(doc), locale)));
-      return (await withLocalViews(payloadPosts)).slice(0, limit);
+      return payloadPosts.slice(0, limit);
     } catch (error) {
       console.error("Unable to fetch Payload published posts", { locale, error });
-      return (await withLocalViews(await getFallbackPosts(locale))).slice(0, limit);
+      return (await getFallbackPosts(locale)).slice(0, limit);
     }
   });
 }
@@ -569,7 +558,7 @@ async function getPayloadPostBySlug(
     const payload = await getPayloadClient();
     if (!payload) {
       const fallbackPost = await getFallbackPostBySlug(slug, locale);
-      return fallbackPost ? withLocalView(fallbackPost) : null;
+      return fallbackPost;
     }
 
     try {
@@ -628,11 +617,11 @@ async function getPayloadPostBySlug(
       }
 
       if (!doc) return null;
-      return withLocalView(await mapPayloadPost(asPayloadDoc(doc), locale));
+      return mapPayloadPost(asPayloadDoc(doc), locale);
     } catch (error) {
       console.error("Unable to resolve Payload post by slug", { slug, locale, error });
       const fallbackPost = await getFallbackPostBySlug(slug, locale);
-      return fallbackPost ? withLocalView(fallbackPost) : null;
+      return fallbackPost;
     }
   };
 
@@ -642,33 +631,6 @@ async function getPayloadPostBySlug(
 
 export const getCmsPostBySlug = getPayloadPostBySlug;
 
-export async function incrementPayloadPostView(slug: string): Promise<number | null> {
-  const payload = await getPayloadClient();
-  if (!payload) return null;
-
-  const result = await payload.find({
-    collection: "posts",
-    depth: 0,
-    limit: 1,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  });
-  const doc = result.docs[0] ? asPayloadDoc(result.docs[0]) : undefined;
-  if (!doc) return null;
-  if (typeof doc.id !== "string" && typeof doc.id !== "number") return null;
-
-  const views = Math.max(0, asNumber(doc.views)) + 1;
-  await payload.update({
-    collection: "posts",
-    id: doc.id,
-    data: { views },
-  });
-
-  return views;
-}
 
 function renderCommentBody(value: unknown) {
   const source = asString(value).slice(0, 4000);

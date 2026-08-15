@@ -20,6 +20,8 @@ The homepage Team section reads the Payload `authors` collection directly. Creat
 
 Payload schema changes are data changes, not presentation-only changes. Do not rename, remove, regroup, or sort by a new database-backed field unless a reviewed migration and a recoverable production backup are included in the same change. UI-only work must preserve the deployed collection schema and must not run seed, sync, import, repair, rollback, or migration commands against production.
 
+Article view tracking is disabled across the frontend and public APIs. The old Payload `views` column remains hidden and unreadable solely to preserve existing database values without a destructive migration; the application does not increment it or read legacy local view stores.
+
 ## Requirements and local setup
 
 - Node.js 24 and npm

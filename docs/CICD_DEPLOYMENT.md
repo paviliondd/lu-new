@@ -39,7 +39,7 @@ Mỗi snapshot trong `backups/YYYYMMDD-HHMMSS/` gồm:
 
 - `payload-postgres.dump`: Postgres custom-format dump.
 - `payload-media.tgz`: volume upload của Payload.
-- `app-runtime-data.tgz`: comments/newsletter/views JSON fallback trong volume `app_runtime_data`.
+- `app-runtime-data.tgz`: comments/newsletter JSON fallback và mọi JSON lượt xem cũ còn lưu nguyên trạng trong volume `app_runtime_data`; ứng dụng không còn đọc hoặc cập nhật dữ liệu lượt xem.
 - `uptime-kuma-data.tgz`: dữ liệu Uptime Kuma.
 - `translation-work.tgz`: translation workspace nếu có.
 - `manifest.env`: image SHA và Git commit tương ứng.

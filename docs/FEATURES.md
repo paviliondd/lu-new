@@ -48,8 +48,8 @@ Requirement:
 - Strip untrusted layout utility classes from CMS and fallback article HTML while retaining the renderer's semantic note, topology, and code classes, so preview and published content cannot escape normal document flow.
 - Give every saved Payload revision a distinct preview URL so an existing preview tab cannot reuse stale browser or Next route state while the post is being edited.
 - Keep serialized article HTML inside one atomic client island instead of passing a large server-rendered React tree through the language-provider client boundary. On slow or interrupted streams, the article body must remain absent until its complete structure is ready; tables and code blocks must never appear temporarily flattened as prose.
-- On wide desktop screens, follow the DevOpsVN article proportions with a 1280px shell, a 900px main column, a 32px gap, and a 260px table-of-contents gutter. Keep normal prose capped at 852px while hero media, tables, code, and other wide article surfaces may use the full 900px main column.
-- Keep article view totals visually hidden without disabling the existing deduplicated view tracker. Related-post rows must omit view totals and use compact 96×64px mobile / 128×80px desktop cover thumbnails so the artwork remains recognizable without becoming a full-size card grid.
+- On wide desktop screens, center the 900px article column against the full page independently of the table of contents. Place the 260px desktop TOC in the symmetric right-side track after the article; do not center the combined article-plus-TOC group. Keep normal prose capped at 852px while hero media, tables, code, and other wide article surfaces may use the full 900px main column.
+- Keep the post view-count feature fully disabled: no frontend totals, tracking request, public response field, active increment path, or visible Payload Admin field. Retain the unreadable legacy Payload column only to preserve existing stored values without a destructive migration. Related-post rows use compact 96×64px mobile / 128×80px desktop cover thumbnails so the artwork remains recognizable without becoming a full-size card grid.
 - On mobile, keep code and ASCII/Mermaid topology panels inside the viewport with touch-friendly horizontal scrolling. Use a compact single-line code toolbar, retain the language label, collapse the Copy control to its icon, and reduce code/topology font size and panel padding without wrapping or changing source alignment.
 
 Regression check:
@@ -61,7 +61,7 @@ Regression check:
 - Refresh preview and published pages and verify content remains in normal flow with no overlapping text, including content that arrived with legacy CSS classes.
 - Throttle the article route and verify that the first visible article body already contains every expected table; no intermediate plain-text table state is allowed.
 - Verify SEO title, code blocks, tables, notes, topology, and images.
-- At a desktop viewport, verify the 900px / 32px / 260px article-to-TOC layout, 852px prose measure, hidden view totals, and larger related-post thumbnails; verify the layout collapses to one column on tablet and mobile.
+- At a 1536px-or-wider desktop viewport, verify the 900px article body is centered on the page while the 260px TOC occupies only the right track, the prose measure remains 852px, no view tracking or totals exist, and related-post thumbnails remain compact; verify the layout collapses to one column with an inline TOC below that breakpoint.
 - At a 390px viewport, verify ordinary code, ASCII topology, and Mermaid topology stay within the page, preserve preformatted alignment, scroll horizontally by touch, and do not force document-level horizontal overflow.
 
 ## Editor

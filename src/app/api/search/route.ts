@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       category: post.category,
       tags: post.tags,
       date: post.date,
-      views: post.views,
+
       score,
       excerpt,
       excerptHtml,

@@ -94,7 +94,7 @@ https://linuxunity.com/admin
 On the first visit, Payload shows the first-user setup screen. Create the admin
 account there. After that, editors manage:
 
-- `Posts`: bilingual article content, featured image, SEO, series, tags, and views.
+- `Posts`: bilingual article content, featured image, SEO, series, and tags. View tracking is disabled; its legacy database column is hidden and unreadable for non-destructive compatibility only.
 - `Media`: uploaded images used by posts and authors.
 - `Authors`: author profiles and avatars.
 - `Series`: collection metadata.
@@ -165,7 +165,7 @@ Back up these Docker volumes:
 - `payload_postgres_data`: Payload database.
 - `payload_media`: uploaded images.
 - `uptime_kuma_data`: monitoring data.
-- `app_runtime_data`: persistent comments/newsletter/views fallback data.
+- `app_runtime_data`: persistent comments/newsletter fallback data plus any untouched legacy view JSON retained by older deployments.
 
 The app image is stateless; content lives in Postgres, Payload media,
 `app_runtime_data`, and the Uptime Kuma volume.

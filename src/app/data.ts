@@ -73,7 +73,7 @@ export interface Post {
   date: string;
   readTime: string;
   readTime_en: string;
-  views: number;
+  views?: number;
   seriesSlug: string | null;
   series?: {
     slug: string;

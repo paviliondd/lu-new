@@ -1,6 +1,13 @@
 import { getCmsPublishedPosts } from "@/lib/cms/payload";
 import { defaultLocale, hasLocale } from "@/i18n/config";
+import type { Post } from "@/app/data";
 import { rateLimit } from "@/lib/server/rate-limit";
+
+function withoutLegacyViewCount(post: Post) {
+  const publicPost = { ...post };
+  Reflect.deleteProperty(publicPost, "views");
+  return publicPost;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +26,7 @@ export async function GET(request: Request) {
   return Response.json(
     {
       docs: posts.map((post) => ({
-        ...post,
+        ...withoutLegacyViewCount(post),
         cover: post.seo.ogImage || post.thumbnail || null,
       })),
     },

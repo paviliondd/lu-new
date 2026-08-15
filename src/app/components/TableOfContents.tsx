@@ -18,7 +18,7 @@ interface TableOfContentsProps {
 
 export function MobileTableOfContents({ headings, emptyLabel, title }: TableOfContentsProps) {
   return (
-    <details className="article-reading-frame theme-card group rounded-xl border xl:hidden">
+    <details className="article-reading-frame theme-card group rounded-xl border 2xl:hidden">
       <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-bold text-slate-950 marker:content-none dark:text-slate-100">
         <List className="h-4 w-4 text-teal-700 dark:text-emerald-300" aria-hidden="true" />
         <span>{title}</span>
@@ -156,7 +156,7 @@ export default function TableOfContents({
   }, [activeId]);
 
   return (
-    <aside className="order-3 hidden w-full xl:block">
+    <aside className="hidden w-full pl-8 2xl:col-start-3 2xl:block">
       <div className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto py-1">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
           {title}

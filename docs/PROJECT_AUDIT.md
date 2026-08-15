@@ -17,9 +17,9 @@ This project is a Next.js App Router blog and Payload CMS application deployed a
 ## 2. Main Modules
 
 - `src/payload.config.ts`: Payload collections, editor features, uploads, access rules, hooks, and database adapter.
-- `src/lib/cms/payload.ts`: Payload read/write adapter, content rendering, outage fallback selection, comments, views, and OAuth user upsert.
+- `src/lib/cms/payload.ts`: Payload read/write adapter, content rendering, outage fallback selection, comments, and OAuth user upsert.
 - `src/app/[lang]`: Localized frontend routes for home, blog, post detail, search, series, feed, and about.
-- `src/app/api`: Public and auth APIs for posts, comments, search, auth callbacks, newsletter, health, revalidation, and post views.
+- `src/app/api`: Public and auth APIs for posts, comments, search, auth callbacks, newsletter, health, and revalidation.
 - `src/app/components`: UI components for header, footer, pages, article rendering, comments, search, theme, code blocks, images, and Mermaid.
 - `src/i18n`: Locale config, metadata, alternates, and localization helpers.
 - `src/migrations`: Payload database migrations.
@@ -51,7 +51,7 @@ This project is a Next.js App Router blog and Payload CMS application deployed a
 - Dark/light/system theme toggle.
 - Comment submission through GitHub or Google OAuth sessions.
 - Comment approval workflow through Payload `comments.status`.
-- Post view tracking with Payload and local fallback.
+- Post view tracking is disabled; legacy stored counts remain untouched and are not publicly readable.
 - Docker Compose production stack with Nginx, app, Postgres, Redis, Uptime Kuma, and Certbot.
 - Production GitHub Actions deployment to ECR and VPS.
 - Pre-deploy backup plus image-only and full-data rollback automation.

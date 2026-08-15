@@ -108,7 +108,7 @@ export async function getLocalizedFilePost(
         publishDate: date || null,
         publish_date: date || null,
         date,
-        views: 0,
+
         seriesSlug: data.series ? String(data.series) : null,
         topicSlug: "",
         clusterSlug: "",

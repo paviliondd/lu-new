@@ -129,4 +129,4 @@ tests/               Node tests and actively referenced fixtures
 - Never commit `.env` or credentials.
 - Use `feature/*`, `bugfix/*`, `hotfix/*`, or `codex/*`; `main` is production only.
 
-See [docs/FEATURES.md](docs/FEATURES.md), [docs/CICD_DEPLOYMENT.md](docs/CICD_DEPLOYMENT.md), and the Markdown topology files under `docs/`.
+See [docs/FEATURES.md](docs/FEATURES.md), [docs/DEPLOYMENT_WORKFLOW.md](docs/DEPLOYMENT_WORKFLOW.md), [docs/CICD_DEPLOYMENT.md](docs/CICD_DEPLOYMENT.md), and the Markdown topology files under `docs/`.

@@ -51,6 +51,7 @@ Requirement:
 - On wide desktop screens, center the 900px article column against the full page independently of the table of contents. Place the 260px desktop TOC in the symmetric right-side track after the article, explicitly sharing the article's first grid row so the TOC cannot reserve a blank row above the title; do not center the combined article-plus-TOC group. Keep active-link auto-scroll inside the TOC overflow container so scroll-spy updates never move the document viewport. Keep prose, headings, tables, code blocks, and other article surfaces on the same 900px measure so their left and right edges stay balanced.
 - Keep the post view-count feature fully disabled: no frontend totals, tracking request, public response field, active increment path, or visible Payload Admin field. Retain the unreadable legacy Payload column only to preserve existing stored values without a destructive migration. Related-post rows use compact 96×64px mobile / 128×80px desktop cover thumbnails so the artwork remains recognizable without becoming a full-size card grid.
 - On mobile, keep code and ASCII/Mermaid topology panels inside the viewport with touch-friendly horizontal scrolling. Use a compact single-line code toolbar, retain the language label, collapse the Copy control to its icon, and reduce code/topology font size and panel padding without wrapping or changing source alignment.
+- ASCII topology figures must override the generic article-figure overflow rule so the outer panel owns rounded clipping on desktop and horizontal scrolling on mobile; all border corners and preformatted characters must remain visible.
 
 Regression check:
 
@@ -63,6 +64,34 @@ Regression check:
 - Verify SEO title, code blocks, tables, notes, topology, and images.
 - At a 1536px-or-wider desktop viewport, verify the 900px article body begins on the same row as the 260px right-track TOC with no TOC-height blank area above the title. Scroll through multiple headings and confirm active-link tracking may scroll only the TOC container, never pull the document viewport upward. Also verify prose, tables, and code blocks share the same 900px aligned edges, no view tracking or totals exist, and related-post thumbnails remain compact; below that breakpoint the layout collapses to one column with an inline TOC.
 - At a 390px viewport, verify ordinary code, ASCII topology, and Mermaid topology stay within the page, preserve preformatted alignment, scroll horizontally by touch, and do not force document-level horizontal overflow.
+
+## Series landing and staging preview
+
+Status: Staging-ready
+
+Components:
+
+- Payload `series` status, localized introduction, learning points, and cover image
+- Payload Post `chapterOrder`
+- `SeriesLandingPage` shared by public and staging-preview routes
+- `deploy-staging.yml`, `.env.staging.example`, and the staging runbook
+
+Requirements:
+
+- Public Series lists and detail routes expose only `published` Series and Posts.
+- Existing Series remain published when the additive migration runs; no existing Series/Post/media values are deleted or rewritten.
+- The landing page uses LinuxUnity CMS or local fallback content only; external reference-site content is never imported.
+- Chapters sort by explicit `chapterOrder`, then existing title/date fallbacks.
+- `/{lang}/series-preview/{seriesSlug}` is available only when `SERIES_PREVIEW_ENABLED=true`, includes draft chapters, shows a staging banner, and is `noindex, nofollow`.
+- `SITE_ENVIRONMENT=staging` makes `/robots.txt` disallow the entire staging host.
+- Staging uses a separate Compose project, Postgres, Redis, media volume, OAuth credentials, and backup tree; the staging workflow deploys a Git-SHA image without updating the production tag.
+
+Regression:
+
+- Run `tests/series-staging-regressions.test.mjs`.
+- Verify a draft Series through the Payload Preview action and confirm the public route remains 404.
+- Publish Posts in chapter order, publish the Series last, then verify the public chapter list and both locales.
+- Follow `docs/STAGING_DEPLOYMENT.md` for DNS, TLS, secrets, health, migration-status, and rollback checks.
 
 ## Editor
 
@@ -113,6 +142,7 @@ Components:
 Requirement:
 
 - Upload image
+- Upload a safe SVG diagram or logo; the server sanitizes active SVG markup before persisting it and rejects a non-SVG document disguised as SVG
 - Generate card, OG, and article sizes
 - Normalize SEO filename
 - Render images on frontend
@@ -120,6 +150,7 @@ Requirement:
 Regression:
 
 - Upload image with alt text
+- Upload an SVG containing a harmless vector and confirm it renders; verify a test fixture containing script/event/external-reference markup is stripped before storage
 - Use it as cover image
 - Use it inside rich text
 - Confirm media URLs render after container restart

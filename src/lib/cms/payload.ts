@@ -9,6 +9,7 @@ import { allPosts, posts as fallbackPosts, series as fileSeries, team, type Auth
 import { localizePost, slugifyText, type Locale } from "@/i18n/config";
 import { getLocalizedFilePost, getLocalizedFilePosts } from "@/lib/content/localized-posts";
 import { normalizeExcerpt } from "@/lib/content/excerpt";
+import { sortPostsByChapter } from "@/lib/utils/chapter";
 import {
   isAsciiTopology,
   resolveCodeBlockLanguage,
@@ -239,7 +240,7 @@ function fallbackBase(slug: string): Post | null {
   return allPosts.find((post) => post.slug === slug) || null;
 }
 
-function mapPayloadSeries(doc: PayloadDoc): Series {
+async function mapPayloadSeries(doc: PayloadDoc): Promise<Series> {
   const slug = asString(doc.slug);
   const titleVi = asString(doc.titleVi, slug);
   const descriptionVi = asString(doc.descriptionVi);
@@ -250,6 +251,12 @@ function mapPayloadSeries(doc: PayloadDoc): Series {
     title_en: asString(doc.titleEn, titleVi),
     description: descriptionVi,
     description_en: asString(doc.descriptionEn, descriptionVi),
+    status: doc.status === "draft" ? "draft" : "published",
+    introduction: await renderPostContent(doc.introductionRichVi, ""),
+    introduction_en: await renderPostContent(doc.introductionRichEn, ""),
+    learningPoints: arrayValues(doc.learningPointsVi),
+    learningPoints_en: arrayValues(doc.learningPointsEn),
+    coverImage: mediaDetails(doc.coverImage),
     icon: asString(doc.icon, "layers"),
     partsCount: 0,
     tag: asString(doc.tag),
@@ -524,6 +531,12 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
 
   const fallback = fileSeries.map((item) => ({
     ...item,
+    status: "published" as const,
+    introduction: "",
+    introduction_en: "",
+    learningPoints: [],
+    learningPoints_en: [],
+    coverImage: null,
     partsCount: counts.get(item.slug) ?? 0,
   }));
   const payload = await getPayloadClient();
@@ -532,14 +545,20 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
   try {
     const result = await payload.find({
       collection: "series",
-      depth: 0,
+      depth: 1,
       limit,
       sort: requestedLimit === undefined ? "titleVi" : "-createdAt",
+      overrideAccess: true,
+      where: {
+        status: {
+          equals: "published",
+        },
+      },
     });
-    const payloadSeries = result.docs.map((doc) => ({
-      ...mapPayloadSeries(asPayloadDoc(doc)),
+    const payloadSeries = await Promise.all(result.docs.map(async (doc) => ({
+      ...(await mapPayloadSeries(asPayloadDoc(doc))),
       partsCount: counts.get(asString(asPayloadDoc(doc).slug)) ?? 0,
-    }));
+    })));
     return requestedLimit === undefined ? payloadSeries : payloadSeries.slice(0, limit);
   } catch (error) {
     console.error("Unable to fetch Payload series", { locale, error });
@@ -548,6 +567,89 @@ async function getPayloadSeries(locale: Locale = "vi", requestedLimit?: number):
 }
 
 export const getCmsSeries = getPayloadSeries;
+
+export async function getCmsSeriesBySlug(
+  slug: string,
+  locale: Locale = "vi",
+  allowDraft = false,
+): Promise<Series | null> {
+  const payload = await getPayloadClient();
+  if (!payload) {
+    const fallback = (await getPayloadSeries(locale)).find((item) => item.slug === slug);
+    return fallback || null;
+  }
+
+  try {
+    const where: Where = allowDraft
+      ? { slug: { equals: slug } }
+      : { and: [{ slug: { equals: slug } }, { status: { equals: "published" } }] };
+    const result = await payload.find({
+      collection: "series",
+      depth: 1,
+      draft: Boolean(allowDraft),
+      limit: 1,
+      overrideAccess: allowDraft,
+      where,
+    });
+    const doc = result.docs[0];
+    return doc ? mapPayloadSeries(asPayloadDoc(doc)) : null;
+  } catch (error) {
+    console.error("Unable to resolve Payload series by slug", { slug, locale, error });
+    const item = fileSeries.find((candidate) => candidate.slug === slug);
+    return item
+      ? {
+          ...item,
+          status: "published",
+          introduction: "",
+          introduction_en: "",
+          learningPoints: [],
+          learningPoints_en: [],
+          coverImage: null,
+        }
+      : null;
+  }
+}
+
+export async function getCmsSeriesPosts(
+  seriesSlug: string,
+  locale: Locale = "vi",
+  allowDraft = false,
+): Promise<Post[]> {
+  if (!allowDraft) {
+    return sortPostsByChapter(
+      (await getPayloadPublishedPosts(locale)).filter((post) => post.seriesSlug === seriesSlug),
+    );
+  }
+
+  const payload = await getPayloadClient();
+  if (!payload) {
+    return sortPostsByChapter(
+      allPosts.map((post) => localizePost(post, locale)).filter((post) => post.seriesSlug === seriesSlug),
+    );
+  }
+
+  try {
+    const result = await payload.find({
+      collection: "posts",
+      depth: 2,
+      draft: true,
+      limit: 100,
+      overrideAccess: true,
+      where: {
+        series: {
+          exists: true,
+        },
+      },
+    });
+    const posts = await Promise.all(result.docs.map((doc) => mapPayloadPost(asPayloadDoc(doc), locale)));
+    return sortPostsByChapter(posts.filter((post) => post.seriesSlug === seriesSlug));
+  } catch (error) {
+    console.error("Unable to fetch Payload series posts for preview", { seriesSlug, locale, error });
+    return sortPostsByChapter(
+      allPosts.map((post) => localizePost(post, locale)).filter((post) => post.seriesSlug === seriesSlug),
+    );
+  }
+}
 
 async function getPayloadPostBySlug(
   slug: string,

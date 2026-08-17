@@ -1,4 +1,6 @@
-# CI/CD, Backup, and Rollback Runbook
+# CI/CD, ECR, Backup, and Rollback Runbook
+
+Non-production deployment, Series preview, and `dev.linuxunity.com` setup are documented separately in `docs/STAGING_DEPLOYMENT.md`. Staging must use independent Compose, Postgres, Redis, media, OAuth, and backup resources.
 
 ## Nguyên tắc vận hành
 

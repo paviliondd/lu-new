@@ -233,6 +233,10 @@ export interface Author {
  */
 export interface Series {
   id: number;
+  /**
+   * Draft series are only visible through the staging preview URL.
+   */
+  status: 'draft' | 'published';
   titleVi: string;
   titleEn?: string | null;
   /**
@@ -241,6 +245,49 @@ export interface Series {
   slug: string;
   descriptionVi?: string | null;
   descriptionEn?: string | null;
+  coverImage?: (number | null) | Media;
+  introductionRichVi?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  introductionRichEn?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  learningPointsVi?:
+    | {
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  learningPointsEn?:
+    | {
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   icon?: string | null;
   tag?: string | null;
   color?: string | null;
@@ -281,6 +328,10 @@ export interface Post {
    * Assign article to a Series.
    */
   series?: (number | null) | Series;
+  /**
+   * Stable chapter order inside the selected Series (0, 1, 2, ...).
+   */
+  chapterOrder?: number | null;
   /**
    * Article tags.
    */
@@ -722,11 +773,27 @@ export interface AuthorsSelect<T extends boolean = true> {
  * via the `definition` "series_select".
  */
 export interface SeriesSelect<T extends boolean = true> {
+  status?: T;
   titleVi?: T;
   titleEn?: T;
   slug?: T;
   descriptionVi?: T;
   descriptionEn?: T;
+  coverImage?: T;
+  introductionRichVi?: T;
+  introductionRichEn?: T;
+  learningPointsVi?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
+  learningPointsEn?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
   icon?: T;
   tag?: T;
   color?: T;
@@ -745,6 +812,7 @@ export interface PostsSelect<T extends boolean = true> {
   coverImage?: T;
   category?: T;
   series?: T;
+  chapterOrder?: T;
   tags?:
     | T
     | {

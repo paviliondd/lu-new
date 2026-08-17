@@ -1,6 +1,6 @@
 # Quy trình triển khai LinuxUnity: local → develop → staging → production
 
-Tài liệu vận hành ngắn gọn cho release hiện hành: SVG upload an toàn, Series landing/preview, Mermaid/ASCII topology và Blog không còn Featured carousel.
+Tài liệu vận hành ngắn gọn cho release hiện hành: SVG upload an toàn, Series landing/preview, Mermaid/ASCII topology và Blog carousel giữ nguyên chức năng nhưng không hiển thị nhãn `Featured`.
 
 Tài liệu cấu hình staging chi tiết: [`STAGING_DEPLOYMENT.md`](./STAGING_DEPLOYMENT.md). Quy trình backup/rollback production: [`CICD_DEPLOYMENT.md`](./CICD_DEPLOYMENT.md).
 
@@ -188,7 +188,7 @@ https://dev.linuxunity.com/en/series-preview/<series-slug>
 ```
 
 5. Kiểm tra desktop và mobile:
-   - Blog không có Feature carousel/badge;
+   - Blog carousel hoạt động, nhưng không hiển thị chữ hoặc badge `Featured`;
    - code block, ASCII topology và Mermaid không gây document horizontal scroll;
    - ASCII panel giữ đầy đủ bốn góc và scroll ngang ngay trong panel;
    - cover image giữ crop/focal point;

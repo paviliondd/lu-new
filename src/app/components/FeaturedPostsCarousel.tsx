@@ -46,11 +46,6 @@ export default function FeaturedPostsCarousel({
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
-          Featured
-        </span>
-      </div>
       <div
         className="group relative overflow-hidden rounded-xl border theme-border bg-slate-900 shadow-sm"
       >
@@ -92,9 +87,6 @@ export default function FeaturedPostsCarousel({
                   </div>
                   <div className="flex min-w-0 flex-col justify-between bg-slate-800 p-6 text-white sm:p-9 lg:p-11">
                     <div>
-                      <span className="mb-3 inline-flex self-start rounded-full bg-teal-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-teal-300 backdrop-blur-md">
-                        Featured
-                      </span>
                       <h1 className="text-2xl font-bold leading-tight transition group-hover/slide:text-teal-200 sm:text-3xl lg:text-4xl">{post.title}</h1>
                       <p className="mt-5 line-clamp-3 text-sm leading-7 text-slate-300 sm:text-base">{post.description}</p>
                     </div>

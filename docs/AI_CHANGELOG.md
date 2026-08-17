@@ -6,6 +6,7 @@ Every Codex code or workflow change must update this file.
 
 Added & Fixed:
 
+- **Blog Featured carousel removed:** removed the separate `Featured` article carousel and its card/badge treatment shown in `debug/Screenshot_6.png`. Published posts now remain in the normal filterable, paginated Blog grid, so no first posts are reserved or duplicated outside that grid. Presentation-only: no Payload schema, CMS record, media object, migration, seed, sync, repair, rollback, or data write was performed.
 - **Safe SVG uploads for Payload Media:** explicitly accepted `image/svg+xml` in the Media upload contract and sanitize SVG markup before it reaches persistent storage. The sanitizer removes scripts, foreign objects, active/external references, event handlers, XML declarations that can define entities, and animation elements; malformed non-SVG input is rejected with a validation error. Existing media records, files, schema, migrations, seeds, syncs, repairs, rollbacks, and production data were not written or changed. Added regression coverage for the upload contract and sanitizer behavior; README and feature registry now document the supported format and verification procedure.
 
 ## 2026-08-15

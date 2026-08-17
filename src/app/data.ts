@@ -16,6 +16,12 @@ export interface Series {
   title_en: string;
   description: string;
   description_en: string;
+  status?: "draft" | "published";
+  introduction?: string;
+  introduction_en?: string;
+  learningPoints?: string[];
+  learningPoints_en?: string[];
+  coverImage?: HeroMedia | null;
   icon: string;
   partsCount: number;
   tag: string;

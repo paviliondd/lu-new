@@ -7,6 +7,7 @@ import { APIError, buildConfig, type Block, type CollectionConfig, type RichText
 import sharp from "sharp";
 import { Projects } from "./collections/Projects";
 import { legacyImportedMediaURL } from "./lib/cms/media-url";
+import { isSvgUpload, sanitizeSvgUpload } from "./lib/media/sanitize-svg-upload";
 import { revalidatePath } from "next/cache";
 import { invalidateCache } from "./lib/server/redis-cache";
 
@@ -438,9 +439,26 @@ const Media: CollectionConfig = {
         withoutEnlargement: true,
       },
     ],
-    mimeTypes: ["image/*"],
+    // SVG is explicit because Payload's broad image wildcard can be rejected by
+    // browser/file-type validation before it reaches the collection hook.
+    mimeTypes: ["image/*", "image/svg+xml"],
   },
   hooks: {
+    beforeChange: [
+      ({ req }) => {
+        if (!isSvgUpload(req.file)) return;
+        try {
+          req.file.data = Buffer.from(sanitizeSvgUpload(req.file.data.toString("utf8")));
+        } catch (error) {
+          throw new APIError(
+            error instanceof Error ? error.message : "Uploaded SVG could not be safely processed.",
+            400,
+            null,
+            true,
+          );
+        }
+      },
+    ],
     afterRead: [
       async ({ doc, findMany, req }) => {
         if (!isRecord(doc)) return doc;
@@ -654,31 +672,58 @@ const Series: CollectionConfig = {
   slug: "series",
   admin: {
     useAsTitle: "titleVi",
-    defaultColumns: ["titleVi", "slug", "tag", "updatedAt"],
+    defaultColumns: ["titleVi", "slug", "status", "tag", "updatedAt"],
+    preview: (data) => {
+      const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+      if (!data?.slug) return site;
+      const previewRevision = encodeURIComponent(String(data?.updatedAt || Date.now()));
+      return `${site}/vi/series-preview/${data.slug}?revision=${previewRevision}`;
+    },
   },
   access: {
-    read: publicRead,
+    read: publishedOrAuthenticated,
   },
   hooks: {
     beforeValidate: [
-      ({ data, req }) => {
+      ({ data }) => {
         if (data && !data.slug && data.titleVi) data.slug = slugify(String(data.titleVi));
-        for (const [field, value] of [
-          ["contentVi", data?.contentVi],
-          ["contentEn", data?.contentEn],
-        ] as const) {
-          if (typeof value === "string" && value.length > 40_000) {
-            req.payload.logger.info(
-              { field, length: value.length },
-              "Allowing long legacy fallback content"
-            );
-          }
-        }
         return data;
+      },
+    ],
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        await invalidateCache(["series:list:*"]);
+        const slugs = new Set([
+          (doc as { slug?: string })?.slug,
+          (previousDoc as { slug?: string })?.slug,
+        ]);
+        for (const slug of slugs) {
+          if (!slug) continue;
+          safeRevalidatePath(`/vi/blog/series/${slug}`);
+          safeRevalidatePath(`/en/blog/series/${slug}`);
+          safeRevalidatePath(`/vi/series-preview/${slug}`);
+          safeRevalidatePath(`/en/series-preview/${slug}`);
+        }
+        safeRevalidatePath("/vi/blog/series");
+        safeRevalidatePath("/en/blog/series");
       },
     ],
   },
   fields: [
+    {
+      name: "status",
+      type: "select",
+      required: true,
+      defaultValue: "draft",
+      options: [
+        { label: "Draft", value: "draft" },
+        { label: "Published", value: "published" },
+      ],
+      admin: {
+        position: "sidebar",
+        description: "Draft series are only visible through the staging preview URL.",
+      },
+    },
     {
       type: "collapsible",
       label: "Basic Information",
@@ -697,6 +742,32 @@ const Series: CollectionConfig = {
         },
         { name: "descriptionVi", type: "textarea", label: "Description VI" },
         { name: "descriptionEn", type: "textarea", label: "Description EN" },
+      ],
+    },
+    {
+      type: "collapsible",
+      label: "Series Landing Content",
+      fields: [
+        {
+          name: "coverImage",
+          type: "relationship",
+          relationTo: "media",
+          label: "Series Cover Image",
+        },
+        {
+          name: "introductionRichVi",
+          type: "richText",
+          label: "Introduction VI",
+          editor: postEditor,
+        },
+        {
+          name: "introductionRichEn",
+          type: "richText",
+          label: "Introduction EN",
+          editor: postEditor,
+        },
+        listField("learningPointsVi", "Learning Points VI"),
+        listField("learningPointsEn", "Learning Points EN"),
       ],
     },
     {
@@ -943,6 +1014,17 @@ const Posts: CollectionConfig = {
       admin: {
         position: "sidebar",
         description: "Assign article to a Series.",
+      },
+    },
+    {
+      name: "chapterOrder",
+      type: "number",
+      label: "Chapter Order",
+      min: 0,
+      admin: {
+        position: "sidebar",
+        step: 1,
+        description: "Stable chapter order inside the selected Series (0, 1, 2, ...).",
       },
     },
     {

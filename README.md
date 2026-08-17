@@ -37,6 +37,8 @@ npm run dev
 
 Open `http://localhost:3000` and `http://localhost:3000/admin`. Configure `DATABASE_URL`, `PAYLOAD_SECRET`, PostgreSQL values, and OAuth values when testing comment login. Payload currently stores media in the persistent local `payload_media` volume; S3 is intentionally disabled until a separate migration is scheduled.
 
+Series landing pages are CMS-backed. A Series can stay `draft` while editors add a localized rich-text introduction, learning outcomes, cover art, and Posts with an explicit `chapterOrder`. Public routes only return published Series and Posts. Staging can enable the isolated, noindex preview route at `/{lang}/series-preview/{seriesSlug}` with `SERIES_PREVIEW_ENABLED=true`.
+
 Quality gates:
 
 ```bash
@@ -48,6 +50,8 @@ npm run build
 ## Media storage
 
 Payload uploads are currently stored in the persistent `payload_media` Docker volume and served through the Payload media route. The S3 adapter and S3 deployment variables are intentionally disabled. Before enabling S3 later, migrate every existing object, verify its public URL, and retain a recoverable local backup through the cutover.
+
+The Media collection accepts raster images and SVG (`image/svg+xml`). SVG uploads are sanitized before storage: scripts, foreign objects, embedded/external active references, event handlers, XML entity declarations, and animation elements are removed; non-SVG markup is rejected. This is a render/storage safeguard only—no existing media record, file, or database field is rewritten. Use SVG for diagrams and logos; retain meaningful alt text and use `Contain` when a diagram must not be cropped.
 
 ## Why Compose is structured this way
 
@@ -84,6 +88,8 @@ The `payload_media` volume is the active media store. Keep it mounted, included 
 4. promotion: only a healthy deployment receives the movable `production` tag.
 
 This ordering prevents unverified images entering deployment, keeps compilation off the VPS, makes rollback deterministic, and retains the prior image until health checks pass.
+
+`.github/workflows/deploy-staging.yml` provides the matching non-production path for `develop` or a manually selected feature branch. It deploys the immutable SHA to a separate `linuxunity-staging` Compose project and never promotes the `production` image tag. Follow `docs/STAGING_DEPLOYMENT.md` to configure `dev.linuxunity.com`, isolated Postgres/Redis/media volumes, GitHub Environment secrets, TLS, CMS editing, preview, approval, and publication.
 
 Required GitHub secrets currently are `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_ECR_REGISTRY`, `AWS_ECR_REPOSITORY`, `VPS_HOST`, `VPS_USER`, `VPS_PORT`, `VPS_SSH_KEY`, and `APP_DIR`. `BACKUP_S3_URI` and `BACKUP_S3_STORAGE_CLASS` are temporarily disabled in the workflow until the production backup bucket is configured.
 
@@ -123,4 +129,4 @@ tests/               Node tests and actively referenced fixtures
 - Never commit `.env` or credentials.
 - Use `feature/*`, `bugfix/*`, `hotfix/*`, or `codex/*`; `main` is production only.
 
-See [docs/FEATURES.md](docs/FEATURES.md), [docs/CICD_DEPLOYMENT.md](docs/CICD_DEPLOYMENT.md), and the Markdown topology files under `docs/`.
+See [docs/FEATURES.md](docs/FEATURES.md), [docs/DEPLOYMENT_WORKFLOW.md](docs/DEPLOYMENT_WORKFLOW.md), [docs/CICD_DEPLOYMENT.md](docs/CICD_DEPLOYMENT.md), and the Markdown topology files under `docs/`.

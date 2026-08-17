@@ -6,7 +6,6 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import type { Post } from "@/app/data";
 import { team } from "@/app/data";
 import PostCard from "@/app/components/PostCard";
-import FeaturedPostsCarousel from "@/app/components/FeaturedPostsCarousel";
 import { useLanguage } from "@/app/components/LanguageProvider";
 import { usePublishedPosts } from "@/app/components/usePublishedPosts";
 import { formatTopicLabel } from "@/lib/utils/formatTopic";
@@ -56,8 +55,6 @@ export default function BlogListPage({
       .sort((left, right) => new Date(right.date || right.publishDate || 0).getTime() - new Date(left.date || left.publishDate || 0).getTime());
   }, [posts]);
 
-  const featuredPosts = useMemo(() => allPublishedPosts.slice(0, 3), [allPublishedPosts]);
-
   const filteredPosts = useMemo(() => {
     let sortedPosts = allPublishedPosts;
     if (selectedTopic) {
@@ -83,10 +80,7 @@ export default function BlogListPage({
     return sortedPosts;
   }, [allPublishedPosts, searchQuery, selectedTag, selectedTopic]);
 
-  const reservedSlugs = new Set(featuredPosts.map((post) => post.slug));
-  const listPosts = selectedTag || selectedTopic || searchQuery.trim()
-    ? filteredPosts
-    : filteredPosts.filter((post) => !reservedSlugs.has(post.slug));
+  const listPosts = filteredPosts;
   const totalPages = Math.max(1, Math.ceil(listPosts.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const paginatedPosts = listPosts.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -113,9 +107,6 @@ export default function BlogListPage({
           </span>
         </div>
       </section>
-
-      {/* Featured Slide Carousel - Always visible */}
-      <FeaturedPostsCarousel posts={featuredPosts} />
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
         {/* Inline Search Bar - direct input without popup modal */}

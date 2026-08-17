@@ -725,7 +725,7 @@ iframe {
   font-size: 0.85rem;
 }
 
-.topology-shell {
+.article-content figure.topology-shell {
   width: min(100%, var(--article-column-width));
   margin: 0.65rem auto 0.8rem;
   overflow: hidden;
@@ -761,7 +761,7 @@ iframe {
 }
 
 @media (max-width: 640px) {
-  .topology-shell {
+  .article-content figure.topology-shell {
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     -webkit-overflow-scrolling: touch;

@@ -10,7 +10,6 @@ import { legacyImportedMediaURL } from "./lib/cms/media-url";
 import { isSvgUpload, sanitizeSvgUpload } from "./lib/media/sanitize-svg-upload";
 import { revalidatePath } from "next/cache";
 import { invalidateCache } from "./lib/server/redis-cache";
-import { broadcastNewPostNotification } from "./lib/newsletter/smtp";
 
 function safeRevalidatePath(path: string) {
   try {
@@ -888,6 +887,7 @@ const Posts: CollectionConfig = {
             const title = (doc as { titleVi?: string; title?: string })?.titleVi || (doc as { title?: string })?.title || slug;
             const excerpt = (doc as { descriptionVi?: string; description?: string })?.descriptionVi || (doc as { description?: string })?.description;
             console.info("[Newsletter broadcast] Publishing notification", { slug });
+            const { broadcastNewPostNotification } = await import("./lib/newsletter/smtp");
             const result = await broadcastNewPostNotification({ title, slug, excerpt });
             console.info("[Newsletter broadcast] Completed", { slug, sent: result.sent, total: result.total });
           }

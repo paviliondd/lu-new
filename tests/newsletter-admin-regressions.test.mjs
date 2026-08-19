@@ -24,5 +24,8 @@ test("newsletter subscribers are managed and confirmed from Payload Admin", asyn
   assert.match(migration, /CREATE TYPE "public"\."enum_newsletter_subscribers_status" AS ENUM\('pending', 'confirmed'\)/);
   assert.match(migration, /CREATE TABLE "newsletter_subscribers"/);
   assert.match(migration, /newsletter_subscribers_email_idx/);
+  assert.match(migration, /payload_locked_documents_rels.*newsletter_subscribers_id/s);
+  assert.match(migration, /payload_preferences_rels.*newsletter_subscribers_id/s);
   assert.match(migrationIndex, /20260819_000001_add_newsletter_subscribers/);
+  assert.match(migrationIndex, /20260819_000002_repair_newsletter_subscriber_relations/);
 });

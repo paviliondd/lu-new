@@ -1,5 +1,6 @@
 # AI Changelog
 
+- **Payload Admin newsletter relation repair:** the first newsletter migration omitted the relation columns Payload requires in `payload_locked_documents_rels` and `payload_preferences_rels`. This made every document editor fail its lock lookup with a missing `newsletter_subscribers_id` column. The original migration now includes those columns for fresh installations, and a follow-up idempotent migration repairs already-deployed databases without touching content or subscriber records.
 - **Newsletter subscriber administration and migration (pending deployment):** added the Payload-admin `newsletter-subscribers` collection with Pending/Confirmed controls, a forward migration with a unique email constraint, and a Payload-backed newsletter read/write path that preserves the JSON store only as a database-unavailable fallback. The migration has not been executed against production and no production subscriber record has been written, deleted, or restored in this workspace.
 - **Payload Admin full-width code snippets:** removed the 52rem/content-width cap so code blocks and their textareas span the Post editor canvas while retaining compact height rhythm and long-code vertical scrolling.
 

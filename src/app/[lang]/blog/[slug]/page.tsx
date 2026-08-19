@@ -7,6 +7,7 @@ import {
   getCmsPostBySlug,
   getCmsPublishedPosts,
 } from "@/lib/cms/payload";
+import { canPreviewPayloadDraft } from "@/lib/cms/preview-auth";
 import { getComments } from "@/lib/comments/store";
 import { highlightCodeBlocks } from "@/lib/content/highlight";
 import { hasLocale } from "@/i18n/config";
@@ -119,7 +120,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   if (!hasLocale(lang)) notFound();
 
   const query = await searchParams;
-  const isPreview = query?.preview === "true";
+  const isPreview = query?.preview === "true" && (await canPreviewPayloadDraft());
   const post = await getCmsPostBySlug(slug, lang, isPreview);
   
   if (!post) {

@@ -1,8 +1,31 @@
 const BLOCKED_ELEMENTS = /<(?:script|foreignObject|iframe|object|embed|audio|video|canvas|set|animate(?:Color|Motion|Transform)?)[\s\S]*?<\/(?:script|foreignObject|iframe|object|embed|audio|video|canvas|set|animate(?:Color|Motion|Transform)?)\s*>/gi;
 const BLOCKED_SELF_CLOSING_ELEMENTS = /<(?:script|foreignObject|iframe|object|embed|audio|video|canvas|set|animate(?:Color|Motion|Transform)?)(?:\s[^>]*)?\/?\s*>/gi;
 const EVENT_HANDLER_ATTRIBUTES = /\s(?:on[a-z][\w:-]*)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
-const UNSAFE_REFERENCE_ATTRIBUTES = /\s(?:href|xlink:href)\s*=\s*(?:"\s*(?:javascript:|data:|https?:|\/\/)[^"]*"|'\s*(?:javascript:|data:|https?:|\/\/)[^']*'|\s*(?:javascript:|data:|https?:|\/\/)[^\s>]+)/gi;
+const REFERENCE_ATTRIBUTES = /\s(?:href|xlink:href)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi;
 const XML_DANGEROUS_DECLARATIONS = /<!\s*(?:doctype|entity)\b[^>]*(?:\[[\s\S]*?\]\s*)?>/gi;
+
+function decodeXmlEntities(value: string): string {
+  return value
+    .replace(/&#x([\da-f]+);?/gi, (_, codePoint: string) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
+    .replace(/&#(\d+);?/g, (_, codePoint: string) => String.fromCodePoint(Number.parseInt(codePoint, 10)))
+    .replace(/&(colon|tab|newline);?/gi, (_, name: string) => {
+      switch (name.toLowerCase()) {
+        case "colon":
+          return ":";
+        case "tab":
+          return "\t";
+        case "newline":
+          return "\n";
+        default:
+          return "";
+      }
+    });
+}
+
+function sanitizeReferenceAttribute(attribute: string, quoted: string | undefined, singleQuoted: string | undefined, bare: string | undefined) {
+  const value = decodeXmlEntities(quoted ?? singleQuoted ?? bare ?? "").replace(/[\u0000-\u0020]+/g, "");
+  return /^(?:javascript:|data:|https?:|\/\/)/i.test(value) ? "" : attribute;
+}
 
 /**
  * Removes active content from SVG markup before it is written to local media
@@ -11,7 +34,13 @@ const XML_DANGEROUS_DECLARATIONS = /<!\s*(?:doctype|entity)\b[^>]*(?:\[[\s\S]*?\
  * references; external/data/javascript references and animation are removed.
  */
 export function sanitizeSvgUpload(source: string): string {
-  const normalized = source.replace(/^\uFEFF/, "").replace(/^<\?xml[^>]*\?>\s*/i, "").trim();
+  const normalized = source
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .replace(/^<\?xml[^>]*\?>\s*/i, "")
+    .replace(/^(?:<!--[\s\S]*?-->\s*)+/, "")
+    .replace(XML_DANGEROUS_DECLARATIONS, "")
+    .trim();
   if (!/^<svg\b[^>]*>/i.test(normalized) || !/<\/svg\s*>\s*$/i.test(normalized)) {
     throw new Error("Uploaded file is not a valid SVG document.");
   }
@@ -21,7 +50,7 @@ export function sanitizeSvgUpload(source: string): string {
     .replace(BLOCKED_ELEMENTS, "")
     .replace(BLOCKED_SELF_CLOSING_ELEMENTS, "")
     .replace(EVENT_HANDLER_ATTRIBUTES, "")
-    .replace(UNSAFE_REFERENCE_ATTRIBUTES, "");
+    .replace(REFERENCE_ATTRIBUTES, sanitizeReferenceAttribute);
 
   if (!/^<svg\b[^>]*>/i.test(sanitized) || !/<\/svg\s*>\s*$/i.test(sanitized)) {
     throw new Error("Uploaded file is not a valid SVG document.");

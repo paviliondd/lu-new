@@ -24,6 +24,7 @@
 }
 
 html {
+  --space-section: 2.25rem;
   --font-sans: var(--font-site-sans), ui-sans-serif, system-ui, sans-serif;
   --article-column-width: 56.25rem;
   --article-reading-width: var(--article-column-width);
@@ -176,7 +177,7 @@ iframe {
   --article-wide-width: min(100%, var(--article-column-width));
   font-size: 1.125rem;
   letter-spacing: 0.004em;
-  line-height: 1.75;
+  line-height: 1.65;
 }
 
 .article-reading-frame {
@@ -188,7 +189,7 @@ iframe {
 
 .article-title {
   max-width: 60rem;
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
   line-height: 1.1;
   letter-spacing: -0.025em;
   text-wrap: balance;
@@ -221,25 +222,25 @@ iframe {
 .article-content--reading.prose h1 {
   margin-top: 2.5rem;
   margin-bottom: 1.25rem;
-  font-size: clamp(2.25rem, 1.85rem + 1.5vw, 3rem);
+  font-size: clamp(1.875rem, 1.65rem + 1.1vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.12;
 }
 
 .article-content--reading.prose h2 {
-  margin-top: 2.5rem;
-  margin-bottom: 1.25rem;
-  font-size: clamp(1.75rem, 1.5rem + 0.9vw, 2.25rem);
+  margin-top: 2.25rem;
+  margin-bottom: 1rem;
+  font-size: clamp(1.5rem, 1.35rem + 0.65vw, 1.875rem);
   font-weight: 750;
   letter-spacing: -0.018em;
   line-height: 1.22;
 }
 
 .article-content--reading.prose h3 {
-  margin-top: 2.5rem;
-  margin-bottom: 1.25rem;
-  font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.1875rem, 1.1rem + 0.45vw, 1.5rem);
   font-weight: 700;
   letter-spacing: -0.012em;
   line-height: 1.3;
@@ -255,27 +256,27 @@ iframe {
 
 .prose p {
   margin-top: 0;
-  margin-bottom: 1.35rem;
-  line-height: 1.75;
+  margin-bottom: 1rem;
+  line-height: 1.65;
   color: var(--site-muted);
   overflow-wrap: break-word;
 }
 
 .article-content--reading.prose p {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .prose ul, .prose ol {
   margin-top: 0;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   padding-left: 1.5rem;
   color: var(--site-muted);
-  line-height: 1.75;
+  line-height: 1.65;
 }
 
 .article-content--reading.prose ul,
 .article-content--reading.prose ol {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   padding-left: 1.75rem;
 }
 

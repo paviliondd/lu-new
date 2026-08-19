@@ -2,6 +2,16 @@
 
 Every Codex code or workflow change must update this file.
 
+## 2026-08-18
+
+Added & Fixed:
+
+- **Payload Admin code-snippet sizing and rhythm refinement:** reduced the code textarea fallback from 14 to 7 rows and added scoped editor styling so each code block starts as a centered, compact panel, grows to its real content with `field-sizing: content`, and caps at 28rem before scrolling. Balanced the field gaps, padding, monospaced size, and 1.55 line-height in both light and dark admin themes. UI configuration only: no records, schema fields, migration, media object, or data write was performed.
+- **Compact code-card refinement:** code blocks now retain content-sized widths, capped at the available article surface with horizontal scrolling for oversized lines; reduced the desktop toolbar to 32px minimum height and the code source padding to `0.65rem 0.7rem`, so short snippets stay compact while long content alone expands the frame. Presentation-only: no Payload schema, migration, CMS record, media object, or data write was performed.
+- **Frontend accessibility, URL state, and reading-rhythm refinement:** added a localized keyboard skip link and light/dark browser theme colors; made the Blog inline search URL-addressable (`q`) alongside filters and pagination, with labelled search controls and pressed filter state; added focus containment and labelled controls to the search dialog; and announced newsletter/comment success states to assistive technology. Tightened rendered H3 spacing to preserve a clear hierarchy under the reduced article heading scale. Presentation-only: no Payload schema, migration, seed, sync, repair, rollback, CMS record, media object, or data write was performed.
+- **Featured carousel layout and editorial scale hotfix:** Featured slides now always use contain-fit artwork on a non-clipping media panel, preserving labels and diagrams even when existing hero metadata requests a cover crop. The author, date, read time, and `Read` action are pinned to one compact bottom row; only an overlong author name may truncate. Reduced the Featured title, article title, and rendered article H1–H3 scales for a calmer reading hierarchy. Presentation-only: no Payload schema, migration, seed, sync, repair, rollback, CMS record, media object, or data write was performed.
+- **SVG topology upload hotfix:** Payload can classify SVG files with XML declarations as `application/xml` before the Media sanitizer hook, returning `Invalid MIME type: application/xml`. The Media upload contract now admits that detected MIME only to reach the existing `.svg` sanitizer; non-SVG XML is explicitly rejected before storage. Added a regression test covering XML-detected `.svg` eligibility and XML rejection. No schema, migration, seed, sync, repair, rollback, CMS record, database, or existing media file was changed.
+
 ## 2026-08-17
 
 Added & Fixed:

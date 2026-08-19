@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 interface BlogRouteProps {
   params: Promise<{ lang: string }>;
-  searchParams?: Promise<{ page?: string; tag?: string; topic?: string }>;
+  searchParams?: Promise<{ page?: string; tag?: string; topic?: string; q?: string }>;
 }
 
 export async function generateMetadata({
@@ -35,11 +35,12 @@ export default async function BlogRoute({ params, searchParams }: BlogRouteProps
   const posts = await getCmsPublishedPosts(lang);
   return (
     <BlogListPage
-      key={`blog:${query?.page || "1"}:${query?.tag || ""}:${query?.topic || ""}`}
+      key={`blog:${query?.page || "1"}:${query?.tag || ""}:${query?.topic || ""}:${query?.q || ""}`}
       initialPosts={posts}
       initialPage={Math.max(1, Number(query?.page || 1))}
       initialTag={query?.tag || ""}
       initialTopic={query?.topic || ""}
+      initialSearch={query?.q || ""}
     />
   );
 }

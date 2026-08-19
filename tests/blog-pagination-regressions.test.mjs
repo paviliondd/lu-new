@@ -9,6 +9,6 @@ test("blog pagination synchronizes client state with the route page parameter", 
   ]);
 
   assert.match(route, /initialPage=\{Math\.max\(1, Number\(query\?\.page \|\| 1\)\)\}/);
-  assert.match(route, /key=\{`blog:\$\{query\?\.page \|\| "1"\}:\$\{query\?\.tag \|\| ""\}:\$\{query\?\.topic \|\| ""\}`\}/);
+  assert.match(route, /key=\{`blog:\$\{query\?\.page \|\| "1"\}:\$\{query\?\.tag \|\| ""\}:\$\{query\?\.topic \|\| ""\}:\$\{query\?\.q \|\| ""\}`\}/);
   assert.match(listPage, /onClick=\{\(\) => setCurrentPage\(page\)\}/);
 });

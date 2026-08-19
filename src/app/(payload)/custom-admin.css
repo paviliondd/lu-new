@@ -5,11 +5,11 @@
   display: none !important;
 }
 
-/* Keep code snippets compact at rest; the textarea grows only with real code. */
+/* Code snippets span the complete editor canvas; height still grows with content. */
 .collection-edit--posts [class~="LexicalEditorTheme__block-codeSnippet"] {
-  width: fit-content !important;
-  max-width: min(100%, 52rem) !important;
-  margin: 1rem auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 1rem 0 !important;
   padding: 0.75rem !important;
   border: 1px solid var(--theme-elevation-200, #cbd5e1) !important;
   border-radius: 0.65rem !important;
@@ -22,7 +22,7 @@
 
 .collection-edit--posts [class~="LexicalEditorTheme__block-codeSnippet"] textarea {
   box-sizing: border-box;
-  inline-size: min(100%, 52rem) !important;
+  inline-size: 100% !important;
   min-block-size: 7.5rem;
   max-block-size: 28rem;
   field-sizing: content;

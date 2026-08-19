@@ -1159,6 +1159,35 @@ const Posts: CollectionConfig = {
   ],
 };
 
+const NewsletterSubscribers: CollectionConfig = {
+  slug: "newsletter-subscribers",
+  admin: {
+    useAsTitle: "email",
+    defaultColumns: ["email", "status", "createdAt", "confirmedAt"],
+    listSearchableFields: ["email"],
+  },
+  access: {
+    read: authenticated,
+    create: () => false,
+    update: authenticated,
+    delete: authenticated,
+  },
+  fields: [
+    { name: "email", type: "email", required: true, unique: true },
+    {
+      name: "status",
+      type: "select",
+      required: true,
+      defaultValue: "pending",
+      options: [
+        { label: "Pending", value: "pending" },
+        { label: "Confirmed", value: "confirmed" },
+      ],
+    },
+    { name: "confirmedAt", type: "date", admin: { readOnly: true } },
+  ],
+};
+
 const Comments: CollectionConfig = {
   slug: "comments",
   admin: {
@@ -1220,7 +1249,7 @@ export default buildConfig({
       actions: ["@/app/(payload)/components/AdminThemeToggle"],
     },
   },
-  collections: [Users, Media, Authors, Series, Posts, Comments, Projects],
+  collections: [Users, Media, Authors, Series, Posts, Comments, NewsletterSubscribers, Projects],
   db: postgresAdapter({
     migrationDir: path.resolve(dirname, "migrations"),
     pool: {

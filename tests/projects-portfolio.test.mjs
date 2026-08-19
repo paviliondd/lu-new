@@ -110,7 +110,7 @@ test("Payload manages projects in a collection isolated from blog posts", async 
   assert.match(collection, /group:\s*"Project Portfolio"/);
   assert.doesNotMatch(collection, /label:\s*"SEO"/);
   assert.doesNotMatch(collection, /name:\s*"seoTitle"/);
-  assert.match(config, /collections:\s*\[Users, Media, Authors, Series, Posts, Comments, Projects\]/);
+  assert.match(config, /collections:\s*\[Users, Media, Authors, Series, Posts, Comments, NewsletterSubscribers, Projects\]/);
   assert.doesNotMatch(collection, /relationTo:\s*"posts"/);
   assert.match(cms, /if \(!payload\) return fallbackProjects/);
   assert.match(cms, /return result\.docs\.flatMap/);

@@ -740,6 +740,51 @@ function renderCommentBody(value: unknown) {
   return commentFilter.process(html);
 }
 
+export interface NewsletterSubscriberRecord {
+  id: string;
+  email: string;
+  status: "pending" | "confirmed";
+  created_at: string;
+  confirmed_at: string | null;
+}
+
+function mapPayloadNewsletterSubscriber(doc: PayloadDoc): NewsletterSubscriberRecord {
+  return {
+    id: String(doc.id || ""),
+    email: asString(doc.email).toLowerCase(),
+    status: doc.status === "confirmed" ? "confirmed" : "pending",
+    created_at: asString(doc.createdAt, new Date().toISOString()),
+    confirmed_at: asString(doc.confirmedAt) || null,
+  };
+}
+
+export async function getPayloadNewsletterSubscribers(): Promise<NewsletterSubscriberRecord[] | null> {
+  const payload = await getPayloadClient();
+  if (!payload) return null;
+  try {
+    const result = await payload.find({ collection: "newsletter-subscribers", limit: 10_000, sort: "createdAt", overrideAccess: true });
+    return result.docs.map((doc) => mapPayloadNewsletterSubscriber(asPayloadDoc(doc)));
+  } catch (error) {
+    console.error("Unable to fetch Payload newsletter subscribers", { error });
+    return null;
+  }
+}
+
+export async function addPayloadNewsletterSubscriber(email: string): Promise<{ subscriber: NewsletterSubscriberRecord; created: boolean } | null> {
+  const payload = await getPayloadClient();
+  if (!payload) return null;
+  const normalizedEmail = email.trim().toLowerCase();
+  try {
+    const found = await payload.find({ collection: "newsletter-subscribers", limit: 1, overrideAccess: true, where: { email: { equals: normalizedEmail } } });
+    if (found.docs[0]) return { subscriber: mapPayloadNewsletterSubscriber(asPayloadDoc(found.docs[0])), created: false };
+    const created = await payload.create({ collection: "newsletter-subscribers", overrideAccess: true, data: { email: normalizedEmail, status: "pending" } });
+    return { subscriber: mapPayloadNewsletterSubscriber(asPayloadDoc(created)), created: true };
+  } catch (error) {
+    console.error("Unable to create Payload newsletter subscriber", { error });
+    return null;
+  }
+}
+
 function mapPayloadComment(doc: PayloadDoc): CommentRecord {
   const post = relationDoc(doc.post);
   const parent = relationDoc(doc.parent);

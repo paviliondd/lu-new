@@ -1,5 +1,8 @@
 # AI Changelog
 
+- **Newsletter subscriber administration and migration (pending deployment):** added the Payload-admin `newsletter-subscribers` collection with Pending/Confirmed controls, a forward migration with a unique email constraint, and a Payload-backed newsletter read/write path that preserves the JSON store only as a database-unavailable fallback. The migration has not been executed against production and no production subscriber record has been written, deleted, or restored in this workspace.
+- **Payload Admin full-width code snippets:** removed the 52rem/content-width cap so code blocks and their textareas span the Post editor canvas while retaining compact height rhythm and long-code vertical scrolling.
+
 Every Codex code or workflow change must update this file.
 
 ## 2026-08-18

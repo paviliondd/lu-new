@@ -16,6 +16,7 @@ interface BlogListPageProps {
   initialPage?: number;
   initialTag?: string;
   initialTopic?: string;
+  initialSearch?: string;
 }
 
 const pageSize = 9;
@@ -25,9 +26,10 @@ export default function BlogListPage({
   initialPage = 1,
   initialTag = "",
   initialTopic = "",
+  initialSearch = "",
 }: BlogListPageProps) {
   const { t, language, localePath } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const posts = usePublishedPosts(initialPosts);
   const [selectedTag, setSelectedTag] = useState(initialTag);
   const [selectedTopic, setSelectedTopic] = useState(initialTopic);
@@ -38,6 +40,12 @@ export default function BlogListPage({
     setCurrentPage(1);
     const href = pageHrefWithFilters(1, selectedTag, topic);
     window.history.replaceState(null, "", href);
+  };
+
+  const updateSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+    window.history.replaceState(null, "", pageHrefWithFilters(1, selectedTag, selectedTopic, value));
   };
 
   const availableTopics = useMemo(() => {
@@ -94,10 +102,11 @@ export default function BlogListPage({
   const safePage = Math.min(currentPage, totalPages);
   const paginatedPosts = listPosts.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  const pageHrefWithFilters = (page: number, tag = selectedTag, topic = selectedTopic) => {
+  const pageHrefWithFilters = (page: number, tag = selectedTag, topic = selectedTopic, search = searchQuery) => {
     const params = new URLSearchParams();
     if (topic) params.set("topic", topic);
     if (tag) params.set("tag", tag);
+    if (search.trim()) params.set("q", search.trim());
     if (page > 1) params.set("page", String(page));
     const query = params.toString();
     return query ? `${localePath("/blog")}?${query}` : localePath("/blog");
@@ -127,15 +136,17 @@ export default function BlogListPage({
           </div>
           <input
             type="text"
+            name="q"
+            aria-label="Search articles"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search articles by title, topic, or keyword..."
+            onChange={(e) => updateSearch(e.target.value)}
+            placeholder="Search articles by title, topic, or keyword…"
             className="w-full rounded-xl border border-slate-300 bg-white/90 py-3 pl-11 pr-10 text-sm font-medium text-slate-900 placeholder-slate-400 shadow-xs transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700/80 dark:bg-slate-900/80 dark:text-white dark:placeholder-slate-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-400/20"
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => setSearchQuery("")}
+              onClick={() => updateSearch("")}
               className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
               aria-label="Clear search input"
             >
@@ -154,6 +165,7 @@ export default function BlogListPage({
               <button
                 type="button"
                 onClick={() => updateTopic("")}
+                aria-pressed={!selectedTopic}
                 className={`shrink-0 rounded-full px-3.5 py-1.5 transition cursor-pointer ${
                   !selectedTopic
                     ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950 font-bold shadow-sm"
@@ -169,6 +181,7 @@ export default function BlogListPage({
                     type="button"
                     key={topic}
                     onClick={() => updateTopic(topic)}
+                    aria-pressed={isActive}
                     className={`shrink-0 rounded-full px-3.5 py-1.5 transition cursor-pointer ${
                       isActive
                         ? "bg-teal-700 text-white dark:bg-emerald-400 dark:text-slate-950 font-bold shadow-sm"

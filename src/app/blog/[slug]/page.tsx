@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getCmsPostBySlug } from "@/lib/cms/payload";
+import { canPreviewPayloadDraft } from "@/lib/cms/preview-auth";
 import { defaultLocale, localePath } from "@/i18n/config";
 import BlogPostPage from "@/app/[lang]/blog/[slug]/page";
 
@@ -16,7 +17,7 @@ export default async function LegacyBlogPostRoute({
 }: LegacyBlogRouteProps) {
   const { slug } = await params;
   const query = await searchParams;
-  const isPreview = query?.preview === "true";
+  const isPreview = query?.preview === "true" && (await canPreviewPayloadDraft());
 
   const viPost = await getCmsPostBySlug(slug, defaultLocale, isPreview);
   if (viPost) {

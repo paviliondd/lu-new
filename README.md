@@ -51,7 +51,7 @@ npm run build
 
 Payload uploads are currently stored in the persistent `payload_media` Docker volume and served through the Payload media route. The S3 adapter and S3 deployment variables are intentionally disabled. Before enabling S3 later, migrate every existing object, verify its public URL, and retain a recoverable local backup through the cutover.
 
-The Media collection accepts raster images and SVG (`image/svg+xml`). SVG uploads are sanitized before storage: scripts, foreign objects, embedded/external active references, event handlers, XML entity declarations, and animation elements are removed; non-SVG markup is rejected. This is a render/storage safeguard only—no existing media record, file, or database field is rewritten. Use SVG for diagrams and logos; retain meaningful alt text and use `Contain` when a diagram must not be cropped.
+The Media collection accepts raster images and SVG (`image/svg+xml`). Some exporters label a valid `.svg` as `application/xml`; this is accepted only for a `.svg` filename and is then sanitized before storage. Scripts, foreign objects, embedded/external active references, event handlers, XML entity declarations, and animation elements are removed; non-SVG XML or markup is rejected. This is a render/storage safeguard only—no existing media record, file, or database field is rewritten. Use SVG for diagrams and logos; retain meaningful alt text and use `Contain` when a diagram must not be cropped.
 
 ## Why Compose is structured this way
 

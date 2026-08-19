@@ -29,6 +29,24 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Tab") return;
+    const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled])',
+    );
+    if (!focusable?.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -114,9 +132,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md" onClick={onClose} />
 
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={t("search")}
+        onKeyDown={handleDialogKeyDown}
         className="theme-card relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-xl border shadow-xl shadow-slate-950/20 sm:max-h-[72dvh]"
       >
         <div className="flex min-w-0 items-center gap-3 border-b theme-border px-4 py-3">
@@ -124,6 +144,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <input
             ref={inputRef}
             type="search"
+            name="q"
+            aria-label={t("search")}
             placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(event) => {
@@ -139,7 +161,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 setActiveIndex(0);
               }
             }}
-            className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-slate-400"
+            className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[var(--site-focus)]"
           />
           {isLoading && (
             <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-[10px] font-black text-slate-400 dark:border-slate-700">
@@ -156,6 +178,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </Link>
           )}
           <button
+            type="button"
             onClick={onClose}
             className="grid h-10 w-10 place-items-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Close search"

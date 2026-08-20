@@ -50,7 +50,9 @@ export default function MermaidRenderer({
 
         const toolbar = document.createElement("div");
         toolbar.className = "mermaid-shell__toolbar";
-        toolbar.innerHTML = "<span>mermaid</span>";
+        const label = document.createElement("span");
+        label.className = "mermaid-shell__label";
+        label.textContent = "mermaid";
 
         const zoomOut = document.createElement("button");
         zoomOut.type = "button";
@@ -62,12 +64,17 @@ export default function MermaidRenderer({
         zoomIn.textContent = "+";
         zoomIn.setAttribute("aria-label", "Zoom in diagram");
 
+        const zoomControls = document.createElement("div");
+        zoomControls.className = "mermaid-shell__zoom-controls";
+        zoomControls.append(zoomOut, zoomIn);
+
         const reset = document.createElement("button");
         reset.type = "button";
+        reset.className = "mermaid-shell__reset";
         reset.textContent = "Reset";
         reset.setAttribute("aria-label", "Reset diagram zoom");
 
-        toolbar.append(zoomOut, zoomIn, reset);
+        toolbar.append(label, zoomControls, reset);
 
         const stage = document.createElement("div");
         stage.className = "mermaid-shell__stage";
@@ -85,7 +92,14 @@ export default function MermaidRenderer({
           const id = `mermaid-${contentKey.replace(/[^a-z0-9_-]/gi, "-")}-${index}`;
           const result = await mermaid.render(id, source);
           if (cancelled) return;
-          stage.innerHTML = result.svg;
+          const template = document.createElement("template");
+          template.innerHTML = result.svg;
+          const svg = template.content.firstElementChild;
+          if (!svg) throw new Error("Mermaid did not return an SVG");
+          const canvas = document.createElement("div");
+          canvas.className = "mermaid-shell__canvas";
+          canvas.append(svg);
+          stage.append(canvas);
           applyScale();
         } catch {
           stage.textContent = source;

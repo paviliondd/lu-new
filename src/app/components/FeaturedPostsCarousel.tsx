@@ -46,11 +46,6 @@ export default function FeaturedPostsCarousel({
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700 dark:text-emerald-300">
-          Featured
-        </span>
-      </div>
       <div
         className="group relative overflow-hidden rounded-xl border theme-border bg-slate-900 shadow-sm"
       >
@@ -61,7 +56,9 @@ export default function FeaturedPostsCarousel({
           {featuredPosts.map((post, index) => {
             const postAuthor = team[post.author];
             const postDisplayAuthor = getAuthorDisplay(postAuthor, post);
-            const postCover = post.seo.ogImage || post.thumbnail;
+            // Representative slide artwork can include labels and diagrams, so
+            // this carousel always preserves the full image rather than cropping.
+            const postCover = post.heroImage?.src || post.seo.ogImage || post.thumbnail;
 
             return (
               <article
@@ -74,15 +71,15 @@ export default function FeaturedPostsCarousel({
                   className="group/slide grid min-h-[26rem] w-full cursor-pointer lg:grid-cols-[1.05fr_.95fr]"
                   aria-label={post.title}
                 >
-                  <div className="relative min-h-64 overflow-hidden bg-slate-950 lg:min-h-full">
+                  <div className="relative min-h-64 bg-slate-950 lg:min-h-full">
                     {postCover ? (
                       <CustomImage
                         src={postCover}
                         alt=""
                         fill
                         priority={index === 0}
-                        sizes="(min-width: 1024px) 55vw, 100vw"
-                        className="object-cover transition duration-500 group-hover/slide:scale-[1.03]"
+                        sizes="(min-width: 1024px) 40vw, 100vw"
+                        className="object-contain"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center px-8 text-center text-2xl font-bold text-slate-200">
@@ -90,31 +87,28 @@ export default function FeaturedPostsCarousel({
                       </div>
                     )}
                   </div>
-                  <div className="flex min-w-0 flex-col justify-between bg-slate-800 p-6 text-white sm:p-9 lg:p-11">
-                    <div>
-                      <span className="mb-3 inline-flex self-start rounded-full bg-teal-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-teal-300 backdrop-blur-md">
-                        Featured
-                      </span>
-                      <h1 className="text-2xl font-bold leading-tight transition group-hover/slide:text-teal-200 sm:text-3xl lg:text-4xl">{post.title}</h1>
+                  <div className="flex min-w-0 flex-col bg-slate-800 p-6 text-white sm:p-9 lg:p-11">
+                    <div className="flex flex-1 flex-col justify-center">
+                      <h1 className="text-lg font-bold leading-tight transition group-hover/slide:text-teal-200 sm:text-xl lg:text-2xl">{post.title}</h1>
                       <p className="mt-5 line-clamp-3 text-sm leading-7 text-slate-300 sm:text-base">{post.description}</p>
                     </div>
-                    <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-slate-300">
-                        <span className="inline-flex items-center gap-2 font-semibold text-white">
-                          <AuthorAvatar author={postAuthor} post={post} className="h-8 w-8 border-white/15 bg-slate-700 text-white" />
-                          {postDisplayAuthor.name}
+                    <div className="mt-auto flex items-center gap-2 pt-8 sm:gap-4">
+                      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden whitespace-nowrap text-xs text-slate-300 sm:gap-3 sm:text-sm">
+                        <span className="inline-flex min-w-0 flex-1 items-center gap-1 font-semibold text-white sm:gap-2">
+                          <AuthorAvatar author={postAuthor} post={post} className="h-6 w-6 border-white/15 bg-slate-700 text-white sm:h-8 sm:w-8" />
+                          <span className="truncate">{postDisplayAuthor.name}</span>
                         </span>
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="h-4 w-4" />
+                        <span className="flex shrink-0 items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           {formatDate(post.date, language)}
                         </span>
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="h-4 w-4" />
+                        <span className="flex shrink-0 items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           {formatReadTime(post.readTime)}
                         </span>
                       </div>
                       <span
-                        className="ml-auto inline-flex items-center gap-2 text-sm font-bold text-teal-200 transition group-hover/slide:text-white group-hover/slide:translate-x-0.5"
+                        className="shrink-0 inline-flex items-center gap-1.5 text-xs font-bold text-teal-200 transition group-hover/slide:text-white group-hover/slide:translate-x-0.5 sm:gap-2 sm:text-sm"
                       >
                         Read
                         <ArrowRight className="h-4 w-4" />

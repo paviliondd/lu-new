@@ -289,10 +289,17 @@ test("plain topology preserves alignment and article tables honor Markdown colum
   assert.match(globalStyles, /:where\(th, td\)\[align="right"\][\s\S]*text-align: right/);
 });
 
-test("blog list shows every matching post in the normal grid without a Featured carousel", async () => {
-  const blogList = await readFile("src/app/components/pages/BlogListPage.tsx", "utf8");
+test("blog keeps its featured carousel while removing the visible Featured labels", async () => {
+  const [blogList, carousel] = await Promise.all([
+    readFile("src/app/components/pages/BlogListPage.tsx", "utf8"),
+    readFile("src/app/components/FeaturedPostsCarousel.tsx", "utf8"),
+  ]);
 
-  assert.doesNotMatch(blogList, /FeaturedPostsCarousel|featuredPosts|reservedSlugs/);
-  assert.match(blogList, /const listPosts = filteredPosts;/);
-  assert.match(blogList, /paginatedPosts\.map\(\(post\) =>/);
+  assert.match(blogList, /import FeaturedPostsCarousel/);
+  assert.match(blogList, /const featuredPosts = useMemo\([\s\S]*allPublishedPosts\.filter\(\(post\) => post\.status === "published"\)\.slice\(0, 3\)/);
+  assert.match(blogList, /<FeaturedPostsCarousel posts=\{featuredPosts\}/);
+  assert.match(blogList, /const reservedSlugs = new Set\(featuredPosts\.map\(\(post\) => post\.slug\)\)/);
+  assert.match(carousel, /aria-label="Previous featured post"/);
+  assert.match(carousel, /aria-label="Next featured post"/);
+  assert.doesNotMatch(carousel, />\s*Featured\s*</);
 });

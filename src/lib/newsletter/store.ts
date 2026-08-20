@@ -38,6 +38,11 @@ export function isValidEmail(email: string) {
 }
 
 export async function getNewsletterSubscribers() {
+  const payloadSubscribers = await import("@/lib/cms/payload")
+    .then(({ getPayloadNewsletterSubscribers }) => getPayloadNewsletterSubscribers())
+    .catch(() => null);
+  if (payloadSubscribers) return payloadSubscribers;
+
   await ensureStore();
   try {
     const content = await fs.readFile(subscribersFile, "utf8");
@@ -51,6 +56,11 @@ export async function getNewsletterSubscribers() {
 
 export async function addNewsletterSubscriber(email: string) {
   const normalizedEmail = normalizeEmail(email);
+  const payloadResult = await import("@/lib/cms/payload")
+    .then(({ addPayloadNewsletterSubscriber }) => addPayloadNewsletterSubscriber(normalizedEmail))
+    .catch(() => null);
+  if (payloadResult) return payloadResult;
+
   const subscribers = await getNewsletterSubscribers();
   const existing = subscribers.find((subscriber) => subscriber.email === normalizedEmail);
 

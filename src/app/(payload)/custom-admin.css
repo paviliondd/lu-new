@@ -5,6 +5,39 @@
   display: none !important;
 }
 
+/* Code snippets span the complete editor canvas; height still grows with content. */
+.collection-edit--posts [class~="LexicalEditorTheme__block-codeSnippet"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 1rem 0 !important;
+  padding: 0.75rem !important;
+  border: 1px solid var(--theme-elevation-200, #cbd5e1) !important;
+  border-radius: 0.65rem !important;
+  background: var(--theme-elevation-50, #f8fafc) !important;
+}
+
+.collection-edit--posts [class~="LexicalEditorTheme__block-codeSnippet"] .field-type {
+  margin-block: 0.5rem !important;
+}
+
+.collection-edit--posts [class~="LexicalEditorTheme__block-codeSnippet"] textarea {
+  box-sizing: border-box;
+  inline-size: 100% !important;
+  min-block-size: 7.5rem;
+  max-block-size: 28rem;
+  field-sizing: content;
+  overflow-y: auto;
+  padding: 0.65rem 0.75rem !important;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace) !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.55 !important;
+}
+
+[data-theme="dark"] .collection-edit--posts [class~="LexicalEditorTheme__block-codeSnippet"] {
+  border-color: var(--theme-elevation-200, #334155) !important;
+  background: var(--theme-elevation-100, #182230) !important;
+}
+
 /* -------------------------------------------------------------------------- */
 /* 1. WordPress Gutenberg Canvas & Full-Width Layout                          */
 /* -------------------------------------------------------------------------- */

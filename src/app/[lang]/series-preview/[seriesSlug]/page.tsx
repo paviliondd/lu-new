@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SeriesLandingPage from "@/app/components/pages/SeriesLandingPage";
 import { hasLocale } from "@/i18n/config";
 import { getCmsSeriesBySlug, getCmsSeriesPosts } from "@/lib/cms/payload";
+import { canPreviewPayloadDraft } from "@/lib/cms/preview-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ interface SeriesPreviewProps {
 
 export default async function SeriesPreviewPage({ params }: SeriesPreviewProps) {
   if (process.env.SERIES_PREVIEW_ENABLED !== "true") notFound();
+  if (!(await canPreviewPayloadDraft())) notFound();
 
   const { lang, seriesSlug } = await params;
   if (!hasLocale(lang)) notFound();

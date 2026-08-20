@@ -55,12 +55,24 @@ test("post detail rendering has a valid fallback author and keeps Payload author
   assert.match(detailLoader, /if \(!doc\) return null/);
 });
 
-test("draft preview requests the latest Payload draft in both slug lookup paths", async () => {
-  const payloadCms = await readFile("src/lib/cms/payload.ts", "utf8");
+test("draft preview requests the latest Payload draft only for a Payload Admin session", async () => {
+  const [payloadCms, articlePage, legacyArticlePage, seriesPreviewPage, previewAuth] = await Promise.all([
+    readFile("src/lib/cms/payload.ts", "utf8"),
+    readFile("src/app/[lang]/blog/[slug]/page.tsx", "utf8"),
+    readFile("src/app/blog/[slug]/page.tsx", "utf8"),
+    readFile("src/app/[lang]/series-preview/[seriesSlug]/page.tsx", "utf8"),
+    readFile("src/lib/cms/preview-auth.ts", "utf8"),
+  ]);
   const draftFlags = payloadCms.match(/draft: allowDraft/g) || [];
 
   assert.equal(draftFlags.length, 2);
   assert.match(payloadCms, /if \(allowDraft\) return fetchPost\(\)/);
+  assert.match(previewAuth, /export async function canPreviewPayloadDraft\(\)/);
+  assert.match(previewAuth, /payload\.auth\(\{ headers: await headers\(\) \}\)/);
+  assert.match(articlePage, /canPreviewPayloadDraft/);
+  assert.match(articlePage, /query\?\.preview === "true" && \(await canPreviewPayloadDraft\(\)\)/);
+  assert.match(legacyArticlePage, /query\?\.preview === "true" && \(await canPreviewPayloadDraft\(\)\)/);
+  assert.match(seriesPreviewPage, /if \(!\(await canPreviewPayloadDraft\(\)\)\) notFound\(\);/);
 });
 
 test("Payload preview URL changes after each saved revision", async () => {

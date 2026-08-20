@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
@@ -28,6 +28,15 @@ export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
 
+export function generateViewport(): Viewport {
+  return {
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: "#f7f8fb" },
+      { media: "(prefers-color-scheme: dark)", color: "#0b0f17" },
+    ],
+  };
+}
+
 export async function generateMetadata({
   params,
 }: RootLayoutProps): Promise<Metadata> {
@@ -53,6 +62,7 @@ export async function generateMetadata({
 export default async function RootLayout({ children, params }: RootLayoutProps) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
+  const skipToContentLabel = lang === "vi" ? "Chuyển đến nội dung chính" : "Skip to main content";
 
   return (
     <html
@@ -64,8 +74,14 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
       <body className="flex min-h-full flex-col bg-[var(--site-bg)] text-[var(--site-fg)]">
         <ThemeScript />
         <LanguageProvider initialLanguage={lang}>
+          <a
+            href="#main-content"
+            className="sr-only z-50 rounded-md bg-[var(--site-surface)] px-4 py-3 font-semibold text-[var(--site-fg)] shadow-lg focus-visible:not-sr-only focus-visible:absolute focus-visible:left-4 focus-visible:top-4"
+          >
+            {skipToContentLabel}
+          </a>
           <Header />
-          <main className="flex-1 flex flex-col">{children}</main>
+          <main id="main-content" className="flex-1 flex flex-col">{children}</main>
           <Footer />
         </LanguageProvider>
       </body>

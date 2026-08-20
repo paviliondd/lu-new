@@ -65,7 +65,7 @@ const codeBlock: Block = {
       defaultValue: "auto",
       admin: { description: "Dùng auto để nhận diện, hoặc nhập bash, yaml, hcl, json, typescript, plain/text." },
     },
-    { name: "code", type: "textarea", required: true, admin: { rows: 14 } },
+    { name: "code", type: "textarea", required: true, admin: { rows: 7 } },
   ],
 };
 
@@ -441,11 +441,18 @@ const Media: CollectionConfig = {
     ],
     // SVG is explicit because Payload's broad image wildcard can be rejected by
     // browser/file-type validation before it reaches the collection hook.
-    mimeTypes: ["image/*", "image/svg+xml"],
+    // Payload can identify XML-declared SVGs as application/xml before hooks
+    // execute. Admit that MIME only so a .svg file can be sanitized below;
+    // non-SVG XML is rejected by the hook and cannot enter Media storage.
+    mimeTypes: ["image/*", "image/svg+xml", "application/xml"],
   },
   hooks: {
     beforeChange: [
       ({ req }) => {
+        const uploadedMimeType = req.file?.mimetype?.toLowerCase().split(";", 1)[0];
+        if (uploadedMimeType === "application/xml" && !isSvgUpload(req.file)) {
+          throw new APIError("Chỉ chấp nhận tệp SVG khi Payload nhận diện tệp là XML.", 400, null, true);
+        }
         if (!isSvgUpload(req.file)) return;
         try {
           req.file.data = Buffer.from(sanitizeSvgUpload(req.file.data.toString("utf8")));
@@ -879,11 +886,10 @@ const Posts: CollectionConfig = {
           if (isNewlyPublished && slug) {
             const title = (doc as { titleVi?: string; title?: string })?.titleVi || (doc as { title?: string })?.title || slug;
             const excerpt = (doc as { descriptionVi?: string; description?: string })?.descriptionVi || (doc as { description?: string })?.description;
-            import("./lib/newsletter/smtp").then(({ broadcastNewPostNotification }) => {
-              broadcastNewPostNotification({ title, slug, excerpt }).catch((err) => {
-                console.error("[Payload afterChange Broadcast Error]:", err);
-              });
-            }).catch(() => {});
+            console.info("[Newsletter broadcast] Publishing notification", { slug });
+            const { broadcastNewPostNotification } = await import("./lib/newsletter/smtp");
+            const result = await broadcastNewPostNotification({ title, slug, excerpt });
+            console.info("[Newsletter broadcast] Completed", { slug, sent: result.sent, total: result.total });
           }
         } catch (error) {
           console.error("[Payload afterChange Error]:", error);
@@ -1152,6 +1158,35 @@ const Posts: CollectionConfig = {
   ],
 };
 
+const NewsletterSubscribers: CollectionConfig = {
+  slug: "newsletter-subscribers",
+  admin: {
+    useAsTitle: "email",
+    defaultColumns: ["email", "status", "createdAt", "confirmedAt"],
+    listSearchableFields: ["email"],
+  },
+  access: {
+    read: authenticated,
+    create: () => false,
+    update: authenticated,
+    delete: authenticated,
+  },
+  fields: [
+    { name: "email", type: "email", required: true, unique: true },
+    {
+      name: "status",
+      type: "select",
+      required: true,
+      defaultValue: "pending",
+      options: [
+        { label: "Pending", value: "pending" },
+        { label: "Confirmed", value: "confirmed" },
+      ],
+    },
+    { name: "confirmedAt", type: "date", admin: { readOnly: true } },
+  ],
+};
+
 const Comments: CollectionConfig = {
   slug: "comments",
   admin: {
@@ -1213,7 +1248,7 @@ export default buildConfig({
       actions: ["@/app/(payload)/components/AdminThemeToggle"],
     },
   },
-  collections: [Users, Media, Authors, Series, Posts, Comments, Projects],
+  collections: [Users, Media, Authors, Series, Posts, Comments, NewsletterSubscribers, Projects],
   db: postgresAdapter({
     migrationDir: path.resolve(dirname, "migrations"),
     pool: {

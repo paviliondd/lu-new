@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  margin: 0.9rem 0 1.1rem;
+  margin-block: var(--article-block-space);
   overflow: hidden;
   border: 1px solid var(--article-panel-border);
   border-radius: 0.75rem;
@@ -15,7 +15,7 @@
 
 .article-content__body > pre {
   max-width: 100%;
-  margin: 0.9rem auto 1.1rem;
+  margin: var(--article-block-space) auto;
   overflow: auto;
   border: 1px solid #d0d7de;
   border-radius: 0.875rem;
@@ -524,7 +524,7 @@
 
 @media (max-width: 639px) {
   .code-card {
-    margin: 0.8rem 0 1rem;
+    margin-block: var(--article-block-space);
     border-radius: 0.75rem;
   }
 

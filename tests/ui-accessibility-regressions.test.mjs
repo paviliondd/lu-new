@@ -46,13 +46,13 @@ test("search modal and lightbox provide keyboard-safe dialogs", async () => {
   assert.match(lightbox, /image\.setAttribute\("tabindex", "0"\)/);
 });
 
-test("feedback and article rhythm use accessible status and compact H3 spacing", async () => {
+test("feedback and article rhythm use accessible status and shared heading spacing", async () => {
   const newsletter = await readFile("src/app/components/NewsletterSection.tsx", "utf8");
   const comments = await readFile("src/app/components/Comments.tsx", "utf8");
   const styles = await readFile("src/app/globals.css", "utf8");
 
   assert.match(newsletter, /role="status"\s+aria-live="polite"/);
   assert.match(comments, /role="status"\s+aria-live="polite"/);
-  assert.match(styles, /\.article-content--reading\.prose h3\s*\{[\s\S]*?margin-top:\s*1\.75rem;[\s\S]*?margin-bottom:\s*0\.75rem/);
+  assert.match(styles, /\.article-content--reading\.prose :where\(h1, h2, h3, h4\)\s*\{[\s\S]*?margin-block:\s*var\(--article-block-space\)/);
   assert.match(styles, /--space-section:\s*2\.25rem/);
 });

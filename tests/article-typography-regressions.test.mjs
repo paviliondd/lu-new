@@ -2,13 +2,22 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("article reading rhythm uses compact, consistent line and block spacing", async () => {
-  const styles = await readFile("src/app/globals.css", "utf8");
+test("article reading rhythm uses one shared gap between content blocks", async () => {
+  const [styles, codeStyles] = await Promise.all([
+    readFile("src/app/globals.css", "utf8"),
+    readFile("src/app/components/CodeBlock/code-theme.css", "utf8"),
+  ]);
 
   assert.match(styles, /\.article-content\s*\{[\s\S]*?line-height:\s*1\.65/);
-  assert.match(styles, /\.article-content--reading\.prose p\s*\{\s*margin-bottom:\s*1rem/);
-  assert.match(styles, /\.article-content--reading\.prose ul,[\s\S]*?margin-bottom:\s*1rem/);
-  assert.match(styles, /\.article-content--reading\.prose h2\s*\{[\s\S]*?margin-top:\s*2\.25rem;[\s\S]*?margin-bottom:\s*1rem/);
+  assert.match(styles, /\.article-content\s*\{[\s\S]*?--article-block-space:\s*1\.25rem/);
+  assert.match(styles, /\.article-content--reading\.prose :where\(h1, h2, h3, h4\)\s*\{[\s\S]*?margin-block:\s*var\(--article-block-space\)/);
+  assert.match(styles, /\.article-content--reading\.prose p\s*\{\s*margin-bottom:\s*var\(--article-block-space\)/);
+  assert.match(styles, /\.article-content--reading\.prose ul,[\s\S]*?margin-bottom:\s*var\(--article-block-space\)/);
+  assert.match(styles, /\.article-content figure\s*\{[\s\S]*?margin:\s*var\(--article-block-space\) auto/);
+  assert.match(styles, /\.article-table\s*\{[\s\S]*?margin:\s*var\(--article-block-space\) auto/);
+  assert.match(styles, /\.article-image-fallback\s*\{[\s\S]*?margin-block:\s*var\(--article-block-space\)/);
+  assert.match(codeStyles, /\.code-card\s*\{[\s\S]*?margin-block:\s*var\(--article-block-space\)/);
+  assert.match(codeStyles, /@media \(max-width: 639px\)[\s\S]*?\.code-card\s*\{[\s\S]*?margin-block:\s*var\(--article-block-space\)/);
 });
 
 test("article titles and content headings use a reduced reading scale", async () => {

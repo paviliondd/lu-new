@@ -175,6 +175,7 @@ iframe {
 
 .article-content {
   --article-wide-width: min(100%, var(--article-column-width));
+  --article-block-space: 1.25rem;
   font-size: 1.125rem;
   letter-spacing: 0.004em;
   line-height: 1.65;
@@ -214,14 +215,17 @@ iframe {
 
 .article-content--reading.prose h1,
 .article-content--reading.prose h2,
-.article-content--reading.prose h3 {
+.article-content--reading.prose h3,
+.article-content--reading.prose h4 {
   color: var(--site-fg);
   text-wrap: balance;
 }
 
+.article-content--reading.prose :where(h1, h2, h3, h4) {
+  margin-block: var(--article-block-space);
+}
+
 .article-content--reading.prose h1 {
-  margin-top: 2.5rem;
-  margin-bottom: 1.25rem;
   font-size: clamp(1.875rem, 1.65rem + 1.1vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -229,8 +233,6 @@ iframe {
 }
 
 .article-content--reading.prose h2 {
-  margin-top: 2.25rem;
-  margin-bottom: 1rem;
   font-size: clamp(1.5rem, 1.35rem + 0.65vw, 1.875rem);
   font-weight: 750;
   letter-spacing: -0.018em;
@@ -238,8 +240,6 @@ iframe {
 }
 
 .article-content--reading.prose h3 {
-  margin-top: 1.75rem;
-  margin-bottom: 0.75rem;
   font-size: clamp(1.1875rem, 1.1rem + 0.45vw, 1.5rem);
   font-weight: 700;
   letter-spacing: -0.012em;
@@ -250,25 +250,25 @@ iframe {
   scroll-margin-top: 7rem;
 }
 
-.article-content__body > :where(h1, h2, h3):first-child {
+.article-content__body > :where(h1, h2, h3, h4):first-child {
   margin-top: 0;
 }
 
 .prose p {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: var(--article-block-space);
   line-height: 1.65;
   color: var(--site-muted);
   overflow-wrap: break-word;
 }
 
 .article-content--reading.prose p {
-  margin-bottom: 1rem;
+  margin-bottom: var(--article-block-space);
 }
 
 .prose ul, .prose ol {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: var(--article-block-space);
   padding-left: 1.5rem;
   color: var(--site-muted);
   line-height: 1.65;
@@ -276,7 +276,7 @@ iframe {
 
 .article-content--reading.prose ul,
 .article-content--reading.prose ol {
-  margin-bottom: 1rem;
+  margin-bottom: var(--article-block-space);
   padding-left: 1.75rem;
 }
 
@@ -316,7 +316,7 @@ iframe {
 .article-content figure {
   display: block;
   max-width: var(--article-column-width);
-  margin: 1rem auto 1.2rem;
+  margin: var(--article-block-space) auto;
   overflow: visible;
   text-align: center;
 }
@@ -354,8 +354,7 @@ iframe {
 }
 
 .article-content blockquote {
-  margin-top: 0.6rem;
-  margin-bottom: 0.7rem;
+  margin-block: var(--article-block-space);
   border-left: 3px solid var(--site-accent);
   border-radius: 0 0.75rem 0.75rem 0;
   background: color-mix(in srgb, var(--site-accent) 10%, transparent);
@@ -368,7 +367,7 @@ iframe {
 
 .article-table {
   width: min(100%, var(--article-column-width));
-  margin: 0.65rem auto 0.8rem;
+  margin: var(--article-block-space) auto;
   overflow: hidden;
   border: 1px solid var(--article-panel-border);
   border-radius: 0.75rem;
@@ -593,7 +592,7 @@ iframe {
 }
 
 .article-image-fallback {
-  margin: 1.5rem 0;
+  margin-block: var(--article-block-space);
   border-radius: 1rem;
   border: 1px dashed var(--color-gray-300);
   background: var(--color-gray-50);
@@ -615,7 +614,7 @@ iframe {
   background-color: var(--color-brand-50);
   border-left: 4px solid var(--color-brand-500);
   border-radius: 0.375rem;
-  margin: 0.9rem 0 1rem;
+  margin-block: var(--article-block-space);
   color: var(--color-brand-900);
 }
 .dark .prose .note-box {
@@ -629,7 +628,7 @@ iframe {
   background-color: #fef2f2;
   border-left: 4px solid #ef4444;
   border-radius: 0.375rem;
-  margin: 0.9rem 0 1rem;
+  margin-block: var(--article-block-space);
   color: #991b1b;
 }
 .dark .prose .warning-box {
@@ -639,7 +638,7 @@ iframe {
 }
 
 .richtext-block {
-  margin: 0.6rem 0 0.7rem;
+  margin-block: var(--article-block-space);
 }
 
 .richtext-block figcaption,
@@ -672,7 +671,7 @@ iframe {
 
 .mermaid-shell {
   display: block;
-  margin: 0.9rem 0 1.1rem;
+  margin-block: var(--article-block-space);
   overflow: hidden;
   border: 1px solid var(--site-border);
   border-radius: 0.7rem;
@@ -680,10 +679,10 @@ iframe {
 }
 
 .mermaid-shell__toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   min-height: 2.65rem;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
   border-bottom: 1px solid var(--site-border);
   background: var(--site-panel);
@@ -691,6 +690,20 @@ iframe {
   color: var(--site-muted);
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.mermaid-shell__label {
+  justify-self: start;
+}
+
+.mermaid-shell__zoom-controls {
+  display: flex;
+  gap: 0.4rem;
+  justify-self: center;
+}
+
+.mermaid-shell__reset {
+  justify-self: end;
 }
 
 .mermaid-shell__toolbar button {
@@ -712,10 +725,20 @@ iframe {
   text-align: center;
 }
 
-.mermaid-shell__stage svg {
+.mermaid-shell__canvas {
+  display: grid;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  place-items: center;
+}
+
+.mermaid-shell__canvas svg {
+  display: block;
+  margin-inline: auto;
   max-width: none;
   transform: scale(var(--mermaid-scale));
-  transform-origin: top left;
+  transform-origin: center center;
 }
 
 .mermaid-shell__stage--failed {
@@ -728,7 +751,7 @@ iframe {
 
 .article-content figure.topology-shell {
   width: min(100%, var(--article-column-width));
-  margin: 0.65rem auto 0.8rem;
+  margin: var(--article-block-space) auto;
   overflow: hidden;
   border: 1px solid var(--article-panel-border);
   border-radius: 0.75rem;

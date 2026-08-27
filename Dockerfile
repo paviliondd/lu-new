@@ -107,6 +107,7 @@ RUN npm prune --omit=dev \
   && node -e "const sharp=require('sharp'); if(sharp.versions.sharp !== '0.35.3' || sharp.versions.vips !== '8.18.3' || sharp.versions.emscripten) throw new Error('Pruned dependencies must retain legacy native Sharp')"
 
 FROM deps AS builder
+ENV PAYLOAD_BUILD_SECRET=true
 COPY . .
 RUN npm run build
 

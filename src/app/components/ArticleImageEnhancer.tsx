@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ArticleImageEnhancerProps {
   assetBase?: string;
@@ -88,6 +88,14 @@ export default function ArticleImageEnhancer({
   const [viewer, setViewer] = useState<{ index: number; images: Array<{ src: string; alt: string }> } | null>(null);
   const [scale, setScale] = useState(1);
   const pinchDistance = useRef<number | null>(null);
+  const activeTrigger = useRef<HTMLElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeViewer = useCallback(() => {
+    setViewer(null);
+    activeTrigger.current?.focus();
+  }, []);
 
   useEffect(() => {
     const container = document.querySelector(containerSelector);
@@ -138,6 +146,7 @@ export default function ArticleImageEnhancer({
       const handleOpen = (event?: MouseEvent) => {
         event?.preventDefault();
         event?.stopPropagation();
+        activeTrigger.current = image;
         setScale(1);
         galleryItems[galleryIndex] = {
           src: image.currentSrc || image.src,
@@ -178,8 +187,10 @@ export default function ArticleImageEnhancer({
   useEffect(() => {
     if (!viewer) return;
 
+    closeButtonRef.current?.focus();
+
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setViewer(null);
+      if (event.key === "Escape") closeViewer();
       if (event.key === "+" || event.key === "=") setScale((value) => Math.min(4, value + 0.2));
       if (event.key === "-") setScale((value) => Math.max(0.25, value - 0.2));
       if (event.key === "ArrowRight") {
@@ -202,7 +213,7 @@ export default function ArticleImageEnhancer({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [viewer]);
+  }, [closeViewer, viewer]);
 
   if (!viewer) return null;
   const activeImage = viewer.images[viewer.index];
@@ -226,7 +237,22 @@ export default function ArticleImageEnhancer({
       role="dialog"
       aria-modal="true"
       aria-label="Image viewer"
-      onClick={() => setViewer(null)}
+      onClick={closeViewer}
+      onKeyDown={(event) => {
+        if (event.key !== "Tab") return;
+        const focusable = dialogRef.current?.querySelectorAll<HTMLElement>("button:not([disabled])");
+        if (!focusable?.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }}
+      ref={dialogRef}
     >
       <div className="image-lightbox__toolbar" onClick={(event) => event.stopPropagation()}>
         <button className="image-lightbox__button" type="button" onClick={() => setScale((value) => Math.min(4, value + 0.25))}>
@@ -245,13 +271,13 @@ export default function ArticleImageEnhancer({
             </button>
           </>
         )}
-        <button className="image-lightbox__button image-lightbox__button--close" type="button" aria-label="Close image viewer" onClick={() => setViewer(null)}>
+        <button ref={closeButtonRef} className="image-lightbox__button image-lightbox__button--close" type="button" aria-label="Close image viewer" onClick={closeViewer}>
           X
         </button>
       </div>
       <div
         className="image-lightbox__stage"
-        onClick={() => setViewer(null)}
+        onClick={closeViewer}
         onWheel={(event) => {
           event.preventDefault();
           setScale((value) => Math.min(4, Math.max(0.25, value + (event.deltaY < 0 ? 0.12 : -0.12))));

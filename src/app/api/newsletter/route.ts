@@ -36,15 +36,6 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({
-    subscriber: {
-      id: subscriber.id,
-      email: subscriber.email,
-      status: subscriber.status,
-      created_at: subscriber.created_at,
-      confirmed_at: subscriber.confirmed_at,
-    },
-    created,
-    confirmationSent: created ? confirmationSent : false,
-    message: created ? "Subscription successful" : "You are already subscribed",
+    message: "If this address can receive updates, it has been subscribed.",
   });
 }

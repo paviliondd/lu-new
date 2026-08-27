@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import crypto from "node:crypto";
 import { hasLocale, locales, type Locale } from "@/i18n/config";
 import { invalidateCache } from "@/lib/server/redis-cache";
 
 function authorized(request: Request) {
   const secret = process.env.NEXT_REVALIDATE_SECRET;
-  if (!secret) return false;
-
-  return (
-    request.headers.get("x-revalidate-secret") === secret ||
-    new URL(request.url).searchParams.get("secret") === secret
-  );
+  const providedSecret = request.headers.get("x-revalidate-secret");
+  if (!secret || !providedSecret || secret.length !== providedSecret.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(secret), Buffer.from(providedSecret));
 }
 
 function revalidateLocalePaths(locale: Locale, slug?: string, seriesSlug?: string) {

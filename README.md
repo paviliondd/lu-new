@@ -62,19 +62,21 @@ docker compose pull app
 docker compose up -d --remove-orphans --no-build
 ```
 
-`docker-compose.build.yml` is the explicit local override:
+`docker-compose.build.yml` is the explicit local/staging override. It builds the app and Nginx configuration into local images and uses named writable volumes, so a readonly checkout does not need Docker bind mounts:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.build.yml build app
+docker compose -f docker-compose.yml -f docker-compose.build.yml build
 docker compose -f docker-compose.yml -f docker-compose.build.yml up -d
 ```
+
+The local build override retains the configured host ports. On a host shared with another stack, override `NGINX_HTTP_BIND`, `NGINX_HTTPS_BIND`, and `NGINX_DIAGNOSTIC_BIND` in its staging environment before starting it.
 
 - `nginx`: TLS termination and routing; waits for app health.
 - `app`: Next.js standalone server and Payload.
 - `postgres`: authoritative CMS data on `payload_postgres_data`.
 - `redis`: cache/rate-limit state on `redis_data`.
 - `uptime-kuma`: monitoring data on `uptime_kuma_data`.
-- permission services: initialize writable runtime/translation paths.
+- permission services: initialize writable runtime/translation paths. The local build override uses the named `translation_work` volume instead of a host bind mount so an immutable/readonly checkout can still start.
 
 The `payload_media` volume is the active media store. Keep it mounted, included in backups, and owned by the non-root app user. Do not remove it until a separately verified S3 migration is complete.
 

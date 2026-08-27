@@ -30,9 +30,7 @@ export async function GET(request: Request) {
   } catch (error) {
     clearOAuthState(response, "google");
     clearOAuthReturnTo(response, "google");
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Google OAuth failed" },
-      { status: 500 }
-    );
+    console.error("Google OAuth callback failed", error);
+    return NextResponse.json({ error: "Google OAuth failed" }, { status: 500 });
   }
 }

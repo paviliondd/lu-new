@@ -2,6 +2,7 @@ import { APIError, type CollectionConfig } from "payload";
 
 const publicProjectRead = ({ req: { user } }: { req: { user?: unknown } }) =>
   user ? true : { publicationStatus: { equals: "published" } };
+const authenticated = ({ req: { user } }: { req: { user?: unknown } }) => Boolean(user);
 
 function slugifyProject(value: string) {
   return value
@@ -56,7 +57,12 @@ export const Projects: CollectionConfig = {
       },
     },
   },
-  access: { read: publicProjectRead },
+  access: {
+    read: publicProjectRead,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
+  },
   hooks: {
     beforeValidate: [
       ({ data }) => {

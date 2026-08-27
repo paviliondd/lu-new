@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   if (limited) return limited;
 
   const url = new URL(request.url);
-  const query = url.searchParams.get("q") || "";
+  const query = (url.searchParams.get("q") || "").slice(0, 200);
   const requestedLocale = url.searchParams.get("locale") || defaultLocale;
   const locale = hasLocale(requestedLocale) ? requestedLocale : defaultLocale;
   const limit = Math.min(20, Math.max(1, Number(url.searchParams.get("limit") || 8)));

@@ -1,10 +1,22 @@
 services:
+  nginx:
+    image: cloud-devops-blog-nginx:local
+    build:
+      context: .
+      dockerfile: deploy/nginx/Dockerfile.local
+    volumes: !reset []
+    ports: !override
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+
   app:
     image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}
     build:
       context: .
       dockerfile: Dockerfile
       target: runner
+    volumes:
+      - translation_work:/app/.translation-work
 
   media-permissions:
     image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}
@@ -14,3 +26,8 @@ services:
 
   translation-work-permissions:
     image: ${LOCAL_APP_IMAGE:-cloud-devops-blog-app:local}
+    volumes:
+      - translation_work:/app/.translation-work
+
+volumes:
+  translation_work:

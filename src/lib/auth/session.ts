@@ -22,7 +22,12 @@ const sessionMaxAge = 60 * 60 * 24 * 30;
 const stateMaxAge = 60 * 10;
 
 function secret() {
-  return process.env.AUTH_SESSION_SECRET || process.env.PAYLOAD_SECRET || "development-auth-secret-change-me";
+  const configuredSecret = process.env.AUTH_SESSION_SECRET || process.env.PAYLOAD_SECRET;
+  if (configuredSecret) return configuredSecret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("AUTH_SESSION_SECRET or PAYLOAD_SECRET must be configured in production.");
+  }
+  return "development-auth-secret-change-me";
 }
 
 function base64Url(value: Buffer | string) {
@@ -46,7 +51,15 @@ function encodeSession(user: AuthUser) {
 function decodeSession(value: string | undefined): AuthUser | null {
   if (!value) return null;
   const [payload, signature] = value.split(".");
-  if (!payload || !signature || sign(payload) !== signature) return null;
+  if (!payload || !signature) return null;
+
+  const expectedSignature = sign(payload);
+  if (
+    signature.length !== expectedSignature.length ||
+    !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))
+  ) {
+    return null;
+  }
 
   try {
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as AuthUser & {

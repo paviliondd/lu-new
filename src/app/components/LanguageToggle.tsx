@@ -14,10 +14,12 @@ export default function LanguageToggle() {
     <button
       type="button"
       onClick={toggleLanguage}
+      disabled={isPending}
       className={`inline-flex h-11 items-center gap-1.5 rounded-lg border theme-border bg-white px-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer ${
         isPending ? "opacity-75" : ""
       }`}
       aria-label={`Switch language (Current: ${language.toUpperCase()})`}
+      aria-busy={isPending}
       title={`Switch to ${language === "vi" ? "English" : "Tiếng Việt"}`}
     >
       <Globe className={`h-4 w-4 text-teal-600 dark:text-emerald-400 ${isPending ? "animate-spin" : ""}`} />

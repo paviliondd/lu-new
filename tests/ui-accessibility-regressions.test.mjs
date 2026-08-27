@@ -44,6 +44,22 @@ test("search modal and lightbox provide keyboard-safe dialogs", async () => {
   assert.match(lightbox, /role="dialog"/);
   assert.match(lightbox, /window\.addEventListener\("keydown", handleKeyDown\)/);
   assert.match(lightbox, /image\.setAttribute\("tabindex", "0"\)/);
+  assert.match(lightbox, /closeButtonRef\.current\?\.focus\(\)/);
+  assert.match(lightbox, /activeTrigger\.current\?\.focus\(\)/);
+  assert.match(lightbox, /const focusable = dialogRef\.current\?\.querySelectorAll/);
+});
+
+test("header and language controls expose pending and expanded state", async () => {
+  const [header, languageToggle] = await Promise.all([
+    readFile("src/app/components/Header.tsx", "utf8"),
+    readFile("src/app/components/LanguageToggle.tsx", "utf8"),
+  ]);
+
+  assert.match(header, /aria-controls="mobile-navigation"/);
+  assert.match(header, /aria-expanded=\{isMobileMenuOpen\}/);
+  assert.match(header, /id="mobile-navigation"/);
+  assert.match(languageToggle, /disabled=\{isPending\}/);
+  assert.match(languageToggle, /aria-busy=\{isPending\}/);
 });
 
 test("feedback and article rhythm use accessible status and shared heading spacing", async () => {

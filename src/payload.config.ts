@@ -377,6 +377,12 @@ function validateLegacyContent(value: unknown) {
   return "Legacy fallback content must be plain text or HTML.";
 }
 
+const payloadSecret = process.env.PAYLOAD_SECRET || (process.env.PAYLOAD_BUILD_SECRET === "true" ? "build-only-payload-secret" : undefined);
+
+if (!payloadSecret && process.env.NODE_ENV === "production") {
+  throw new Error("PAYLOAD_SECRET must be configured in production.");
+}
+
 const Users: CollectionConfig = {
   slug: "users",
   auth: true,
@@ -385,6 +391,9 @@ const Users: CollectionConfig = {
   },
   access: {
     read: authenticated,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   fields: [
     {
@@ -409,6 +418,9 @@ const Media: CollectionConfig = {
   slug: "media",
   access: {
     read: publicRead,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   admin: {
     useAsTitle: "alt",
@@ -653,6 +665,9 @@ const Authors: CollectionConfig = {
   },
   access: {
     read: publicRead,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   hooks: {
     beforeValidate: [
@@ -689,6 +704,9 @@ const Series: CollectionConfig = {
   },
   access: {
     read: publishedOrAuthenticated,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   hooks: {
     beforeValidate: [
@@ -809,6 +827,9 @@ const Posts: CollectionConfig = {
   },
   access: {
     read: publishedOrAuthenticated,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   hooks: {
     beforeValidate: [
@@ -1203,7 +1224,7 @@ const Comments: CollectionConfig = {
               equals: "approved",
             },
           },
-    create: () => true,
+    create: authenticated,
     update: authenticated,
     delete: authenticated,
   },
@@ -1254,7 +1275,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL,
     },
-    push: true,
+    push: false,
   }),
   editor: postEditor,
   routes: {
@@ -1263,7 +1284,7 @@ export default buildConfig({
     graphQL: "/api/graphql",
     graphQLPlayground: "/api/graphql-playground",
   },
-  secret: process.env.PAYLOAD_SECRET || "development-payload-secret-change-me",
+  secret: payloadSecret || "development-payload-secret-change-me",
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),

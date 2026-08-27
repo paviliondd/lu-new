@@ -23,8 +23,8 @@ docker-compose.build.yml Explicit local source-build override
 ```
 
 Runtime state is outside the application image: `payload_postgres_data`,
-`app_runtime_data`, `redis_data`, and `uptime_kuma_data` are persistent Compose
-volumes. Payload media is stored in S3 and served through the configured CDN.
+`payload_media`, `app_runtime_data`, `redis_data`, and `uptime_kuma_data` are persistent Compose
+volumes. Payload media is currently stored in `payload_media` and served through the Payload media route; S3/CDN remains disabled until a dedicated migration is scheduled.
 `.translation-work` remains a host bind mount.
 
 Payload is the live source of truth. Local content/data is selected only when

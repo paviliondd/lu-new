@@ -104,6 +104,8 @@ export default function Header() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="grid h-11 w-11 cursor-pointer place-items-center rounded-lg border theme-border bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white lg:hidden"
               aria-label="Toggle menu"
+              aria-controls="mobile-navigation"
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
                 <X className="h-5 w-5" />
@@ -116,7 +118,7 @@ export default function Header() {
 
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
-          <div className="theme-surface border-t theme-border px-4 py-4 shadow-xl shadow-slate-950/5 transition-all lg:hidden">
+          <div id="mobile-navigation" className="theme-surface border-t theme-border px-4 py-4 shadow-xl shadow-slate-950/5 transition-all lg:hidden">
             <ul className="space-y-1">
               {navLinks.map((link) => {
                 const isActive = link.href === activeNavHref;

@@ -13,6 +13,7 @@ export interface SearchResult {
 
 const tagPattern = /<[^>]*>/g;
 const entityPattern = /&(?:nbsp|amp|lt|gt|quot|apos|#\d+);/g;
+const MAX_SEARCH_QUERY_LENGTH = 200;
 
 function stripHtml(value: string) {
   return value
@@ -88,7 +89,7 @@ export function highlightText(value: string, query: string) {
 }
 
 export async function searchPosts(locale: Locale, query: string, limit = 12): Promise<SearchResult[]> {
-  const trimmedQuery = query.trim();
+  const trimmedQuery = query.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
   if (!trimmedQuery) return [];
 
   const normalizedQuery = normalize(trimmedQuery);

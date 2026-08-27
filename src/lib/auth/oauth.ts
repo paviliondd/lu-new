@@ -49,7 +49,10 @@ export function authorizationUrl(provider: OAuthProvider, state: string, request
 }
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, init);
+  const response = await fetch(url, {
+    ...init,
+    signal: init?.signal ?? AbortSignal.timeout(10_000),
+  });
   if (!response.ok) {
     throw new Error(`OAuth request failed: ${response.status}`);
   }

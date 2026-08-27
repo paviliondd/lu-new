@@ -29,9 +29,7 @@ export async function GET(request: Request) {
   } catch (error) {
     clearOAuthState(response, "github");
     clearOAuthReturnTo(response, "github");
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "GitHub OAuth failed" },
-      { status: 500 }
-    );
+    console.error("GitHub OAuth callback failed", error);
+    return NextResponse.json({ error: "GitHub OAuth failed" }, { status: 500 });
   }
 }

@@ -101,6 +101,7 @@ const safeArticleClasses = new Set([
   "line",
   "note-box",
   "richtext-block",
+  "topology-graph-block",
   "topology-shell",
   "warning-box",
 ]);

@@ -5,8 +5,13 @@ import parse, {
   type HTMLReactParserOptions,
 } from "html-react-parser";
 import ArticleImageEnhancer from "../ArticleImageEnhancer";
+import ArchifyArtifact from "../ArchifyArtifact";
 import CodeBlock, { type CodeBlockLabels } from "../CodeBlock";
 import MermaidRenderer from "../MermaidRenderer";
+import TopologyGraph, {
+  type TopologyEdge,
+  type TopologyNode,
+} from "../TopologyGraph";
 import { languageFromClass, normalizeCodeLabel } from "../CodeBlock/syntax";
 import ArticleTable from "../ArticleTable/ArticleTable";
 import { isAsciiTopology, unwrapMarkdownCodeFence } from "@/lib/content/ascii-topology";
@@ -34,6 +39,22 @@ function nextElement(node: DOMNode | null) {
   return null;
 }
 
+function archifyAssetPath(src: string, extension: "svg" | "html") {
+  const cleanSrc = src.split(/[?#]/, 1)[0];
+  if (!cleanSrc.startsWith("/uploads/k8s/") || !/\.png$/i.test(cleanSrc)) return null;
+  return `${cleanSrc.slice(0, -4)}.${extension}`;
+}
+
+function parseTopologyArray<T>(value: string | undefined): T[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function RichTextRenderer({
   assetBase,
   content,
@@ -46,6 +67,32 @@ export default function RichTextRenderer({
     replace(domNode) {
       if (consumed.has(domNode)) return <></>;
       if (!(domNode instanceof Element)) return undefined;
+
+      if (domNode.name === "div" && domNode.attribs["data-topology-graph"] === "true") {
+        const nodes = parseTopologyArray<TopologyNode>(domNode.attribs["data-topology-nodes"]);
+        const edges = parseTopologyArray<TopologyEdge>(domNode.attribs["data-topology-edges"]);
+        if (nodes.length > 0) {
+          return (
+            <TopologyGraph
+              namespace={domNode.attribs["data-topology-namespace"] || "default namespace"}
+              live={domNode.attribs["data-topology-live"] !== "false"}
+              nodes={nodes}
+              edges={edges}
+            />
+          );
+        }
+        return <></>;
+      }
+
+      if (domNode.name === "img") {
+        const src = domNode.attribs.src || "";
+        const svgPath = archifyAssetPath(src, "svg");
+        const htmlPath = archifyAssetPath(src, "html");
+        if (svgPath && htmlPath) {
+          const alt = domNode.attribs.alt || "Archify architecture diagram";
+          return <ArchifyArtifact alt={alt} htmlPath={htmlPath} src={src} svgPath={svgPath} />;
+        }
+      }
 
       if (domNode.name === "table") {
         return (

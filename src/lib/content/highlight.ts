@@ -27,7 +27,7 @@ export async function highlightCodeBlocks(html: string) {
       languageFromClass(pre.attr("class")) ||
       "auto"
     ).toLowerCase();
-    const rawSource = code.text();
+    const rawSource = code.text().replace(/\r\n?/g, "\n").replace(/\n+$/, "");
 
     if (originalLanguage === "mermaid") {
       pre.addClass("mermaid-source");

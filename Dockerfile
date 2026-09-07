@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1.7
-
 FROM node:24-bookworm-slim AS libvips-builder
 
 ARG LIBVIPS_VERSION=8.18.3
@@ -109,7 +107,7 @@ RUN npm prune --omit=dev \
 FROM deps AS builder
 ENV PAYLOAD_BUILD_SECRET=true
 COPY . .
-RUN npm run build
+RUN NODE_OPTIONS=--max-old-space-size=2048 npm run build -- --webpack
 
 FROM node:24-bookworm-slim AS runner
 WORKDIR /app
@@ -153,6 +151,8 @@ COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nextjs /app/content ./content
 COPY --from=builder --chown=nextjs:nextjs /app/scripts ./scripts
 COPY --from=deps-prod --chown=nextjs:nextjs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nextjs /app/src/lib ./src/lib
+COPY --from=builder --chown=nextjs:nextjs /app/src/blocks ./src/blocks
 COPY --from=builder --chown=nextjs:nextjs /app/src/app/data.ts ./src/app/data.ts
 COPY --from=builder --chown=nextjs:nextjs /app/src/collections ./src/collections
 COPY --from=builder --chown=nextjs:nextjs /app/src/content/projects ./src/content/projects

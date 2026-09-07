@@ -15,6 +15,7 @@ yarn-error.log*
 next-dev-*.log
 coverage
 backups
+backups-staging
 docs
 .github
 tsconfig.tsbuildinfo

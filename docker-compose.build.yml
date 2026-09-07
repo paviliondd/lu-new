@@ -4,7 +4,9 @@ services:
     build:
       context: .
       dockerfile: deploy/nginx/Dockerfile.local
-    volumes: !reset []
+    volumes:
+      - ./deploy/certbot/www:/var/www/certbot
+      - ./deploy/certbot/letsencrypt:/etc/letsencrypt
     ports: !override
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"

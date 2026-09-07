@@ -50,6 +50,7 @@ logs/
 # local data, backups, uploads, and database dumps
 backup/
 backups/
+backups-staging/
 *.sql
 *.sqlite
 *.sqlite3

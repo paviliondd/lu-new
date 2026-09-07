@@ -5,6 +5,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import type { SerializedEditorState, SerializedLexicalNode } from "lexical";
 import { APIError, buildConfig, type Block, type CollectionConfig, type RichTextAdapterProvider } from "payload";
 import sharp from "sharp";
+import { topologyGraphBlock } from "./blocks/TopologyGraph/config";
 import { Projects } from "./collections/Projects";
 import { legacyImportedMediaURL } from "./lib/cms/media-url";
 import { isSvgUpload, sanitizeSvgUpload } from "./lib/media/sanitize-svg-upload";
@@ -102,7 +103,7 @@ const postEditor: RichTextAdapterProvider<
       }),
       EXPERIMENTAL_TableFeature(),
       BlocksFeature({
-        blocks: [codeBlock],
+        blocks: [codeBlock, topologyGraphBlock],
       }),
     ],
   })(args);

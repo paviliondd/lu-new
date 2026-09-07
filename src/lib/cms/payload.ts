@@ -149,6 +149,35 @@ async function renderLexicalContent(value: unknown) {
   if (!isLexicalContent(value)) return "";
 
   const { convertLexicalToHTML } = await import("@payloadcms/richtext-lexical/html");
+  const renderTopologyGraph = ({ node }: { node: { fields?: Record<string, unknown> } }) => {
+    const fields = node.fields || {};
+    const nodes = Array.isArray(fields.nodes) ? fields.nodes : [];
+    const edges = Array.isArray(fields.edges) ? fields.edges : [];
+    const graphData = {
+      namespace: asString(fields.namespace, "default namespace"),
+      live: fields.live !== false,
+      nodes: nodes.map((item) => {
+        const value = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+        return {
+          id: asString(value.id),
+          label: asString(value.label),
+          col: Number.isFinite(Number(value.col)) ? Number(value.col) : 0,
+          row: ["top", "mid", "bottom"].includes(asString(value.row)) ? asString(value.row) : "mid",
+          warn: value.warn === true,
+        };
+      }),
+      edges: edges.map((item) => {
+        const value = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+        return { from: asString(value.from), to: asString(value.to), flowing: value.flowing === true };
+      }),
+    };
+    return `<div class="topology-graph-block" data-topology-graph="true" data-topology-namespace="${escapeHtml(
+      graphData.namespace
+    )}" data-topology-live="${graphData.live ? "true" : "false"}" data-topology-nodes="${escapeHtml(
+      JSON.stringify(graphData.nodes)
+    )}" data-topology-edges="${escapeHtml(JSON.stringify(graphData.edges))}"></div>`;
+  };
+
   const renderCodeSnippet = ({ node }: { node: { fields?: Record<string, unknown> } }) => {
     const fields = node.fields || {};
     const configuredLanguage = asString(fields.language, "auto").toLowerCase();
@@ -180,6 +209,7 @@ async function renderLexicalContent(value: unknown) {
         ...(defaultConverters.blocks || {}),
         Code: renderCodeSnippet,
         codeSnippet: renderCodeSnippet,
+        topologyGraph: renderTopologyGraph,
         topology: ({ node }: { node: { fields?: Record<string, unknown> } }) => {
           const fields = node.fields || {};
           const source = escapeHtml(fields.source);

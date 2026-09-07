@@ -34,9 +34,8 @@ export interface CodeBlockProps {
 }
 
 export function countCodeLines(value: string) {
-  const normalized = value.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  const withoutFinalNewline = normalized.endsWith("\n") ? normalized.slice(0, -1) : normalized;
-  return withoutFinalNewline ? withoutFinalNewline.split("\n").length : 1;
+  const normalized = value.replace(/\r\n/g, "\n").replace(/\r/g, "\n").replace(/\n+$/, "");
+  return normalized ? normalized.split("\n").length : 1;
 }
 
 export default function CodeBlock({
@@ -48,7 +47,8 @@ export default function CodeBlock({
   explanation,
   labels,
 }: CodeBlockProps) {
-  const totalLines = countCodeLines(code);
+  const normalizedCode = code.replace(/\r\n?/g, "\n").replace(/\n+$/, "");
+  const totalLines = countCodeLines(normalizedCode);
   const isLong = totalLines > 20;
   const [expanded, setExpanded] = useState(initiallyExpanded || !isLong);
   const cardRef = useRef<HTMLElement>(null);
@@ -83,7 +83,7 @@ export default function CodeBlock({
         </div>
 
         <div className="code-card__actions">
-          <CopyCodeButton code={code} labels={labels.copy} />
+          <CopyCodeButton code={normalizedCode} labels={labels.copy} />
         </div>
       </header>
 
@@ -97,7 +97,7 @@ export default function CodeBlock({
                 ))}
               </span>
             )}
-            <span className="code-card__source">{highlightedCode ?? code}</span>
+            <span className="code-card__source">{highlightedCode ?? normalizedCode}</span>
           </code>
         </pre>
       </div>

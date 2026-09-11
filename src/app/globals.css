@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @source not "../../.codex";
 @import "./components/CodeBlock/code-theme.css";
+@import "./k8s-article.css";
 
 /* Enable manual dark mode via class selector */
 @variant dark (&:where(.dark, .dark *));
@@ -199,6 +200,21 @@ iframe {
 
 .article-content__body {
   width: 100%;
+  min-width: 0;
+}
+
+.article-content__body > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.article-content--reading :where(.article-table, .code-card, .topology-shell, .mermaid-shell, .archify-shell) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.article-content--reading :where(pre, code, td, th) {
+  overflow-wrap: anywhere;
 }
 
 .article-content__body > :where(h1, h2, h3, h4, p, ul, ol, blockquote, hr, aside),
@@ -693,9 +709,10 @@ iframe {
 
 .archify-shell {
   display: block;
-  width: min(calc(100vw - 2rem), 75rem);
-  margin-block: calc(var(--article-block-space) * 1.5);
-  margin-inline-start: calc((100% - min(calc(100vw - 2rem), 75rem)) / 2);
+  width: min(100%, var(--article-column-width));
+  max-width: 100%;
+  min-width: 0;
+  margin: calc(var(--article-block-space) * 1.5) auto;
   overflow: hidden;
   border: 1px solid var(--site-border);
   border-radius: 0.9rem;
@@ -747,6 +764,59 @@ iframe {
   font-weight: 700;
   text-decoration: none !important;
   cursor: pointer;
+}
+
+.archify-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: color-mix(in srgb, #020617 78%, transparent);
+}
+
+.archify-modal__panel {
+  display: flex;
+  width: min(96vw, 88rem);
+  height: min(92vh, 58rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  border-radius: 0.9rem;
+  background: var(--site-surface);
+  box-shadow: 0 24px 80px -24px #000;
+}
+
+.archify-modal__header {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0.75rem 0.55rem 1rem;
+  border-bottom: 1px solid var(--site-border);
+  background: var(--site-panel);
+  color: var(--site-fg);
+}
+
+.archify-modal__interactive {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  background: var(--site-panel);
+}
+
+.archify-modal__interactive iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.archify-modal__interactive:fullscreen {
+  width: 100vw;
+  height: 100vh;
 }
 
 .archify-shell__interactive {

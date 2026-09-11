@@ -65,6 +65,8 @@ export default function ArticleClient({
     post.series?.title ||
     formatTopicLabel(post.category || "DevOps");
 
+  const isK8sArticle = post.slug.startsWith("k8s-");
+
   return (
     <div className="theme-page w-full overflow-x-clip py-8 sm:py-10">
       <div className="mx-auto max-w-[1536px] px-4 sm:px-6">
@@ -215,16 +217,19 @@ export default function ArticleClient({
               headings={headings}
               title="Table of Contents"
               emptyLabel="No table of contents for this post."
+              numbered={isK8sArticle}
             />
 
             {/* Serialized content renders atomically inside one client island. */}
-            <ArticleContent
-              assetBase={assetBase}
-              content={content}
-              contentKey={contentKey}
-              language={language}
-              legacyAssetOrigins={legacyAssetOrigins}
-            />
+            <div className={isK8sArticle ? "k8s-article-content-surface" : undefined}>
+              <ArticleContent
+                assetBase={assetBase}
+                content={content}
+                contentKey={contentKey}
+                language={language}
+                legacyAssetOrigins={legacyAssetOrigins}
+              />
+            </div>
 
             {/* Chapter Navigation (Previous / Next Chapter) */}
             {(prevPost || nextPost) && (
@@ -307,6 +312,7 @@ export default function ArticleClient({
             headings={headings}
             title="Table of Contents"
             emptyLabel="No table of contents for this post."
+            numbered={isK8sArticle}
           />
 
         </div>

@@ -7,6 +7,7 @@ export interface TocHeading {
   id: string;
   text: string;
   level: 2 | 3;
+  number?: string;
 }
 
 interface TableOfContentsProps {
@@ -14,9 +15,11 @@ interface TableOfContentsProps {
   contentSelector?: string;
   emptyLabel: string;
   title: string;
+  className?: string;
+  numbered?: boolean;
 }
 
-export function MobileTableOfContents({ headings, emptyLabel, title }: TableOfContentsProps) {
+export function MobileTableOfContents({ headings, emptyLabel, title, numbered = false }: TableOfContentsProps) {
   return (
     <details className="article-reading-frame theme-card group rounded-xl border 2xl:hidden">
       <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-bold text-slate-950 marker:content-none dark:text-slate-100">
@@ -33,11 +36,14 @@ export function MobileTableOfContents({ headings, emptyLabel, title }: TableOfCo
               <li key={heading.id}>
                 <a
                   href={`#${heading.id}`}
-                  className={`block leading-6 text-slate-600 underline-offset-4 hover:text-teal-700 hover:underline focus-visible:rounded-sm dark:text-slate-300 dark:hover:text-emerald-300 ${
+                  className={`flex gap-2 leading-6 text-slate-600 underline-offset-4 hover:text-teal-700 hover:underline focus-visible:rounded-sm dark:text-slate-300 dark:hover:text-emerald-300 ${
                     heading.level === 3 ? "pl-3" : ""
                   }`}
                 >
-                  {heading.text}
+                  {numbered && heading.level === 2 && (
+                    <span className="k8s-toc-number" aria-hidden="true">{heading.number || ""}</span>
+                  )}
+                  <span>{heading.text}</span>
                 </a>
               </li>
             ))}
@@ -65,6 +71,8 @@ export default function TableOfContents({
   contentSelector = ".article-content",
   emptyLabel,
   title,
+  className,
+  numbered = false,
 }: TableOfContentsProps) {
   const [tocHeadings, setTocHeadings] = useState<TocHeading[]>(headings);
   const [activeId, setActiveId] = useState("");
@@ -81,10 +89,12 @@ export default function TableOfContents({
     const headingElements = Array.from(
       contentElement.querySelectorAll<HTMLElement>("h2, h3"),
     );
+    let sectionNumber = 0;
     const headingList = headingElements
-      .map((element, index) => {
-        const text = element.textContent?.trim() || "";
-        if (!text) return null;
+      .map((element, index): TocHeading | null => {
+        const rawText = element.textContent?.trim() || "";
+        if (!rawText) return null;
+        const text = rawText.replace(/^\d{1,2}[.)]\s+/, "");
 
         const baseId = headings[index]?.id || slugifyHeading(text, index);
         let id = baseId;
@@ -97,10 +107,14 @@ export default function TableOfContents({
         seenIds.add(id);
         element.id = id;
 
+        const level = element.tagName.toLowerCase() === "h3" ? 3 : 2;
+        if (level === 2) sectionNumber += 1;
+
         return {
           id,
           text,
-          level: element.tagName.toLowerCase() === "h3" ? 3 : 2,
+          level,
+          number: level === 2 ? String(sectionNumber).padStart(2, "0") : undefined,
         } satisfies TocHeading;
       })
       .filter((heading): heading is TocHeading => Boolean(heading));
@@ -172,7 +186,7 @@ export default function TableOfContents({
   }, [activeId]);
 
   return (
-    <aside className="hidden w-full pl-8 2xl:col-start-3 2xl:row-start-1 2xl:block">
+    <aside className={`hidden w-full pl-8 2xl:col-start-3 2xl:row-start-1 2xl:block ${className || ""}`}>
       <div ref={tocContainerRef} className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto py-1">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
           {title}
@@ -210,7 +224,10 @@ export default function TableOfContents({
                       : "border-transparent text-slate-500 dark:text-slate-400"
                   }`}
                 >
-                  {heading.text}
+                  {numbered && heading.level === 2 && (
+                    <span className="k8s-toc-number" aria-hidden="true">{heading.number || ""}</span>
+                  )}
+                  <span>{heading.text}</span>
                 </a>
               </li>
             ))}

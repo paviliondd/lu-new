@@ -41,8 +41,8 @@ function nextElement(node: DOMNode | null) {
 
 function archifyAssetPath(src: string, extension: "svg" | "html") {
   const cleanSrc = src.split(/[?#]/, 1)[0];
-  if (!cleanSrc.startsWith("/uploads/k8s/") || !/\.png$/i.test(cleanSrc)) return null;
-  return `${cleanSrc.slice(0, -4)}.${extension}`;
+  if (!((cleanSrc.startsWith("/uploads/k8s/") || cleanSrc.startsWith("/kubernetes-diagrams/")) && /\.(png|svg)$/i.test(cleanSrc))) return null;
+  return `${cleanSrc.replace(/\.(png|svg)$/i, "")}.${extension}`;
 }
 
 function parseTopologyArray<T>(value: string | undefined): T[] {
@@ -92,6 +92,18 @@ export default function RichTextRenderer({
           const alt = domNode.attribs.alt || "Archify architecture diagram";
           return <ArchifyArtifact alt={alt} htmlPath={htmlPath} src={src} svgPath={svgPath} />;
         }
+      }
+
+      if (domNode.name === "h2") {
+        const sectionLabel = nodeText(domNode).trim().replace(/^\d{1,2}[.)]\s+/, "");
+        return (
+          <h2
+            id={domNode.attribs.id || undefined}
+            data-section-label={sectionLabel || undefined}
+          >
+            {domToReact(domNode.children as DOMNode[], options)}
+          </h2>
+        );
       }
 
       if (domNode.name === "table") {

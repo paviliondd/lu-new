@@ -369,7 +369,7 @@
   display: block;
   margin-bottom: 10px;
   color: var(--k-blue);
-  content: counter(k8s-section, decimal-leading-zero);
+  content: counter(k8s-section, decimal-leading-zero) " — " attr(data-section-label);
   font: 600 13px/1.45 var(--k-mono);
   letter-spacing: 2px;
 }

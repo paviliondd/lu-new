@@ -186,7 +186,7 @@ export default function TableOfContents({
   }, [activeId]);
 
   return (
-    <aside className={`hidden w-full pl-8 2xl:col-start-3 2xl:row-start-1 2xl:block ${className || ""}`}>
+    <aside className="hidden w-full pl-8 2xl:col-start-3 2xl:row-start-1 2xl:block">
       <div ref={tocContainerRef} className="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto py-1">
         <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
           {title}

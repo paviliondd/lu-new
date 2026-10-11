@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+<title id="title">Banking platform topology and data flow</title>
+<desc id="desc">React and Kong route requests to four FastAPI services. PostgreSQL stores banking state, Redis stores sessions and Pub/Sub, and Prometheus, Grafana, Jaeger, Jenkins, Harbor and Argo CD support operations.</desc>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 z" fill="#7dd3fc"/></marker><style>text{font-family:Inter,Arial,sans-serif;fill:#e5eef8} .box{fill:#10233d;stroke:#4f8ecb;stroke-width:2;rx:14} .data{fill:#163b3a;stroke:#4ade80} .ops{fill:#30264e;stroke:#c084fc} .muted{fill:#9fb4cb;font-size:16px} .label{font-size:21px;font-weight:700} .small{font-size:17px} .flow{stroke:#7dd3fc;stroke-width:3;fill:none;marker-end:url(#a)} .dash{stroke:#c084fc;stroke-width:2;stroke-dasharray:8 8;fill:none;marker-end:url(#a)}</style></defs>
+<rect width="1400" height="820" fill="#08111f"/>
+<text x="60" y="52" font-size="31" font-weight="700">Banking Demo Platform — topology and data flow</text>
+<text x="60" y="82" class="muted">Implemented v1 flows are separated from platform hardening and GitOps design artifacts.</text>
+<rect class="box" x="50" y="150" width="180" height="100"/><text x="140" y="190" text-anchor="middle" class="label">React UI</text><text x="140" y="220" text-anchor="middle" class="small">REST + WebSocket</text>
+<rect class="box" x="300" y="150" width="180" height="100"/><text x="390" y="190" text-anchor="middle" class="label">Kong 3.4</text><text x="390" y="220" text-anchor="middle" class="small">proxy :8000</text>
+<path class="flow" d="M230 200H300"/>
+<rect class="box" x="560" y="105" width="190" height="80"/><text x="655" y="138" text-anchor="middle" class="label">Auth :8001</text><text x="655" y="164" text-anchor="middle" class="small">register / login</text>
+<rect class="box" x="560" y="205" width="190" height="80"/><text x="655" y="238" text-anchor="middle" class="label">Account :8002</text><text x="655" y="264" text-anchor="middle" class="small">profile / balance</text>
+<rect class="box" x="560" y="305" width="190" height="80"/><text x="655" y="338" text-anchor="middle" class="label">Transfer :8003</text><text x="655" y="364" text-anchor="middle" class="small">locked money flow</text>
+<rect class="box" x="560" y="405" width="190" height="80"/><text x="655" y="438" text-anchor="middle" class="label">Notify :8004</text><text x="655" y="464" text-anchor="middle" class="small">WebSocket :/ws</text>
+<path class="flow" d="M480 185H540"/><path class="flow" d="M480 205H520V245H540"/><path class="flow" d="M480 225H510V345H540"/><path class="flow" d="M480 245H500V445H540"/>
+<rect class="data" x="900" y="145" width="240" height="130"/><text x="1020" y="185" text-anchor="middle" class="label">PostgreSQL 16</text><text x="1020" y="216" text-anchor="middle" class="small">users · balances</text><text x="1020" y="242" text-anchor="middle" class="small">transfers · notifications</text>
+<rect class="data" x="900" y="335" width="240" height="130"/><text x="1020" y="375" text-anchor="middle" class="label">Redis 7</text><text x="1020" y="406" text-anchor="middle" class="small">sessions · presence TTL</text><text x="1020" y="432" text-anchor="middle" class="small">notify:user Pub/Sub</text>
+<path class="flow" d="M750 145H840V200H900"/><path class="flow" d="M750 245H840V220H900"/><path class="flow" d="M750 345H840V240H900"/><path class="flow" d="M750 405H840V400H900"/><path class="flow" d="M750 445H840V420H900"/>
+<text x="790" y="125" class="muted">transactional reads/writes</text><text x="785" y="520" class="muted">session lookup + event fan-out</text>
+<rect class="ops" x="80" y="610" width="250" height="120"/><text x="205" y="650" text-anchor="middle" class="label">CI / GitOps</text><text x="205" y="681" text-anchor="middle" class="small">GitHub → Jenkins</text><text x="205" y="706" text-anchor="middle" class="small">Kaniko → Harbor → Argo CD</text>
+<rect class="ops" x="430" y="610" width="250" height="120"/><text x="555" y="650" text-anchor="middle" class="label">Kubernetes</text><text x="555" y="681" text-anchor="middle" class="small">banking namespace</text><text x="555" y="706" text-anchor="middle" class="small">StatefulSets + Ingress</text>
+<rect class="ops" x="780" y="610" width="250" height="120"/><text x="905" y="650" text-anchor="middle" class="label">Telemetry</text><text x="905" y="681" text-anchor="middle" class="small">Prometheus + Grafana</text><text x="905" y="706" text-anchor="middle" class="small">OTel Collector → Jaeger</text>
+<rect class="ops" x="1130" y="610" width="220" height="120"/><text x="1240" y="650" text-anchor="middle" class="label">Security</text><text x="1240" y="681" text-anchor="middle" class="small">Trivy · Bandit</text><text x="1240" y="706" text-anchor="middle" class="small">Vault / External Secrets</text>
+<path class="dash" d="M205 610V560H555V610"/><path class="dash" d="M555 610V560H905V610"/><path class="dash" d="M905 610V560H1240V610"/>
+</svg>

@@ -5,10 +5,24 @@ import { projects, getProject } from "../src/content/projects/projects.ts";
 import { validateProject } from "../src/content/projects/schema.ts";
 
 test("project content is valid, unique, and sorted newest first", () => {
-  assert.equal(projects.length, 5);
+  assert.equal(projects.length, 6);
   assert.equal(new Set(projects.map(({ slug }) => slug)).size, projects.length);
   const dates = projects.map(({ startDate }) => Date.parse(startDate));
   assert.deepEqual(dates, [...dates].sort((a, b) => b - a));
+});
+
+test("portfolio keeps only LinuxUnity and the five requested source projects", () => {
+  assert.deepEqual(projects.map(({ slug }) => slug).sort(), [
+    "aws-codeland-platform",
+    "aws-serverless-registration",
+    "bank-infrastructure-lab",
+    "banking-platform",
+    "car-booking-platform",
+    "linuxunity-platform",
+  ].sort());
+  assert.equal(getProject("production-ready-eks-platform"), undefined);
+  assert.equal(getProject("serverless-api"), undefined);
+  assert.equal(getProject("aws-landing-zone"), undefined);
 });
 
 test("LinuxUnity project documents production topology and the isolated staging data flow", () => {
@@ -23,12 +37,13 @@ test("LinuxUnity project documents production topology and the isolated staging 
   assert.ok(project.implementation.some(({ description }) => /Payload.*Postgres.*Redis/i.test(description)));
 });
 
-test("sample project slugs resolve and missing slugs do not", () => {
-  assert.equal(getProject("production-ready-eks-platform")?.title, "Production-ready EKS Platform");
-  assert.equal(getProject("serverless-api")?.title, "Serverless API on AWS");
-  assert.equal(getProject("serverless-registration-system")?.title, "AWS Serverless Event Registration System");
-  assert.equal(getProject("aws-landing-zone")?.title, "AWS Multi-account Landing Zone");
+test("requested project slugs resolve and missing slugs do not", () => {
   assert.equal(getProject("linuxunity-platform")?.title, "LinuxUnity.com Publishing Platform");
+  assert.equal(getProject("banking-platform")?.title, "Banking Platform on Kubernetes");
+  assert.equal(getProject("car-booking-platform")?.title, "Datxe Self-drive Car Rental Platform");
+  assert.equal(getProject("bank-infrastructure-lab")?.title, "Bank Infrastructure Automation Lab");
+  assert.equal(getProject("aws-serverless-registration")?.title, "AWS Serverless Event Registration");
+  assert.equal(getProject("aws-codeland-platform")?.title, "CodeLand.io AWS Platform Engineering");
   assert.equal(getProject("missing-project"), undefined);
 });
 
@@ -103,8 +118,11 @@ test("every architecture asset is present and real projects retain their evidenc
     const asset = await stat(`public${project.architectureImage}`);
     assert.ok(asset.size > 500);
   }
-  assert.equal(getProject("serverless-registration-system")?.placeholder, undefined);
-  assert.equal(getProject("serverless-registration-system")?.repositoryUrl, "https://github.com/paviliondd/serverless-registration-system");
+  for (const oldSlug of ["production-ready-eks-platform", "serverless-registration-system", "serverless-api", "aws-landing-zone"]) {
+    await assert.rejects(stat(`public/projects/${oldSlug}/architecture.svg`));
+  }
+  assert.equal(getProject("aws-serverless-registration")?.placeholder, undefined);
+  assert.equal(getProject("aws-serverless-registration")?.architectureImage, "/projects/aws-serverless-registration/architecture.svg");
   const seed = await readFile("scripts/seed-payload-projects.mjs", "utf8");
   assert.match(seed, /placeholder: project\.placeholder \|\| false/);
   assert.match(seed, /payload\.update/);

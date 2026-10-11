@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+  <title id="title">LinuxUnity.com production and staging topology with data flow</title>
+  <desc id="desc">Users reach LinuxUnity through DNS and Cloudflare or the public Nginx proxy. GitHub Actions builds immutable Git SHA images in Amazon ECR, then deploys isolated production and staging Docker Compose stacks. Each stack contains Nginx, a Next.js and Payload application, PostgreSQL, Redis, persistent media, and monitoring. Staging uses dev.linuxunity.com, separate volumes, and a noindex preview flow before promotion to production.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#08111f"/><stop offset="1" stop-color="#12243b"/></linearGradient>
+    <linearGradient id="prod" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#123a4a"/><stop offset="1" stop-color="#0d2435"/></linearGradient>
+    <linearGradient id="stage" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3b2d19"/><stop offset="1" stop-color="#302016"/></linearGradient>
+    <marker id="blueArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#5bd6ff"/></marker>
+    <marker id="greenArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#45e0a5"/></marker>
+    <marker id="amberArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0l10 5-10 5z" fill="#f8bd62"/></marker>
+    <style>text{font-family:Arial,sans-serif}.label{fill:#f8fafc;font-size:18px;font-weight:700}.small{fill:#a9bbcf;font-size:14px}.tiny{fill:#9fb2c8;font-size:12px}.node{fill:#172b42;stroke:#3b5875;stroke-width:2}.prodNode{fill:#174152;stroke:#45c7df;stroke-width:2}.stageNode{fill:#49331d;stroke:#f0ad4e;stroke-width:2}.store{fill:#172d3d;stroke:#45e0a5;stroke-width:2}.flow{fill:none;stroke-width:4}.dashed{stroke-dasharray:10 8}</style>
+  </defs>
+  <rect width="1600" height="980" fill="url(#bg)"/>
+  <text x="60" y="55" class="label" font-size="30">LinuxUnity.com · production + staging topology</text>
+  <text x="60" y="84" class="small">Immutable images, isolated data stores, Payload-first content, and a reviewed promotion path</text>
+
+  <rect x="55" y="120" width="1490" height="145" rx="18" fill="#101e31" stroke="#39536e" stroke-width="2"/>
+  <text x="80" y="151" class="label">Delivery control plane</text>
+  <rect x="90" y="177" width="180" height="58" rx="12" class="node"/><text x="180" y="202" text-anchor="middle" class="label" font-size="16">Feature branch</text><text x="180" y="222" text-anchor="middle" class="tiny">PR / workflow dispatch</text>
+  <rect x="340" y="177" width="190" height="58" rx="12" class="node"/><text x="435" y="202" text-anchor="middle" class="label" font-size="16">GitHub Actions</text><text x="435" y="222" text-anchor="middle" class="tiny">lint · test · build</text>
+  <rect x="600" y="177" width="185" height="58" rx="12" class="node"/><text x="692" y="202" text-anchor="middle" class="label" font-size="16">Docker runner</text><text x="692" y="222" text-anchor="middle" class="tiny">Next.js standalone image</text>
+  <rect x="855" y="177" width="180" height="58" rx="12" class="node"/><text x="945" y="202" text-anchor="middle" class="label" font-size="16">Amazon ECR</text><text x="945" y="222" text-anchor="middle" class="tiny">immutable Git SHA</text>
+  <rect x="1110" y="177" width="180" height="58" rx="12" class="node"/><text x="1200" y="202" text-anchor="middle" class="label" font-size="16">Deploy SSH</text><text x="1200" y="222" text-anchor="middle" class="tiny">pull exact SHA</text>
+  <path d="M270 206h70M530 206h70M785 206h70M1035 206h75" class="flow" stroke="#5bd6ff" marker-end="url(#blueArrow)"/>
+
+  <rect x="55" y="305" width="1490" height="290" rx="18" fill="url(#prod)" stroke="#45c7df" stroke-width="2"/>
+  <text x="80" y="340" class="label">Production · linuxunity.com</text><text x="80" y="363" class="small">public traffic · production Compose · production persistent volumes</text>
+  <rect x="90" y="405" width="155" height="66" rx="12" class="prodNode"/><text x="167" y="433" text-anchor="middle" class="label" font-size="16">DNS / CDN</text><text x="167" y="453" text-anchor="middle" class="tiny">linuxunity.com</text>
+  <rect x="300" y="405" width="155" height="66" rx="12" class="prodNode"/><text x="377" y="433" text-anchor="middle" class="label" font-size="16">Nginx</text><text x="377" y="453" text-anchor="middle" class="tiny">TLS + routing</text>
+  <rect x="510" y="405" width="220" height="66" rx="12" class="prodNode"/><text x="620" y="433" text-anchor="middle" class="label" font-size="16">Next.js + Payload</text><text x="620" y="453" text-anchor="middle" class="tiny">blog · project · admin · API</text>
+  <rect x="785" y="390" width="175" height="66" rx="12" class="store"/><text x="872" y="418" text-anchor="middle" class="label" font-size="16">PostgreSQL</text><text x="872" y="438" text-anchor="middle" class="tiny">authoritative CMS</text>
+  <rect x="785" y="475" width="175" height="66" rx="12" class="store"/><text x="872" y="503" text-anchor="middle" class="label" font-size="16">Redis</text><text x="872" y="523" text-anchor="middle" class="tiny">cache + rate limits</text>
+  <rect x="1015" y="390" width="190" height="66" rx="12" class="store"/><text x="1110" y="418" text-anchor="middle" class="label" font-size="16">payload_media</text><text x="1110" y="438" text-anchor="middle" class="tiny">persistent media volume</text>
+  <rect x="1015" y="475" width="190" height="66" rx="12" class="store"/><text x="1110" y="503" text-anchor="middle" class="label" font-size="16">Uptime Kuma</text><text x="1110" y="523" text-anchor="middle" class="tiny">health + availability</text>
+  <rect x="1270" y="405" width="210" height="66" rx="12" class="node"/><text x="1375" y="433" text-anchor="middle" class="label" font-size="16">Encrypted backup</text><text x="1375" y="453" text-anchor="middle" class="tiny">off-host S3 when configured</text>
+  <path d="M245 438h55M455 438h55M730 422h55M730 455h55M730 455l55 52M960 422h55M960 507h55M1205 422h65" class="flow" stroke="#45e0a5" marker-end="url(#greenArrow)"/>
+
+  <rect x="55" y="635" width="1490" height="290" rx="18" fill="url(#stage)" stroke="#f0ad4e" stroke-width="2"/>
+  <text x="80" y="670" class="label">Staging · dev.linuxunity.com</text><text x="80" y="693" class="small">isolated Compose project · noindex preview · approval before promotion</text>
+  <rect x="90" y="735" width="155" height="66" rx="12" class="stageNode"/><text x="167" y="763" text-anchor="middle" class="label" font-size="16">DNS / TLS</text><text x="167" y="783" text-anchor="middle" class="tiny">dev.linuxunity.com</text>
+  <rect x="300" y="735" width="155" height="66" rx="12" class="stageNode"/><text x="377" y="763" text-anchor="middle" class="label" font-size="16">Nginx</text><text x="377" y="783" text-anchor="middle" class="tiny">staging proxy</text>
+  <rect x="510" y="735" width="220" height="66" rx="12" class="stageNode"/><text x="620" y="763" text-anchor="middle" class="label" font-size="16">Next.js + Payload</text><text x="620" y="783" text-anchor="middle" class="tiny">drafts · preview · admin</text>
+  <rect x="785" y="720" width="175" height="66" rx="12" class="store"/><text x="872" y="748" text-anchor="middle" class="label" font-size="16">PostgreSQL</text><text x="872" y="768" text-anchor="middle" class="tiny">staging-only CMS</text>
+  <rect x="785" y="805" width="175" height="66" rx="12" class="store"/><text x="872" y="833" text-anchor="middle" class="label" font-size="16">Redis</text><text x="872" y="853" text-anchor="middle" class="tiny">staging key prefix</text>
+  <rect x="1015" y="720" width="190" height="66" rx="12" class="store"/><text x="1110" y="748" text-anchor="middle" class="label" font-size="16">payload_media</text><text x="1110" y="768" text-anchor="middle" class="tiny">staging media volume</text>
+  <rect x="1015" y="805" width="190" height="66" rx="12" class="store"/><text x="1110" y="833" text-anchor="middle" class="label" font-size="16">Backup tree</text><text x="1110" y="853" text-anchor="middle" class="tiny">before app restart</text>
+  <rect x="1270" y="735" width="210" height="66" rx="12" class="node"/><text x="1375" y="763" text-anchor="middle" class="label" font-size="16">Review gate</text><text x="1375" y="783" text-anchor="middle" class="tiny">QA → develop → main</text>
+  <path d="M245 768h55M455 768h55M730 752h55M730 785h55M730 785l55 65M960 752h55M960 838h55M1205 752h65" class="flow" stroke="#f8bd62" marker-end="url(#amberArrow)"/>
+
+  <path d="M945 235v52M945 287c0 20-40 26-40 45" class="flow dashed" stroke="#f8bd62" marker-end="url(#amberArrow)"/>
+  <path d="M945 287c0 20 250 26 250 45" class="flow dashed" stroke="#45e0a5" marker-end="url(#greenArrow)"/>
+  <text x="965" y="282" class="tiny">same immutable SHA, separate environment</text>
+  <text x="60" y="958" class="tiny">Data flow: visitor/editor → Nginx → Next.js/Payload → PostgreSQL, Redis, or media volume; CI delivers images, backups protect persistent state, staging is reviewed before production.</text>
+</svg>

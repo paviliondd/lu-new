@@ -73,7 +73,7 @@ function mapPayloadProject(doc: PayloadDoc): Project {
     demoUrl: text(doc.demoUrl) || undefined,
     articleUrl: text(doc.articleUrl) || undefined,
     thumbnail: media(doc.thumbnail),
-    architectureImage: media(doc.architectureImage),
+    architectureImage: media(doc.architectureImage) || (text(doc.slug) === "linuxunity-platform" ? "/projects/linuxunity-platform/architecture.svg" : undefined),
     architectureAlt: text(doc.architectureAlt) || undefined,
     architectureCaption: text(doc.architectureCaption) || undefined,
     architectureComponents: arrayDocs(doc.architectureComponents).map((item) => ({ name: text(item.name), description: text(item.description) })),

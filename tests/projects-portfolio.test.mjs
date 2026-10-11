@@ -5,10 +5,22 @@ import { projects, getProject } from "../src/content/projects/projects.ts";
 import { validateProject } from "../src/content/projects/schema.ts";
 
 test("project content is valid, unique, and sorted newest first", () => {
-  assert.equal(projects.length, 4);
+  assert.equal(projects.length, 5);
   assert.equal(new Set(projects.map(({ slug }) => slug)).size, projects.length);
   const dates = projects.map(({ startDate }) => Date.parse(startDate));
   assert.deepEqual(dates, [...dates].sort((a, b) => b - a));
+});
+
+test("LinuxUnity project documents production topology and the isolated staging data flow", () => {
+  const project = getProject("linuxunity-platform");
+  assert.ok(project);
+  assert.equal(project.title, "LinuxUnity.com Publishing Platform");
+  assert.equal(project.placeholder, undefined);
+  assert.match(project.architectureAlt || "", /production.*staging/i);
+  assert.match(project.architectureCaption || "", /data flow/i);
+  assert.ok(project.architectureComponents?.some(({ name }) => /staging/i.test(name)));
+  assert.ok(project.implementation.some(({ description }) => /dev\.linuxunity\.com/i.test(description)));
+  assert.ok(project.implementation.some(({ description }) => /Payload.*Postgres.*Redis/i.test(description)));
 });
 
 test("sample project slugs resolve and missing slugs do not", () => {
@@ -16,6 +28,7 @@ test("sample project slugs resolve and missing slugs do not", () => {
   assert.equal(getProject("serverless-api")?.title, "Serverless API on AWS");
   assert.equal(getProject("serverless-registration-system")?.title, "AWS Serverless Event Registration System");
   assert.equal(getProject("aws-landing-zone")?.title, "AWS Multi-account Landing Zone");
+  assert.equal(getProject("linuxunity-platform")?.title, "LinuxUnity.com Publishing Platform");
   assert.equal(getProject("missing-project"), undefined);
 });
 
@@ -114,6 +127,7 @@ test("Payload manages projects in a collection isolated from blog posts", async 
   assert.doesNotMatch(collection, /relationTo:\s*"posts"/);
   assert.match(cms, /if \(!payload\) return fallbackProjects/);
   assert.match(cms, /return result\.docs\.flatMap/);
+  assert.match(cms, /linuxunity-platform.*architecture\.svg/);
   assert.doesNotMatch(cms, /mergeProjects/);
   assert.match(migration, /CREATE TABLE "projects"/);
   assert.match(seedMigration, /if \(existing\.totalDocs > 0\) return/);

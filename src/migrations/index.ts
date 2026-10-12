@@ -11,6 +11,7 @@ import * as migration_20260803_000002_seed_projects_when_empty from './20260803_
 import * as migration_20260815_000001_add_series_landing_fields from './20260815_000001_add_series_landing_fields';
 import * as migration_20260819_000001_add_newsletter_subscribers from './20260819_000001_add_newsletter_subscribers';
 import * as migration_20260819_000002_repair_newsletter_subscriber_relations from './20260819_000002_repair_newsletter_subscriber_relations';
+import * as migration_20261012_000001_replace_projects_with_source_projects from './20261012_000001_replace_projects_with_source_projects';
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260819_000002_repair_newsletter_subscriber_relations.up,
     down: migration_20260819_000002_repair_newsletter_subscriber_relations.down,
     name: '20260819_000002_repair_newsletter_subscriber_relations'
+  },
+  {
+    up: migration_20261012_000001_replace_projects_with_source_projects.up,
+    down: migration_20261012_000001_replace_projects_with_source_projects.down,
+    name: '20261012_000001_replace_projects_with_source_projects'
   },
 ];
